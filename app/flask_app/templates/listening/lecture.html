@@ -1,0 +1,351 @@
+{% extends "base.html" %}
+
+{% block title %}Lecture Simulator - TOEFL Listening{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/listening.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="listening-wrapper listening-wrapper--wide">
+    <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between listening-header mb-4">
+        <div>
+            <h1 class="h2 fw-bold text-dark listening-section-title mb-2">
+                Full Lecture Simulator
+            </h1>
+            <p class="text-muted listening-lead">
+                5-minute academic lecture with TOEFL-style questions
+            </p>
+        </div>
+        <a href="{{ url_for('listening_dashboard') }}" class="btn btn-outline-secondary listening-btn listening-btn-sm">
+            <span class="me-1">←</span> Back
+        </a>
+    </div>
+
+    {% if lecture %}
+    <div class="listening-card listening-card--flush mb-4">
+        <div class="listening-hero listening-gradient--purple">
+            <h2 class="h3 fw-bold text-dark mb-3">{{ lecture.title }}</h2>
+            <div class="listening-meta">
+                <span><i class="fas fa-book-open"></i> Topic: {{ lecture.topic }}</span>
+                <span><i class="fas fa-clock"></i> Duration: ~{{ (lecture.audio_duration_seconds / 60) | round(1) }} min</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="listening-card mb-4">
+        <h3 class="h5 fw-semibold text-dark mb-3">Listen to the Lecture</h3>
+        <p class="text-muted small mb-3">
+            Listen carefully and take notes. When you are ready, move on to the questions. You can replay segments during review.
+        </p>
+        <audio id="audio-player" controls class="w-100 mb-3">
+            <source src="{{ url_for('static', filename=lecture.audio_url) }}" type="audio/mpeg">
+            Your browser does not support the audio element.
+        </audio>
+        <div class="text-center">
+            <button id="start-questions-btn" class="btn btn-primary listening-btn">
+                I'm Ready for Questions →
+            </button>
+            <button id="regenerate-lecture-btn" class="btn btn-warning listening-btn ms-2">
+                <i class="fas fa-redo me-2"></i>Regenerate Lecture
+            </button>
+        </div>
+    </div>
+
+    <div id="questions-section" class="listening-card mb-4 d-none">
+        <h3 class="h5 fw-semibold text-dark mb-3">Answer the Questions</h3>
+
+        {% for question in lecture.questions %}
+        <div class="border-bottom pb-3 mb-4">
+            <h4 class="h6 fw-semibold text-dark mb-3">
+                {{ loop.index }}. {{ question.question_text }}
+            </h4>
+            {% for option in question.options %}
+            <label class="listening-option">
+                <input
+                    type="radio"
+                    name="question_{{ question.id }}"
+                    value="{{ option }}"
+                    class="form-check-input"
+                >
+                <span>{{ option }}</span>
+            </label>
+            {% endfor %}
+        </div>
+        {% endfor %}
+
+        <div class="text-center">
+            <button id="submit-answers-btn" class="btn btn-primary listening-btn">
+                Submit All Answers
+            </button>
+        </div>
+    </div>
+
+    <div id="review-section" class="d-none">
+        <div class="listening-card text-center mb-4">
+            <div id="score-display" class="display-4 fw-bold text-lecture mb-2">--</div>
+            <div class="fw-semibold">Overall Score</div>
+            <p class="text-muted mb-0">
+                <span id="correct-count">--</span> out of <span id="total-questions">--</span> correct
+            </p>
+        </div>
+
+        <div id="questions-review" class="listening-review-list mb-4">
+            <!-- Populated via JavaScript -->
+        </div>
+
+        <div class="listening-card mb-4">
+            <h3 class="h5 fw-semibold text-dark mb-3">📝 AI Expert Notes</h3>
+            <div class="listening-prose">
+                <pre>{{ lecture.expert_notes }}</pre>
+            </div>
+        </div>
+
+        <div class="listening-card mb-4">
+            <h3 class="h5 fw-semibold text-dark mb-3">📄 Full Transcript</h3>
+            <div class="listening-transcript listening-scrollbox">
+                <p class="mb-0 text-muted">{{ lecture.transcript }}</p>
+            </div>
+        </div>
+
+        <div class="listening-actions">
+            <button id="practice-again-btn" class="btn btn-outline-secondary listening-btn">
+                Practice Again
+            </button>
+            <button id="regenerate-btn" class="btn btn-warning listening-btn">
+                <i class="fas fa-redo me-2"></i>Regenerate New Lecture
+            </button>
+            <a href="{{ url_for('listening_dashboard') }}" class="btn btn-primary listening-btn">
+                Back to Dashboard
+            </a>
+        </div>
+    </div>
+    {% else %}
+    <div class="listening-card text-center">
+        <div class="listening-empty-icon">🎓</div>
+        <h3 class="h4 fw-semibold text-dark mb-3">No Lecture Available</h3>
+        <p class="text-muted mb-4">
+            Generate a new 5-minute academic lecture to start practicing.
+        </p>
+        <div class="row justify-content-center mb-3">
+            <div class="col-md-6">
+                <label class="form-label fw-semibold" for="topic-select">Select Topic</label>
+                <select id="topic-select" class="form-select">
+                    <option value="Biology">Biology</option>
+                    <option value="Astronomy">Astronomy</option>
+                    <option value="Art History">Art History</option>
+                    <option value="Psychology">Psychology</option>
+                    <option value="Geology">Geology</option>
+                    <option value="Environmental Science">Environmental Science</option>
+                    <option value="Economics">Economics</option>
+                </select>
+            </div>
+        </div>
+        <button id="generate-lecture-btn" class="btn btn-primary listening-btn">
+            Generate Lecture (This may take 30-60 seconds)
+        </button>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+const lectureData = {{ lecture.to_dict() | tojson | safe if lecture else '{}' }};
+
+document.getElementById('start-questions-btn')?.addEventListener('click', () => {
+    const questions = document.getElementById('questions-section');
+    questions.classList.remove('d-none');
+    questions.scrollIntoView({ behavior: 'smooth', block: 'start' });
+});
+
+document.getElementById('submit-answers-btn')?.addEventListener('click', async () => {
+    const answers = {};
+    lectureData.questions.forEach(q => {
+        const selected = document.querySelector(`input[name="question_${q.id}"]:checked`);
+        if (selected) {
+            answers[q.id] = selected.value;
+        }
+    });
+
+    if (Object.keys(answers).length < lectureData.questions.length) {
+        if (!confirm("You haven't answered all questions. Submit anyway?")) {
+            return;
+        }
+    }
+
+    try {
+        const response = await fetch(`/listening/api/lecture/${lectureData.id}/submit`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ answers })
+        });
+
+        const result = await response.json();
+        showReview(result);
+    } catch (error) {
+        console.error('Error submitting:', error);
+        alert('Failed to submit. Please try again.');
+    }
+});
+
+function showReview(result) {
+    document.getElementById('questions-section').classList.add('d-none');
+    document.getElementById('review-section').classList.remove('d-none');
+
+    document.getElementById('score-display').textContent = `${result.score.toFixed(0)}%`;
+    document.getElementById('correct-count').textContent = result.correct_count;
+    document.getElementById('total-questions').textContent = result.total_questions;
+
+    const reviewHtml = result.results.map((r, index) => {
+        const isCorrect = r.is_correct;
+        const cardClass = isCorrect
+            ? 'listening-review-card listening-review-card--success'
+            : 'listening-review-card listening-review-card--error';
+        const icon = isCorrect ? '✓' : '✗';
+        const badgeClass = isCorrect ? 'bg-success-subtle text-success' : 'bg-danger-subtle text-danger';
+
+        return `
+            <div class="${cardClass}">
+                <div class="d-flex flex-column flex-md-row align-items-start gap-3">
+                    <div class="badge ${badgeClass} fw-semibold px-3 py-2">Q${index + 1}</div>
+                    <div class="flex-grow-1">
+                        <h4 class="h6 fw-semibold mb-2">Question ${index + 1}</h4>
+                        ${!isCorrect ? `
+                            <p class="mb-1 small">
+                                <span class="text-muted">Your answer:</span>
+                                <strong class="text-danger">${r.user_answer || '(not answered)'}</strong>
+                            </p>
+                            <p class="mb-2 small">
+                                <span class="text-muted">Correct answer:</span>
+                                <strong class="text-success">${r.correct_answer}</strong>
+                            </p>
+                        ` : ''}
+                        <p class="mb-0 small text-muted">${r.explanation}</p>
+                    </div>
+                    <div class="display-6 fw-bold ${badgeClass} rounded-circle d-flex align-items-center justify-content-center review-icon">${icon}</div>
+                </div>
+                ${r.answer_start_time && r.answer_end_time ? `
+                    <button
+                        type="button"
+                        onclick="replaySegment(${r.answer_start_time}, ${r.answer_end_time})"
+                        class="btn btn-outline-secondary listening-btn listening-btn-sm w-100 mt-3"
+                    >
+                        <i class="fas fa-volume-up me-2"></i>Replay Answer Segment (${r.answer_start_time}s - ${r.answer_end_time}s)
+                    </button>
+                ` : ''}
+            </div>
+        `;
+    }).join('');
+
+    document.getElementById('questions-review').innerHTML = reviewHtml;
+    document.getElementById('review-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function replaySegment(startTime, endTime) {
+    const audio = document.getElementById('audio-player');
+    audio.currentTime = startTime;
+    audio.play();
+
+    const stopListener = () => {
+        if (audio.currentTime >= endTime) {
+            audio.pause();
+            audio.removeEventListener('timeupdate', stopListener);
+        }
+    };
+    audio.addEventListener('timeupdate', stopListener);
+}
+
+document.getElementById('practice-again-btn')?.addEventListener('click', () => {
+    window.location.reload();
+});
+
+document.getElementById('regenerate-lecture-btn')?.addEventListener('click', async () => {
+    const btn = document.getElementById('regenerate-lecture-btn');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Regenerating...';
+
+    try {
+        const response = await fetch('/listening/api/lecture/generate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                topic: lectureData.topic || 'Biology'
+            })
+        });
+
+        const result = await response.json();
+        if (result.success) {
+            window.location.reload();
+        } else {
+            alert(`Failed to regenerate: ${result.message}`);
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-redo me-2"></i>Regenerate Lecture';
+        }
+    } catch (error) {
+        console.error('Error regenerating:', error);
+        alert('Failed to regenerate. Please try again.');
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-redo me-2"></i>Regenerate Lecture';
+    }
+});
+
+document.getElementById('regenerate-btn')?.addEventListener('click', async () => {
+    const btn = document.getElementById('regenerate-btn');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Regenerating...';
+
+    try {
+        const response = await fetch('/listening/api/lecture/generate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                topic: lectureData.topic || 'Biology'
+            })
+        });
+
+        const result = await response.json();
+        if (result.success) {
+            window.location.reload();
+        } else {
+            alert(`Failed to regenerate: ${result.message}`);
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-redo me-2"></i>Regenerate New Lecture';
+        }
+    } catch (error) {
+        console.error('Error regenerating:', error);
+        alert('Failed to regenerate. Please try again.');
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-redo me-2"></i>Regenerate New Lecture';
+    }
+});
+
+document.getElementById('generate-lecture-btn')?.addEventListener('click', async () => {
+    const topic = document.getElementById('topic-select').value;
+    const btn = document.getElementById('generate-lecture-btn');
+
+    btn.disabled = true;
+    btn.textContent = 'Generating Lecture... This may take 30-60 seconds...';
+
+    try {
+        const response = await fetch('/listening/api/lecture/generate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ topic })
+        });
+
+        const result = await response.json();
+        if (result.success) {
+            window.location.reload();
+        } else {
+            alert(`Failed to generate: ${result.message}`);
+            btn.disabled = false;
+            btn.textContent = 'Generate Lecture (This may take 30-60 seconds)';
+        }
+    } catch (error) {
+        console.error('Error generating:', error);
+        alert('Failed to generate. Please try again.');
+        btn.disabled = false;
+        btn.textContent = 'Generate Lecture (This may take 30-60 seconds)';
+    }
+});
+</script>
+{% endblock %}

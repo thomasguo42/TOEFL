@@ -1,0 +1,340 @@
+
+{% extends "base.html" %}
+
+{% block title %}Speaking Feedback - TOEFL{% endblock %}
+
+{% block extra_css %}
+<style>
+    .feedback-container {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 2rem 1rem 4rem;
+    }
+
+    .score-card {
+        background: linear-gradient(135deg, #0ea5e9 0%, #06b6d4 100%);
+        color: white;
+        padding: 3rem;
+        border-radius: 1.5rem;
+        text-align: center;
+        margin-bottom: 2.5rem;
+    }
+
+    .overall-score {
+        font-size: 5rem;
+        font-weight: 700;
+    }
+
+    .category-scores {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .category-card {
+        background: white;
+        border: 1px solid #e2e8f0;
+        border-radius: 1rem;
+        padding: 1.5rem;
+        text-align: center;
+        box-shadow: 0 10px 25px rgba(15, 118, 110, 0.08);
+    }
+
+    .category-score {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: var(--teal-400);
+    }
+
+    .content-card {
+        background: white;
+        border: 1px solid #e2e8f0;
+        border-radius: 1rem;
+        padding: 1.75rem;
+        height: 100%;
+        box-shadow: 0 12px 24px rgba(15, 118, 110, 0.06);
+    }
+
+    .metric-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .metric-table th,
+    .metric-table td {
+        padding: 0.5rem 0.75rem;
+        border-bottom: 1px solid #e2e8f0;
+        font-size: 0.95rem;
+    }
+
+    .metric-table th {
+        text-align: left;
+        font-weight: 600;
+        color: #334155;
+        width: 50%;
+    }
+
+    .feedback-section {
+        background: white;
+        border: 1px solid #e2e8f0;
+        border-radius: 1rem;
+        padding: 2rem;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 12px 24px rgba(148, 163, 184, 0.18);
+    }
+
+    .feedback-item {
+        padding: 0.75rem 1rem;
+        background: #f8fafc;
+        border-left: 4px solid var(--teal-400);
+        border-radius: 0.5rem;
+        margin-bottom: 0.75rem;
+    }
+
+    .strength {
+        border-left-color: #10b981;
+        background: #f0fdf4;
+    }
+
+    .improvement {
+        border-left-color: #f59e0b;
+        background: #fffbeb;
+    }
+
+    .word-chip {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.35rem 0.7rem;
+        border-radius: 999px;
+        background: #ecfeff;
+        color: #0f766e;
+        font-size: 0.85rem;
+        margin: 0.2rem 0.35rem 0.2rem 0;
+    }
+
+    .grammar-issue {
+        border-left-color: #ef4444;
+        background: #fef2f2;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="feedback-container">
+    <div class="mb-3 d-flex gap-2">
+        <a href="{{ url_for('speaking_dashboard') }}" class="btn btn-outline-secondary btn-sm">
+            <i class="fas fa-arrow-left me-2"></i>Back to Speaking Dashboard
+        </a>
+        <a href="{{ url_for('speaking_task_start', task_number=task.task_number) }}" class="btn btn-outline-primary btn-sm">
+            <i class="fas fa-redo me-2"></i>Try Again
+        </a>
+    </div>
+
+    <div class="score-card">
+        <div class="overall-score">{{ feedback.overall_score|round|int }}<small style="font-size: 2rem;">/100</small></div>
+        <h2 class="mb-2">Overall Score</h2>
+        <p class="mb-0">
+            {% if feedback.overall_score >= 80 %}
+                Excellent performance!
+            {% elif feedback.overall_score >= 70 %}
+                Strong work - polish a few details to reach the next tier.
+            {% elif feedback.overall_score >= 60 %}
+                Solid foundation - focus on the improvement notes below.
+            {% else %}
+                Keep practicing. Use the targeted feedback to guide your next attempt.
+            {% endif %}
+        </p>
+    </div>
+
+    <div class="category-scores">
+        <div class="category-card">
+            <div class="category-score">{{ feedback.delivery_score|round|int }}</div>
+            <h5>Delivery</h5>
+            <p class="text-muted small mb-0">Fluency, pronunciation, and rhythm</p>
+        </div>
+        <div class="category-card">
+            <div class="category-score">{{ feedback.language_use_score|round|int if feedback.language_use_score else '-' }}</div>
+            <h5>Language Use</h5>
+            <p class="text-muted small mb-0">Vocabulary breadth and grammar control</p>
+        </div>
+        <div class="category-card">
+            <div class="category-score">{{ feedback.topic_development_score|round|int if feedback.topic_development_score else '-' }}</div>
+            <h5>Topic Development</h5>
+            <p class="text-muted small mb-0">Task fulfillment and supporting detail</p>
+        </div>
+    </div>
+
+    <div class="row g-4 mb-4">
+        <div class="col-lg-6">
+            <div class="content-card">
+                <h4 class="d-flex align-items-center gap-2 mb-3"><i class="fas fa-user me-1"></i>Your Recording</h4>
+                <audio class="w-100 mb-3" controls preload="none">
+                    <source src="{{ response.audio_url }}" type="audio/webm">
+                    Your browser does not support audio playback.
+                </audio>
+                {% set total_words = feedback.speech_metrics.get('total_words') if feedback.speech_metrics else None %}
+                <p class="text-muted small mb-0">Attempt {{ response.attempt_number }} • {{ total_words if total_words is not none else '-' }} words</p>
+
+                {% if response.transcription %}
+                <details class="mt-3">
+                    <summary style="cursor: pointer; font-weight: 600;">
+                        <i class="fas fa-file-text me-2"></i>View Your Transcript
+                    </summary>
+                    <div class="mt-3 p-3 bg-light rounded" style="white-space: pre-wrap;">
+                        {{ response.transcription }}
+                    </div>
+                </details>
+                {% endif %}
+            </div>
+        </div>
+        {% if task.sample_audio_url or task.sample_response %}
+        <div class="col-lg-6">
+            <div class="content-card">
+                <h4 class="d-flex align-items-center gap-2 mb-3"><i class="fas fa-headphones me-1"></i>Model Answer</h4>
+                {% if task.sample_audio_url %}
+                <label class="form-label fw-semibold" for="modelAudio">Listen to a high-scoring sample</label>
+                <audio id="modelAudio" class="w-100 mb-3" controls preload="none">
+                    <source src="{{ task.sample_audio_url }}" type="audio/mpeg">
+                    Your browser does not support audio playback.
+                </audio>
+                {% endif %}
+                {% if task.sample_response %}
+                <details>
+                    <summary style="cursor: pointer; font-weight: 600;">
+                        <i class="fas fa-file-alt me-2"></i>View sample transcript
+                    </summary>
+                    <div class="mt-3 p-3 bg-light rounded">
+                        {{ task.sample_response }}
+                    </div>
+                </details>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="feedback-section">
+        <h4 class="mb-3"><i class="fas fa-microphone me-2"></i>Delivery Analysis</h4>
+        <div class="row g-4">
+            <div class="col-md-6">
+                <table class="metric-table">
+                    {% set metrics = feedback.speech_metrics or {} %}
+                    <tr><th>Speech rate (wpm)</th><td>{{ metrics.get('speech_rate')|round(1) if metrics.get('speech_rate') else '-' }}</td></tr>
+                    <tr><th>Articulation rate (syl/s)</th><td>{{ metrics.get('articulation_rate')|round(2) if metrics.get('articulation_rate') else '-' }}</td></tr>
+                    <tr><th>Speaking time ratio</th><td>{{ (metrics.get('speaking_time_ratio') * 100)|round(1) ~ '%' if metrics.get('speaking_time_ratio') else '-' }}</td></tr>
+                    <tr><th>Filler word count</th><td>{{ metrics.get('filler_word_count') if metrics.get('filler_word_count') is not none else '-' }}</td></tr>
+                    <tr><th>Pitch variation (coef)</th><td>{{ metrics.get('pitch_variation_coef')|round(3) if metrics.get('pitch_variation_coef') else '-' }}</td></tr>
+                </table>
+            </div>
+            <div class="col-md-6">
+                <div class="row text-center">
+                    <div class="col-4">
+                        <div class="fw-semibold text-muted">Fluency</div>
+                        <div class="display-6 fw-bold" style="color:#0f766e;">{{ feedback.fluency_score|round|int }}</div>
+                    </div>
+                    <div class="col-4">
+                        <div class="fw-semibold text-muted">Pronunciation</div>
+                        <div class="display-6 fw-bold" style="color:#0f766e;">{{ feedback.pronunciation_score|round|int }}</div>
+                    </div>
+                    <div class="col-4">
+                        <div class="fw-semibold text-muted">Rhythm</div>
+                        <div class="display-6 fw-bold" style="color:#0f766e;">{{ feedback.rhythm_score|round|int }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% if feedback.specific_feedback %}
+        <h5 class="mt-4">Detailed Notes</h5>
+        {% for message in feedback.specific_feedback %}
+        <div class="feedback-item">{{ message }}</div>
+        {% endfor %}
+        {% endif %}
+    </div>
+
+    <div class="feedback-section">
+        <h4 class="mb-3"><i class="fas fa-language me-2"></i>Language Use</h4>
+        <div class="row g-4 mb-3">
+            <div class="col-md-6">
+                <table class="metric-table">
+                    <tr><th>Lexical diversity</th><td>{{ feedback.lexical_diversity|round(3) if feedback.lexical_diversity else '-' }}</td></tr>
+                    <tr><th>Academic words</th><td>{{ feedback.academic_word_count if feedback.academic_word_count is not none else '-' }}</td></tr>
+                    <tr><th>Avg. sentence length</th><td>{{ feedback.speech_metrics.get('average_sentence_length')|round(1) if feedback.speech_metrics else '-' }}</td></tr>
+                </table>
+            </div>
+            <div class="col-md-6">
+                <div>
+                    <div class="fw-semibold mb-2">Academic vocabulary used</div>
+                    {% set academic_words = feedback.speech_metrics.get('academic_words_used') if feedback.speech_metrics else [] %}
+                    {% if academic_words %}
+                        {% for word in academic_words %}
+                        <span class="word-chip">{{ word }}</span>
+                        {% endfor %}
+                    {% else %}
+                        <p class="text-muted mb-0">No AWL vocabulary detected this time - aim to incorporate 3-4 academic terms.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% if feedback.grammar_errors %}
+        <h5 class="mt-3">Grammar touch-ups</h5>
+        {% for issue in feedback.grammar_errors %}
+        <div class="feedback-item grammar-issue">
+            <strong>{{ issue.get('snippet') or 'Issue' }}:</strong> {{ issue.get('issue') }}<br>
+            <span class="text-muted">Try: {{ issue.get('suggestion') }}</span>
+        </div>
+        {% endfor %}
+        {% endif %}
+        {% if feedback.vocabulary_suggestions %}
+        <h5 class="mt-3">Upgrade your vocabulary</h5>
+        {% for suggestion in feedback.vocabulary_suggestions %}
+        <div class="feedback-item">{{ suggestion }}</div>
+        {% endfor %}
+        {% endif %}
+    </div>
+
+    <div class="feedback-section">
+        <h4 class="mb-3"><i class="fas fa-comment-dots me-2"></i>Topic Development</h4>
+        {% if feedback.task_fulfillment %}
+        <p><strong>Task Fulfillment:</strong> {{ feedback.task_fulfillment }}</p>
+        {% endif %}
+        {% if feedback.clarity_coherence %}
+        <p><strong>Clarity &amp; Coherence:</strong> {{ feedback.clarity_coherence }}</p>
+        {% endif %}
+        {% if feedback.support_sufficiency %}
+        <p><strong>Support &amp; Details:</strong> {{ feedback.support_sufficiency }}</p>
+        {% endif %}
+    </div>
+
+    {% if feedback.strengths %}
+    <div class="feedback-section">
+        <h4><i class="fas fa-star me-2" style="color: #10b981;"></i>Strengths to Keep</h4>
+        {% for strength in feedback.strengths %}
+        <div class="feedback-item strength">
+            <i class="fas fa-check-circle me-2"></i>{{ strength }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    {% if feedback.areas_for_improvement %}
+    <div class="feedback-section">
+        <h4><i class="fas fa-arrow-up me-2" style="color: #f59e0b;"></i>Next Focus Areas</h4>
+        {% for area in feedback.areas_for_improvement %}
+        <div class="feedback-item improvement">
+            <i class="fas fa-exclamation-triangle me-2"></i>{{ area }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="text-center mt-4 d-flex flex-wrap gap-3 justify-content-center">
+        <a href="{{ url_for('speaking_task_start', task_number=task.task_number) }}" class="btn btn-primary btn-lg">
+            <i class="fas fa-redo me-2"></i>Practice Again
+        </a>
+        <a href="{{ url_for('speaking_dashboard') }}" class="btn btn-outline-secondary btn-lg">
+            <i class="fas fa-th me-2"></i>Choose Another Task
+        </a>
+    </div>
+</div>
+{% endblock %}

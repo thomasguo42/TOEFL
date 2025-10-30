@@ -1,0 +1,153 @@
+{% extends "base.html" %}
+
+{% block title %}Unfamiliar Words - TOEFL Vocabulary Studio{% endblock %}
+
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/unfamiliar_words.css') }}">
+<style>
+    .nav-link.active {
+        background: rgba(102, 126, 234, 0.1);
+        color: #667eea;
+        border-left: 3px solid #667eea;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="unfamiliar-words-container">
+    <div class="unfamiliar-words-header">
+        <div>
+            <h2>📝 Unfamiliar Words</h2>
+            <p style="color: #718096; margin-top: 0.5rem;">Words you've marked for extra practice</p>
+        </div>
+        <div class="unfamiliar-words-count">
+            <span id="word-count">{{ words|length }}</span> word(s)
+        </div>
+    </div>
+
+    {% if words %}
+    <div class="unfamiliar-words-list" id="words-list">
+        {% for uw in words %}
+        <div class="unfamiliar-word-card" data-word-id="{{ uw.id }}">
+            <div class="unfamiliar-word-header">
+                <h3 class="unfamiliar-word-text">{{ uw.word_text }}</h3>
+                <div class="unfamiliar-word-actions">
+                    <button class="unfamiliar-word-btn btn-remove" onclick="removeWord({{ uw.id }}, '{{ uw.word_text }}')">
+                        Remove
+                    </button>
+                </div>
+            </div>
+
+            {% if uw.context %}
+            <div class="unfamiliar-word-context">
+                "{{ uw.context }}"
+            </div>
+            {% endif %}
+
+            <div class="unfamiliar-word-meta">
+                {% if uw.source %}
+                <div class="unfamiliar-word-source">
+                    <span>📍</span>
+                    <span>{{ uw.source|replace('_', ' ')|title }}</span>
+                </div>
+                {% endif %}
+                <div class="unfamiliar-word-date">
+                    <span>📅</span>
+                    <span>{{ uw.created_at.strftime('%b %d, %Y') }}</span>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <div class="empty-state-icon">📚</div>
+        <h3 class="empty-state-title">No unfamiliar words yet</h3>
+        <p class="empty-state-text">
+            Click the "Mark Words" button while reading passages or doing exercises<br>
+            to add words you want to practice more.
+        </p>
+    </div>
+    {% endif %}
+
+    <div style="margin-top: 2rem; padding: 1.5rem; background: #f7fafc; border-radius: 0.75rem; border-left: 4px solid #667eea;">
+        <h4 style="margin: 0 0 0.5rem 0; color: #2d3748; font-size: 1.1rem;">💡 How it works</h4>
+        <ul style="margin: 0; padding-left: 1.5rem; color: #4a5568; line-height: 1.8;">
+            <li>Click the "Mark Words" button on any page with text content</li>
+            <li>Highlight any word you don't know or want to practice</li>
+            <li>The word will be added to this list and appear in your study sessions</li>
+            <li>Words that match your vocabulary database will be prioritized for review</li>
+            <li>These words are treated like "red button" words for intensive practice</li>
+        </ul>
+    </div>
+</div>
+
+<script>
+async function removeWord(wordId, wordText) {
+    if (!confirm(`Remove "${wordText}" from your unfamiliar words list?`)) {
+        return;
+    }
+
+    try {
+        const response = await fetch(`/api/unfamiliar-words/${wordId}`, {
+            method: 'DELETE',
+        });
+
+        if (response.ok) {
+            // Remove card from DOM
+            const card = document.querySelector(`[data-word-id="${wordId}"]`);
+            if (card) {
+                card.style.transition = 'all 0.3s ease';
+                card.style.opacity = '0';
+                card.style.transform = 'translateX(20px)';
+
+                setTimeout(() => {
+                    card.remove();
+
+                    // Update count
+                    const count = document.querySelectorAll('.unfamiliar-word-card').length;
+                    document.getElementById('word-count').textContent = count;
+
+                    // Show empty state if no words left
+                    if (count === 0) {
+                        location.reload();
+                    }
+                }, 300);
+            }
+
+            showToast(`Removed "${wordText}" from unfamiliar words`, 'success');
+        } else {
+            const data = await response.json();
+            showToast(data.error || 'Failed to remove word', 'error');
+        }
+    } catch (error) {
+        console.error('Error removing word:', error);
+        showToast('Network error. Please try again.', 'error');
+    }
+}
+
+function showToast(message, type = 'info') {
+    const existingToast = document.querySelector('.unfamiliar-toast');
+    if (existingToast) {
+        existingToast.remove();
+    }
+
+    const toast = document.createElement('div');
+    toast.className = `unfamiliar-toast toast-${type}`;
+    toast.textContent = message;
+
+    document.body.appendChild(toast);
+
+    setTimeout(() => {
+        toast.classList.add('show');
+    }, 10);
+
+    setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => {
+            toast.remove();
+        }, 300);
+    }, 3000);
+}
+</script>
+{% endblock %}

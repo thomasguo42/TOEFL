@@ -1,0 +1,535 @@
+{% extends "base.html" %}
+
+{% block title %}Sentence Practice - TOEFL Reading{% endblock %}
+
+{% block extra_css %}
+<style>
+    .practice-container {
+        max-width: 900px;
+        margin: 0 auto;
+    }
+
+    .navigation-bar {
+        background: #ffffff;
+        border: 1px solid var(--toefl-border);
+        border-radius: 1rem;
+        padding: 1rem 1.5rem;
+        margin-bottom: 2rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .progress-indicator {
+        font-size: 1rem;
+        color: var(--toefl-text);
+    }
+
+    .nav-buttons button {
+        margin: 0 0.25rem;
+    }
+
+    .sentence-card {
+        background: #ffffff;
+        border: 1px solid var(--toefl-border);
+        border-radius: 1rem;
+        padding: 2rem;
+        margin-bottom: 2rem;
+    }
+
+    .sentence-text {
+        font-size: 1.25rem;
+        line-height: 1.8;
+        color: var(--toefl-text);
+        margin-bottom: 2rem;
+        padding: 1.5rem;
+        background: #f5f8ff;
+        border-left: 4px solid var(--teal-400);
+        border-radius: 0.5rem;
+    }
+
+    .analysis-section {
+        margin-top: 2rem;
+    }
+
+    .analysis-item {
+        background: rgba(14, 165, 233, 0.12);
+        border: 1px solid rgba(14, 165, 233, 0.25);
+        border-radius: 0.5rem;
+        padding: 1rem;
+        margin-bottom: 0.75rem;
+    }
+
+    .analysis-text {
+        font-weight: 600;
+        color: var(--teal-400);
+    }
+
+    .analysis-type {
+        font-size: 0.85rem;
+        color: var(--toefl-text-light);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    .focus-points {
+        margin-top: 2rem;
+    }
+
+    .focus-point {
+        background: rgba(37, 99, 235, 0.08);
+        border: 1px solid rgba(37, 99, 235, 0.18);
+        border-radius: 0.5rem;
+        padding: 1rem;
+        margin-bottom: 0.75rem;
+    }
+
+    .paraphrase-card {
+        margin-top: 2rem;
+        padding: 1.5rem;
+        background: linear-gradient(135deg, #f8fbff 0%, #eef4ff 100%);
+        border: 1px solid var(--toefl-border);
+        border-radius: 0.75rem;
+    }
+
+    .paraphrase-card h4 {
+        font-size: 1.1rem;
+        color: var(--teal-400);
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+    }
+
+    .paraphrase-helper {
+        font-size: 0.9rem;
+        color: var(--toefl-text-light);
+        margin-top: 0.75rem;
+    }
+
+    .paraphrase-textarea {
+        margin-top: 1rem;
+        width: 100%;
+        min-height: 140px;
+        background: #ffffff;
+        border: 1px solid var(--toefl-border);
+        border-radius: 0.6rem;
+        color: var(--toefl-text);
+        padding: 1rem;
+        resize: vertical;
+        font-size: 1rem;
+        line-height: 1.6;
+    }
+
+    .paraphrase-textarea:focus {
+        outline: none;
+        border-color: var(--teal-400);
+        box-shadow: 0 0 0 2px rgba(14, 165, 233, 0.2);
+        background: #ffffff;
+    }
+
+    .paraphrase-textarea::placeholder {
+        color: #64748b;
+        opacity: 0.7;
+    }
+
+    .paraphrase-actions {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        flex-wrap: wrap;
+        margin-top: 1rem;
+    }
+
+    .paraphrase-status {
+        font-size: 0.85rem;
+        color: var(--toefl-text-light);
+    }
+
+    .paraphrase-feedback {
+        margin-top: 1.25rem;
+        padding: 1rem;
+        border-radius: 0.6rem;
+        background: rgba(14, 165, 233, 0.1);
+        border: 1px solid rgba(14, 165, 233, 0.25);
+    }
+
+    .feedback-score {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        flex-wrap: wrap;
+    }
+
+    .feedback-score .badge {
+        font-size: 0.85rem;
+        padding: 0.5rem 0.75rem;
+        border-radius: 9999px;
+    }
+
+    .feedback-score .score-badge {
+        background: rgba(14, 165, 233, 0.18);
+        border: 1px solid rgba(14, 165, 233, 0.3);
+        color: var(--teal-400);
+    }
+
+    .feedback-score .category-badge {
+        background: rgba(148, 163, 184, 0.12);
+        border: 1px solid rgba(148, 163, 184, 0.2);
+        color: var(--toefl-text);
+    }
+
+    .feedback-body {
+        margin-top: 0.75rem;
+        color: var(--toefl-text);
+        line-height: 1.6;
+    }
+
+    .feedback-missing {
+        margin-top: 0.75rem;
+        padding-left: 1.2rem;
+        color: var(--amber-400);
+    }
+
+    .model-answer {
+        margin-top: 1rem;
+        padding: 0.75rem 1rem;
+        background: #f5f8ff;
+        border-left: 3px solid var(--teal-400);
+        border-radius: 0.5rem;
+        color: var(--toefl-text);
+        font-size: 0.95rem;
+    }
+
+    .paraphrase-error {
+        color: var(--rose-400);
+        font-size: 0.85rem;
+        margin-top: 0.5rem;
+    }
+
+    .regenerate-btn {
+        position: fixed;
+        bottom: 2rem;
+        right: 2rem;
+        z-index: 100;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="practice-container">
+    <!-- Back Button -->
+    <div class="mb-3">
+        <a href="{{ url_for('reading_dashboard') }}" class="btn btn-outline-secondary btn-sm">
+            <i class="fas fa-arrow-left me-2"></i>Back to Reading Dashboard
+        </a>
+    </div>
+
+    <!-- Navigation Bar -->
+    <div class="navigation-bar">
+        <div class="progress-indicator">
+            <i class="fas fa-list-ol me-2"></i>
+            <strong>Exercise {{ current_index + 1 }}</strong> of {{ total_count }}
+        </div>
+        <div class="nav-buttons">
+            <button class="btn btn-outline-secondary btn-sm" id="prevBtn" {% if current_index == 0 %}disabled{% endif %}>
+                <i class="fas fa-chevron-left me-1"></i>Previous
+            </button>
+            <button class="btn btn-outline-secondary btn-sm" id="nextBtn" {% if current_index >= total_count - 1 %}disabled{% endif %}>
+                Next<i class="fas fa-chevron-right ms-1"></i>
+            </button>
+        </div>
+    </div>
+
+    <h2 class="mb-4">
+        <i class="fas fa-text-width me-2"></i>Sentence Analysis
+    </h2>
+
+    {% if item %}
+    <!-- Sentence Card -->
+    <div class="sentence-card">
+        <div class="sentence-text">
+            {{ item.text }}
+        </div>
+
+        <!-- Analysis Section -->
+        <div class="analysis-section">
+            <h4 class="mb-3">
+                <i class="fas fa-microscope me-2" style="color: var(--teal-400);"></i>
+                Structural Analysis
+            </h4>
+            {% for segment in item.analysis %}
+            <div class="analysis-item">
+                <div class="analysis-text">{{ segment.text }}</div>
+                <div class="analysis-type mt-1">{{ segment.type|replace('_', ' ') }}</div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Focus Points -->
+        {% if item.focus_points %}
+        <div class="focus-points">
+            <h4 class="mb-3">
+                <i class="fas fa-bullseye me-2" style="color: var(--amber-400);"></i>
+                Key Points (关键点)
+            </h4>
+            {% for point in item.focus_points %}
+            <div class="focus-point">
+                <div><strong>{{ point.phrase }}</strong></div>
+                <div class="text-muted mt-1">{{ point.hint }}</div>
+            </div>
+        {% endfor %}
+        </div>
+        {% endif %}
+
+        <!-- Paraphrase Exercise -->
+        <div class="paraphrase-card" id="paraphraseCard" data-sentence-id="{{ item.id }}">
+            <h4>
+                <i class="fas fa-pen-nib"></i>
+                {{ (locale_cn or {}).get('sentencePractice', {}).get('paraphraseHeading', 'Paraphrase Drill (改写练习)') }}
+            </h4>
+            <p class="paraphrase-helper">
+                {{ (locale_cn or {}).get('sentencePractice', {}).get('paraphraseInstruction', '请用自己的话改写该句子，保持核心信息不变。Gemini 会帮你检查覆盖度。') }}
+            </p>
+            <textarea
+                id="paraphraseInput"
+                class="paraphrase-textarea"
+                placeholder="{{ (locale_cn or {}).get('sentencePractice', {}).get('inputPlaceholder', '输入你的改写，Ctrl/Cmd + Enter 快速提交') }}"
+                aria-label="{{ (locale_cn or {}).get('sentencePractice', {}).get('ariaInput', '在此输入你的改写内容') }}"
+            ></textarea>
+            <div class="paraphrase-actions">
+                <button class="btn btn-outline-light btn-sm" id="checkParaphraseBtn">
+                    <i class="fas fa-magic me-2"></i>{{ (locale_cn or {}).get('sentencePractice', {}).get('submitLabel', '提交给 Gemini 检查') }}
+                </button>
+                <div class="paraphrase-status" id="paraphraseStatus"></div>
+            </div>
+            <div class="paraphrase-error d-none" id="paraphraseError"></div>
+            <div class="paraphrase-feedback d-none" id="paraphraseFeedback">
+                <div class="feedback-score">
+                    <span class="badge score-badge" id="paraphraseScoreBadge"></span>
+                    <span class="badge category-badge" id="paraphraseCategoryBadge"></span>
+                </div>
+                <div class="feedback-body" id="paraphraseFeedbackBody"></div>
+                <div class="feedback-body text-info" id="paraphraseDetailFeedback"></div>
+                <ul class="feedback-missing d-none" id="paraphraseMissingList"></ul>
+                <div class="model-answer d-none" id="paraphraseModelAnswer">
+                    <strong id="paraphraseModelLabel"></strong>
+                    <div id="paraphraseModelText" class="mt-1"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Paraphrase Reference -->
+        {% if item.paraphrase_reference %}
+        <div class="mt-4 pt-4 border-top border-secondary">
+            <h5 class="mb-2">
+                <i class="fas fa-language me-2" style="color: var(--emerald-400);"></i>
+                Model Paraphrase
+            </h5>
+            <p class="text-muted">{{ item.paraphrase_reference }}</p>
+        </div>
+        {% endif %}
+    </div>
+    {% else %}
+    <div class="alert alert-warning">
+        <i class="fas fa-exclamation-triangle me-2"></i>
+        No content available. Please regenerate.
+    </div>
+    {% endif %}
+
+    <!-- Regenerate Button -->
+    <button class="btn btn-teal regenerate-btn" id="regenerateBtn">
+        <i class="fas fa-redo me-2"></i>Regenerate 5 New Sets
+    </button>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const regenerateBtn = document.getElementById('regenerateBtn');
+    const sentenceLocale = {{ ((locale_cn or {}).get('sentencePractice', {}))|tojson }};
+
+    // Navigation handlers
+    prevBtn.addEventListener('click', () => navigate('prev'));
+    nextBtn.addEventListener('click', () => navigate('next'));
+
+    async function navigate(direction) {
+        try {
+            const response = await fetch('/reading/practice/sentence/navigate', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ direction })
+            });
+
+            if (response.ok) {
+                window.location.reload();
+            }
+        } catch (error) {
+            console.error('Navigation error:', error);
+        }
+    }
+
+    // Regenerate handler
+    regenerateBtn.addEventListener('click', async function() {
+        if (!confirm('This will generate 5 new sentence exercises. Continue?')) {
+            return;
+        }
+
+        this.disabled = true;
+        this.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Generating...';
+
+        try {
+            const response = await fetch('/reading/practice/sentence/generate', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                window.location.reload();
+            } else {
+                alert(data.message || 'Failed to generate. Please try again.');
+                this.disabled = false;
+                this.innerHTML = '<i class="fas fa-redo me-2"></i>Regenerate 5 New Sets';
+            }
+        } catch (error) {
+            console.error('Regenerate error:', error);
+            alert('An error occurred. Please try again.');
+            this.disabled = false;
+            this.innerHTML = '<i class="fas fa-redo me-2"></i>Regenerate 5 New Sets';
+        }
+    });
+
+    // Paraphrase evaluation handlers
+    const paraphraseCard = document.getElementById('paraphraseCard');
+    if (paraphraseCard) {
+        const sentenceId = paraphraseCard.getAttribute('data-sentence-id');
+        const inputEl = document.getElementById('paraphraseInput');
+        const submitBtn = document.getElementById('checkParaphraseBtn');
+        const statusEl = document.getElementById('paraphraseStatus');
+        const errorEl = document.getElementById('paraphraseError');
+        const feedbackCard = document.getElementById('paraphraseFeedback');
+        const scoreBadge = document.getElementById('paraphraseScoreBadge');
+        const categoryBadge = document.getElementById('paraphraseCategoryBadge');
+        const feedbackBody = document.getElementById('paraphraseFeedbackBody');
+        const detailFeedback = document.getElementById('paraphraseDetailFeedback');
+        const missingList = document.getElementById('paraphraseMissingList');
+        const modelAnswer = document.getElementById('paraphraseModelAnswer');
+        const modelLabel = document.getElementById('paraphraseModelLabel');
+        const modelText = document.getElementById('paraphraseModelText');
+
+        function setLoading(isLoading) {
+            submitBtn.disabled = isLoading;
+            if (isLoading) {
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>' + (sentenceLocale.checkingLabel || '正在调用 Gemini 评估...');
+            } else {
+                submitBtn.innerHTML = '<i class="fas fa-magic me-2"></i>' + (sentenceLocale.submitLabel || '提交给 Gemini 检查');
+            }
+        }
+
+        function resetFeedback() {
+            feedbackCard.classList.add('d-none');
+            missingList.classList.add('d-none');
+            missingList.innerHTML = '';
+            modelAnswer.classList.add('d-none');
+            detailFeedback.textContent = '';
+        }
+
+        function handleError(message) {
+            errorEl.textContent = message;
+            errorEl.classList.remove('d-none');
+            statusEl.textContent = '';
+            resetFeedback();
+        }
+
+        submitBtn.addEventListener('click', () => evaluateParaphrase());
+        inputEl.addEventListener('keydown', (event) => {
+            if ((event.ctrlKey || event.metaKey) && event.key === 'Enter') {
+                event.preventDefault();
+                evaluateParaphrase();
+            }
+        });
+
+        function evaluateParaphrase() {
+            const text = inputEl.value.trim();
+            errorEl.classList.add('d-none');
+
+            if (!text) {
+                handleError(sentenceLocale.emptyInput || '请先输入你的改写，再提交给 Gemini 检查。');
+                inputEl.focus();
+                return;
+            }
+
+            resetFeedback();
+            setLoading(true);
+            statusEl.textContent = sentenceLocale.checkingLabel || '正在调用 Gemini 评估...';
+
+            fetch('/reading/api/paraphrase', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    sentenceId,
+                    text
+                })
+            })
+            .then((response) => {
+                if (!response.ok) {
+                    throw new Error('HTTP ' + response.status);
+                }
+                return response.json();
+            })
+            .then((data) => {
+                statusEl.textContent = '';
+                setLoading(false);
+
+                if (data.error) {
+                    handleError(sentenceLocale.generalError || '系统暂时无法评估，请稍后再试。');
+                    return;
+                }
+
+                const score = typeof data.score === 'number' ? Math.round(data.score * 100) : null;
+                scoreBadge.textContent = (sentenceLocale.scoreLabel || '覆盖率') + (score !== null ? `：${score}%` : '');
+                categoryBadge.textContent = (sentenceLocale[data.category] || data.category || '');
+                feedbackBody.textContent = (data.feedback || '').trim();
+
+                if (data.detailedFeedback) {
+                    detailFeedback.textContent = data.detailedFeedback;
+                } else {
+                    detailFeedback.textContent = '';
+                }
+
+                if (Array.isArray(data.missing) && data.missing.length > 0) {
+                    missingList.innerHTML = data.missing.map((item) => `<li>${item}</li>`).join('');
+                    missingList.classList.remove('d-none');
+                } else {
+                    missingList.classList.add('d-none');
+                }
+
+                if (data.modelAnswer) {
+                    modelLabel.textContent = (data.modelAnswerLabel || sentenceLocale.modelAnswerLabel || '参考表达') + '：';
+                    modelText.textContent = data.modelAnswer;
+                    modelAnswer.classList.remove('d-none');
+                } else {
+                    modelAnswer.classList.add('d-none');
+                }
+
+                feedbackCard.classList.remove('d-none');
+            })
+            .catch((error) => {
+                console.error('Paraphrase evaluation error:', error);
+                setLoading(false);
+                statusEl.textContent = '';
+                handleError(sentenceLocale.generalError || '系统暂时无法评估，请稍后再试。');
+            });
+        }
+    }
+});
+</script>
+{% endblock %}

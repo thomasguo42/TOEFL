@@ -1,0 +1,144 @@
+{% extends "base.html" %}
+
+{% block title %}TOEFL Listening Section{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/listening.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="listening-dashboard">
+    <div class="d-flex flex-column flex-lg-row align-items-lg-center justify-content-between listening-header mb-4">
+        <div>
+            <h1 class="display-5 fw-bold text-dark listening-section-title mb-2">
+                TOEFL Listening Section
+            </h1>
+            <p class="text-muted listening-lead">
+                Master listening comprehension through AI-powered practice
+            </p>
+        </div>
+        <a href="{{ url_for('main_dashboard') }}" class="btn btn-outline-secondary listening-btn listening-btn-sm">
+            <span class="me-1">←</span> Back to Dashboard
+        </a>
+    </div>
+
+    <div class="row row-cols-2 row-cols-md-4 g-3 mb-5">
+        <div class="col">
+            <div class="listening-stat-card listening-stat-card--blue">
+                <div class="listening-stat-value">{{ stats.dictation_completed }}</div>
+                <div class="listening-stat-label">Dictation Exercises</div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="listening-stat-card listening-stat-card--green">
+                <div class="listening-stat-value">{{ stats.signpost_completed }}</div>
+                <div class="listening-stat-label">Signpost Training</div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="listening-stat-card listening-stat-card--purple">
+                <div class="listening-stat-value">{{ stats.lectures_completed }}</div>
+                <div class="listening-stat-label">Lectures Completed</div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="listening-stat-card listening-stat-card--orange">
+                <div class="listening-stat-value">{{ stats.conversations_completed }}</div>
+                <div class="listening-stat-label">Conversations Completed</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-md-4">
+            <div class="listening-card h-100">
+                <div class="listening-hero listening-gradient--blue">
+                    <h3 class="h4 fw-bold mb-1 text-dark">AI Dictation Trainer</h3>
+                    <p class="mb-0 text-muted">单句听写</p>
+                </div>
+                <p class="text-muted mb-4">
+                    Build foundational decoding skills through sentence-level typing exercises with word-by-word analysis.
+                </p>
+                <ul class="list-unstyled text-muted small mb-4">
+                    <li class="mb-2">✓ Complex academic sentences (15-25 words)</li>
+                    <li class="mb-2">✓ Word-by-word accuracy analysis</li>
+                    <li class="mb-2">✓ Instant detailed feedback</li>
+                    <li>✓ Audio with word-level timestamps</li>
+                </ul>
+                <a href="{{ url_for('dictation_trainer') }}" class="btn btn-primary listening-btn w-100">
+                    Start Dictation Practice
+                </a>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="listening-card h-100">
+                <div class="listening-hero listening-gradient--green">
+                    <h3 class="h4 fw-bold mb-1 text-dark">Signpost Signal Trainer</h3>
+                    <p class="mb-0 text-muted">信号词训练</p>
+                </div>
+                <p class="text-muted mb-4">
+                    Train your ear to recognize verbal cues that signal lecture structure and transitions.
+                </p>
+                <ul class="list-unstyled text-muted small mb-4">
+                    <li class="mb-2">✓ Short audio segments (2-3 sentences)</li>
+                    <li class="mb-2">✓ Focus on transitional phrases</li>
+                    <li class="mb-2">✓ Develop predictive listening</li>
+                    <li>✓ Improve note-taking structure</li>
+                </ul>
+                <a href="{{ url_for('signpost_trainer') }}" class="btn btn-success listening-btn w-100">
+                    Start Signpost Training
+                </a>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="listening-card h-100">
+                <div class="listening-hero listening-gradient--purple">
+                    <h3 class="h4 fw-bold mb-1 text-dark">Lecture & Conversation</h3>
+                    <p class="mb-0 text-muted">全真模拟</p>
+                </div>
+                <p class="text-muted mb-4">
+                    Complete practice with 5-minute lectures and 3-minute conversations, including questions and review.
+                </p>
+                <ul class="list-unstyled text-muted small mb-4">
+                    <li class="mb-2">✓ Full-length audio content</li>
+                    <li class="mb-2">✓ TOEFL-style questions (5-6)</li>
+                    <li class="mb-2">✓ “Replay with Insight” review</li>
+                    <li>✓ AI expert notes comparison</li>
+                </ul>
+                <div class="row g-2">
+                    <div class="col-6">
+                        <a href="{{ url_for('lecture_simulator') }}" class="btn btn-primary listening-btn listening-btn-sm w-100">
+                            Lecture
+                        </a>
+                    </div>
+                    <div class="col-6">
+                        <a href="{{ url_for('conversation_simulator') }}" class="btn btn-primary listening-btn listening-btn-sm w-100">
+                            Conversation
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="listening-card listening-card--compact mt-5">
+        <h3 class="h5 fw-bold mb-3">How the Listening Section Works</h3>
+        <div class="row g-4 text-muted small">
+            <div class="col-md-4">
+                <h4 class="h6 fw-semibold text-dark mb-2">1. AI Content Generation</h4>
+                <p class="mb-0">Advanced AI (Gemini) creates endless, realistic practice materials tailored to TOEFL listening.</p>
+            </div>
+            <div class="col-md-4">
+                <h4 class="h6 fw-semibold text-dark mb-2">2. TTS Audio with Timestamps</h4>
+                <p class="mb-0">Natural-sounding audio includes word-level timestamps so feedback aligns with what you heard.</p>
+            </div>
+            <div class="col-md-4">
+                <h4 class="h6 fw-semibold text-dark mb-2">3. Immediate Feedback</h4>
+                <p class="mb-0">Detailed analytics and expert notes surface next steps after every exercise.</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

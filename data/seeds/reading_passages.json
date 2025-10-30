@@ -1,0 +1,122 @@
+[
+  {
+    "id": "climate_adaptation_1",
+    "topic": "Climate Adaptation",
+    "title": "Designing Cooling Corridors in Expanding Cities",
+    "readingTimeMinutes": 6,
+    "paragraphs": [
+      {
+        "index": 0,
+        "text": "Urban planners in rapidly growing subtropical cities are experimenting with cooling corridors—linked parks and shaded streets that guide prevailing winds into overheated districts. Inspired by traditional hutong layouts in Beijing, these corridors prioritize narrow passages that funnel breezes while blocking glare. Remote sensing teams map the hottest surfaces each summer so landscape architects can plant drought-tolerant trees along the precise routes that transport relief.",
+        "summary": "规划师仿照胡同布局建造‘清凉走廊’，利用风向和耐旱树木为酷热街区降温。"
+      },
+      {
+        "index": 1,
+        "text": "Yet the projects can falter when maintenance budgets remain tied to short election cycles. Newly planted trees require three years of irrigation before their canopies deliver noticeable shade, but councillors often redirect funding after the first season because voters expect instant cooling. Community cooperatives in Guangzhou address this gap by collecting water from rooftop cisterns and scheduling weekend mulching brigades, ensuring the saplings survive beyond the political calendar.",
+        "summary": "资金断档常导致项目失败，但广州社区合作社通过自筹灌溉和义工维护来弥补。"
+      },
+      {
+        "index": 2,
+        "text": "As corridors mature, data from wearable sensors show that residents who commute along the shaded routes experience lower heart rates during heat waves. Hospitals report fewer dehydration admissions from neighborhoods adjacent to the connected greenways, particularly among elderly residents. These early health outcomes convince skeptical policymakers that investment in patient, community-led maintenance produces measurable public-health dividends.",
+        "summary": "成熟的走廊降低通勤者心率，减少脱水病例，证明持续投入能带来健康回报。"
+      }
+    ],
+    "tools": {
+      "sentenceAnalyzerEnabled": true,
+      "vocabLookupEnabled": true,
+      "paragraphSummariesEnabled": true
+    },
+    "questions": [
+      {
+        "id": "q1",
+        "type": "detail",
+        "prompt": "According to paragraph 1, why do planners study traditional hutong street patterns?",
+        "options": [
+          "To maximize the amount of direct sunlight hitting new developments.",
+          "To harness narrow pathways that can steer wind through hot districts.",
+          "To copy the exact architectural aesthetics of historic neighborhoods.",
+          "To create tourist routes that highlight cultural heritage sites."
+        ],
+        "answer": "To harness narrow pathways that can steer wind through hot districts.",
+        "explanation": "段落指出胡同布局被用来引导风穿过高温区域。",
+        "distractors": [
+          {
+            "choice": "To maximize the amount of direct sunlight hitting new developments.",
+            "category": "Opposite",
+            "analysis": "原文强调阻挡眩光、降低热度，而不是增加日照。"
+          },
+          {
+            "choice": "To copy the exact architectural aesthetics of historic neighborhoods.",
+            "category": "Out of Scope",
+            "analysis": "段落关注功能性降温，而非美学复刻。"
+          },
+          {
+            "choice": "To create tourist routes that highlight cultural heritage sites.",
+            "category": "Not Mentioned",
+            "analysis": "文本未提及旅游或文化观光目的。"
+          }
+        ]
+      },
+      {
+        "id": "q2",
+        "type": "inference",
+        "prompt": "What can be inferred about the role of community cooperatives mentioned in paragraph 2?",
+        "options": [
+          "They accelerate tree growth by applying chemical fertilizers.",
+          "They bridge political funding gaps with local stewardship.",
+          "They replace government agencies in all urban greening projects.",
+          "They focus on raising awareness instead of hands-on work."
+        ],
+        "answer": "They bridge political funding gaps with local stewardship.",
+        "explanation": "合作社通过自筹灌溉和志愿维护来维持项目运作。",
+        "distractors": [
+          {
+            "choice": "They accelerate tree growth by applying chemical fertilizers.",
+            "category": "Too Specific",
+            "analysis": "段落只提浇水和覆盖，没有化肥。"
+          },
+          {
+            "choice": "They replace government agencies in all urban greening projects.",
+            "category": "Too Extreme",
+            "analysis": "文本仅提及一个城市的合作社，并未说取代政府。"
+          },
+          {
+            "choice": "They focus on raising awareness instead of hands-on work.",
+            "category": "Opposite",
+            "analysis": "段落明确提到亲自浇水和铺草。"
+          }
+        ]
+      },
+      {
+        "id": "q3",
+        "type": "function",
+        "prompt": "Why does the author discuss hospital records in paragraph 3?",
+        "options": [
+          "To argue that heat waves are less dangerous than previously thought.",
+          "To show that cooling corridors improve public health outcomes.",
+          "To suggest that hospitals should partner directly with landscapers.",
+          "To claim that wearable sensors are unreliable for measuring stress."
+        ],
+        "answer": "To show that cooling corridors improve public health outcomes.",
+        "explanation": "医院数据证明走廊带来健康收益，劝服政策制定者。",
+        "distractors": [
+          {
+            "choice": "To argue that heat waves are less dangerous than previously thought.",
+            "category": "Opposite",
+            "analysis": "作者强调高温危害，被走廊缓解。"
+          },
+          {
+            "choice": "To suggest that hospitals should partner directly with landscapers.",
+            "category": "Not Mentioned",
+            "analysis": "段落未讨论医院与园林团队合作。"
+          },
+          {
+            "choice": "To claim that wearable sensors are unreliable for measuring stress.",
+            "category": "Opposite",
+            "analysis": "文中将传感器视为提供证据的工具。"
+          }
+        ]
+      }
+    ]
+  }
+]

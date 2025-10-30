@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+
+{% block title %}Exercises Hub - TOEFL Vocabulary Studio{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-10">
+        <div class="card p-4 mb-4">
+            <h2 class="mb-2">
+                <i class="fas fa-dumbbell me-2" style="color: var(--teal-400);"></i>
+                Exercises Hub
+            </h2>
+            <p class="text-muted mb-0">
+                Choose an exercise type to practice your vocabulary. All exercises use AI to generate fresh questions.
+            </p>
+        </div>
+
+        <div class="row g-4">
+            <!-- Dictation Challenge -->
+            <div class="col-md-6">
+                <a href="{{ url_for('dictation_challenge') }}" class="text-decoration-none">
+                    <div class="card h-100 p-4" style="cursor: pointer; transition: transform 0.2s;" onmouseover="this.style.transform='translateY(-4px)'" onmouseout="this.style.transform='translateY(0)'">
+                        <div class="text-center mb-3">
+                            <i class="fas fa-volume-up" style="font-size: 3rem; color: var(--teal-400);"></i>
+                        </div>
+                        <h4 class="mb-2 text-center">Dictation Challenge</h4>
+                        <p class="text-muted text-center mb-0">
+                            Listen to pronunciation audio and type what you hear. Improves spelling and listening skills.
+                        </p>
+                    </div>
+                </a>
+            </div>
+
+            <!-- Contextual Gap-Fill -->
+            <div class="col-md-6">
+                <a href="{{ url_for('contextual_gap_fill') }}"
+                   class="text-decoration-none"
+                   data-loading-target="{{ url_for('contextual_gap_fill') }}"
+                   data-loading-generator="{{ url_for('generate_gap_fill_async') }}"
+                   data-loading-title="Contextual Gap-Fill"
+                   data-loading-message="Gemini 2.5 Flash Lite 正在生成全新语境填空题…">
+                    <div class="card h-100 p-4" style="cursor: pointer; transition: transform 0.2s;" onmouseover="this.style.transform='translateY(-4px)'" onmouseout="this.style.transform='translateY(0)'">
+                        <div class="text-center mb-3">
+                            <i class="fas fa-file-alt" style="font-size: 3rem; color: var(--amber-300);"></i>
+                        </div>
+                        <h4 class="mb-2 text-center">Contextual Gap-Fill</h4>
+                        <p class="text-muted text-center mb-0">
+                            Complete TOEFL-style sentences with the correct vocabulary word. AI-generated with smart distractors.
+                        </p>
+                    </div>
+                </a>
+            </div>
+
+            <!-- Synonym Showdown -->
+            <div class="col-md-6">
+                <a href="{{ url_for('synonym_showdown') }}"
+                   class="text-decoration-none"
+                   data-loading-target="{{ url_for('synonym_showdown') }}"
+                   data-loading-generator="{{ url_for('generate_synonym_async') }}"
+                   data-loading-title="Synonym Showdown"
+                   data-loading-message="Gemini 2.5 Flash Lite 正在对比近义词细微差别…">
+                    <div class="card h-100 p-4" style="cursor: pointer; transition: transform 0.2s;" onmouseover="this.style.transform='translateY(-4px)'" onmouseout="this.style.transform='translateY(0)'">
+                        <div class="text-center mb-3">
+                            <i class="fas fa-exchange-alt" style="font-size: 3rem; color: var(--emerald-400);"></i>
+                        </div>
+                        <h4 class="mb-2 text-center">Synonym Showdown</h4>
+                        <p class="text-muted text-center mb-0">
+                            Master subtle differences between synonyms. Includes Chinese explanations for each option.
+                        </p>
+                    </div>
+                </a>
+            </div>
+
+            <!-- Reading Immersion -->
+            <div class="col-md-6">
+                <a href="{{ url_for('reading_immersion') }}" class="text-decoration-none">
+                    <div class="card h-100 p-4" style="cursor: pointer; transition: transform 0.2s;" onmouseover="this.style.transform='translateY(-4px)'" onmouseout="this.style.transform='translateY(0)'">
+                        <div class="text-center mb-3">
+                            <i class="fas fa-book-reader" style="font-size: 3rem; color: var(--rose-400);"></i>
+                        </div>
+                        <h4 class="mb-2 text-center">Reading Immersion</h4>
+                        <p class="text-muted text-center mb-0">
+                            Read AI-generated TOEFL passages with your vocabulary highlighted. Includes comprehension quiz.
+                        </p>
+                    </div>
+                </a>
+            </div>
+        </div>
+
+        <div class="card mt-4 p-3">
+            <p class="text-muted mb-0 text-center">
+                <i class="fas fa-robot me-2"></i>
+                All exercises powered by Gemini AI for dynamic content generation
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}

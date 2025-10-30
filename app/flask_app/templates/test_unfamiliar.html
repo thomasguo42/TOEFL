@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+
+{% block title %}Test Unfamiliar Words - TOEFL Vocabulary Studio{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>Test Unfamiliar Words Feature</h1>
+
+    <div class="alert alert-info">
+        <h4>Testing Instructions:</h4>
+        <ol>
+            <li>You should see a purple "Mark Words" button in the bottom-right corner of the screen</li>
+            <li>Click the "Mark Words" button to activate selection mode</li>
+            <li>The button should turn green and say "Done"</li>
+            <li>Click on any word in the text below to mark it as unfamiliar</li>
+            <li>You should see a toast notification confirming the word was added</li>
+        </ol>
+    </div>
+
+    <div class="card p-4 my-4">
+        <h3>Sample Reading Passage</h3>
+        <p>
+            The <strong>phenomenon</strong> of climate change has become increasingly
+            <strong>evident</strong> in recent decades. Scientists have <strong>documented</strong>
+            a significant rise in global temperatures, which has led to the <strong>melting</strong>
+            of polar ice caps and rising sea levels. This <strong>transformation</strong> poses
+            serious threats to <strong>vulnerable</strong> coastal communities around the world.
+        </p>
+        <p>
+            The primary cause of this warming trend is the <strong>accumulation</strong> of
+            greenhouse gases in the atmosphere. These gases, including carbon dioxide and
+            methane, trap heat and prevent it from escaping into space. Human activities,
+            particularly the burning of fossil fuels, have dramatically increased the
+            concentration of these gases over the past century.
+        </p>
+    </div>
+
+    <div class="card p-4 my-4">
+        <h3>Debug Information</h3>
+        <p>Open your browser's developer console (F12) to see debug messages from the Unfamiliar Words Manager.</p>
+        <div id="debug-output" style="background: #f5f5f5; padding: 1rem; border-radius: 0.5rem; font-family: monospace; font-size: 0.9rem;">
+            Console messages will appear here...
+        </div>
+    </div>
+
+    <script>
+        // Override console.log to also display in the debug output
+        const debugOutput = document.getElementById('debug-output');
+        const originalLog = console.log;
+        console.log = function(...args) {
+            originalLog.apply(console, args);
+            const message = args.map(arg =>
+                typeof arg === 'object' ? JSON.stringify(arg) : String(arg)
+            ).join(' ');
+            debugOutput.innerHTML += message + '<br>';
+        };
+
+        // Log when this script runs
+        console.log('[Test Page] Script loaded at ' + new Date().toLocaleTimeString());
+
+        // Check if button exists
+        setTimeout(() => {
+            const button = document.getElementById('unfamiliar-words-toggle');
+            if (button) {
+                console.log('[Test Page] ✓ Button found in DOM!');
+                console.log('[Test Page] Button classes:', button.className);
+                console.log('[Test Page] Button visible:', window.getComputedStyle(button).display);
+            } else {
+                console.log('[Test Page] ✗ Button NOT found in DOM!');
+            }
+        }, 1000);
+    </script>
+</div>
+{% endblock %}

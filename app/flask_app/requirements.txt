@@ -1,0 +1,23 @@
+Flask==3.0.0
+Flask-SQLAlchemy==3.1.1
+Flask-CORS==4.0.0
+bcrypt==4.1.2
+python-dotenv==1.0.0
+requests==2.31.0
+gTTS==2.5.1
+numpy==1.26.4
+# Updated to latest version for PyTorch 2.8.0 compatibility
+openai-whisper==20250625
+librosa==0.10.1
+praat-parselmouth==0.4.3
+pydub==0.25.1
+soundfile==0.12.1
+# PyTorch ecosystem - compatible versions (2.8.0)
+torch==2.8.0
+torchvision==0.23.0
+torchaudio==2.8.0
+# Transformers and related packages
+transformers==4.48.1
+xformers==0.0.32.post2
+# Kokoro TTS for natural voice generation
+kokoro==0.9.4

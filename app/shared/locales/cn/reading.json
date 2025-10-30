@@ -1,0 +1,82 @@
+{
+  "tooltips": {
+    "main_subject": "主语：告诉你句子讨论的核心对象。",
+    "main_verb": "谓语动词：宣告主语的动作或状态。",
+    "prepositional_phrase": "介词短语：补充地点、原因或方式等背景信息。",
+    "relative_clause": "定语从句：修饰前面的名词，提供额外描述。",
+    "relative_clause_detail": "定语从句：进一步解释前文提到的名词细节。",
+    "infinitive_purpose": "不定式目的状语：说明行动背后的目的。",
+    "subordinator": "从属连词：引出一个依附主句的从句，常提示转折或原因。",
+    "contrast_subject": "对比主语：与主句形成对比的主语部分。",
+    "contrast_verb": "对比谓语：揭示与表面印象不同的实际情况。",
+    "result_clause": "结果从句：说明前面原因导致的结果。",
+    "adverbial_clause_time": "时间状语从句：指出动作发生的时间顺序。",
+    "cause_effect": "因果提示词：表明后续内容解释原因或结果。",
+    "example": "举例提示词：后面的句子会提供具体例子。",
+    "contrast": "转折提示词：提醒读者语义方向发生变化。",
+    "definition": "解释性连接词：插入补充说明以定义前文概念。",
+    "reciprocal": "互惠提示词：强调双方互相给予或合作。",
+    "result": "结果提示词：后面内容是先前行动的结果。",
+    "topic_sentence": "主题句：用一句话概括整个段落的中心思想。",
+    "support_detail": "支撑句：提供数据或理由来支持主题句。",
+    "example_detail": "举例句：用具体案例来说明抽象观点。",
+    "contrast_limit": "限制句：提醒读者注意条件或潜在问题。",
+    "conclusion": "结论句：总结段落并回应主题句。"
+  },
+  "paraphrase": {
+    "excellent": "精彩！你的改写完整传达了原句的核心信息。",
+    "good": "整体不错，再补充提示中提到的细节会更完整。",
+    "needs_work": "尝试关注定语从句和目的成分，再重新组织句子。",
+    "model_intro": "参考表达",
+    "missing_point_prefix": "提示"
+  },
+  "sentencePractice": {
+    "paraphraseHeading": "Paraphrase Drill · 改写练习",
+    "paraphraseInstruction": "请用自己的话改写该句，保持主要信息与逻辑关系。Gemini 会评估覆盖度并给出建议。",
+    "inputPlaceholder": "输入你的改写，Ctrl/Cmd + Enter 可快速提交",
+    "ariaInput": "在此输入你对原句的改写",
+    "submitLabel": "提交给 Gemini 检查",
+    "checkingLabel": "正在调用 Gemini 评估...",
+    "emptyInput": "请先输入你的改写，再提交给 Gemini 检查。",
+    "generalError": "系统暂时无法评估，请稍后再试。",
+    "scoreLabel": "覆盖率",
+    "excellent": "表现出色",
+    "good": "还可以强化",
+    "needs_work": "需补充要点",
+    "modelAnswerLabel": "参考表达"
+  },
+  "paragraphPractice": {
+    "reorderHeading": "段落排序练习",
+    "reorderInstruction": "将下面的句子重新排序，组合成逻辑顺畅的段落。",
+    "moveUp": "上移该句",
+    "moveDown": "下移该句",
+    "checkButton": "检查排序",
+    "retryButton": "再试一次",
+    "helperHint": "使用箭头按钮或键盘方向键调整顺序。",
+    "correctMessage": "顺序正确！你的段落逻辑非常清晰。",
+    "incorrectMessage": "顺序仍有偏差，参考答案并思考过渡关系再调整。",
+    "answerLabel": "标准答案"
+  },
+  "paragraphLab": {
+    "correct": "正确！你找到了概括段落的主题句。",
+    "incorrect": "再想想。注意哪一句提出了整段都在围绕的观点。",
+    "flow_hint": "将鼠标悬停在连接词上，可查看逻辑关系提示。"
+  },
+  "strategySimulator": {
+    "distractorCategories": {
+      "Opposite": "反向选项：表面有关键词，但含义与原文相反。",
+      "Not Mentioned": "未提及：选项信息在原文找不到证据。",
+      "Out of Scope": "范围外：偏离题目关注的段落或主题。",
+      "Too Extreme": "过度绝对：使用了原文没有的绝对词。",
+      "Too Specific": "过度具体：加入原文未提及的细节。",
+      "Opposite Detail": "细节反向：扭曲了原文给出的事实。",
+      "Inference Gap": "推理缺口：需要原文之外的推断。",
+      "Default": "错误选项：注意定位原文证据核对含义。"
+    },
+    "assistCopy": {
+      "sentenceAnalyzer": "句子分析器",
+      "paragraphSummary": "段落要点",
+      "vocabLookup": "词汇速记"
+    }
+  }
+}

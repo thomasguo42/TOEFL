@@ -1,0 +1,108 @@
+[
+  {
+    "id": "eco_paragraph_1",
+    "topic": "Ecology",
+    "paragraph": "Urban rooftop farms are becoming a crucial buffer for food security in megacities. By capturing rainwater and recycling kitchen waste, these compact plots produce vegetables with a fraction of the land required by rural farms. For example, a pilot program in Shenzhen harvested enough leafy greens to supply three nearby schools through the summer term. However, without municipal policies that subsidize lightweight soil technologies, many rooftops cannot legally support the added weight.",
+    "sentences": [
+      {
+        "index": 0,
+        "text": "Urban rooftop farms are becoming a crucial buffer for food security in megacities.",
+        "role": "topic",
+        "summary": "点出段落主题：屋顶农场提升特大城市的粮食安全。",
+        "explainKey": "topic_sentence"
+      },
+      {
+        "index": 1,
+        "text": "By capturing rainwater and recycling kitchen waste, these compact plots produce vegetables with a fraction of the land required by rural farms.",
+        "role": "support",
+        "summary": "说明屋顶农场如何利用资源高效种植。",
+        "explainKey": "support_detail"
+      },
+      {
+        "index": 2,
+        "text": "For example, a pilot program in Shenzhen harvested enough leafy greens to supply three nearby schools through the summer term.",
+        "role": "example",
+        "summary": "提供深圳项目的具体数据，支撑主题句。",
+        "explainKey": "example_detail"
+      },
+      {
+        "index": 3,
+        "text": "However, without municipal policies that subsidize lightweight soil technologies, many rooftops cannot legally support the added weight.",
+        "role": "contrast",
+        "summary": "提出限制条件，提醒需要政策支持。",
+        "explainKey": "contrast_limit"
+      }
+    ],
+    "topicSentenceIndex": 0,
+    "transitions": [
+      {
+        "text": "By",
+        "type": "cause_effect",
+        "tooltipKey": "cause_effect"
+      },
+      {
+        "text": "For example",
+        "type": "example",
+        "tooltipKey": "example"
+      },
+      {
+        "text": "However",
+        "type": "contrast",
+        "tooltipKey": "contrast"
+      }
+    ]
+  },
+  {
+    "id": "anthro_paragraph_1",
+    "topic": "Anthropology",
+    "paragraph": "Field schools that partner with local museums preserve intangible heritage more effectively than short-term survey trips. Students train community archivists to digitize artifacts, which keeps fragile manuscripts accessible without exposing them to humidity. In return, elders guide the students through seasonal ceremonies so the digital catalog reflects the cultural calendar. Consequently, both sides maintain ownership of knowledge while expanding the archive beyond a single expedition.",
+    "sentences": [
+      {
+        "index": 0,
+        "text": "Field schools that partner with local museums preserve intangible heritage more effectively than short-term survey trips.",
+        "role": "topic",
+        "summary": "主题句：长期合作的田野学校更能保护非物质文化遗产。",
+        "explainKey": "topic_sentence"
+      },
+      {
+        "index": 1,
+        "text": "Students train community archivists to digitize artifacts, which keeps fragile manuscripts accessible without exposing them to humidity.",
+        "role": "support",
+        "summary": "细节：学生帮助当地建立数字档案，保护文献。",
+        "explainKey": "support_detail"
+      },
+      {
+        "index": 2,
+        "text": "In return, elders guide the students through seasonal ceremonies so the digital catalog reflects the cultural calendar.",
+        "role": "support",
+        "summary": "互惠：长者带领学生体验仪式，完善目录。",
+        "explainKey": "support_detail"
+      },
+      {
+        "index": 3,
+        "text": "Consequently, both sides maintain ownership of knowledge while expanding the archive beyond a single expedition.",
+        "role": "conclusion",
+        "summary": "结论：互利合作让知识与档案共同扩展。",
+        "explainKey": "conclusion"
+      }
+    ],
+    "topicSentenceIndex": 0,
+    "transitions": [
+      {
+        "text": "which",
+        "type": "definition",
+        "tooltipKey": "definition"
+      },
+      {
+        "text": "In return",
+        "type": "reciprocal",
+        "tooltipKey": "reciprocal"
+      },
+      {
+        "text": "Consequently",
+        "type": "result",
+        "tooltipKey": "result"
+      }
+    ]
+  }
+]

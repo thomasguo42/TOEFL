@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}TOEFL Vocabulary Studio{% endblock %}</title>
+
+    <!-- Bootstrap 5.3 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Font Awesome 6.4 -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+
+    <!-- Custom CSS -->
+    <style>
+        :root {
+            /* Light, accessible palette shared across modules */
+            --toefl-bg: #ffffff;
+            --toefl-text: #1a1a1a;
+            --toefl-text-light: #606a7b;
+            --toefl-border: #d7dde7;
+            --toefl-border-light: #e7ecf5;
+            --toefl-primary: #0066cc;
+            --toefl-primary-hover: #0052a3;
+            --toefl-success: #28a745;
+            --toefl-danger: #dc3545;
+            --toefl-warning: #ffc107;
+            --toefl-info: #17a2b8;
+            --toefl-highlight: #fff6cc;
+            --toefl-highlight-blue: #e3f1ff;
+            --toefl-highlight-green: #e6f8ee;
+            --toefl-gray-bg: #f6f8fb;
+            --toefl-nav-bg: #fdfdfd;
+
+            /* Neutral scale used by legacy templates */
+            --slate-900: #f4f7fb;
+            --slate-800: #ecf0f8;
+            --slate-700: #e2e7f3;
+            --slate-400: #6f7d96;
+            --slate-300: #8291aa;
+            --slate-200: #c9d4e6;
+            --slate-100: #1a1f2b;
+            --slate-700-rgb: 226, 231, 243;
+
+            /* Accent scales */
+            --teal-500: #0d9488;
+            --teal-400: #0ea5e9;
+            --teal-300: #38bdf8;
+            --teal-200: #bae6fd;
+            --amber-400: #f59e0b;
+            --amber-300: #fbbf24;
+            --amber-200: #fde68a;
+            --rose-400: #fb7185;
+            --rose-300: #fda4af;
+            --rose-200: #fecdd3;
+            --emerald-400: #34d399;
+            --emerald-300: #6ee7b7;
+            --cyan-400: #22d3ee;
+            --purple: #a855f7;
+            --purple-300: #c4b5fd;
+            --blue: #2563eb;
+            --blue-300: #60a5fa;
+            --green: #22c55e;
+            --orange: #fb923c;
+            --gray-300: #d1d5db;
+            --gray-200: #e5e7eb;
+        }
+
+        body {
+            background: var(--toefl-bg);
+            color: var(--toefl-text);
+            min-height: 100vh;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        }
+
+        .navbar {
+            background: var(--toefl-nav-bg);
+            border-bottom: 1px solid var(--toefl-border);
+        }
+
+        .card {
+            background: var(--toefl-bg);
+            border: 1px solid var(--toefl-border);
+            border-radius: 0.5rem;
+        }
+
+        .btn-primary {
+            background: var(--toefl-primary);
+            border-color: var(--toefl-primary);
+            color: white;
+            font-weight: 600;
+        }
+
+        .btn-primary:hover {
+            background: var(--toefl-primary-hover);
+            border-color: var(--toefl-primary-hover);
+            color: white;
+        }
+
+        .btn-success {
+            background: var(--toefl-success);
+            border-color: var(--toefl-success);
+            color: white;
+        }
+
+        .btn-warning {
+            background: var(--toefl-warning);
+            border-color: var(--toefl-warning);
+            color: var(--toefl-text);
+        }
+
+        .btn-danger {
+            background: var(--toefl-danger);
+            border-color: var(--toefl-danger);
+            color: white;
+        }
+
+        .text-muted {
+            color: var(--toefl-text-light) !important;
+        }
+
+        .form-control, .form-select {
+            background: var(--toefl-bg);
+            border: 1px solid var(--toefl-border);
+            color: var(--toefl-text);
+        }
+
+        .form-control:focus, .form-select:focus {
+            background: var(--toefl-bg);
+            border-color: var(--toefl-primary);
+            color: var(--toefl-text);
+            box-shadow: 0 0 0 0.25rem rgba(0, 102, 204, 0.25);
+        }
+
+        .alert {
+            border-radius: 0.5rem;
+        }
+
+        .brand-text {
+            color: var(--toefl-primary);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            font-size: 0.875rem;
+        }
+
+        .footer {
+            background: var(--toefl-gray-bg);
+            border-top: 1px solid var(--toefl-border);
+            color: var(--toefl-text-light);
+            font-size: 0.75rem;
+        }
+
+        /* Form elements */
+        .form-check-label {
+            color: var(--toefl-text) !important;
+        }
+
+        .form-check-input {
+            background-color: var(--toefl-bg);
+            border-color: var(--toefl-border);
+        }
+
+        .form-check-input:checked {
+            background-color: var(--toefl-primary);
+            border-color: var(--toefl-primary);
+        }
+
+        /* Card content */
+        .card p, .card h1, .card h2, .card h3, .card h4, .card h5, .card h6,
+        .card label, .card span, .card div {
+            color: var(--toefl-text);
+        }
+
+        /* Text colors */
+        p, h1, h2, h3, h4, h5, h6, label, span, div, li, td, th {
+            color: var(--toefl-text);
+        }
+
+        /* Strong and emphasis */
+        strong, b, em, i {
+            color: var(--toefl-text);
+        }
+
+        /* Links */
+        a:not(.btn) {
+            color: var(--toefl-primary);
+        }
+
+        a:not(.btn):hover {
+            color: var(--toefl-primary-hover);
+        }
+
+        /* Highlighted text for TOEFL questions */
+        .toefl-highlight {
+            background-color: var(--toefl-highlight);
+            padding: 2px 4px;
+            border-radius: 3px;
+            font-weight: 500;
+        }
+
+        .toefl-highlight-blue {
+            background-color: var(--toefl-highlight-blue);
+            padding: 2px 4px;
+            border-radius: 3px;
+            font-weight: 500;
+        }
+
+        /* Navigation buttons styling */
+        .btn-outline-light {
+            color: var(--toefl-text);
+            border-color: var(--toefl-border);
+            background: white;
+        }
+
+        .btn-outline-light:hover {
+            color: white;
+            background: var(--toefl-primary);
+            border-color: var(--toefl-primary);
+        }
+
+        .btn-outline-danger {
+            color: var(--toefl-danger);
+            border-color: var(--toefl-danger);
+        }
+
+        .btn-outline-danger:hover {
+            color: white;
+            background: var(--toefl-danger);
+        }
+    </style>
+
+    <!-- Unfamiliar Words Feature -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/unfamiliar_words.css') }}">
+
+    {% block extra_css %}{% endblock %}
+    {% block head %}{% endblock %}
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-light">
+        <div class="container-fluid">
+            <a class="navbar-brand d-flex flex-column" href="{{ url_for('index') }}">
+                <span class="brand-text">TOEFL Vocabulary Studio</span>
+                <small class="text-muted" style="font-size: 0.7rem;">Triage & Spaced Review</small>
+            </a>
+            <div class="d-flex align-items-center gap-3">
+                {% if session.user_id %}
+                    <span class="text-muted">
+                        <i class="fas fa-user me-1"></i>
+                        {{ session.user_email }}
+                    </span>
+                    <a href="{{ url_for('browse_words') }}" class="btn btn-sm btn-outline-light me-1">
+                        <i class="fas fa-book me-1"></i> Words
+                    </a>
+                    <a href="{{ url_for('main_dashboard') }}" class="btn btn-sm btn-outline-light me-1">
+                        <i class="fas fa-chart-line me-1"></i> Dashboard
+                    </a>
+                    <a href="{{ url_for('exercises_hub') }}" class="btn btn-sm btn-outline-light me-1">
+                        <i class="fas fa-dumbbell me-1"></i> Exercises
+                    </a>
+                    <a href="{{ url_for('settings') }}" class="btn btn-sm btn-outline-light me-1">
+                        <i class="fas fa-cog me-1"></i> Settings
+                    </a>
+                    <a href="{{ url_for('logout') }}" class="btn btn-sm btn-outline-danger">
+                        <i class="fas fa-sign-out-alt me-1"></i> Logout
+                    </a>
+                {% else %}
+                    <a href="{{ url_for('login') }}" class="btn btn-sm btn-outline-light">Login</a>
+                    <a href="{{ url_for('register') }}" class="btn btn-sm btn-primary">Register</a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
+    <!-- Flash Messages -->
+    <div class="container mt-3">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </div>
+
+    <!-- Main Content -->
+    <main class="container my-4">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer text-center py-3 mt-5">
+        <div class="container">
+            Session data syncs with the AI scheduler. Keep spacing consistent for the best curve.
+        </div>
+    </footer>
+
+    <!-- Bootstrap 5.3 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+    const LOADING_ROUTE = "{{ url_for('loading_page') }}";
+
+    function startLoadingFlow(trigger) {
+        if (!trigger) return;
+        const target = trigger.dataset.loadingTarget;
+        if (!target) return;
+        const params = new URLSearchParams();
+        params.set('target', target);
+        if (trigger.dataset.loadingGenerator) {
+            params.set('generator', trigger.dataset.loadingGenerator);
+        }
+        if (trigger.dataset.loadingTitle) {
+            params.set('title', trigger.dataset.loadingTitle);
+        }
+        if (trigger.dataset.loadingMessage) {
+            params.set('message', trigger.dataset.loadingMessage);
+        }
+        const payload = trigger.dataset.loadingPayload;
+        if (payload) {
+            sessionStorage.setItem('loadingPayload', payload);
+        } else {
+            sessionStorage.removeItem('loadingPayload');
+        }
+        window.location.href = `${LOADING_ROUTE}?${params.toString()}`;
+    }
+
+    document.addEventListener('click', (event) => {
+        const trigger = event.target.closest('[data-loading-target]');
+        if (!trigger) {
+            return;
+        }
+        event.preventDefault();
+        startLoadingFlow(trigger);
+    });
+    </script>
+
+    <!-- Unfamiliar Words Manager -->
+    <script src="{{ url_for('static', filename='js/unfamiliar_words.js') }}"></script>
+
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

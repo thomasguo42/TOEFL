@@ -1,0 +1,287 @@
+{% extends "base.html" %}
+
+{% block title %}Vocabulary Dashboard - TOEFL Vocabulary Studio{% endblock %}
+
+{% block extra_css %}
+<style>
+    .stat-card {
+        background: linear-gradient(135deg, #ffffff 0%, #edf3ff 100%);
+        border: 1px solid var(--toefl-border);
+        border-radius: 1rem;
+        padding: 1.5rem;
+        text-align: center;
+        transition: transform 0.2s;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-2px);
+    }
+
+    .stat-number {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: var(--teal-400);
+    }
+
+    .stat-label {
+        color: var(--toefl-text-light);
+        font-size: 0.875rem;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+    }
+
+    .chart-card {
+        background: #ffffff;
+        border: 1px solid var(--toefl-border);
+        border-radius: 1rem;
+        padding: 1.5rem;
+    }
+
+    .mastery-bar {
+        height: 30px;
+        border-radius: 0.5rem;
+        transition: width 0.3s;
+    }
+
+    .module-link-card {
+        display: block;
+        padding: 1.25rem;
+        border-radius: 1rem;
+        background: linear-gradient(135deg, #f7faff 0%, #eef5ff 100%);
+        border: 1px solid var(--toefl-border);
+        height: 100%;
+        text-decoration: none;
+        transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .module-link-card:hover {
+        transform: translateY(-4px);
+        border-color: var(--teal-400);
+        box-shadow: 0 10px 20px rgba(14, 165, 233, 0.12);
+    }
+
+    .module-link-card i {
+        font-size: 2rem;
+        margin-bottom: 0.75rem;
+        display: block;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-10">
+        <!-- Back Button -->
+        <div class="mb-3">
+            <a href="{{ url_for('main_dashboard') }}" class="btn btn-outline-secondary btn-sm">
+                <i class="fas fa-arrow-left me-2"></i>Back to Main Dashboard
+            </a>
+        </div>
+
+        <h2 class="mb-4">
+            <i class="fas fa-book me-2"></i>Vocabulary Learning Dashboard
+        </h2>
+
+        <!-- Today's Progress -->
+        <div class="row g-4 mb-4">
+            <div class="col-md-2">
+                <div class="stat-card">
+                    <div class="stat-number">{{ progress.reviewed }}</div>
+                    <div class="stat-label mt-2">Reviewed Today</div>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="stat-card">
+                    <div class="stat-number">{{ progress.new_count }}</div>
+                    <div class="stat-label mt-2">New Words</div>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="stat-card">
+                    <div class="stat-number">{{ progress.review_count }}</div>
+                    <div class="stat-label mt-2">Reviews</div>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="stat-card">
+                    <div class="stat-number">{{ progress.remaining }}</div>
+                    <div class="stat-label mt-2">Remaining</div>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="stat-card">
+                    <div class="stat-number">{{ streak }}</div>
+                    <div class="stat-label mt-2">
+                        <i class="fas fa-fire me-1" style="color: var(--amber-300);"></i>Day Streak
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="stat-card">
+                    <div class="stat-number">{{ avg_velocity|round(1) }}</div>
+                    <div class="stat-label mt-2">Words/Day</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Vocabulary Activities -->
+        <div class="card mb-4 p-4">
+            <h5 class="mb-3">
+                <i class="fas fa-tasks me-2" style="color: var(--teal-400);"></i>
+                Vocabulary Activities
+            </h5>
+            <div class="row g-3">
+                <div class="col-md-3">
+                    <a class="module-link-card" href="{{ url_for('vocab_session') }}">
+                        <i class="fas fa-graduation-cap" style="color: var(--teal-300);"></i>
+                        <h6 class="mb-1">Learning Session</h6>
+                        <p class="text-muted mb-0 small">SRS-based vocabulary review</p>
+                    </a>
+                </div>
+                <div class="col-md-3">
+                    <a class="module-link-card" href="{{ url_for('unfamiliar_words_page') }}">
+                        <i class="fas fa-bookmark" style="color: var(--purple-300);"></i>
+                        <h6 class="mb-1">Unfamiliar Words</h6>
+                        <p class="text-muted mb-0 small">{{ unfamiliar_count or 0 }} marked words</p>
+                    </a>
+                </div>
+                <div class="col-md-3">
+                    <a class="module-link-card" href="{{ url_for('exercises_hub') }}">
+                        <i class="fas fa-dumbbell" style="color: var(--amber-300);"></i>
+                        <h6 class="mb-1">Exercises</h6>
+                        <p class="text-muted mb-0 small">Gap-fill, synonyms & reading</p>
+                    </a>
+                </div>
+                <div class="col-md-3">
+                    <a class="module-link-card" href="{{ url_for('browse_words') }}">
+                        <i class="fas fa-list" style="color: var(--emerald-300);"></i>
+                        <h6 class="mb-1">Word Browser</h6>
+                        <p class="text-muted mb-0 small">Browse by mastery level</p>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Progress Bar -->
+        <div class="card mb-4 p-3">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <h5 class="mb-0">Daily Goal Progress</h5>
+                <span class="text-muted">{{ progress.goal }} words/day</span>
+            </div>
+            <div class="progress" style="height: 20px;">
+                <div class="progress-bar bg-success" role="progressbar"
+                     style="width: {{ (progress.reviewed / progress.goal * 100) if progress.goal > 0 else 0 }}%;">
+                    {{ ((progress.reviewed / progress.goal * 100)|int) if progress.goal > 0 else 0 }}%
+                </div>
+            </div>
+        </div>
+
+        <!-- Mastery Breakdown -->
+        <div class="chart-card mb-4">
+            <h5 class="mb-3">
+                <i class="fas fa-layer-group me-2"></i>Mastery Breakdown
+            </h5>
+            <div class="row g-3">
+                <div class="col-12">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted">Mastered ({{ breakdown.mastered }} words)</span>
+                        <span class="text-success">{{ breakdown.mastered_pct|round(1) }}%</span>
+                    </div>
+                    <div class="progress mb-3" style="height: 30px;">
+                        <div class="progress-bar bg-success mastery-bar"
+                             style="width: {{ breakdown.mastered_pct }}%;">
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted">Learning ({{ breakdown.learning }} words)</span>
+                        <span class="text-warning">{{ breakdown.learning_pct|round(1) }}%</span>
+                    </div>
+                    <div class="progress mb-3" style="height: 30px;">
+                        <div class="progress-bar bg-warning mastery-bar"
+                             style="width: {{ breakdown.learning_pct }}%;">
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted">New ({{ breakdown.new }} words)</span>
+                        <span class="text-info">{{ breakdown.new_pct|round(1) }}%</span>
+                    </div>
+                    <div class="progress" style="height: 30px;">
+                        <div class="progress-bar bg-info mastery-bar"
+                             style="width: {{ breakdown.new_pct }}%;">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-3 pt-3 border-top border-secondary">
+                <p class="mb-0 text-muted">
+                    <small>
+                        <strong>Total vocabulary:</strong> {{ breakdown.total }} words
+                    </small>
+                </p>
+            </div>
+        </div>
+
+        <!-- Memorization Curve -->
+        <div class="chart-card mb-4">
+            <h5 class="mb-3">
+                <i class="fas fa-chart-area me-2"></i>14-Day Review Activity
+            </h5>
+            {% if curve %}
+            <div class="table-responsive">
+                <table class="table table-dark table-sm">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th class="text-center">Total</th>
+                            <th class="text-center">New</th>
+                            <th class="text-center">Reviews</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for day in curve %}
+                        <tr>
+                            <td>{{ day.date }}</td>
+                            <td class="text-center">
+                                <span class="badge bg-primary">{{ day.total }}</span>
+                            </td>
+                            <td class="text-center">
+                                <span class="badge bg-success">{{ day.new_count }}</span>
+                            </td>
+                            <td class="text-center">
+                                <span class="badge bg-warning">{{ day.review_count }}</span>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <p class="text-muted text-center py-3">No review data yet. Start learning to see your progress!</p>
+            {% endif %}
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="text-center mt-4">
+            {% if progress.remaining > 0 %}
+            <a href="{{ url_for('vocab_session') }}" class="btn btn-primary btn-lg me-2">
+                <i class="fas fa-play me-2"></i>Continue Session
+            </a>
+            {% else %}
+            <p class="text-success mb-3">
+                <i class="fas fa-check-circle me-2"></i>Daily goal complete! Great work!
+            </p>
+            <a href="{{ url_for('vocab_session') }}" class="btn btn-outline-light me-2">
+                <i class="fas fa-redo me-2"></i>Keep Practicing
+            </a>
+            {% endif %}
+            <a href="{{ url_for('settings') }}" class="btn btn-outline-light">
+                <i class="fas fa-cog me-2"></i>Settings
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

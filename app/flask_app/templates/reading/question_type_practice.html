@@ -1,0 +1,668 @@
+{% extends "base.html" %}
+
+{% block title %}{{ q_type.name_cn }} - Practice{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <!-- Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h2 class="mb-2">
+                        <i class="fas {{ q_type.icon }} text-{{ q_type.color }} me-2"></i>
+                        {{ q_type.name_cn }} - 练习模式
+                    </h2>
+                    <p class="text-muted mb-0">{{ q_type.name_en }} Practice</p>
+                </div>
+                <div class="d-flex gap-2">
+                    <a href="{{ url_for('question_type_learn', question_type_id=q_type.id) }}"
+                       class="btn btn-outline-info">
+                        <i class="fas fa-graduation-cap me-2"></i>回顾策略
+                    </a>
+                    <a href="{{ url_for('question_types_hub') }}"
+                       class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left me-2"></i>返回
+                    </a>
+                </div>
+            </div>
+
+            <!-- Reading Passage Card -->
+            <div class="card mb-4 shadow-sm" style="background: white; border: 1px solid var(--toefl-border);">
+                <div class="card-header" style="background: var(--toefl-gray-bg); border-bottom: 1px solid var(--toefl-border);">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0" style="color: var(--toefl-text);">
+                            <i class="fas fa-book-open me-2" style="color: var(--toefl-primary);"></i>
+                            Reading Passage
+                        </h5>
+                        <div class="d-flex align-items-center gap-3">
+                            <span class="badge" style="background: var(--toefl-info); color: white;">{{ drill.topic }}</span>
+                            <span class="badge" style="background: var(--toefl-text-light); color: white;" id="question-counter">
+                                问题 <span id="current-question">{{ drill.current_index + 1 }}</span> / {{ drill.total_questions }}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body" style="background: white;">
+                    <div id="passage-text" style="line-height: 1.8; font-size: 1.05rem; color: var(--toefl-text); white-space: pre-wrap;">
+                        {{ drill.passage }}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Question Card -->
+            <div class="card mb-4 shadow-sm" style="border-left: 4px solid var(--toefl-primary); background: white; border: 1px solid var(--toefl-border); border-left: 4px solid var(--toefl-primary);">
+                <div class="card-header" style="background: var(--toefl-gray-bg); border-bottom: 1px solid var(--toefl-border);">
+                    <h5 class="mb-0" style="color: var(--toefl-text);">
+                        <i class="fas fa-question-circle me-2" style="color: var(--toefl-primary);"></i>
+                        Question
+                    </h5>
+                </div>
+                <div class="card-body" style="background: white;">
+                    <p class="lead mb-4" id="question-text" style="color: var(--toefl-text); font-size: 1.1rem; font-weight: 500;">{{ drill.questions[drill.current_index].question_text }}</p>
+
+                    <!-- Options -->
+                    <div id="options-container">
+                        {% for option in drill.questions[drill.current_index].options %}
+                        <div class="option-item mb-3 p-3" data-option-index="{{ loop.index0 }}"
+                             style="border: 2px solid var(--toefl-border); border-radius: 8px; cursor: pointer; transition: all 0.2s; background: white;">
+                            <div class="d-flex align-items-start">
+                                <div class="option-label me-3">
+                                    <span class="badge" style="background: var(--toefl-text-light); color: white; font-size: 1rem; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;">
+                                        {{ "ABCD"[loop.index0] }}
+                                    </span>
+                                </div>
+                                <div class="option-text flex-grow-1" style="color: var(--toefl-text);">
+                                    {{ option }}
+                                </div>
+                                <div class="option-status ms-3" style="display: none;">
+                                    <i class="fas fa-check-circle fa-2x" style="color: var(--toefl-success);"></i>
+                                </div>
+                            </div>
+                            <!-- Explanation (hidden initially) -->
+                            <div class="option-explanation mt-3 pt-3" style="display: none; border-top: 1px solid var(--toefl-border-light);">
+                                <p class="mb-0" style="color: var(--toefl-text-light);">
+                                    <i class="fas fa-info-circle me-1"></i>
+                                    <span class="explanation-text"></span>
+                                </p>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                    <!-- Submit Button -->
+                    <div class="text-center mt-4">
+                        <button id="submit-btn" class="btn btn-success btn-lg" style="background: var(--toefl-success); border-color: var(--toefl-success);">
+                            <i class="fas fa-check me-2"></i>
+                            提交答案
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Feedback Card (hidden initially) -->
+            <div id="feedback-card" class="card mb-4 shadow-sm" style="display: none;">
+                <div class="card-body">
+                    <div id="feedback-content">
+                        <!-- Will be populated by JavaScript -->
+                    </div>
+
+                    <!-- Strategy Reminder -->
+                    <div class="mt-4 p-3" style="background: rgba(32, 201, 151, 0.1); border-radius: 8px;">
+                        <h6 class="mb-2">
+                            <i class="fas fa-chess text-success me-2"></i>
+                            策略回顾: {{ q_type.strategy_title }}
+                        </h6>
+                        <ol class="mb-0 small">
+                            {% for step in q_type.strategy_steps %}
+                            <li>{{ step }}</li>
+                            {% endfor %}
+                        </ol>
+                    </div>
+
+                    <!-- AI Coach Analysis -->
+                    <div class="mt-4 p-3" id="ai-analysis" style="background: rgba(23, 162, 184, 0.1); border-radius: 8px;">
+                        <h6 class="mb-2">
+                            <i class="fas fa-robot text-info me-2"></i>
+                            AI 教练分析
+                        </h6>
+                        <p class="mb-0" id="analysis-text">{{ drill.questions[drill.current_index].analysis }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Navigation & Action Buttons -->
+            <div class="d-flex gap-3 mb-4">
+                <button id="prev-btn" class="btn btn-outline-secondary btn-lg" {% if drill.current_index == 0 %}disabled{% endif %}>
+                    <i class="fas fa-arrow-left me-2"></i>
+                    上一题
+                </button>
+                <button id="next-btn" class="btn btn-outline-primary btn-lg flex-fill" {% if drill.current_index >= drill.total_questions - 1 %}disabled{% endif %}>
+                    下一题
+                    <i class="fas fa-arrow-right ms-2"></i>
+                </button>
+            </div>
+            <div class="d-flex gap-3 mb-4">
+                <button id="regenerate-btn" class="btn btn-outline-info btn-lg flex-fill">
+                    <i class="fas fa-sync-alt me-2"></i>
+                    重新生成新题组
+                </button>
+                <a href="{{ url_for('question_types_hub') }}" class="btn btn-outline-secondary btn-lg">
+                    <i class="fas fa-list me-2"></i>
+                    选择其他题型
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Drill data from backend
+const drillData = {{ drill | tojson }};
+const questionType = '{{ q_type.id }}';
+let currentIndex = drillData.current_index;
+let selectedOption = null;
+let submitted = false;
+
+function getCurrentQuestion() {
+    return drillData.questions[currentIndex];
+}
+
+function resetQuestionUI() {
+    selectedOption = null;
+    submitted = false;
+
+    // Reset all options
+    document.querySelectorAll('.option-item').forEach(item => {
+        item.style.border = '2px solid var(--toefl-border)';
+        item.style.background = 'white';
+        item.style.cursor = 'pointer';
+        item.querySelector('.option-status').style.display = 'none';
+        item.querySelector('.option-explanation').style.display = 'none';
+    });
+
+    // Show submit button
+    document.getElementById('submit-btn').style.display = 'inline-block';
+
+    // Hide feedback
+    document.getElementById('feedback-card').style.display = 'none';
+
+    // Clear any highlights in passage
+    clearPassageHighlights();
+}
+
+function updateQuestion() {
+    const question = getCurrentQuestion();
+
+    // Update question text
+    document.getElementById('question-text').textContent = question.question_text;
+
+    // Update passage with insert-text markers if needed
+    if (questionType === 'insert_text') {
+        updatePassageWithInsertMarkers();
+    }
+
+    // Update options
+    const optionsContainer = document.getElementById('options-container');
+    optionsContainer.innerHTML = '';
+
+    question.options.forEach((option, idx) => {
+        const optionDiv = document.createElement('div');
+        optionDiv.className = 'option-item mb-3 p-3';
+        optionDiv.dataset.optionIndex = idx;
+        optionDiv.style.cssText = 'border: 2px solid var(--toefl-border); border-radius: 8px; cursor: pointer; transition: all 0.2s; background: white;';
+
+        optionDiv.innerHTML = `
+            <div class="d-flex align-items-start">
+                <div class="option-label me-3">
+                    <span class="badge bg-secondary" style="font-size: 1rem; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;">
+                        ${'ABCD'[idx]}
+                    </span>
+                </div>
+                <div class="option-text flex-grow-1">
+                    ${option}
+                </div>
+                <div class="option-status ms-3" style="display: none;">
+                    <i class="fas fa-check-circle fa-2x text-success"></i>
+                </div>
+            </div>
+            <div class="option-explanation mt-3 pt-3" style="display: none; border-top: 1px solid var(--gray-200);">
+                <p class="mb-0 text-muted">
+                    <i class="fas fa-info-circle me-1"></i>
+                    <span class="explanation-text"></span>
+                </p>
+            </div>
+        `;
+
+        optionsContainer.appendChild(optionDiv);
+    });
+
+    // Update analysis
+    document.getElementById('analysis-text').textContent = question.analysis;
+
+    // Update counter
+    document.getElementById('current-question').textContent = currentIndex + 1;
+
+    // Update navigation buttons
+    document.getElementById('prev-btn').disabled = (currentIndex === 0);
+    document.getElementById('next-btn').disabled = (currentIndex >= drillData.total_questions - 1);
+
+    // Re-attach event listeners
+    attachOptionListeners();
+    resetQuestionUI();
+
+    // Apply highlighting for the new question
+    setTimeout(() => {
+        autoHighlightForQuestionType();
+    }, 100);
+}
+
+function updatePassageWithInsertMarkers() {
+    const passageText = document.getElementById('passage-text');
+    if (!passageText) return;
+
+    let text = drillData.passage;
+
+    // Replace ■ symbols with labeled markers
+    const markers = ['A', 'B', 'C', 'D'];
+    let markerIndex = 0;
+
+    // Replace each ■ with a labeled marker
+    text = text.replace(/■/g, () => {
+        if (markerIndex < markers.length) {
+            const label = markers[markerIndex++];
+            return `<span class="insert-text-marker" data-position="${label}">${label}</span>`;
+        }
+        return '■';
+    });
+
+    // If there are no ■ symbols, add them at sentence boundaries
+    if (markerIndex === 0 && questionType === 'insert_text') {
+        // Split into sentences and add markers between them
+        const sentences = text.split(/\.\s+/);
+        if (sentences.length >= 4) {
+            const positions = [
+                Math.floor(sentences.length / 4),
+                Math.floor(sentences.length / 2),
+                Math.floor(3 * sentences.length / 4),
+                sentences.length - 1
+            ];
+
+            let result = '';
+            sentences.forEach((sentence, idx) => {
+                result += sentence;
+                if (idx < sentences.length - 1) {
+                    result += '. ';
+                    if (positions.includes(idx) && markerIndex < markers.length) {
+                        const label = markers[markerIndex++];
+                        result += `<span class="insert-text-marker" data-position="${label}">${label}</span> `;
+                    }
+                }
+            });
+            text = result;
+        }
+    }
+
+    passageText.innerHTML = text;
+}
+
+function attachOptionListeners() {
+    document.querySelectorAll('.option-item').forEach(item => {
+        item.addEventListener('click', function() {
+            if (submitted) return;
+
+            // Deselect all
+            document.querySelectorAll('.option-item').forEach(opt => {
+                opt.style.border = '2px solid var(--toefl-border)';
+                opt.style.background = 'white';
+            });
+
+            // Select this one
+            this.style.border = '2px solid var(--toefl-primary)';
+            this.style.background = 'var(--toefl-highlight-blue)';
+            selectedOption = parseInt(this.dataset.optionIndex);
+        });
+    });
+}
+
+// Passage highlighting functions
+function clearPassageHighlights() {
+    const passageText = document.getElementById('passage-text');
+    if (!passageText) return;
+
+    // Remove all highlight spans but keep the text
+    const highlights = passageText.querySelectorAll('.toefl-highlight, .toefl-highlight-blue');
+    highlights.forEach(span => {
+        const text = document.createTextNode(span.textContent);
+        span.parentNode.replaceChild(text, span);
+    });
+
+    // Normalize the text node to merge adjacent text nodes
+    passageText.normalize();
+}
+
+function highlightTextInPassage(searchText, highlightClass = 'toefl-highlight') {
+    if (!searchText || searchText.length < 3) return;
+
+    const passageText = document.getElementById('passage-text');
+    if (!passageText) return;
+
+    clearPassageHighlights();
+
+    const text = passageText.textContent;
+    const lowerText = text.toLowerCase();
+    const lowerSearch = searchText.toLowerCase();
+
+    // Find the search text in the passage
+    const index = lowerText.indexOf(lowerSearch);
+    if (index === -1) return;
+
+    // Get the context (sentence or nearby text)
+    const start = Math.max(0, text.lastIndexOf('.', index) + 1);
+    const end = text.indexOf('.', index + searchText.length);
+    const contextEnd = end === -1 ? text.length : end + 1;
+
+    // Highlight the entire context
+    const beforeContext = text.substring(0, start);
+    const context = text.substring(start, contextEnd);
+    const afterContext = text.substring(contextEnd);
+
+    passageText.innerHTML = beforeContext +
+        '<span class="' + highlightClass + '">' + context + '</span>' +
+        afterContext;
+}
+
+function highlightWordInPassage(word) {
+    if (!word || word.length < 2) return;
+
+    const passageText = document.getElementById('passage-text');
+    if (!passageText) return;
+
+    clearPassageHighlights();
+
+    // Use regex to find whole words (case insensitive)
+    const regex = new RegExp('\\b(' + word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')\\b', 'gi');
+    const html = passageText.textContent.replace(regex, '<span class="toefl-highlight">$1</span>');
+    passageText.innerHTML = html;
+}
+
+function autoHighlightForQuestionType() {
+    const question = getCurrentQuestion();
+    const questionText = question.question_text;
+    // questionType is already defined globally on line 162
+
+    // Extract key information from question text for different question types
+
+    // Vocabulary questions - highlight the word being asked about
+    const vocabMatch = questionText.match(/word ["'](.+?)["']/i) ||
+                      questionText.match(/meaning to ["'](.+?)["']/i) ||
+                      questionText.match(/closest in meaning to (.+?)[\?\.]/i);
+    if (vocabMatch && vocabMatch[1]) {
+        const targetWord = vocabMatch[1].replace(/['"]/g, '').trim();
+        highlightWordInPassage(targetWord);
+        return;
+    }
+
+    // Reference questions - highlight pronouns/words
+    const refMatch = questionText.match(/The word ["'](.+?)["'] .*refers to/i) ||
+                    questionText.match(/What does ["'](.+?)["'] refer to/i);
+    if (refMatch && refMatch[1]) {
+        highlightWordInPassage(refMatch[1]);
+        return;
+    }
+
+    // Sentence Simplification - highlight "highlighted sentence"
+    if (questionText.toLowerCase().includes('highlighted sentence') ||
+        questionText.toLowerCase().includes('sentence below') ||
+        questionText.toLowerCase().includes('which of the following best expresses')) {
+        // Look for the sentence in the question or in stored metadata
+        if (question.highlighted_sentence) {
+            highlightTextInPassage(question.highlighted_sentence, 'toefl-highlight-blue');
+            return;
+        }
+    }
+
+    // Inference/Except questions - look for key phrases to highlight
+    if (questionText.toLowerCase().includes('infer') ||
+        questionText.toLowerCase().includes('imply') ||
+        questionText.toLowerCase().includes('suggest')) {
+        // Try to find referenced text in the question
+        const phraseMatch = questionText.match(/about (.+?)[?\.]/) ||
+                           questionText.match(/regarding (.+?)[?\.]/) ||
+                           questionText.match(/concerning (.+?)[?\.]/);
+        if (phraseMatch && phraseMatch[1]) {
+            const phrase = phraseMatch[1].replace(/['"]/g, '').trim();
+            if (phrase.length > 3 && !phrase.toLowerCase().includes('which') && !phrase.toLowerCase().includes('what')) {
+                highlightTextInPassage(phrase, 'toefl-highlight-blue');
+            }
+        }
+    }
+
+    // EXCEPT/NOT questions - highlight the topic being asked about
+    if (questionText.includes('EXCEPT') || questionText.includes('NOT')) {
+        const exceptMatch = questionText.match(/about (.+?) EXCEPT/i) ||
+                           questionText.match(/about (.+?) NOT/i) ||
+                           questionText.match(/All of the following .+ EXCEPT/i);
+        if (exceptMatch && exceptMatch[1]) {
+            const topic = exceptMatch[1].replace(/['"]/g, '').trim();
+            if (topic.length > 3) {
+                highlightTextInPassage(topic, 'toefl-highlight-blue');
+            }
+        }
+    }
+}
+
+// Initial setup
+attachOptionListeners();
+
+// Setup insert-text markers if needed
+if (questionType === 'insert_text') {
+    updatePassageWithInsertMarkers();
+}
+
+// Apply auto-highlighting when question loads
+setTimeout(() => {
+    autoHighlightForQuestionType();
+}, 300);
+
+// Submit answer
+document.getElementById('submit-btn').addEventListener('click', function() {
+    if (selectedOption === null) {
+        alert('请先选择一个答案');
+        return;
+    }
+
+    if (submitted) return;
+    submitted = true;
+
+    // Disable further selection
+    document.querySelectorAll('.option-item').forEach(item => {
+        item.style.cursor = 'default';
+    });
+
+    // Check answer
+    const question = getCurrentQuestion();
+    const correctIndex = question.answer;
+    const isCorrect = selectedOption === correctIndex;
+
+    // Show feedback
+    const feedbackCard = document.getElementById('feedback-card');
+    const feedbackContent = document.getElementById('feedback-content');
+
+    if (isCorrect) {
+        feedbackContent.innerHTML = `
+            <div class="alert alert-success" role="alert">
+                <h5 class="alert-heading">
+                    <i class="fas fa-check-circle me-2"></i>
+                    回答正确！
+                </h5>
+                <p class="mb-0">你成功运用了解题策略。继续保持！</p>
+            </div>
+        `;
+
+        // Highlight correct option
+        const correctItem = document.querySelector(`.option-item[data-option-index="${correctIndex}"]`);
+        correctItem.style.border = '2px solid var(--toefl-success)';
+        correctItem.style.background = 'var(--toefl-highlight-green)';
+        correctItem.querySelector('.option-status').style.display = 'block';
+        correctItem.querySelector('.option-status i').className = 'fas fa-check-circle fa-2x';
+        correctItem.querySelector('.option-status i').style.color = 'var(--toefl-success)';
+
+    } else {
+        feedbackContent.innerHTML = `
+            <div class="alert alert-warning" role="alert" style="background: #fff3cd; border-color: #ffc107; color: var(--toefl-text);">
+                <h5 class="alert-heading" style="color: var(--toefl-text);">
+                    <i class="fas fa-times-circle me-2" style="color: var(--toefl-danger);"></i>
+                    答案不正确
+                </h5>
+                <p class="mb-0">仔细分析一下，看看哪里可以改进。正确答案已标注。</p>
+            </div>
+        `;
+
+        // Highlight wrong option
+        const wrongItem = document.querySelector(`.option-item[data-option-index="${selectedOption}"]`);
+        wrongItem.style.border = '2px solid var(--toefl-danger)';
+        wrongItem.style.background = '#f8d7da';
+        wrongItem.querySelector('.option-status').style.display = 'block';
+        wrongItem.querySelector('.option-status i').className = 'fas fa-times-circle fa-2x';
+        wrongItem.querySelector('.option-status i').style.color = 'var(--toefl-danger)';
+
+        // Highlight correct option
+        const correctItem = document.querySelector(`.option-item[data-option-index="${correctIndex}"]`);
+        correctItem.style.border = '2px solid var(--toefl-success)';
+        correctItem.style.background = 'var(--toefl-highlight-green)';
+        correctItem.querySelector('.option-status').style.display = 'block';
+        correctItem.querySelector('.option-status i').className = 'fas fa-check-circle fa-2x';
+        correctItem.querySelector('.option-status i').style.color = 'var(--toefl-success)';
+    }
+
+    // Show explanations for all options
+    document.querySelectorAll('.option-item').forEach((item, idx) => {
+        const explanation = question.explanations[idx];
+        if (explanation) {
+            const explanationDiv = item.querySelector('.option-explanation');
+            explanationDiv.querySelector('.explanation-text').textContent = explanation;
+            explanationDiv.style.display = 'block';
+        }
+    });
+
+    // Show feedback card
+    feedbackCard.style.display = 'block';
+
+    // Scroll to feedback
+    setTimeout(() => {
+        feedbackCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }, 300);
+
+    // Hide submit button
+    this.style.display = 'none';
+});
+
+// Navigation buttons
+document.getElementById('prev-btn').addEventListener('click', function() {
+    if (currentIndex > 0) {
+        fetch(`{{ url_for('navigate_question_type_drill', question_type_id=q_type.id) }}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ direction: 'prev' })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                currentIndex = data.current_index;
+                updateQuestion();
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        });
+    }
+});
+
+document.getElementById('next-btn').addEventListener('click', function() {
+    if (currentIndex < drillData.total_questions - 1) {
+        fetch(`{{ url_for('navigate_question_type_drill', question_type_id=q_type.id) }}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ direction: 'next' })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                currentIndex = data.current_index;
+                updateQuestion();
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        });
+    }
+});
+
+// Regenerate drill
+document.getElementById('regenerate-btn').addEventListener('click', function() {
+    this.disabled = true;
+    this.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>生成中...';
+
+    fetch(`{{ url_for('regenerate_question_type_drill', question_type_id=q_type.id) }}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success && data.redirect) {
+            window.location.href = data.redirect;
+        } else {
+            alert('生成失败: ' + (data.message || '请稍后重试'));
+            this.disabled = false;
+            this.innerHTML = '<i class="fas fa-sync-alt me-2"></i>重新生成新题组';
+        }
+    })
+    .catch(err => {
+        console.error('Regenerate error:', err);
+        alert('网络错误，请重试');
+        this.disabled = false;
+        this.innerHTML = '<i class="fas fa-sync-alt me-2"></i>重新生成新题组';
+    });
+});
+</script>
+
+<style>
+.option-item:hover {
+    transform: translateX(4px);
+}
+
+#passage-text {
+    white-space: pre-wrap;
+}
+
+.toefl-highlight {
+    background-color: rgba(255, 215, 0, 0.3);
+    padding: 2px 4px;
+    border-radius: 3px;
+    font-weight: 600;
+    border-bottom: 2px solid #ffd700;
+}
+
+.toefl-highlight-blue {
+    background-color: rgba(59, 130, 246, 0.2);
+    padding: 2px 4px;
+    border-radius: 3px;
+    border-bottom: 2px solid rgba(59, 130, 246, 0.5);
+}
+
+.insert-text-marker {
+    display: inline-block;
+    background: #000;
+    color: #fff;
+    padding: 2px 8px;
+    margin: 0 4px;
+    border-radius: 4px;
+    font-weight: bold;
+    font-size: 0.9em;
+    cursor: pointer;
+}
+
+.insert-text-marker:hover {
+    background: var(--toefl-primary);
+}
+</style>
+{% endblock %}

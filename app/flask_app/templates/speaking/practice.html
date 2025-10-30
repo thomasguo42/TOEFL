@@ -1,0 +1,801 @@
+{% extends "base.html" %}
+
+{% block title %}Speaking Task {{ task.task_number }} - TOEFL{% endblock %}
+
+{% block extra_css %}
+<style>
+    .practice-container {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 2rem 1rem;
+    }
+
+    .task-header {
+        background: linear-gradient(135deg, #0ea5e9 0%, #06b6d4 100%);
+        color: white;
+        padding: 2rem;
+        border-radius: 1rem;
+        margin-bottom: 2rem;
+        text-align: center;
+    }
+
+    .content-section {
+        background: white;
+        border: 1px solid #e2e8f0;
+        border-radius: 1rem;
+        padding: 2rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .timer-display {
+        font-size: 3rem;
+        font-weight: 700;
+        text-align: center;
+        padding: 2rem;
+        background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+        border-radius: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .record-button {
+        width: 150px;
+        height: 150px;
+        border-radius: 50%;
+        border: none;
+        font-size: 2.5rem;
+        cursor: pointer !important;
+        pointer-events: auto !important;
+        transition: all 0.3s;
+        margin: 0 auto;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        color: white;
+        box-shadow: 0 12px 24px rgba(13, 148, 136, 0.35);
+        position: relative;
+        z-index: 10;
+        user-select: none;
+    }
+
+    .record-button .label {
+        font-size: 1rem;
+        font-weight: 600;
+        margin-top: 0.35rem;
+        letter-spacing: 0.02em;
+    }
+
+    .record-button.ready {
+        background: var(--teal-500, var(--teal-400));
+    }
+
+    .record-button.ready:hover:not(:disabled) {
+        transform: translateY(-2px);
+        box-shadow: 0 16px 32px rgba(13, 148, 136, 0.45);
+    }
+
+    .record-button.countdown {
+        background: #f97316;
+        box-shadow: 0 12px 24px rgba(249, 115, 22, 0.35);
+    }
+
+    .record-button.error {
+        background: #ef4444;
+        box-shadow: 0 12px 24px rgba(239, 68, 68, 0.35);
+    }
+
+    .record-button:disabled {
+        opacity: 0.7;
+        cursor: not-allowed;
+        transform: none;
+        box-shadow: 0 10px 20px rgba(148, 163, 184, 0.35);
+    }
+
+    .record-indicator {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        font-size: 1rem;
+        color: #dc2626;
+        font-weight: 600;
+        margin-bottom: 1rem;
+    }
+
+    .record-indicator .dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: #dc2626;
+        animation: blink 1.2s infinite;
+    }
+
+    @keyframes blink {
+        0%, 100% { opacity: 0.2; }
+        50% { opacity: 1; }
+    }
+
+    .status-message {
+        text-align: center;
+        font-size: 1.1rem;
+        margin-top: 1rem;
+        font-weight: 600;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="practice-container">
+    <div class="mb-3 d-flex justify-content-between align-items-center">
+        <a href="{{ url_for('speaking_dashboard') }}" class="btn btn-outline-secondary btn-sm">
+            <i class="fas fa-arrow-left me-2"></i>Back to Speaking Dashboard
+        </a>
+        <a href="{{ url_for('speaking_task_regenerate', task_number=task.task_number) }}" class="btn btn-outline-primary btn-sm">
+            <i class="fas fa-sync-alt me-2"></i>Generate New Task
+        </a>
+    </div>
+
+    <div class="task-header">
+        <h1>Task {{ task.task_number }}: {{ task.topic }}</h1>
+        <p class="mb-0">{{ task.task_type.replace('_', ' ').title() }}</p>
+    </div>
+
+    <!-- Reading Section (if applicable) -->
+    {% if task.reading_text %}
+    <div class="content-section">
+        <h3><i class="fas fa-book me-2"></i>Reading (45 seconds)</h3>
+        <div id="reading-content">
+            {{ task.reading_text }}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Listening Section (if applicable) -->
+    {% if task.listening_audio_url %}
+    <div class="content-section">
+        <h3><i class="fas fa-headphones me-2"></i>Listening</h3>
+        <div id="listening-content">
+            <audio controls class="w-100 mb-3" id="listeningAudio">
+                <source src="{{ task.listening_audio_url }}" type="audio/mpeg">
+                Your browser does not support the audio element.
+            </audio>
+            <p class="text-muted small">
+                <i class="fas fa-info-circle me-1"></i>
+                Listen to the audio carefully. You can play it as many times as you need.
+            </p>
+
+            <!-- Listening Transcript (Collapsible) -->
+            {% if task.listening_transcript %}
+            <details class="mt-3">
+                <summary style="cursor: pointer; font-weight: 600;">
+                    <i class="fas fa-file-text me-2"></i>View Listening Transcript
+                </summary>
+                <div class="mt-3 p-3 bg-light rounded" style="white-space: pre-wrap;">{{ task.listening_transcript }}</div>
+            </details>
+            {% endif %}
+
+            <!-- Sample Note-Taking Template (for integrated tasks) -->
+            {% if task.task_number in [2, 3, 4] %}
+            <details class="mt-3">
+                <summary style="cursor: pointer; font-weight: 600;">
+                    <i class="fas fa-pen me-2"></i>Sample Note-Taking Template
+                </summary>
+                <div class="mt-3 p-3" style="background: #fffbeb; border-left: 4px solid #f59e0b; border-radius: 0.5rem;">
+                    {% if task.task_number == 2 %}
+                    <strong>Task 2 - Campus Situation Notes:</strong>
+                    <pre style="font-size: 0.9rem; margin-top: 0.5rem;">
+Announcement Topic: [brief summary]
+
+Main Speaker (W/M): [which student has stronger opinion]
+- Opinion: [Agrees/Disagrees with announcement]
+
+Reason 1:
+- Main point:
+- Supporting detail/example:
+
+Reason 2:
+- Main point:
+- Supporting detail/example:</pre>
+                    {% elif task.task_number == 3 %}
+                    <strong>Task 3 - Academic Concept Notes:</strong>
+                    <pre style="font-size: 0.9rem; margin-top: 0.5rem;">
+Main Concept: [concept name]
+- Definition:
+- Key characteristics:
+
+Example 1:
+- Situation:
+- How it illustrates concept:
+
+Example 2:
+- Situation:
+- How it illustrates concept:</pre>
+                    {% elif task.task_number == 4 %}
+                    <strong>Task 4 - Lecture Summary Notes:</strong>
+                    <pre style="font-size: 0.9rem; margin-top: 0.5rem;">
+Main Topic: [what lecture is about]
+
+Key Point 1:
+- Detail/Example:
+
+Key Point 2:
+- Detail/Example:
+
+Connection between points:</pre>
+                    {% endif %}
+                    <p class="text-muted small mt-2 mb-0">
+                        <i class="fas fa-lightbulb me-1"></i>
+                        Tip: Write down key words and main ideas while listening. Don't try to write complete sentences.
+                    </p>
+                </div>
+            </details>
+            {% endif %}
+        </div>
+    </div>
+    {% elif task.listening_transcript %}
+    <div class="content-section">
+        <h3><i class="fas fa-headphones me-2"></i>Listening</h3>
+        <div id="listening-content">
+            <div class="alert alert-warning">
+                <i class="fas fa-exclamation-triangle me-2"></i>
+                Audio is being generated. Transcript shown for reference:
+            </div>
+            <div class="p-3 bg-light rounded" style="white-space: pre-wrap;">
+                {{ task.listening_transcript }}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Speaking Prompt -->
+    <div class="content-section">
+        <h3><i class="fas fa-question-circle me-2"></i>Your Task</h3>
+        <p class="lead">{{ task.prompt }}</p>
+        <div class="alert alert-warning">
+            <strong>Time:</strong> {{ task.preparation_time }} seconds to prepare, {{ task.response_time }} seconds to respond
+        </div>
+    </div>
+
+    <!-- Timer -->
+    <div class="timer-display" id="timer">
+        <span id="timer-value">--:--</span>
+        <div style="font-size: 1rem; margin-top: 0.5rem;" id="timer-label">Ready to Start</div>
+    </div>
+
+    <!-- Recording Controls -->
+    <div class="content-section text-center">
+        <!-- Debug Info -->
+        <div id="debugInfo" style="background: #f0f9ff; border: 2px solid #0ea5e9; padding: 1rem; margin-bottom: 1rem; border-radius: 0.5rem; font-family: monospace; font-size: 0.85rem; text-align: left;"></div>
+
+        <button id="startButton" class="record-button ready" type="button" aria-label="Start preparation">
+            <i class="fas fa-play"></i>
+            <span class="label">Start Prep</span>
+        </button>
+        <div class="status-message" id="statusMessage">Click to start preparation</div>
+
+        <div id="recordingControls" class="mt-4" style="display: none;">
+            <div class="record-indicator" id="recordIndicator" style="display: none;">
+                <span class="dot" aria-hidden="true"></span>
+                <span>Recording in progress</span>
+            </div>
+            <button id="stopRecording" class="btn btn-danger btn-lg" type="button" disabled>
+                <i class="fas fa-stop me-2"></i>Stop & Submit
+            </button>
+        </div>
+
+        <!-- File Upload Fallback -->
+        <div id="uploadFallback" class="mt-4" style="display: none;">
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle me-2"></i>
+                <strong>Browser recording not available.</strong> Please record your response using your device's voice recorder app and upload it here.
+            </div>
+            <div class="mb-3">
+                <label for="audioUpload" class="form-label fw-semibold">Upload Your Recording (MP3, WAV, WEBM, M4A)</label>
+                <input type="file" class="form-control" id="audioUpload" accept="audio/*,.m4a,.mp3,.wav,.webm,.ogg">
+            </div>
+            <button id="submitUpload" class="btn btn-primary btn-lg" disabled>
+                <i class="fas fa-upload me-2"></i>Submit Recording
+            </button>
+        </div>
+    </div>
+
+    <!-- Template Hint (Collapsible) -->
+    {% if task.response_template %}
+    <div class="content-section">
+        <details>
+            <summary style="cursor: pointer; font-weight: 600;">
+                <i class="fas fa-lightbulb me-2"></i>Response Template (Click to expand)
+            </summary>
+            <div class="mt-3 p-3 bg-light rounded">
+                {{ task.response_template }}
+            </div>
+        </details>
+    </div>
+    {% endif %}
+    {% if task.sample_response or task.sample_audio_url %}
+    <div class="content-section">
+        <h3><i class="fas fa-star me-2"></i>Model Answer</h3>
+        {% if task.sample_audio_url %}
+        <div class="mb-3">
+            <label class="form-label fw-semibold" for="sampleAudio">Listen to a high-scoring sample</label>
+            <audio id="sampleAudio" class="w-100" controls preload="none">
+                <source src="{{ task.sample_audio_url }}" type="audio/mpeg">
+                Your browser does not support audio playback.
+            </audio>
+        </div>
+        {% endif %}
+        {% if task.sample_response %}
+        <details>
+            <summary style="cursor: pointer; font-weight: 600;">
+                <i class="fas fa-file-alt me-2"></i>View sample transcript
+            </summary>
+            <div class="mt-3 p-3 bg-light rounded">
+                {{ task.sample_response }}
+            </div>
+        </details>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+
+<form id="submitForm" action="{{ url_for('speaking_submit_response', task_id=task.id) }}" method="POST" enctype="multipart/form-data" style="display: none;">
+    <input type="file" name="audio" id="audioFile">
+</form>
+
+<script>
+const phases = {
+    IDLE: 'idle',
+    PREPARATION: 'preparation',
+    INITIALIZING: 'initializing',
+    RECORDING: 'recording',
+    SUBMITTING: 'submitting',
+    PROCESSING: 'processing'
+};
+
+let mediaRecorder = null;
+let audioChunks = [];
+let currentStream = null;
+const preparationTime = {{ task.preparation_time }};
+const responseTime = {{ task.response_time }};
+let currentPhase = phases.IDLE;
+let timerInterval = null;
+
+const startButton = document.getElementById('startButton');
+const timerValue = document.getElementById('timer-value');
+const timerLabel = document.getElementById('timer-label');
+const statusMessage = document.getElementById('statusMessage');
+const recordingControls = document.getElementById('recordingControls');
+const recordIndicator = document.getElementById('recordIndicator');
+const stopButton = document.getElementById('stopRecording');
+const debugInfo = document.getElementById('debugInfo');
+const uploadFallback = document.getElementById('uploadFallback');
+const audioUpload = document.getElementById('audioUpload');
+const submitUpload = document.getElementById('submitUpload');
+
+function updateDebug(message) {
+    const timestamp = new Date().toLocaleTimeString();
+    debugInfo.innerHTML += `<div>[${timestamp}] ${message}</div>`;
+    debugInfo.scrollTop = debugInfo.scrollHeight;
+    console.log(message);
+}
+
+updateDebug('Speaking practice initialized');
+updateDebug(`Prep time: ${preparationTime}s, Response time: ${responseTime}s`);
+updateDebug(`Start button found: ${!!startButton}`);
+updateDebug(`MediaDevices available: ${!!navigator.mediaDevices}`);
+updateDebug(`getUserMedia available: ${!!navigator.mediaDevices?.getUserMedia}`);
+updateDebug(`Current URL protocol: ${window.location.protocol}`);
+updateDebug(`MediaRecorder supported: ${!!window.MediaRecorder}`);
+
+// Check if browser recording is available
+const browserRecordingAvailable = !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia && window.MediaRecorder);
+
+if (!browserRecordingAvailable) {
+    updateDebug('⚠️ Browser recording NOT available - showing upload fallback');
+    // Hide the start button and show upload option
+    startButton.style.display = 'none';
+    statusMessage.innerHTML = '<strong>Browser Recording Not Available</strong><br>Please use the upload option below';
+    uploadFallback.style.display = 'block';
+
+    // Enable submit button when file is selected
+    audioUpload.addEventListener('change', () => {
+        submitUpload.disabled = !audioUpload.files.length;
+        if (audioUpload.files.length) {
+            const file = audioUpload.files[0];
+            updateDebug(`📁 File selected: ${file.name} (${(file.size / 1024 / 1024).toFixed(2)} MB)`);
+
+            // Validate file type
+            const validTypes = ['audio/mpeg', 'audio/mp3', 'audio/wav', 'audio/webm', 'audio/ogg', 'audio/m4a', 'audio/x-m4a'];
+            const fileExt = file.name.toLowerCase().split('.').pop();
+            const validExts = ['mp3', 'wav', 'webm', 'ogg', 'm4a'];
+
+            if (!validTypes.includes(file.type) && !validExts.includes(fileExt)) {
+                updateDebug('❌ Invalid file type selected');
+                alert('Please select a valid audio file (MP3, WAV, WEBM, M4A, or OGG)');
+                audioUpload.value = '';
+                submitUpload.disabled = true;
+                return;
+            }
+
+            // Validate file size (max 50MB)
+            if (file.size > 50 * 1024 * 1024) {
+                updateDebug('❌ File too large');
+                alert('File size must be less than 50MB');
+                audioUpload.value = '';
+                submitUpload.disabled = true;
+                return;
+            }
+
+            updateDebug('✅ File validated successfully');
+        }
+    });
+
+    // Handle upload submission
+    submitUpload.addEventListener('click', () => {
+        const file = audioUpload.files[0];
+        if (!file) {
+            updateDebug('❌ No file selected');
+            return;
+        }
+
+        updateDebug('📤 Uploading file...');
+        statusMessage.textContent = 'Uploading your recording...';
+        submitUpload.disabled = true;
+        submitUpload.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Uploading...';
+
+        const formData = new FormData();
+        formData.append('audio', file);
+
+        fetch('{{ url_for("speaking_submit_response", task_id=task.id) }}', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.success && data.redirect) {
+                updateDebug('✅ Upload successful!');
+                statusMessage.textContent = 'Success! Redirecting to feedback...';
+                window.location.href = data.redirect;
+            } else {
+                throw new Error(data.message || 'Upload failed');
+            }
+        })
+        .catch(error => {
+            updateDebug('❌ Upload error: ' + error.message);
+            alert('Error uploading file: ' + error.message);
+            submitUpload.disabled = false;
+            submitUpload.innerHTML = '<i class="fas fa-upload me-2"></i>Submit Recording';
+        });
+    });
+} else {
+    updateDebug('✅ Browser recording is available');
+}
+
+// Test if button is actually clickable
+startButton.addEventListener('click', (e) => {
+    updateDebug('🎯 START BUTTON CLICKED!');
+    updateDebug(`Current phase: ${currentPhase}`);
+    updateDebug(`Button disabled: ${startButton.disabled}`);
+
+    if (currentPhase !== phases.IDLE) {
+        updateDebug('⚠️ Not in IDLE phase, ignoring click');
+        return;
+    }
+    startPreparation();
+}, { capture: true });
+
+// Test for any pointer event issues
+startButton.addEventListener('pointerdown', () => {
+    updateDebug('👆 Pointer down event detected');
+});
+
+startButton.addEventListener('mousedown', () => {
+    updateDebug('🖱️ Mouse down event detected');
+});
+
+stopButton.addEventListener('click', () => {
+    if (currentPhase !== phases.RECORDING) {
+        console.warn('Stop requested before recording was ready');
+        statusMessage.textContent = 'Hang on - recording is still starting. Try again in a second.';
+        return;
+    }
+    stopAndSubmit();
+});
+
+function startPreparation() {
+    updateDebug('✅ Entering preparation phase');
+    currentPhase = phases.PREPARATION;
+    toggleStartButton('countdown', 'Prep Running');
+    recordingControls.style.display = 'block';
+    recordIndicator.style.display = 'none';
+    stopButton.disabled = true;
+
+    if (preparationTime > 0) {
+        updateDebug(`⏱️ Starting ${preparationTime}s preparation timer`);
+        statusMessage.textContent = 'Preparation time - outline your main points.';
+        timerLabel.textContent = 'Preparation Countdown';
+        runTimer(preparationTime, () => {
+            updateDebug('⏰ Preparation time complete, starting recording');
+            startRecording();
+        });
+    } else {
+        updateDebug('⚡ No prep time, starting recording immediately');
+        statusMessage.textContent = 'No prep time for this task - starting recording.';
+        timerLabel.textContent = 'Preparing Recorder';
+        updateTimerDisplay(0);
+        startRecording();
+    }
+}
+
+function runTimer(durationSeconds, onComplete) {
+    clearInterval(timerInterval);
+    let timeLeft = Math.max(0, Math.floor(durationSeconds));
+    updateTimerDisplay(timeLeft);
+
+    if (timeLeft === 0) {
+        if (typeof onComplete === 'function') {
+            onComplete();
+        }
+        return;
+    }
+
+    timerInterval = setInterval(() => {
+        timeLeft -= 1;
+        updateTimerDisplay(Math.max(0, timeLeft));
+        if (timeLeft <= 0) {
+            clearInterval(timerInterval);
+            timerInterval = null;
+            if (typeof onComplete === 'function') {
+                onComplete();
+            }
+        }
+    }, 1000);
+}
+
+function startRecording() {
+    updateDebug('🎤 Requesting microphone access');
+    currentPhase = phases.INITIALIZING;
+    toggleStartButton('hidden');
+    stopButton.disabled = true;
+    recordIndicator.style.display = 'none';
+    statusMessage.textContent = 'Requesting microphone permission...';
+    timerLabel.textContent = 'Setting up recorder';
+    audioChunks = [];
+
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        updateDebug('❌ Browser does not support getUserMedia');
+        alert('Your browser does not support microphone recording. Please try Chrome, Edge, or Firefox on HTTPS/localhost.');
+        resetUI(true);
+        return;
+    }
+
+    updateDebug('📞 Calling getUserMedia...');
+    navigator.mediaDevices.getUserMedia({
+        audio: {
+            echoCancellation: true,
+            noiseSuppression: true,
+            sampleRate: 44100
+        }
+    })
+    .then(stream => {
+        updateDebug('✅ Microphone access granted!');
+        updateDebug(`Stream active: ${stream.active}, tracks: ${stream.getTracks().length}`);
+        currentStream = stream;
+
+        const options = {};
+        const mimeType = pickSupportedMimeType();
+        if (mimeType) {
+            options.mimeType = mimeType;
+        }
+
+        mediaRecorder = new MediaRecorder(stream, options);
+        mediaRecorder.ondataavailable = event => {
+            if (event.data && event.data.size > 0) {
+                audioChunks.push(event.data);
+            }
+        };
+
+        mediaRecorder.onstart = () => {
+            console.log('Recorder started');
+            currentPhase = phases.RECORDING;
+            stopButton.disabled = false;
+            recordIndicator.style.display = 'inline-flex';
+            statusMessage.textContent = 'Recording - speak clearly and stay on topic!';
+            timerLabel.textContent = 'Response Time';
+            runTimer(responseTime, () => {
+                if (currentPhase === phases.RECORDING) {
+                    console.log('Response timer elapsed - auto stopping.');
+                    stopAndSubmit();
+                }
+            });
+        };
+
+        mediaRecorder.onstop = handleRecordingStop;
+        mediaRecorder.onerror = event => {
+            console.error('MediaRecorder error', event.error);
+            alert('Recording failed: ' + (event.error?.message || 'Unknown error'));
+            resetUI(true);
+        };
+
+        mediaRecorder.start(200);
+    })
+    .catch(error => {
+        console.error('Microphone error:', error);
+        alert('Cannot access microphone. Please ensure you granted permission and no other app is using it.');
+        resetUI(true);
+    });
+}
+
+function stopAndSubmit() {
+    if (!mediaRecorder || (mediaRecorder.state !== 'recording' && mediaRecorder.state !== 'paused')) {
+        alert('Recording has not started yet. Wait for the countdown and try again.');
+        return;
+    }
+
+    console.log('Stopping recorder');
+    currentPhase = phases.SUBMITTING;
+    stopButton.disabled = true;
+    recordIndicator.style.display = 'none';
+    statusMessage.textContent = 'Finishing up your recording...';
+
+    if (timerInterval) {
+        clearInterval(timerInterval);
+        timerInterval = null;
+    }
+
+    try {
+        mediaRecorder.stop();
+    } catch (error) {
+        console.error('Error stopping media recorder', error);
+        resetUI(true);
+    }
+
+    if (currentStream) {
+        currentStream.getTracks().forEach(track => track.stop());
+        currentStream = null;
+    }
+}
+
+function handleRecordingStop() {
+    console.log('Recorder stopped; preparing upload');
+    currentPhase = phases.PROCESSING;
+    statusMessage.textContent = 'Processing your response...';
+    recordingControls.style.display = 'none';
+
+    if (!audioChunks.length) {
+        alert('No audio was captured. Please try again.');
+        resetUI(true);
+        return;
+    }
+
+    const mimeType = pickSupportedMimeType() || 'audio/webm';
+    const audioBlob = new Blob(audioChunks, { type: mimeType });
+    console.log('Audio blob size:', audioBlob.size);
+
+    if (audioBlob.size < 2000) {
+        alert('Recording seems too short. Please speak for the full response time and try again.');
+        resetUI(true);
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append('audio', audioBlob, 'recording.webm');
+
+    statusMessage.textContent = 'Uploading and analyzing your response...';
+    timerLabel.textContent = 'Please wait';
+    timerValue.textContent = '';
+
+    fetch('{{ url_for("speaking_submit_response", task_id=task.id) }}', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (data.success && data.redirect) {
+            statusMessage.textContent = 'Success! Redirecting to feedback...';
+            window.location.href = data.redirect;
+        } else {
+            throw new Error(data.message || 'Failed to process response.');
+        }
+    })
+    .catch(error => {
+        console.error('Submission error:', error);
+        alert('Error submitting response. Please try again.\n' + error.message);
+        resetUI(true);
+    });
+}
+
+function resetUI(showError = false) {
+    if (timerInterval) {
+        clearInterval(timerInterval);
+        timerInterval = null;
+    }
+
+    if (currentStream) {
+        currentStream.getTracks().forEach(track => track.stop());
+        currentStream = null;
+    }
+
+    mediaRecorder = null;
+    audioChunks = [];
+    currentPhase = phases.IDLE;
+
+    toggleStartButton(showError ? 'error' : 'ready');
+    recordingControls.style.display = 'none';
+    recordIndicator.style.display = 'none';
+    stopButton.disabled = true;
+    statusMessage.textContent = showError
+        ? 'Recording unavailable. Fix the issue and press Retry.'
+        : 'Click to start preparation';
+    timerLabel.textContent = 'Ready to Start';
+    timerValue.textContent = '--:--';
+}
+
+function toggleStartButton(state, labelText) {
+    if (state === 'hidden') {
+        startButton.style.display = 'none';
+        return;
+    }
+
+    startButton.style.display = 'flex';
+    startButton.disabled = state !== 'ready';
+    startButton.classList.remove('ready', 'countdown', 'error');
+
+    if (state === 'ready') {
+        startButton.classList.add('ready');
+        startButton.innerHTML = '<i class="fas fa-play"></i><span class="label">Start Prep</span>';
+    } else if (state === 'countdown') {
+        startButton.classList.add('countdown');
+        const label = labelText || 'Prep Running';
+        startButton.innerHTML = '<i class="fas fa-hourglass-half"></i><span class="label">' + label + '</span>';
+    } else if (state === 'error') {
+        startButton.classList.add('error');
+        startButton.innerHTML = '<i class="fas fa-exclamation-triangle"></i><span class="label">Retry</span>';
+    }
+}
+
+function updateTimerDisplay(seconds) {
+    timerValue.textContent = formatTime(seconds);
+}
+
+function pickSupportedMimeType() {
+    if (!window.MediaRecorder) {
+        return null;
+    }
+    const candidates = [
+        'audio/webm;codecs=opus',
+        'audio/webm',
+        'audio/ogg;codecs=opus',
+        'audio/mp4'
+    ];
+    for (const type of candidates) {
+        if (MediaRecorder.isTypeSupported(type)) {
+            return type;
+        }
+    }
+    return null;
+}
+
+function formatTime(seconds) {
+    if (!Number.isFinite(seconds) || seconds < 0) seconds = 0;
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+}
+
+window.addEventListener('beforeunload', () => {
+    if (currentStream) {
+        currentStream.getTracks().forEach(track => track.stop());
+    }
+});
+</script>
+{% endblock %}

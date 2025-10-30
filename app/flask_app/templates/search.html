@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+
+{% block title %}Search Results - TOEFL Vocabulary Studio{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-10">
+        <h2 class="mb-4">
+            <i class="fas fa-search me-2"></i>Search Results for "{{ query }}"
+        </h2>
+
+        <div class="card p-3">
+            <p class="text-muted mb-3">Found {{ count }} words</p>
+
+            {% if enriched_words %}
+            <div class="table-responsive">
+                <table class="table table-dark table-hover">
+                    <thead>
+                        <tr>
+                            <th>Word</th>
+                            <th>Definition</th>
+                            <th>Chinese</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in enriched_words %}
+                        <tr>
+                            <td><strong style="font-size: 1.1rem;">{{ item.word.lemma }}</strong></td>
+                            <td>{{ item.word.definition[:100] }}...</td>
+                            <td>{{ item.word.cn_gloss or '-' }}</td>
+                            <td>
+                                {% if item.user_word %}
+                                    <span class="badge bg-info">Rep: {{ item.user_word.repetitions }}</span>
+                                {% else %}
+                                    <span class="badge bg-warning">New</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="text-center py-5">
+                <i class="fas fa-search fa-3x text-muted mb-3"></i>
+                <p class="text-muted">No words found matching "{{ query }}"</p>
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="text-center mt-4">
+            <a href="{{ url_for('browse_words') }}" class="btn btn-outline-light">
+                <i class="fas fa-arrow-left me-2"></i>Back to Word Library
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

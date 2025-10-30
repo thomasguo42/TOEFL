@@ -1,0 +1,339 @@
+{% extends "base.html" %}
+
+{% block title %}Writing Practice - TOEFL{% endblock %}
+
+{% block extra_css %}
+<style>
+    .writing-dashboard {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 2rem 1rem;
+    }
+
+    .task-cards {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .task-card {
+        background: linear-gradient(135deg, #ffffff 0%, #f0f9ff 100%);
+        border: 2px solid var(--teal-400);
+        border-radius: 1rem;
+        padding: 2rem;
+        transition: all 0.3s;
+        cursor: pointer;
+        text-decoration: none;
+        color: inherit;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+
+    .task-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 20px rgba(14, 165, 233, 0.25);
+        border-color: #0891b2;
+    }
+
+    .task-icon {
+        font-size: 3rem;
+        color: var(--teal-400);
+        margin-bottom: 1rem;
+    }
+
+    .task-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--toefl-text);
+        margin-bottom: 0.5rem;
+    }
+
+    .task-type {
+        font-size: 1rem;
+        color: var(--toefl-text-light);
+        margin-bottom: 1rem;
+    }
+
+    .task-details {
+        font-size: 0.9rem;
+        color: var(--toefl-text);
+        list-style: none;
+        padding: 0;
+        margin-bottom: 1.5rem;
+    }
+
+    .task-details li {
+        margin-bottom: 0.5rem;
+        padding-left: 1.5rem;
+        position: relative;
+    }
+
+    .task-details li i {
+        position: absolute;
+        left: 0;
+        top: 2px;
+    }
+
+    .btn-generate {
+        background: var(--teal-400);
+        color: white;
+        border: none;
+        padding: 0.75rem 1.5rem;
+        border-radius: 0.5rem;
+        font-weight: 600;
+        transition: all 0.3s;
+        text-align: center;
+    }
+
+    .btn-generate:hover {
+        background: #0891b2;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(14, 165, 233, 0.3);
+    }
+
+    .btn-generate:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+
+    .info-section {
+        background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+        border: 1px solid #86efac;
+        border-radius: 1rem;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .section-header {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .header-icon {
+        font-size: 2.5rem;
+        color: var(--teal-400);
+    }
+
+    .header-text h1 {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--toefl-text);
+        margin: 0;
+    }
+
+    .header-text p {
+        color: var(--toefl-text-light);
+        margin: 0.25rem 0 0 0;
+    }
+
+    .recent-responses {
+        margin-top: 3rem;
+    }
+
+    .response-card {
+        background: white;
+        border: 1px solid #e5e7eb;
+        border-radius: 0.75rem;
+        padding: 1.25rem;
+        margin-bottom: 1rem;
+        transition: all 0.3s;
+    }
+
+    .response-card:hover {
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        border-color: var(--teal-400);
+    }
+
+    .response-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: start;
+        margin-bottom: 0.75rem;
+    }
+
+    .response-score {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--teal-400);
+    }
+
+    .loading-spinner {
+        display: none;
+        text-align: center;
+        padding: 2rem;
+    }
+
+    .loading-spinner.active {
+        display: block;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="writing-dashboard">
+    <div class="section-header">
+        <div class="header-icon">
+            <i class="fas fa-pen-fancy"></i>
+        </div>
+        <div class="header-text">
+            <h1>Writing Practice</h1>
+            <p>Master TOEFL Writing with AI-powered coaching and feedback</p>
+        </div>
+    </div>
+
+    <div class="info-section">
+        <h3 class="mb-3">
+            <i class="fas fa-lightbulb me-2" style="color: #fbbf24;"></i>
+            How It Works
+        </h3>
+        <ol class="mb-0">
+            <li><strong>Plan:</strong> Review AI deconstruction (Integrated) or outline suggestions (Independent)</li>
+            <li><strong>Draft:</strong> Write your essay with real-time paraphrasing assistant</li>
+            <li><strong>Revise:</strong> Receive comprehensive feedback with in-line annotations and revision tools</li>
+        </ol>
+    </div>
+
+    <h2 class="mb-4">
+        <i class="fas fa-tasks me-2"></i>Choose a Task Type
+    </h2>
+
+    <div class="task-cards">
+        <!-- Integrated Writing Task -->
+        <div class="task-card">
+            <div>
+                <div class="task-icon">
+                    <i class="fas fa-book-reader"></i>
+                </div>
+                <div class="task-title">Integrated Task</div>
+                <div class="task-type">Read + Listen + Write</div>
+                <ul class="task-details">
+                    <li><i class="fas fa-clock"></i> 20 minutes</li>
+                    <li><i class="fas fa-file-word"></i> 150-225 words</li>
+                    <li><i class="fas fa-book"></i> Read passage (3 min)</li>
+                    <li><i class="fas fa-headphones"></i> Listen to lecture (2 min)</li>
+                    <li><i class="fas fa-pencil-alt"></i> Summarize and explain relationship</li>
+                </ul>
+            </div>
+            <button class="btn-generate" onclick="generateTask('integrated')">
+                <i class="fas fa-play-circle me-2"></i>Start Integrated Task
+            </button>
+        </div>
+
+        <!-- Academic Discussion Task -->
+        <div class="task-card">
+            <div>
+                <div class="task-icon">
+                    <i class="fas fa-comments"></i>
+                </div>
+                <div class="task-title">Academic Discussion</div>
+                <div class="task-type">Write for a Class Forum</div>
+                <ul class="task-details">
+                    <li><i class="fas fa-clock"></i> 10 minutes</li>
+                    <li><i class="fas fa-file-word"></i> 100+ words</li>
+                    <li><i class="fas fa-chalkboard-teacher"></i> Answer the professor</li>
+                    <li><i class="fas fa-user-friends"></i> React to classmates</li>
+                    <li><i class="fas fa-lightbulb"></i> Add a new idea</li>
+                </ul>
+            </div>
+            <button class="btn-generate" onclick="generateTask('discussion')">
+                <i class="fas fa-play-circle me-2"></i>Start Discussion Task
+            </button>
+        </div>
+    </div>
+
+    <div class="loading-spinner" id="loadingSpinner">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+        <p class="mt-3">Generating your personalized writing task...</p>
+    </div>
+
+    {% if recent_responses %}
+    <div class="recent-responses">
+        <h2 class="mb-4">
+            <i class="fas fa-history me-2"></i>Recent Practice
+        </h2>
+        {% for response in recent_responses %}
+        <div class="response-card">
+            <div class="response-header">
+                <div>
+                    <h5 class="mb-1">
+                        <span class="badge bg-primary me-2">
+                            {{ response.task.task_type|capitalize }}
+                        </span>
+                        {{ response.task.topic }}
+                    </h5>
+                    <small class="text-muted">
+                        <i class="fas fa-calendar me-1"></i>
+                        {{ response.created_at.strftime('%B %d, %Y at %I:%M %p') }}
+                    </small>
+                </div>
+                {% if response.feedback %}
+                <div class="response-score">
+                    {{ response.feedback.overall_score }}/30
+                </div>
+                {% endif %}
+            </div>
+            <div class="d-flex justify-content-between align-items-center">
+                <span class="text-muted">
+                    <i class="fas fa-file-word me-1"></i>{{ response.word_count }} words
+                    {% if response.is_revised %}
+                    <span class="badge bg-success ms-2">Revised</span>
+                    {% endif %}
+                </span>
+                {% if response.feedback %}
+                <a href="{{ url_for('writing_feedback', response_id=response.id) }}" class="btn btn-sm btn-outline-primary">
+                    <i class="fas fa-eye me-1"></i>View Feedback
+                </a>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="alert alert-info mt-4">
+        <i class="fas fa-info-circle me-2"></i>
+        <strong>Tip:</strong> Take time to review the AI deconstruction or outline before writing. This planning phase is crucial for a well-structured essay.
+    </div>
+</div>
+
+<script>
+function generateTask(taskType) {
+    const spinner = document.getElementById('loadingSpinner');
+    const buttons = document.querySelectorAll('.btn-generate');
+
+    // Disable all buttons and show loading
+    buttons.forEach(btn => btn.disabled = true);
+    spinner.classList.add('active');
+
+    // Generate task via API
+    fetch(`/writing/task/${taskType}/generate`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success && data.redirect) {
+            window.location.href = data.redirect;
+        } else {
+            alert('Failed to generate task. Please try again.');
+            buttons.forEach(btn => btn.disabled = false);
+            spinner.classList.remove('active');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred. Please try again.');
+        buttons.forEach(btn => btn.disabled = false);
+        spinner.classList.remove('active');
+    });
+}
+</script>
+{% endblock %}

@@ -1,0 +1,165 @@
+{% extends "base.html" %}
+
+{% block title %}Generating Content - TOEFL Vocabulary Studio{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card p-5 text-center">
+            <div class="mb-4">
+                <i class="fas fa-robot fa-4x text-info mb-3" style="animation: pulse 2s ease-in-out infinite;"></i>
+                <h2 class="mb-3">{{ title or "Generating AI Content" }}</h2>
+                <p class="text-muted">
+                    {{ message or "Gemini 2.5 Flash Lite is crafting your personalized exercises. This may take 10-30 seconds..." }}
+                </p>
+            </div>
+
+            <div class="progress" style="height: 4px;">
+                <div class="progress-bar progress-bar-striped progress-bar-animated"
+                     role="progressbar"
+                     style="width: 100%; background: var(--teal-400);"></div>
+            </div>
+
+            <div class="mt-4 text-muted small">
+                <i class="fas fa-info-circle me-1"></i>
+                You will be redirected automatically when ready
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+@keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.7; transform: scale(1.05); }
+}
+</style>
+
+<script>
+const targetUrl = "{{ target_url }}";
+const generatorUrl = "{{ generator_url or '' }}";
+const statusBox = document.querySelector('.card p.text-muted');
+const storageKey = 'loadingPayload';
+
+console.log('[LOADING] Page loaded');
+console.log('[LOADING] Target URL:', targetUrl);
+console.log('[LOADING] Generator URL:', generatorUrl);
+
+function updateStatus(message, toneClass) {
+    console.log('[LOADING] Status update:', message, toneClass);
+    if (!statusBox) return;
+    statusBox.classList.remove('text-muted', 'text-danger', 'text-success', 'text-warning');
+    statusBox.classList.add(toneClass || 'text-muted');
+    statusBox.textContent = message;
+}
+
+function redirectTo(url) {
+    console.log('[LOADING] Redirecting to:', url);
+    window.location.href = url || targetUrl || "{{ url_for('main_dashboard') }}";
+}
+
+const payload = sessionStorage.getItem(storageKey);
+console.log('[LOADING] Payload from storage:', payload ? 'exists' : 'none');
+
+// Check for generation loop - prevent infinite retries
+const generationAttempts = parseInt(sessionStorage.getItem('generation_attempts') || '0');
+const maxAttempts = 3;
+console.log('[LOADING] Generation attempts:', generationAttempts, '/', maxAttempts);
+
+if (generatorUrl) {
+    console.log('[LOADING] Starting generation...');
+
+    // Increment attempt counter
+    sessionStorage.setItem('generation_attempts', (generationAttempts + 1).toString());
+
+    if (generationAttempts >= maxAttempts) {
+        console.error('[LOADING] Max attempts reached, aborting');
+        updateStatus('生成失败次数过多，请稍后再试。', 'text-danger');
+        sessionStorage.removeItem('generation_attempts');
+        sessionStorage.removeItem(storageKey);
+        setTimeout(() => redirectTo("{{ url_for('question_types_hub') }}"), 2000);
+    } else {
+        const controller = new AbortController();
+    const timeoutMs = 120000; // 120s timeout (2 minutes for 5 sets)
+    console.log('[LOADING] Timeout set to:', timeoutMs, 'ms (120 seconds)');
+
+    const timeoutId = setTimeout(() => {
+        console.error('[LOADING] Request timed out after', timeoutMs, 'ms');
+        controller.abort();
+    }, timeoutMs);
+
+    const options = {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        signal: controller.signal,
+    };
+    if (payload) {
+        options.body = payload;
+    }
+
+    console.log('[LOADING] Sending fetch request to:', generatorUrl);
+    console.log('[LOADING] Request options:', options);
+
+    const startTime = Date.now();
+
+    fetch(generatorUrl, options)
+        .then((res) => {
+            const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
+            console.log('[LOADING] Response received after', elapsed, 's');
+            console.log('[LOADING] Response status:', res.status, res.statusText);
+            console.log('[LOADING] Response ok:', res.ok);
+            return res.json().then((data) => {
+                console.log('[LOADING] Response data:', data);
+                return { ok: res.ok, data };
+            });
+        })
+        .then(({ ok, data }) => {
+            const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
+            console.log('[LOADING] Processing response after', elapsed, 's');
+            clearTimeout(timeoutId);
+            sessionStorage.removeItem(storageKey);
+
+            if (!ok || !data?.success) {
+                const message = data?.message || 'Gemini 生成失败，请稍后重试。';
+                console.error('[LOADING] Generation failed:', message);
+                updateStatus(message, 'text-danger');
+                setTimeout(() => {
+                    sessionStorage.removeItem('generation_attempts');
+                    redirectTo("{{ url_for('question_types_hub') }}");
+                }, 2000);
+                return;
+            }
+
+            // Success! Clear attempt counter
+            console.log('[LOADING] Generation succeeded!');
+            sessionStorage.removeItem('generation_attempts');
+            if (data.redirect) {
+                console.log('[LOADING] Redirecting to:', data.redirect);
+                redirectTo(data.redirect);
+            } else {
+                console.log('[LOADING] Redirecting to target URL');
+                redirectTo(targetUrl);
+            }
+        })
+        .catch((err) => {
+            const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
+            console.error('[LOADING] Fetch error after', elapsed, 's:', err);
+            clearTimeout(timeoutId);
+            sessionStorage.removeItem(storageKey);
+            const isAbort = err && (err.name === 'AbortError');
+            console.error('[LOADING] Error type:', isAbort ? 'AbortError (timeout)' : err.name);
+            updateStatus(isAbort ? '生成超时，请稍后重试。' : '网络暂时不可用，返回仪表盘。', 'text-warning');
+            setTimeout(() => {
+                sessionStorage.removeItem('generation_attempts');
+                redirectTo("{{ url_for('question_types_hub') }}");
+            }, 2000);
+        });
+    }
+} else {
+    console.log('[LOADING] No generator URL, redirecting directly');
+    sessionStorage.removeItem(storageKey);
+    sessionStorage.removeItem('generation_attempts');
+    setTimeout(() => redirectTo(targetUrl), 600);
+}
+</script>
+{% endblock %}

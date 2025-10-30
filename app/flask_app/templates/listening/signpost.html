@@ -1,0 +1,310 @@
+{% extends "base.html" %}
+
+{% block title %}Signpost Signal Trainer - TOEFL Listening{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/listening.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="listening-wrapper">
+    <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between listening-header mb-4">
+        <div>
+            <h1 class="h2 fw-bold text-dark listening-section-title mb-2">
+                Signpost Signal Trainer
+            </h1>
+            <p class="text-muted listening-lead">
+                Recognize verbal cues that signal lecture structure
+            </p>
+        </div>
+        <a href="{{ url_for('listening_dashboard') }}" class="btn btn-outline-secondary listening-btn listening-btn-sm">
+            <span class="me-1">←</span> Back
+        </a>
+    </div>
+
+    <div class="listening-card listening-card--compact mb-4">
+        <div class="row g-3 align-items-end">
+            <div class="col-md-7 col-lg-6">
+                <label class="form-label fw-semibold" for="signpost-topic-input">Topic Focus (Optional)</label>
+                <input
+                    type="text"
+                    id="signpost-topic-input"
+                    class="form-control"
+                    placeholder="e.g., Environmental Policy, Renaissance Art"
+                    value="{{ signpost_filters.topic }}"
+                >
+            </div>
+            <div class="col-md-3 col-lg-3 small text-muted d-flex align-items-end">
+                {% if signpost_queue_remaining > 0 %}
+                <div class="w-100">
+                    <i class="fas fa-layer-group me-2 text-primary"></i>
+                    {{ signpost_queue_remaining }} more exercises queued in this batch
+                </div>
+                {% else %}
+                <div class="w-100">
+                    <i class="fas fa-info-circle me-2 text-primary"></i>
+                    Generate a fresh batch for new practice
+                </div>
+                {% endif %}
+            </div>
+            <div class="col-md-2 col-lg-3 text-md-end">
+                <div class="d-grid gap-2">
+                    <button id="signpost-generate-btn" class="btn btn-primary listening-btn">
+                        <i class="fas fa-magic me-2"></i>Generate Batch
+                    </button>
+                    <button id="signpost-regenerate-btn" class="btn btn-outline-secondary listening-btn">
+                        <i class="fas fa-redo me-2"></i>Regenerate
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="listening-card">
+        {% if signpost %}
+        <div class="text-center mb-4">
+            <span class="listening-tag">
+                <i class="fas fa-map-signs me-1"></i>
+                {{ signpost.signpost_category.replace('_', ' ').title() }}
+            </span>
+        </div>
+
+        <div class="listening-audio-card">
+            <audio id="audio-player" controls class="w-100">
+                <source src="{{ url_for('static', filename=signpost.audio_url) }}" type="audio/mpeg">
+                Your browser does not support the audio element.
+            </audio>
+            <div class="text-muted small mt-3">
+                Listen for the signpost phrase and answer the question below.
+            </div>
+        </div>
+
+        <div id="question-section" class="mb-4">
+            <h3 class="h5 fw-semibold text-dark mb-3">
+                {{ signpost.question_text }}
+            </h3>
+
+            {% for option in signpost.options %}
+            <label class="listening-option">
+                <input
+                    type="radio"
+                    name="answer"
+                    value="{{ option }}"
+                    class="form-check-input"
+                >
+                <span>{{ option }}</span>
+            </label>
+            {% endfor %}
+
+            <div class="listening-actions mt-3">
+                <button id="submit-btn" class="btn btn-primary listening-btn">
+                    Submit Answer
+                </button>
+                <button id="replay-btn" type="button" class="btn btn-outline-secondary listening-btn">
+                    <i class="fas fa-volume-up me-2"></i>Replay
+                </button>
+            </div>
+        </div>
+
+        <div id="results-section" class="d-none">
+            <div id="result-card" class="mb-4">
+                <!-- Populated via JavaScript -->
+            </div>
+
+            <div class="mb-4">
+                <h3 class="h5 fw-semibold text-dark mb-3">
+                    Transcript
+                </h3>
+                <div class="listening-transcript">
+                    <p id="transcript-text" class="mb-3">{{ signpost.text }}</p>
+                    <div class="alert alert-warning mb-0">
+                        <span class="fw-semibold">Signpost Phrase:</span>
+                        <span class="ms-1">“{{ signpost.signpost_phrase }}”</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="listening-actions">
+                <button id="try-again-btn" class="btn btn-outline-secondary listening-btn">
+                    Try Again
+                </button>
+                <button id="next-btn" class="btn btn-primary listening-btn">
+                    Next Exercise
+                </button>
+                <button id="regenerate-btn" class="btn btn-warning listening-btn">
+                    <i class="fas fa-redo me-2"></i>Regenerate New Exercises
+                </button>
+            </div>
+        </div>
+        {% else %}
+        <div class="text-center listening-empty-state">
+            <div class="listening-empty-icon">🎯</div>
+            <h3 class="h4 fw-semibold text-dark mb-3">
+                No Signpost Exercise Available
+            </h3>
+            <p class="text-muted mb-4">
+                Generate a new signpost exercise to start practicing.
+            </p>
+            <button id="generate-btn" class="btn btn-primary listening-btn btn-lg">
+                Generate Exercises
+            </button>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+const signpostData = {{ signpost | tojson | safe if signpost else '{}' }};
+const signpostTopicInput = document.getElementById('signpost-topic-input');
+const signpostGenerateBtn = document.getElementById('signpost-generate-btn');
+const signpostRegenerateBtn = document.getElementById('signpost-regenerate-btn');
+const inlineRegenerateBtn = document.getElementById('regenerate-btn');
+const nextExerciseBtn = document.getElementById('next-btn');
+const emptyStateGenerateBtn = document.getElementById('generate-btn');
+
+[signpostGenerateBtn, signpostRegenerateBtn, inlineRegenerateBtn, nextExerciseBtn, emptyStateGenerateBtn]
+    .filter(Boolean)
+    .forEach(btn => btn.setAttribute('data-default-text', btn.innerHTML));
+
+function setButtonState(btn, isLoading, loadingLabel = 'Working...') {
+    if (!btn) return;
+    if (isLoading) {
+        btn.disabled = true;
+        btn.innerHTML = loadingLabel;
+    } else {
+        btn.disabled = false;
+        btn.innerHTML = btn.dataset.defaultText || btn.innerHTML || 'Go';
+    }
+}
+
+async function generateSignpostBatch(triggerBtn) {
+    const topic = signpostTopicInput?.value.trim() || null;
+    setButtonState(triggerBtn, true, '<i class="fas fa-spinner fa-spin me-2"></i>Generating...');
+
+    try {
+        const response = await fetch('/listening/api/signpost/generate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ topic })
+        });
+        const result = await response.json();
+        if (result.success) {
+            window.location.reload();
+        } else {
+            alert(result.message || 'Failed to generate signpost exercises.');
+            setButtonState(triggerBtn, false);
+        }
+    } catch (error) {
+        console.error('Error generating signposts:', error);
+        alert('Failed to generate. Please try again.');
+        setButtonState(triggerBtn, false);
+    }
+}
+
+async function advanceSignpost() {
+    setButtonState(nextExerciseBtn, true, '<i class="fas fa-spinner fa-spin me-2"></i>Loading Next...');
+    try {
+        const response = await fetch('/listening/api/signpost/next', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' }
+        });
+        const data = await response.json();
+        if (response.ok && data.success) {
+            window.location.reload();
+            return;
+        }
+        alert(data.message || 'No additional exercises available. Generate a new batch to continue.');
+    } catch (error) {
+        console.error('Error loading next signpost:', error);
+        alert('Unable to load the next exercise. Please try again.');
+    } finally {
+        setButtonState(nextExerciseBtn, false);
+    }
+}
+
+document.getElementById('submit-btn')?.addEventListener('click', async () => {
+    const selectedOption = document.querySelector('input[name="answer"]:checked');
+    if (!selectedOption) {
+        alert('Please select an answer first!');
+        return;
+    }
+
+    try {
+        const response = await fetch(`/listening/api/signpost/${signpostData.id}/submit`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ answer: selectedOption.value })
+        });
+
+        const result = await response.json();
+        displayResults(result);
+    } catch (error) {
+        console.error('Error submitting:', error);
+        alert('Failed to submit. Please try again.');
+    }
+});
+
+function displayResults(result) {
+    document.getElementById('question-section').classList.add('d-none');
+    document.getElementById('results-section').classList.remove('d-none');
+
+    const isCorrect = result.is_correct;
+    const resultClass = isCorrect
+        ? 'listening-result listening-result--success mb-4'
+        : 'listening-result listening-result--error mb-4';
+    const icon = isCorrect ? '✓' : '✗';
+    const iconClass = isCorrect ? 'text-success' : 'text-danger';
+    const title = isCorrect ? 'Correct!' : 'Incorrect';
+
+    const resultHtml = `
+        <div class="d-flex flex-column flex-md-row align-items-md-start gap-3">
+            <div class="display-5 fw-bold ${iconClass}">${icon}</div>
+            <div>
+                <h3 class="h4 fw-bold mb-2">${title}</h3>
+                ${!isCorrect ? `
+                    <p class="mb-2">
+                        <span class="text-muted">Correct answer:</span>
+                        <strong>${result.correct_answer}</strong>
+                    </p>
+                ` : ''}
+                <p class="mb-0">${result.explanation_cn || 'Good job recognizing the signpost phrase!'}</p>
+            </div>
+        </div>
+    `;
+
+    const resultCard = document.getElementById('result-card');
+    resultCard.className = resultClass;
+    resultCard.innerHTML = resultHtml;
+
+    const transcript = document.getElementById('transcript-text');
+    const text = transcript.textContent;
+    const phrase = signpostData?.signpost_phrase || '';
+    if (phrase) {
+        const highlighted = text.replace(
+            new RegExp(phrase.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi'),
+            `<span class="listening-highlight">${phrase}</span>`
+        );
+        transcript.innerHTML = highlighted;
+    }
+}
+
+document.getElementById('replay-btn')?.addEventListener('click', () => {
+    document.getElementById('audio-player').play();
+});
+
+document.getElementById('try-again-btn')?.addEventListener('click', () => {
+    document.getElementById('results-section').classList.add('d-none');
+    document.getElementById('question-section').classList.remove('d-none');
+    const checked = document.querySelector('input[name="answer"]:checked');
+    if (checked) {
+        checked.checked = false;
+    }
+});
+
+nextExerciseBtn?.addEventListener('click', advanceSignpost);
+inlineRegenerateBtn?.addEventListener('click', () => generateSignpostBatch(inlineRegenerateBtn));
+signpostRegenerateBtn?.addEventListener('click', () => generateSignpostBatch(signpostRegenerateBtn));
+signpostGenerateBtn?.addEventListener('click', () => generateSignpostBatch(signpostGenerateBtn));
+emptyStateGenerateBtn?.addEventListener('click', () => generateSignpostBatch(emptyStateGenerateBtn));
+</script>
+{% endblock %}

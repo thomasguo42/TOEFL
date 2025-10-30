@@ -1,0 +1,214 @@
+{% extends "base.html" %}
+
+{% block title %}Reading Practice Dashboard - TOEFL{% endblock %}
+
+{% block extra_css %}
+<style>
+    .practice-card {
+        background: linear-gradient(135deg, #ffffff 0%, #eef4ff 100%);
+        border: 1px solid var(--toefl-border);
+        border-radius: 1.5rem;
+        padding: 2.5rem;
+        text-decoration: none;
+        display: block;
+        transition: all 0.3s ease;
+        height: 100%;
+        position: relative;
+        overflow: hidden;
+        cursor: pointer;
+    }
+
+    .practice-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(135deg, rgba(14, 165, 233, 0.14) 0%, rgba(14, 165, 233, 0) 60%);
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    .practice-card:hover::before {
+        opacity: 1;
+    }
+
+    .practice-card:hover {
+        transform: translateY(-8px);
+        border-color: var(--teal-400);
+        text-decoration: none;
+    }
+
+    .practice-icon {
+        font-size: 3.5rem;
+        color: var(--teal-400);
+        margin-bottom: 1.5rem;
+    }
+
+    .practice-title {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--toefl-text);
+        margin-bottom: 1rem;
+    }
+
+    .practice-description {
+        color: var(--toefl-text-light);
+        margin-bottom: 1.5rem;
+        font-size: 1rem;
+        line-height: 1.6;
+    }
+
+    .practice-features {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .practice-features li {
+        color: var(--toefl-text-light);
+        font-size: 0.9rem;
+        padding: 0.5rem 0;
+        border-bottom: 1px solid var(--toefl-border-light);
+    }
+
+    .practice-features li:last-child {
+        border-bottom: none;
+    }
+
+    .practice-features li i {
+        color: var(--teal-400);
+        margin-right: 0.5rem;
+        width: 20px;
+    }
+
+    .start-badge {
+        display: inline-block;
+        background: rgba(14, 165, 233, 0.12);
+        color: var(--teal-400);
+        padding: 0.5rem 1rem;
+        border-radius: 0.5rem;
+        font-size: 0.9rem;
+        font-weight: 600;
+        margin-top: 1rem;
+    }
+
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-11 col-xl-10">
+        <!-- Back Button -->
+        <div class="mb-3">
+            <a href="{{ url_for('main_dashboard') }}" class="btn btn-outline-secondary btn-sm">
+                <i class="fas fa-arrow-left me-2"></i>Back to Main Dashboard
+            </a>
+        </div>
+
+        <h1 class="mb-2">
+            <i class="fas fa-glasses me-3"></i>Reading Practice
+        </h1>
+        <p class="text-muted mb-5">Choose a practice type. Gemini will generate 5 sets of materials for you to work through.</p>
+
+        <!-- Practice Type Cards -->
+        <div class="row g-4 mb-5">
+            <!-- Sentence Practice -->
+            <div class="col-md-6 col-lg-3">
+                <a class="practice-card" href="{{ url_for('reading_practice_generate_page', practice_type='sentence') }}">
+                    <div class="practice-icon">
+                        <i class="fas fa-text-width"></i>
+                    </div>
+                    <h3 class="practice-title">Sentence Gym</h3>
+                    <p class="practice-description">
+                        Master complex sentence structures with detailed grammatical analysis and paraphrase practice.
+                    </p>
+                    <ul class="practice-features">
+                        <li><i class="fas fa-check"></i>28-40 word academic sentences</li>
+                        <li><i class="fas fa-check"></i>Granular structure breakdown</li>
+                        <li><i class="fas fa-check"></i>Paraphrase exercises</li>
+                        <li><i class="fas fa-check"></i>Chinese comprehension hints</li>
+                    </ul>
+                    <div class="start-badge">
+                        <i class="fas fa-play me-2"></i>Start Practice
+                    </div>
+                </a>
+            </div>
+
+            <!-- Paragraph Practice -->
+            <div class="col-md-6 col-lg-3">
+                <a class="practice-card" href="{{ url_for('reading_practice_generate_page', practice_type='paragraph') }}">
+                    <div class="practice-icon">
+                        <i class="fas fa-align-left"></i>
+                    </div>
+                    <h3 class="practice-title">Paragraph Lab</h3>
+                    <p class="practice-description">
+                        Analyze paragraph structure, identify topic sentences, and understand logical flow patterns.
+                    </p>
+                    <ul class="practice-features">
+                        <li><i class="fas fa-check"></i>4-sentence academic paragraphs</li>
+                        <li><i class="fas fa-check"></i>Topic sentence identification</li>
+                        <li><i class="fas fa-check"></i>Transition word analysis</li>
+                        <li><i class="fas fa-check"></i>Sentence role labeling</li>
+                    </ul>
+                    <div class="start-badge">
+                        <i class="fas fa-play me-2"></i>Start Practice
+                    </div>
+                </a>
+            </div>
+
+            <!-- Passage Practice -->
+            <div class="col-md-6 col-lg-3">
+                <a class="practice-card" href="{{ url_for('reading_practice_generate_page', practice_type='passage') }}">
+                    <div class="practice-icon">
+                        <i class="fas fa-book-open"></i>
+                    </div>
+                    <h3 class="practice-title">Passage Simulator</h3>
+                    <p class="practice-description">
+                        Practice full TOEFL-style reading passages with scaffolded questions and detailed explanations.
+                    </p>
+                    <ul class="practice-features">
+                        <li><i class="fas fa-check"></i>3-paragraph academic passages</li>
+                        <li><i class="fas fa-check"></i>Comprehension questions</li>
+                        <li><i class="fas fa-check"></i>Distractor analysis</li>
+                        <li><i class="fas fa-check"></i>Chinese explanations</li>
+                    </ul>
+                    <div class="start-badge">
+                        <i class="fas fa-play me-2"></i>Start Practice
+                    </div>
+                </a>
+            </div>
+
+            <!-- Question Type Strategy Lab (NEW) -->
+            <div class="col-md-6 col-lg-3">
+                <a class="practice-card" href="{{ url_for('question_types_hub') }}" style="border: 2px solid var(--teal-400);">
+                    <div class="practice-icon">
+                        <i class="fas fa-flask"></i>
+                    </div>
+                    <h3 class="practice-title">题型策略实验室</h3>
+                    <p class="practice-description">
+                        Master all 10 TOEFL reading question types with strategy guides and AI-powered drills.
+                    </p>
+                    <ul class="practice-features">
+                        <li><i class="fas fa-check"></i>10 question types</li>
+                        <li><i class="fas fa-check"></i>Step-by-step strategies</li>
+                        <li><i class="fas fa-check"></i>AI-powered practice drills</li>
+                        <li><i class="fas fa-check"></i>Common trap warnings</li>
+                    </ul>
+                    <div class="start-badge" style="background: rgba(20, 184, 166, 0.3);">
+                        <i class="fas fa-rocket me-2"></i>Explore Question Types
+                    </div>
+                </a>
+            </div>
+        </div>
+
+        <!-- Info Box -->
+        <div class="alert alert-info">
+            <i class="fas fa-info-circle me-2"></i>
+            <strong>How it works:</strong> Click a practice type to generate 5 sets of materials. You can navigate through them using Next/Previous buttons, and regenerate a new batch anytime.
+        </div>
+    </div>
+</div>
+
+{% endblock %}

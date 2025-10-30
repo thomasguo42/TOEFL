@@ -1,0 +1,138 @@
+{% extends "base.html" %}
+
+{% block title %}Question Type Strategy Lab - TOEFL Reading Coach{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <!-- Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h2 class="mb-2">
+                        <i class="fas fa-flask text-info me-2"></i>
+                        题型策略实验室
+                    </h2>
+                    <p class="text-muted mb-0">Question Type Strategy Lab</p>
+                </div>
+                <a href="{{ url_for('reading_home') }}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left me-2"></i>返回阅读模块
+                </a>
+            </div>
+
+            <!-- Introduction Card -->
+            <div class="card mb-4" style="border-left: 4px solid var(--teal-400);">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="fas fa-info-circle text-info me-2"></i>
+                        掌握 TOEFL 阅读题型
+                    </h5>
+                    <p class="card-text mb-0">
+                        TOEFL阅读考试包含10种核心题型。每种题型都有独特的解题策略。
+                        选择一个题型，先<strong class="text-info">学习策略</strong>，再通过<strong class="text-success">AI练习</strong>巩固技能。
+                    </p>
+                </div>
+            </div>
+
+            <!-- Question Types by Category -->
+            {% for category_info in categories %}
+            <div class="card mb-4 shadow-sm">
+                <div class="card-header" style="background: linear-gradient(135deg, rgba(14, 165, 233, 0.16), rgba(34, 211, 238, 0.12)); border-bottom: 1px solid var(--toefl-border-light);">
+                    <h4 class="mb-1 text-dark">
+                        <i class="fas fa-layer-group me-2"></i>
+                        {{ category_info.name_cn }}
+                    </h4>
+                    <p class="mb-0 text-muted small">{{ category_info.name_en }}</p>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        {% for q_type in category_info.types %}
+                        <div class="col-md-6">
+                            <div class="card h-100 question-type-card" style="border-left: 4px solid var(--{{ q_type.color }}-400);">
+                                <div class="card-body">
+                                    <div class="d-flex align-items-start mb-3">
+                                        <div class="me-3">
+                                            <i class="fas {{ q_type.icon }} fa-2x text-{{ q_type.color }}"></i>
+                                        </div>
+                                        <div class="flex-grow-1">
+                                            <h5 class="card-title mb-1">{{ q_type.name_cn }}</h5>
+                                            <p class="text-muted small mb-2">{{ q_type.name_en }}</p>
+                                            <p class="card-text small">{{ q_type.description_cn }}</p>
+                                        </div>
+                                    </div>
+
+                                    <!-- Identification Examples -->
+                                    <div class="mb-3">
+                                        <p class="small mb-1">
+                                            <i class="fas fa-tag text-warning me-1"></i>
+                                            <strong>识别标志:</strong>
+                                        </p>
+                                        <p class="text-muted small fst-italic ms-3 mb-0">
+                                            "{{ q_type.identification }}"
+                                        </p>
+                                    </div>
+
+                                    <!-- Action Buttons -->
+                                    <div class="d-flex gap-2">
+                                        <a href="{{ url_for('question_type_learn', question_type_id=q_type.id) }}"
+                                           class="btn btn-sm btn-outline-info flex-fill">
+                                            <i class="fas fa-graduation-cap me-1"></i>
+                                            学习策略
+                                        </a>
+                                        <a href="{{ url_for('question_type_practice', question_type_id=q_type.id) }}"
+                                           class="btn btn-sm btn-success flex-fill">
+                                            <i class="fas fa-dumbbell me-1"></i>
+                                            开始练习
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+
+            <!-- Quick Tips Card -->
+            <div class="card mb-4" style="background: linear-gradient(135deg, rgba(23, 162, 184, 0.1), rgba(32, 201, 151, 0.1));">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="fas fa-lightbulb text-warning me-2"></i>
+                        学习建议
+                    </h5>
+                    <ul class="mb-0">
+                        <li class="mb-2">
+                            <strong>按顺序学习:</strong> 先掌握 "局部题" (Local Questions)，再学习 "全局题" (Global Questions)。
+                        </li>
+                        <li class="mb-2">
+                            <strong>策略优先:</strong> 每种题型都先点击 "学习策略"，理解方法论后再开始练习。
+                        </li>
+                        <li class="mb-2">
+                            <strong>重复练习:</strong> AI会为每种题型生成不同的材料。点击"重新生成"获取新题。
+                        </li>
+                        <li>
+                            <strong>分析错误:</strong> 每道题都有详细的解析。理解为什么错比做对更重要。
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.question-type-card {
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.question-type-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 16px rgba(0,0,0,0.1) !important;
+}
+
+.card-header {
+    border-bottom: none;
+}
+</style>
+{% endblock %}

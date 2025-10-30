@@ -1,0 +1,213 @@
+{% extends "base.html" %}
+
+{% block title %}{{ q_type.name_cn }} - Strategy Guide{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row justify-content-center">
+        <div class="col-lg-9">
+            <!-- Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h2 class="mb-2">
+                        <i class="fas {{ q_type.icon }} text-{{ q_type.color }} me-2"></i>
+                        {{ q_type.name_cn }}
+                    </h2>
+                    <p class="text-muted mb-0">{{ q_type.name_en }}</p>
+                </div>
+                <a href="{{ url_for('question_types_hub') }}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left me-2"></i>返回题型列表
+                </a>
+            </div>
+
+            <!-- What It Tests -->
+            <div class="card mb-4 shadow-sm" style="border-left: 4px solid var(--toefl-primary); background: white; border: 1px solid var(--toefl-border);">
+                <div class="card-body">
+                    <h5 class="card-title" style="color: var(--toefl-text);">
+                        <i class="fas fa-bullseye me-2" style="color: var(--toefl-danger);"></i>
+                        考查内容
+                    </h5>
+                    <p class="card-text lead mb-0" style="color: var(--toefl-text);">{{ q_type.description_cn }}</p>
+                </div>
+            </div>
+
+            <!-- Identification -->
+            <div class="card mb-4 shadow-sm" style="background: white; border: 1px solid var(--toefl-border);">
+                <div class="card-body">
+                    <h5 class="card-title" style="color: var(--toefl-text);">
+                        <i class="fas fa-tag me-2" style="color: var(--toefl-warning);"></i>
+                        如何识别
+                    </h5>
+                    <div class="alert mb-0" role="alert" style="background: #fff3cd; border-color: #ffc107; color: var(--toefl-text);">
+                        <strong>典型标志语:</strong>
+                        <p class="mb-0 mt-2 fst-italic">"{{ q_type.identification }}"</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Strategy -->
+            <div class="card mb-4 shadow-sm" style="border-left: 4px solid var(--toefl-success); background: white; border: 1px solid var(--toefl-border);">
+                <div class="card-body">
+                    <h5 class="card-title" style="color: var(--toefl-text);">
+                        <i class="fas fa-chess me-2" style="color: var(--toefl-success);"></i>
+                        解题策略: {{ q_type.strategy_title }}
+                    </h5>
+                    <div class="strategy-steps">
+                        {% for step in q_type.strategy_steps %}
+                        <div class="step-item d-flex align-items-start mb-3 p-3"
+                             style="background: var(--toefl-highlight-green); border-radius: 8px; border: 1px solid var(--toefl-border-light);">
+                            <div class="step-number me-3">
+                                <span class="badge" style="background: var(--toefl-success); color: white; font-size: 1.1rem; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; border-radius: 50%;">
+                                    {{ loop.index }}
+                                </span>
+                            </div>
+                            <div class="step-content flex-grow-1">
+                                <p class="mb-0" style="color: var(--toefl-text);">{{ step }}</p>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Common Traps -->
+            <div class="card mb-4 shadow-sm" style="border-left: 4px solid var(--toefl-danger); background: white; border: 1px solid var(--toefl-border);">
+                <div class="card-body">
+                    <h5 class="card-title" style="color: var(--toefl-text);">
+                        <i class="fas fa-exclamation-triangle me-2" style="color: var(--toefl-danger);"></i>
+                        常见陷阱
+                    </h5>
+                    <ul class="trap-list mb-0">
+                        {% for trap in q_type.common_traps %}
+                        <li class="mb-2" style="color: var(--toefl-text);">
+                            <i class="fas fa-times-circle me-2" style="color: var(--toefl-danger);"></i>
+                            {{ trap }}
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Type-Specific Tips -->
+            {% if q_type.id == 'factual' %}
+            <div class="card mb-4" style="background: linear-gradient(135deg, rgba(23, 162, 184, 0.1), rgba(32, 201, 151, 0.1));">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="fas fa-lightbulb text-warning me-2"></i>
+                        专家提示
+                    </h5>
+                    <ul class="mb-0">
+                        <li class="mb-2">关键词定位是核心技能 - 在问题中找到1-2个独特的关键词</li>
+                        <li class="mb-2">警惕 "真但无关" 的选项 - 它们可能出自文章其他段落</li>
+                        <li>答案通常是原文的同义改写，而非原文照搬</li>
+                    </ul>
+                </div>
+            </div>
+            {% elif q_type.id == 'negative_factual' %}
+            <div class="card mb-4" style="background: linear-gradient(135deg, rgba(23, 162, 184, 0.1), rgba(32, 201, 151, 0.1));">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="fas fa-lightbulb text-warning me-2"></i>
+                        专家提示
+                    </h5>
+                    <ul class="mb-0">
+                        <li class="mb-2">在问题中用笔标记 "NOT" 或 "EXCEPT" - 避免遗忘</li>
+                        <li class="mb-2">系统性排除 - 逐一验证每个选项是否在文中被提及</li>
+                        <li>这类题通常需要更多时间 - 不要急于作答</li>
+                    </ul>
+                </div>
+            </div>
+            {% elif q_type.id == 'vocabulary' %}
+            <div class="card mb-4" style="background: linear-gradient(135deg, rgba(23, 162, 184, 0.1), rgba(32, 201, 151, 0.1));">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="fas fa-lightbulb text-warning me-2"></i>
+                        专家提示
+                    </h5>
+                    <ul class="mb-0">
+                        <li class="mb-2">上下文是王道 - 即使你认识这个词，也要看它在句中的具体用法</li>
+                        <li class="mb-2">代入法最可靠 - 将选项代入原句，看哪个最通顺</li>
+                        <li>学术语境的含义可能与日常用法不同</li>
+                    </ul>
+                </div>
+            </div>
+            {% elif q_type.id == 'inference' %}
+            <div class="card mb-4" style="background: linear-gradient(135deg, rgba(23, 162, 184, 0.1), rgba(32, 201, 151, 0.1));">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="fas fa-lightbulb text-warning me-2"></i>
+                        专家提示
+                    </h5>
+                    <ul class="mb-0">
+                        <li class="mb-2">好的推断 = 基于文中事实的逻辑必然结论</li>
+                        <li class="mb-2">警惕 "极端推断" - 如果选项跨越太大，可能不对</li>
+                        <li>正确答案应该是 "不言自明" 的，无需大胆猜测</li>
+                    </ul>
+                </div>
+            </div>
+            {% elif q_type.id == 'prose_summary' %}
+            <div class="card mb-4" style="background: linear-gradient(135deg, rgba(23, 162, 184, 0.1), rgba(32, 201, 151, 0.1));">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="fas fa-lightbulb text-warning me-2"></i>
+                        专家提示
+                    </h5>
+                    <ul class="mb-0">
+                        <li class="mb-2">重读每段的主题句 (通常是首句) - 这些是主要观点的来源</li>
+                        <li class="mb-2">次要细节 ≠ 主要观点 - 即使真实，也不选</li>
+                        <li>正确的3个选项应该形成完整的文章骨架</li>
+                    </ul>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Action Buttons -->
+            <div class="d-flex gap-3 mb-4">
+                <a href="{{ url_for('question_type_practice', question_type_id=q_type.id) }}"
+                   class="btn btn-success btn-lg flex-fill">
+                    <i class="fas fa-dumbbell me-2"></i>
+                    开始练习此题型
+                </a>
+                <a href="{{ url_for('question_types_hub') }}"
+                   class="btn btn-outline-secondary btn-lg">
+                    <i class="fas fa-list me-2"></i>
+                    查看所有题型
+                </a>
+            </div>
+
+            <!-- Progress Tracker Placeholder -->
+            <div class="card mb-4" style="border: 2px dashed var(--gray-300);">
+                <div class="card-body text-center py-4">
+                    <i class="fas fa-chart-line text-muted fa-2x mb-3"></i>
+                    <p class="text-muted mb-0">
+                        <strong>即将推出:</strong> 题型掌握度追踪 (Mastery Tracking)
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.step-item {
+    transition: transform 0.2s;
+}
+
+.step-item:hover {
+    transform: translateX(8px);
+}
+
+.trap-list li {
+    padding: 8px;
+    border-left: 3px solid var(--toefl-danger);
+    background: #f8d7da;
+    margin-bottom: 12px;
+    border-radius: 4px;
+    list-style: none;
+}
+
+.trap-list {
+    padding-left: 0;
+}
+</style>
+{% endblock %}

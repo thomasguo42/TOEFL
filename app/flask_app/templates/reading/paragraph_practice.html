@@ -1,0 +1,613 @@
+{% extends "base.html" %}
+
+{% block title %}Paragraph Practice - TOEFL Reading{% endblock %}
+
+{% block extra_css %}
+<style>
+    .practice-container {
+        max-width: 900px;
+        margin: 0 auto;
+    }
+
+    .navigation-bar {
+        background: #ffffff;
+        border: 1px solid var(--toefl-border);
+        border-radius: 1rem;
+        padding: 1rem 1.5rem;
+        margin-bottom: 2rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .progress-indicator {
+        font-size: 1rem;
+        color: var(--toefl-text);
+    }
+
+    .nav-buttons button {
+        margin: 0 0.25rem;
+    }
+
+    .paragraph-card {
+        background: #ffffff;
+        border: 1px solid var(--toefl-border);
+        border-radius: 1rem;
+        padding: 2rem;
+        margin-bottom: 2rem;
+    }
+
+    .reorder-card {
+        background: linear-gradient(135deg, #f8fbff 0%, #eef4ff 100%);
+        border: 1px solid var(--toefl-border);
+        border-radius: 1rem;
+        padding: 2rem;
+        margin-bottom: 2rem;
+    }
+
+    .reorder-card h4 {
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        font-size: 1.1rem;
+        color: var(--teal-200);
+    }
+
+    .reorder-helper {
+        margin-top: 0.5rem;
+        color: var(--toefl-text-light);
+        font-size: 0.95rem;
+    }
+
+    .reorder-list {
+        list-style: none;
+        padding: 0;
+        margin: 1.5rem 0 0 0;
+        display: flex;
+        flex-direction: column;
+        gap: 0.9rem;
+    }
+
+    .reorder-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 1rem;
+        background: rgba(14, 165, 233, 0.12);
+        border: 1px solid rgba(14, 165, 233, 0.2);
+        border-radius: 0.8rem;
+        padding: 0.9rem 1rem;
+    }
+
+    .reorder-item:focus-within {
+        border-color: var(--teal-400);
+        box-shadow: 0 0 0 2px rgba(14, 165, 233, 0.18);
+    }
+
+    .reorder-content {
+        flex: 1;
+        display: flex;
+        align-items: flex-start;
+        gap: 0.85rem;
+    }
+
+    .reorder-index {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 2rem;
+        height: 2rem;
+        border-radius: 9999px;
+        background: rgba(14, 165, 233, 0.14);
+        color: var(--toefl-text);
+        font-weight: 700;
+        font-size: 0.9rem;
+    }
+
+    .reorder-text {
+        color: var(--toefl-text);
+        line-height: 1.6;
+    }
+
+    .reorder-controls {
+        display: flex;
+        flex-direction: column;
+        gap: 0.4rem;
+    }
+
+    .reorder-controls button {
+        width: 2.1rem;
+        height: 2.1rem;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 0.6rem;
+        border: 1px solid var(--toefl-border);
+        background: #ffffff;
+        color: var(--toefl-text);
+        transition: all 0.15s;
+    }
+
+    .reorder-controls button:hover {
+        background: rgba(14, 165, 233, 0.12);
+        border-color: rgba(14, 165, 233, 0.4);
+        color: var(--teal-400);
+    }
+
+    .reorder-controls button:disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+    }
+
+    .reorder-actions {
+        margin-top: 1.5rem;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .reorder-feedback {
+        margin-top: 1.25rem;
+        padding: 1rem 1.25rem;
+        border-radius: 0.75rem;
+        background: rgba(14, 165, 233, 0.1);
+        border: 1px solid rgba(14, 165, 233, 0.25);
+        color: var(--toefl-text);
+    }
+
+    .reorder-feedback.error {
+        background: rgba(239, 68, 68, 0.12);
+        border-color: rgba(239, 68, 68, 0.3);
+        color: var(--rose-400);
+    }
+
+    .answer-paragraph {
+        margin-top: 1rem;
+        padding: 1rem 1.25rem;
+        background: #f5f8ff;
+        border-left: 3px solid var(--teal-400);
+        border-radius: 0.6rem;
+        line-height: 1.7;
+        color: var(--toefl-text);
+    }
+
+    .answer-list {
+        margin: 0.25rem 0 0 1.25rem;
+        padding: 0;
+    }
+
+    .answer-list li {
+        margin-bottom: 0.35rem;
+    }
+
+    .paragraph-text {
+        font-size: 1.1rem;
+        line-height: 1.8;
+        color: var(--toefl-text);
+        margin-bottom: 2rem;
+        padding: 1.5rem;
+        background: #f5f8ff;
+        border-left: 4px solid var(--teal-400);
+        border-radius: 0.5rem;
+    }
+
+    .sentence-breakdown {
+        margin-top: 2rem;
+    }
+
+    .sentence-item {
+        background: rgba(20, 184, 166, 0.1);
+        border: 1px solid rgba(20, 184, 166, 0.3);
+        border-radius: 0.5rem;
+        padding: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .sentence-role {
+        display: inline-block;
+        padding: 0.25rem 0.75rem;
+        border-radius: 0.5rem;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        margin-bottom: 0.5rem;
+    }
+
+    .role-topic { background: rgba(34, 197, 94, 0.2); color: var(--emerald-300); }
+    .role-support { background: rgba(59, 130, 246, 0.2); color: var(--blue-300); }
+    .role-example { background: rgba(251, 191, 36, 0.2); color: var(--amber-300); }
+    .role-contrast { background: rgba(239, 68, 68, 0.2); color: var(--rose-300); }
+    .role-conclusion { background: rgba(168, 85, 247, 0.2); color: var(--purple-300); }
+
+    .transitions-section {
+        margin-top: 2rem;
+    }
+
+    .transition-item {
+        background: rgba(59, 130, 246, 0.1);
+        border: 1px solid rgba(59, 130, 246, 0.3);
+        border-radius: 0.5rem;
+        padding: 0.75rem 1rem;
+        margin-bottom: 0.5rem;
+        display: inline-block;
+        margin-right: 0.5rem;
+    }
+
+    .regenerate-btn {
+        position: fixed;
+        bottom: 2rem;
+        right: 2rem;
+        z-index: 100;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="practice-container">
+    <!-- Back Button -->
+    <div class="mb-3">
+        <a href="{{ url_for('reading_dashboard') }}" class="btn btn-outline-secondary btn-sm">
+            <i class="fas fa-arrow-left me-2"></i>Back to Reading Dashboard
+        </a>
+    </div>
+
+    <!-- Navigation Bar -->
+    <div class="navigation-bar">
+        <div class="progress-indicator">
+            <i class="fas fa-list-ol me-2"></i>
+            <strong>Exercise {{ current_index + 1 }}</strong> of {{ total_count }}
+        </div>
+        <div class="nav-buttons">
+            <button class="btn btn-outline-secondary btn-sm" id="prevBtn" {% if current_index == 0 %}disabled{% endif %}>
+                <i class="fas fa-chevron-left me-1"></i>Previous
+            </button>
+            <button class="btn btn-outline-secondary btn-sm" id="nextBtn" {% if current_index >= total_count - 1 %}disabled{% endif %}>
+                Next<i class="fas fa-chevron-right ms-1"></i>
+            </button>
+        </div>
+    </div>
+
+    <h2 class="mb-4">
+        <i class="fas fa-align-left me-2"></i>Paragraph Analysis
+    </h2>
+
+    {% if item %}
+    <!-- Reorder Exercise -->
+    <div class="reorder-card" id="reorderCard" data-paragraph-id="{{ item.id }}">
+        <h4>
+            <i class="fas fa-random"></i>
+            {{ (locale_cn or {}).get('paragraphPractice', {}).get('reorderHeading', '段落排序练习') }}
+        </h4>
+        <p class="reorder-helper">
+            {{ (locale_cn or {}).get('paragraphPractice', {}).get('reorderInstruction', '将下面的句子重新排序，组成完整段落。') }}
+        </p>
+        <ul class="reorder-list" id="reorderList">
+            {% for sentence in item.sentences %}
+            <li class="reorder-item" data-original-index="{{ loop.index0 }}" tabindex="0">
+                <div class="reorder-content">
+                    <span class="reorder-index" aria-hidden="true">{{ loop.index }}</span>
+                    <span class="reorder-text">{{ sentence.text }}</span>
+                </div>
+                <div class="reorder-controls">
+                    <button type="button" class="move-btn move-up" aria-label="{{ (locale_cn or {}).get('paragraphPractice', {}).get('moveUp', '上移该句') }}">
+                        <i class="fas fa-arrow-up"></i>
+                    </button>
+                    <button type="button" class="move-btn move-down" aria-label="{{ (locale_cn or {}).get('paragraphPractice', {}).get('moveDown', '下移该句') }}">
+                        <i class="fas fa-arrow-down"></i>
+                    </button>
+                </div>
+            </li>
+            {% endfor %}
+        </ul>
+        <div class="reorder-actions">
+            <button class="btn btn-outline-secondary btn-sm" id="checkOrderBtn">
+                <i class="fas fa-check me-2"></i>{{ (locale_cn or {}).get('paragraphPractice', {}).get('checkButton', '检查排序') }}
+            </button>
+            <button class="btn btn-outline-secondary btn-sm d-none" id="retryOrderBtn">
+                <i class="fas fa-redo me-2"></i>{{ (locale_cn or {}).get('paragraphPractice', {}).get('retryButton', '再试一次') }}
+            </button>
+            <div class="text-muted" id="reorderHint">
+                {{ (locale_cn or {}).get('paragraphPractice', {}).get('helperHint', '使用箭头按钮或键盘方向键调整顺序。') }}
+            </div>
+        </div>
+        <div class="reorder-feedback d-none" id="reorderFeedback"></div>
+        <div class="answer-paragraph d-none" id="answerParagraph">
+            <strong id="answerLabel">{{ (locale_cn or {}).get('paragraphPractice', {}).get('answerLabel', '标准答案') }}：</strong>
+            <ol class="answer-list mt-2" id="answerList">
+                {% for sentence in item.sentences %}
+                <li>{{ sentence.text }}</li>
+                {% endfor %}
+            </ol>
+            <div class="mt-3 text-muted small" id="answerCombined">{{ item.paragraph }}</div>
+        </div>
+    </div>
+
+    <!-- Analysis Card -->
+    <div class="paragraph-card d-none" id="analysisCard">
+        <div class="paragraph-text">
+            {{ item.paragraph }}
+        </div>
+
+        <!-- Sentence Breakdown -->
+        <div class="sentence-breakdown">
+            <h4 class="mb-3">
+                <i class="fas fa-layer-group me-2" style="color: var(--teal-400);"></i>
+                Sentence Breakdown
+            </h4>
+            {% for sentence in item.sentences %}
+            <div class="sentence-item">
+                <div>
+                    <span class="sentence-role role-{{ sentence.role }}">
+                        {{ sentence.role|replace('_', ' ') }}
+                        {% if loop.index0 == item.topicSentenceIndex %}
+                            <i class="fas fa-star ms-1" title="Topic Sentence"></i>
+                        {% endif %}
+                    </span>
+                </div>
+                <div class="mt-2"><strong>{{ sentence.text }}</strong></div>
+                <div class="text-muted mt-2">{{ sentence.summary }}</div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Transitions -->
+        {% if item.transitions %}
+        <div class="transitions-section">
+            <h4 class="mb-3">
+                <i class="fas fa-exchange-alt me-2" style="color: var(--amber-400);"></i>
+                Transition Words (过渡词)
+            </h4>
+            <div>
+                {% for transition in item.transitions %}
+                <div class="transition-item">
+                    <strong>{{ transition.text }}</strong>
+                    <span class="text-muted ms-2">({{ transition.type|replace('_', ' ') }})</span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+    {% else %}
+    <div class="alert alert-warning">
+        <i class="fas fa-exclamation-triangle me-2"></i>
+        No content available. Please regenerate.
+    </div>
+    {% endif %}
+
+    <!-- Regenerate Button -->
+    <button class="btn btn-teal regenerate-btn" id="regenerateBtn">
+        <i class="fas fa-redo me-2"></i>Regenerate 5 New Sets
+    </button>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const regenerateBtn = document.getElementById('regenerateBtn');
+    const paragraphLocale = {{ ((locale_cn or {}).get('paragraphPractice', {}))|tojson }};
+    const totalSentences = {{ item.sentences|length if item else 0 }};
+
+    // Navigation handlers
+    prevBtn.addEventListener('click', () => navigate('prev'));
+    nextBtn.addEventListener('click', () => navigate('next'));
+
+    async function navigate(direction) {
+        try {
+            const response = await fetch('/reading/practice/paragraph/navigate', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ direction })
+            });
+
+            if (response.ok) {
+                window.location.reload();
+            }
+        } catch (error) {
+            console.error('Navigation error:', error);
+        }
+    }
+
+    // Regenerate handler
+    regenerateBtn.addEventListener('click', async function() {
+        if (!confirm('This will generate 5 new paragraph exercises. Continue?')) {
+            return;
+        }
+
+        this.disabled = true;
+        this.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Generating...';
+
+        try {
+            const response = await fetch('/reading/practice/paragraph/generate', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                window.location.reload();
+            } else {
+                alert(data.message || 'Failed to generate. Please try again.');
+                this.disabled = false;
+                this.innerHTML = '<i class="fas fa-redo me-2"></i>Regenerate 5 New Sets';
+            }
+        } catch (error) {
+            console.error('Regenerate error:', error);
+            alert('An error occurred. Please try again.');
+            this.disabled = false;
+            this.innerHTML = '<i class="fas fa-redo me-2"></i>Regenerate 5 New Sets';
+        }
+    });
+
+    // Reorder interaction logic
+    const reorderList = document.getElementById('reorderList');
+    if (reorderList) {
+        const baseItems = Array.from(reorderList.querySelectorAll('.reorder-item'));
+        const sortedItems = baseItems.slice().sort((a, b) => Number(a.dataset.originalIndex) - Number(b.dataset.originalIndex));
+        const checkBtn = document.getElementById('checkOrderBtn');
+        const retryBtn = document.getElementById('retryOrderBtn');
+        const feedbackEl = document.getElementById('reorderFeedback');
+        const hintEl = document.getElementById('reorderHint');
+        const answerBox = document.getElementById('answerParagraph');
+        const analysisCard = document.getElementById('analysisCard');
+
+        // Attach button/keyboard handlers once
+        baseItems.forEach((item) => {
+            const upBtn = item.querySelector('.move-up');
+            const downBtn = item.querySelector('.move-down');
+
+            if (upBtn) {
+                upBtn.addEventListener('click', () => {
+                    moveItem(item, 'up');
+                    item.focus();
+                });
+            }
+            if (downBtn) {
+                downBtn.addEventListener('click', () => {
+                    moveItem(item, 'down');
+                    item.focus();
+                });
+            }
+
+            item.addEventListener('keydown', (event) => {
+                if (event.key === 'ArrowUp') {
+                    event.preventDefault();
+                    moveItem(item, 'up');
+                    item.focus();
+                } else if (event.key === 'ArrowDown') {
+                    event.preventDefault();
+                    moveItem(item, 'down');
+                    item.focus();
+                }
+            });
+        });
+
+        function moveItem(item, direction) {
+            if (!item) return;
+            if (direction === 'up') {
+                const previous = item.previousElementSibling;
+                if (previous) {
+                    reorderList.insertBefore(item, previous);
+                }
+            } else if (direction === 'down') {
+                const next = item.nextElementSibling;
+                if (next) {
+                    reorderList.insertBefore(item, next.nextElementSibling);
+                }
+            }
+            updateIndexes();
+            updateControls();
+        }
+
+        function updateIndexes() {
+            const currentItems = Array.from(reorderList.children);
+            currentItems.forEach((el, idx) => {
+                const indexBadge = el.querySelector('.reorder-index');
+                if (indexBadge) {
+                    indexBadge.textContent = idx + 1;
+                }
+                el.setAttribute('aria-posinset', String(idx + 1));
+                if (totalSentences) {
+                    el.setAttribute('aria-setsize', String(totalSentences));
+                }
+            });
+        }
+
+        function updateControls() {
+            const currentItems = Array.from(reorderList.children);
+            currentItems.forEach((el, idx) => {
+                const upBtn = el.querySelector('.move-up');
+                const downBtn = el.querySelector('.move-down');
+                if (upBtn) {
+                    upBtn.disabled = idx === 0;
+                }
+                if (downBtn) {
+                    downBtn.disabled = idx === currentItems.length - 1;
+                }
+            });
+        }
+
+        function shuffleList() {
+            const candidates = sortedItems.slice();
+            if (candidates.length <= 1) {
+                return;
+            }
+            let attempts = 0;
+            let isOriginal = true;
+            while (attempts < 6) {
+                for (let i = candidates.length - 1; i > 0; i -= 1) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    const temp = candidates[i];
+                    candidates[i] = candidates[j];
+                    candidates[j] = temp;
+                }
+                isOriginal = candidates.every((node, idx) => Number(node.dataset.originalIndex) === idx);
+                if (!isOriginal) {
+                    break;
+                }
+                attempts += 1;
+            }
+            while (reorderList.firstChild) {
+                reorderList.removeChild(reorderList.firstChild);
+            }
+            candidates.forEach((node) => reorderList.appendChild(node));
+            updateIndexes();
+            updateControls();
+        }
+
+        function currentOrder() {
+            return Array.from(reorderList.children).map((el) => Number(el.dataset.originalIndex));
+        }
+
+        function showFeedback(isCorrect) {
+            const correctMessage = paragraphLocale.correctMessage || '顺序正确！干得漂亮。';
+            const incorrectMessage = paragraphLocale.incorrectMessage || '顺序不完全正确，参考答案后再试一次。';
+            feedbackEl.textContent = isCorrect ? correctMessage : incorrectMessage;
+            feedbackEl.classList.toggle('error', !isCorrect);
+            feedbackEl.classList.remove('d-none');
+        }
+
+        function resetExercise(shouldFocus = true) {
+            feedbackEl.classList.add('d-none');
+            feedbackEl.classList.remove('error');
+            answerBox.classList.add('d-none');
+            if (analysisCard) {
+                analysisCard.classList.add('d-none');
+            }
+            retryBtn.classList.add('d-none');
+            hintEl.classList.remove('d-none');
+            shuffleList();
+            const firstItem = reorderList.querySelector('.reorder-item');
+            if (shouldFocus && firstItem) {
+                firstItem.focus();
+            }
+        }
+
+        checkBtn.addEventListener('click', () => {
+            const order = currentOrder();
+            const isCorrect = order.every((value, idx) => value === idx);
+            showFeedback(isCorrect);
+            answerBox.classList.remove('d-none');
+            if (analysisCard) {
+                analysisCard.classList.remove('d-none');
+            }
+            retryBtn.classList.remove('d-none');
+            hintEl.classList.add('d-none');
+        });
+
+        retryBtn.addEventListener('click', () => {
+            resetExercise(true);
+        });
+
+        // Initialize
+        resetExercise(false);
+    }
+});
+</script>
+{% endblock %}

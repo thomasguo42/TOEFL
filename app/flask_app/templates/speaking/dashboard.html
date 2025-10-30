@@ -1,0 +1,195 @@
+{% extends "base.html" %}
+
+{% block title %}Speaking Practice - TOEFL{% endblock %}
+
+{% block extra_css %}
+<style>
+    .speaking-dashboard {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 2rem 1rem;
+    }
+
+    .task-cards {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .task-card {
+        background: linear-gradient(135deg, #ffffff 0%, #f0f9ff 100%);
+        border: 2px solid var(--teal-400);
+        border-radius: 1rem;
+        padding: 2rem;
+        transition: all 0.3s;
+        cursor: pointer;
+        text-decoration: none;
+        color: inherit;
+        display: block;
+    }
+
+    .task-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 20px rgba(14, 165, 233, 0.25);
+        border-color: #0891b2;
+    }
+
+    .task-number {
+        display: inline-block;
+        background: var(--teal-400);
+        color: white;
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+    }
+
+    .task-title {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: var(--toefl-text);
+        margin-bottom: 0.5rem;
+    }
+
+    .task-type {
+        font-size: 0.9rem;
+        color: var(--toefl-text-light);
+        margin-bottom: 1rem;
+    }
+
+    .task-details {
+        font-size: 0.85rem;
+        color: var(--toefl-text);
+    }
+
+    .task-details li {
+        margin-bottom: 0.4rem;
+    }
+
+    .info-section {
+        background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+        border: 1px solid #86efac;
+        border-radius: 1rem;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .section-header {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .header-icon {
+        font-size: 2.5rem;
+        color: var(--teal-400);
+    }
+
+    .header-text h1 {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--toefl-text);
+        margin: 0;
+    }
+
+    .header-text p {
+        color: var(--toefl-text-light);
+        margin: 0.25rem 0 0 0;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="speaking-dashboard">
+    <div class="section-header">
+        <div class="header-icon">
+            <i class="fas fa-microphone"></i>
+        </div>
+        <div class="header-text">
+            <h1>Speaking Practice</h1>
+            <p>Practice all 4 TOEFL speaking tasks with AI-powered feedback</p>
+        </div>
+    </div>
+
+    <div class="info-section">
+        <h3 class="mb-3">
+            <i class="fas fa-lightbulb me-2" style="color: #fbbf24;"></i>
+            How It Works
+        </h3>
+        <ol class="mb-0">
+            <li>Choose a task type (1-4)</li>
+            <li>Read the prompt and prepare your response</li>
+            <li>Record your answer using your microphone</li>
+            <li>Receive comprehensive AI feedback on delivery, language use, and topic development</li>
+        </ol>
+    </div>
+
+    <h2 class="mb-4">
+        <i class="fas fa-tasks me-2"></i>Choose a Task
+    </h2>
+
+    <div class="task-cards">
+        <!-- Task 1: Independent -->
+        <a href="{{ url_for('speaking_task_start', task_number=1) }}" class="task-card">
+            <div class="task-number">1</div>
+            <div class="task-title">Independent Speaking</div>
+            <div class="task-type">Personal Preference</div>
+            <ul class="task-details">
+                <li><i class="fas fa-clock me-1"></i> Prep: 15s | Response: 45s</li>
+                <li><i class="fas fa-comment me-1"></i> State your opinion and support it</li>
+                <li><i class="fas fa-star me-1"></i> Practice expressing preferences</li>
+            </ul>
+        </a>
+
+        <!-- Task 2: Integrated (Campus) -->
+        <a href="{{ url_for('speaking_task_start', task_number=2) }}" class="task-card">
+            <div class="task-number">2</div>
+            <div class="task-title">Campus Situation</div>
+            <div class="task-type">Read + Listen + Speak</div>
+            <ul class="task-details">
+                <li><i class="fas fa-clock me-1"></i> Prep: 30s | Response: 60s</li>
+                <li><i class="fas fa-book me-1"></i> Read announcement</li>
+                <li><i class="fas fa-headphones me-1"></i> Listen to student opinion</li>
+                <li><i class="fas fa-comment me-1"></i> Summarize opinion and reasons</li>
+            </ul>
+        </a>
+
+        <!-- Task 3: Integrated (Academic) -->
+        <a href="{{ url_for('speaking_task_start', task_number=3) }}" class="task-card">
+            <div class="task-number">3</div>
+            <div class="task-title">Academic Concept</div>
+            <div class="task-type">Read + Listen + Speak</div>
+            <ul class="task-details">
+                <li><i class="fas fa-clock me-1"></i> Prep: 30s | Response: 60s</li>
+                <li><i class="fas fa-book me-1"></i> Read concept definition</li>
+                <li><i class="fas fa-headphones me-1"></i> Listen to example</li>
+                <li><i class="fas fa-comment me-1"></i> Explain concept and example</li>
+            </ul>
+        </a>
+
+        <!-- Task 4: Integrated (Lecture) -->
+        <a href="{{ url_for('speaking_task_start', task_number=4) }}" class="task-card">
+            <div class="task-number">4</div>
+            <div class="task-title">Academic Lecture</div>
+            <div class="task-type">Listen + Speak</div>
+            <ul class="task-details">
+                <li><i class="fas fa-clock me-1"></i> Prep: 20s | Response: 60s</li>
+                <li><i class="fas fa-headphones me-1"></i> Listen to lecture</li>
+                <li><i class="fas fa-comment me-1"></i> Summarize main points</li>
+            </ul>
+        </a>
+    </div>
+
+    <div class="alert alert-info">
+        <i class="fas fa-info-circle me-2"></i>
+        <strong>Tip:</strong> Make sure your microphone is working before starting a task. You'll receive feedback on your fluency, pronunciation, rhythm, language use, and topic development.
+    </div>
+</div>
+{% endblock %}

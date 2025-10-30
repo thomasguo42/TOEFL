@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block title %}Register - TOEFL Vocabulary Studio{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6 col-lg-5">
+        <div class="card shadow-lg p-4">
+            <h2 class="text-center mb-4">Create your learner account</h2>
+            <p class="text-muted text-center mb-4">
+                Use the same email across devices so your spaced repetition data stays synced.
+                Passwords are stored securely with bcrypt.
+            </p>
+
+            <form method="POST" action="{{ url_for('register') }}">
+                <div class="mb-3">
+                    <label for="email" class="form-label">Email</label>
+                    <input type="email" class="form-control" id="email" name="email"
+                           placeholder="you@example.com" required autofocus>
+                </div>
+
+                <div class="mb-3">
+                    <label for="password" class="form-label">Password</label>
+                    <input type="password" class="form-control" id="password" name="password"
+                           placeholder="At least 8 characters" required minlength="8">
+                </div>
+
+                <div class="mb-3">
+                    <label for="daily_goal" class="form-label">Daily goal</label>
+                    <input type="number" class="form-control" id="daily_goal" name="daily_goal"
+                           value="50" min="1" max="1000" placeholder="Words per day">
+                </div>
+
+                <button type="submit" class="btn btn-primary w-100 mt-3">
+                    <i class="fas fa-user-plus me-2"></i>Create account
+                </button>
+            </form>
+
+            <p class="text-center text-muted mt-4 mb-0">
+                Already have an account?
+                <a href="{{ url_for('login') }}" class="text-decoration-none" style="color: var(--teal-300);">
+                    Sign in
+                </a>
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}

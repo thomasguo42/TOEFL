@@ -1,0 +1,653 @@
+{% extends "base.html" %}
+
+{% block title %}Reading Coach - TOEFL Learning Studio{% endblock %}
+
+{% block extra_css %}
+<style>
+    .module-card {
+        background: #ffffff;
+        border: 1px solid var(--toefl-border);
+        border-radius: 1rem;
+        padding: 1.75rem;
+        margin-bottom: 2rem;
+    }
+
+    .module-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .sentence-plain {
+        font-size: 1.15rem;
+        line-height: 1.8;
+        background: #f5f8ff;
+        border-radius: 0.75rem;
+        padding: 1rem;
+        border: 1px dashed var(--toefl-border-light);
+    }
+
+    .sentence-highlight {
+        font-size: 1.1rem;
+        line-height: 1.9;
+        background: rgba(14, 165, 233, 0.12);
+        border-radius: 0.75rem;
+        padding: 1rem;
+        border: 1px solid rgba(14, 165, 233, 0.2);
+        display: none;
+    }
+
+    .sentence-segment {
+        padding: 0.1rem 0.2rem;
+        border-radius: 0.35rem;
+        cursor: pointer;
+        transition: background-color 0.2s;
+    }
+
+    .sentence-segment:hover {
+        background-color: rgba(14, 165, 233, 0.16);
+    }
+
+    .sentence-segment[data-type="main_subject"],
+    .sentence-segment[data-type="contrast_subject"] {
+        color: var(--teal-300);
+        font-weight: 600;
+    }
+
+    .sentence-segment[data-type="main_verb"],
+    .sentence-segment[data-type="contrast_verb"] {
+        color: var(--rose-400);
+        font-weight: 600;
+    }
+
+    .sentence-segment[data-type="relative_clause"],
+    .sentence-segment[data-type="relative_clause_detail"] {
+        border-bottom: 2px dotted rgba(251, 113, 133, 0.6);
+    }
+
+    .sentence-segment[data-type="infinitive_purpose"],
+    .sentence-segment[data-type="result_clause"] {
+        border-bottom: 2px solid rgba(94, 234, 212, 0.6);
+    }
+
+    .sentence-segment[data-type="prepositional_phrase"],
+    .sentence-segment[data-type="adverbial_clause_time"] {
+        color: var(--amber-300);
+    }
+
+    .sentence-segment[data-type="subordinator"] {
+        font-variant: small-caps;
+        letter-spacing: 0.1em;
+        color: var(--slate-300);
+    }
+
+    .focus-chip {
+        background: rgba(251, 113, 133, 0.12);
+        border: 1px solid rgba(251, 113, 133, 0.4);
+        color: var(--rose-400);
+        padding: 0.25rem 0.75rem;
+        border-radius: 1rem;
+        font-size: 0.85rem;
+        margin-right: 0.5rem;
+        margin-bottom: 0.5rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+    }
+
+    .focus-chip i {
+        font-size: 0.85rem;
+    }
+
+    .paragraph-sentence {
+        background: #f8fbff;
+        border: 1px solid transparent;
+        border-radius: 0.6rem;
+        padding: 0.75rem;
+        transition: border-color 0.2s, transform 0.2s;
+        cursor: pointer;
+    }
+
+    .paragraph-sentence:hover {
+        border-color: rgba(14, 165, 233, 0.35);
+        transform: translateY(-2px);
+    }
+
+    .paragraph-sentence.selected {
+        border-color: var(--teal-400);
+        background: rgba(14, 165, 233, 0.14);
+    }
+
+    .transition-highlight {
+        color: var(--amber-300);
+        font-weight: 600;
+        cursor: help;
+    }
+
+    .toggle-pill {
+        background: rgba(14, 165, 233, 0.12);
+        border: 1px solid var(--toefl-border);
+        border-radius: 9999px;
+        padding: 0.35rem 0.9rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.45rem;
+        font-size: 0.85rem;
+    }
+
+    .toggle-pill input {
+        accent-color: var(--teal-400);
+    }
+
+    .passage-paragraph {
+        margin-bottom: 1.25rem;
+        padding: 1.25rem;
+        border-radius: 0.9rem;
+        background: #f5f8ff;
+        border: 1px solid var(--toefl-border-light);
+    }
+
+    .paragraph-summary {
+        background: rgba(45, 212, 191, 0.08);
+        border-left: 3px solid var(--teal-400);
+        padding: 0.6rem 0.9rem;
+        border-radius: 0.6rem;
+        font-size: 0.95rem;
+        display: none;
+    }
+
+    .question-card {
+        background: #ffffff;
+        border: 1px solid var(--toefl-border);
+        border-radius: 0.75rem;
+        padding: 1rem 1.25rem;
+        margin-bottom: 1.1rem;
+    }
+
+    .question-feedback {
+        font-size: 0.9rem;
+        margin-top: 0.5rem;
+    }
+
+    .distractor-note {
+        font-size: 0.85rem;
+        color: var(--amber-300);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-xl-10">
+        <div class="module-card">
+            <div class="module-header">
+                <div>
+                    <h2 class="mb-1">
+                        <i class="fas fa-compass me-2" style="color: var(--teal-400);"></i>
+                        Reading Coach
+                    </h2>
+                    <p class="mb-0 text-muted">
+                        按照“从句到段，再到篇”的梯度训练，循序渐进掌握 TOEFL 阅读。
+                    </p>
+                </div>
+                <a class="btn btn-outline-light btn-sm" href="{{ url_for('main_dashboard') }}">
+                    <i class="fas fa-arrow-left me-1"></i> 返回学习概览
+                </a>
+            </div>
+
+            <div class="row g-3">
+                <div class="col-md-3">
+                    <div class="toggle-pill">
+                        <i class="fas fa-microchip text-teal"></i>
+                        <span>Sentence Gym</span>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="toggle-pill">
+                        <i class="fas fa-align-left text-info"></i>
+                        <span>Paragraph Lab</span>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="toggle-pill">
+                        <i class="fas fa-layer-group text-rose"></i>
+                        <span>Strategy Simulator</span>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <a href="{{ url_for('question_types_hub') }}" class="text-decoration-none">
+                        <div class="toggle-pill" style="background: linear-gradient(135deg, rgba(23, 162, 184, 0.15), rgba(32, 201, 151, 0.15)); border: 1px solid var(--teal-400);">
+                            <i class="fas fa-flask text-teal"></i>
+                            <span>题型策略实验室</span>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="module-card" id="sentence-module">
+            <div class="module-header">
+                <div>
+                    <h3 class="mb-1"><i class="fas fa-dumbbell me-2 text-info"></i>Sentence Gym</h3>
+                    <p class="mb-0 text-muted">先自己理解，再点击“分析”观察语法结构，最后用自己的话改写。</p>
+                </div>
+                <div class="d-flex gap-2">
+                    <button class="btn btn-outline-light btn-sm" id="sentence-next">
+                        <i class="fas fa-random me-1"></i> 下一句
+                    </button>
+                    <button class="btn btn-primary btn-sm" id="sentence-analyze">
+                        <i class="fas fa-highlighter me-1"></i> 分析
+                    </button>
+                </div>
+            </div>
+            <div class="sentence-plain" id="sentence-plain"></div>
+            <div class="sentence-highlight mt-3" id="sentence-analysis"></div>
+            <div class="mt-3">
+                <h6 class="text-muted mb-2">
+                    <i class="fas fa-lightbulb me-1 text-warning"></i>改写提示要点
+                </h6>
+                <div id="sentence-focus" class="d-flex flex-wrap"></div>
+            </div>
+            <div class="mt-4">
+                <label for="paraphrase-input" class="form-label">用更简单的英语或中文解释这句话：</label>
+                <textarea class="form-control" id="paraphrase-input" rows="3" placeholder="写下你的理解…"></textarea>
+                <div class="d-flex gap-2 mt-3">
+                    <button class="btn btn-success" id="paraphrase-submit">
+                        <i class="fas fa-paper-plane me-1"></i> 检查我的改写
+                    </button>
+                    <button class="btn btn-outline-light" id="paraphrase-show-model">
+                        <i class="fas fa-eye me-1"></i> 查看示范
+                    </button>
+                </div>
+                <div class="mt-3" id="paraphrase-feedback"></div>
+                <div class="mt-2 text-muted" id="paraphrase-missing"></div>
+                <div class="mt-2 text-info" id="paraphrase-model" style="display: none;"></div>
+            </div>
+        </div>
+
+        <div class="module-card" id="paragraph-module">
+            <div class="module-header">
+                <div>
+                    <h3 class="mb-1"><i class="fas fa-align-left me-2 text-warning"></i>Paragraph Lab</h3>
+                    <p class="mb-0 text-muted">找出主题句，并通过连接词观察段落的逻辑流向。</p>
+                </div>
+                <button class="btn btn-outline-light btn-sm" id="paragraph-next">
+                    <i class="fas fa-random me-1"></i> 换一段
+                </button>
+            </div>
+            <p class="text-muted small mb-3" id="paragraph-topic"></p>
+            <div class="vstack gap-2" id="paragraph-sentences"></div>
+            <div class="alert alert-secondary mt-3 text-muted" role="alert" id="paragraph-feedback">
+                {{ locale_cn.paragraphLab.flow_hint|default('将鼠标悬停在连接词上，可查看逻辑关系提示。') }}
+            </div>
+        </div>
+
+        <div class="module-card" id="passage-module">
+            <div class="module-header">
+                <div>
+                    <h3 class="mb-1"><i class="fas fa-layer-group me-2 text-emerald"></i>Strategy Simulator</h3>
+                    <p class="mb-0 text-muted">在完整文章中练习定位证据，并理解干扰选项为何错误。</p>
+                </div>
+                <button class="btn btn-outline-light btn-sm" id="passage-refresh">
+                    <i class="fas fa-sync me-1"></i> 刷新材料
+                </button>
+            </div>
+            <div class="d-flex flex-wrap gap-2 mb-3" id="passage-tools"></div>
+            <div id="passage-body"></div>
+            <div class="mt-4" id="passage-questions"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+const readingState = {
+    locale: {{ (locale_cn or {})|tojson }},
+    sentence: {{ (sentence or {})|tojson }},
+    paragraph: {{ (paragraph or {})|tojson }},
+    passage: {{ (passage or {})|tojson }}
+};
+
+function setSentenceContent(sentence) {
+    const normalized = {
+        ...(sentence || {}),
+        analysis: Array.isArray(sentence?.analysis) ? sentence.analysis : [],
+        focusPoints: Array.isArray(sentence?.focusPoints)
+            ? sentence.focusPoints
+            : Array.isArray(sentence?.focus_points) ? sentence.focus_points : [],
+        paraphrase_reference: sentence?.paraphrase_reference || sentence?.reference || ''
+    };
+    readingState.sentence = normalized;
+    const plainBox = document.getElementById('sentence-plain');
+    const analysisBox = document.getElementById('sentence-analysis');
+    const focusBox = document.getElementById('sentence-focus');
+    if (!plainBox || !analysisBox || !focusBox) return;
+
+    plainBox.textContent = normalized?.text || '暂无句子，请稍后重试。';
+    analysisBox.innerHTML = '';
+    analysisBox.style.display = 'none';
+    if (Array.isArray(normalized.analysis)) {
+        const tooltips = readingState.locale?.tooltips || {};
+        normalized.analysis.forEach((segment) => {
+            const span = document.createElement('span');
+            span.className = 'sentence-segment';
+            span.dataset.type = segment.type || 'default';
+            span.textContent = segment.text || '';
+            const tooltipKey = segment.tooltipKey || segment.type;
+            if (tooltipKey && tooltips[tooltipKey]) {
+                span.setAttribute('title', tooltips[tooltipKey]);
+            }
+            analysisBox.appendChild(span);
+            analysisBox.appendChild(document.createTextNode(' '));
+        });
+    }
+
+    focusBox.innerHTML = '';
+    if (Array.isArray(normalized.focusPoints)) {
+        normalized.focusPoints.forEach((point) => {
+            const chip = document.createElement('div');
+            chip.className = 'focus-chip';
+            chip.innerHTML = `<i class="fas fa-thumbtack"></i>${point.phrase || ''}`;
+            chip.setAttribute('title', point.hint || '');
+            focusBox.appendChild(chip);
+        });
+    }
+    document.getElementById('paraphrase-input').value = '';
+    document.getElementById('paraphrase-feedback').innerHTML = '';
+    document.getElementById('paraphrase-missing').innerHTML = '';
+    const modelBox = document.getElementById('paraphrase-model');
+    modelBox.style.display = 'none';
+    modelBox.innerHTML = '';
+    readingState.sentence = normalized;
+}
+
+function revealSentenceAnalysis() {
+    const analysisBox = document.getElementById('sentence-analysis');
+    if (analysisBox && analysisBox.innerHTML.trim()) {
+        analysisBox.style.display = 'block';
+    }
+}
+
+function fetchSentence(id) {
+    const url = new URL('{{ url_for("reading_sentence_api") }}', window.location.origin);
+    if (id) url.searchParams.append('id', id);
+    fetch(url.toString())
+        .then((res) => res.json())
+        .then((data) => {
+            if (data.error) throw new Error(data.error);
+            setSentenceContent(data);
+        })
+        .catch((err) => {
+            console.error(err);
+            setSentenceContent({ text: '服务器暂时无法获取句子，请稍后再试。' });
+        });
+}
+
+function submitParaphrase() {
+    const payload = {
+        sentenceId: readingState.sentence?.id,
+        text: document.getElementById('paraphrase-input').value
+    };
+    if (!payload.sentenceId) {
+        return;
+    }
+    fetch('{{ url_for("reading_paraphrase_api") }}', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+    })
+        .then((res) => res.json())
+        .then((data) => {
+            if (data.error) throw new Error(data.error);
+            const feedbackBox = document.getElementById('paraphrase-feedback');
+            const missingBox = document.getElementById('paraphrase-missing');
+            const modelBox = document.getElementById('paraphrase-model');
+            const toneClass = data.category === 'excellent' ? 'text-success'
+                : data.category === 'good' ? 'text-warning' : 'text-danger';
+            feedbackBox.innerHTML = `<span class="${toneClass}"><i class="fas fa-comment-dots me-1"></i>${data.feedback || ''}</span>`;
+            if (Array.isArray(data.missing) && data.missing.length > 0) {
+                missingBox.innerHTML = data.missing.map((item) => `<div>- ${item}</div>`).join('');
+            } else {
+                missingBox.innerHTML = '';
+            }
+            if (data.modelAnswer) {
+                modelBox.style.display = 'block';
+                modelBox.innerHTML = `<strong>${data.modelAnswerLabel || '参考表达'}：</strong> ${data.modelAnswer}`;
+            }
+        })
+        .catch((err) => {
+            console.error(err);
+        });
+}
+
+function setParagraphContent(paragraph) {
+    readingState.paragraph = paragraph;
+    const sentencesBox = document.getElementById('paragraph-sentences');
+    const feedbackBox = document.getElementById('paragraph-feedback');
+    const topicBox = document.getElementById('paragraph-topic');
+    if (!sentencesBox || !feedbackBox) return;
+    sentencesBox.innerHTML = '';
+    const sentences = Array.isArray(paragraph?.sentences) ? paragraph.sentences : [];
+    const tooltips = readingState.locale?.tooltips || {};
+    sentences.forEach((sentence) => {
+        const btn = document.createElement('div');
+        btn.className = 'paragraph-sentence';
+        btn.dataset.index = sentence.index;
+        btn.innerHTML = `<strong>${sentence.index + 1}.</strong> ${sentence.text}`;
+        btn.addEventListener('click', () => handleParagraphSelection(sentence.index));
+        sentencesBox.appendChild(btn);
+    });
+    feedbackBox.className = 'alert alert-secondary mt-3 text-muted';
+    feedbackBox.innerHTML = readingState.locale?.paragraphLab?.flow_hint
+        || '将鼠标悬停在连接词上，可查看逻辑关系提示。';
+    const transitions = Array.isArray(paragraph?.transitions) ? paragraph.transitions : [];
+    const paragraphText = paragraph?.paragraph || '';
+    let enhancedText = paragraphText;
+    transitions.forEach((transition) => {
+        const tipText = tooltips[transition.tooltipKey] || tooltips[transition.type] || '';
+        if (!transition.text) return;
+        const marker = transition.text;
+        const regex = new RegExp(`\\b${marker}\\b`);
+        if (regex.test(enhancedText)) {
+            enhancedText = enhancedText.replace(regex, `<span class="transition-highlight" title="${tipText}">${marker}</span>`);
+        }
+    });
+    topicBox.innerHTML = `<em>${enhancedText}</em>`;
+}
+
+function handleParagraphSelection(selectedIndex) {
+    const paragraph = readingState.paragraph;
+    if (!paragraph) return;
+    const topicIndex = paragraph.topicSentenceIndex;
+    const nodes = document.querySelectorAll('.paragraph-sentence');
+    nodes.forEach((node) => {
+        node.classList.toggle('selected', Number(node.dataset.index) === selectedIndex);
+    });
+    const feedbackBox = document.getElementById('paragraph-feedback');
+    const locale = readingState.locale?.paragraphLab || {};
+    if (selectedIndex === topicIndex) {
+        feedbackBox.className = 'alert alert-success mt-3';
+        feedbackBox.innerHTML = `<i class="fas fa-check-circle me-1"></i>${locale.correct || '正确！你找到了概括段落的主题句。'}`;
+    } else {
+        feedbackBox.className = 'alert alert-warning mt-3';
+        feedbackBox.innerHTML = `<i class="fas fa-exclamation-triangle me-1"></i>${locale.incorrect || '再想想。注意哪一句提出了整段都在围绕的观点。'}`;
+    }
+}
+
+function fetchParagraph(id) {
+    const url = new URL('{{ url_for("reading_paragraph_api") }}', window.location.origin);
+    if (id) url.searchParams.append('id', id);
+    fetch(url.toString())
+        .then((res) => res.json())
+        .then((data) => {
+            if (data.error) throw new Error(data.error);
+            setParagraphContent(data);
+        })
+        .catch((err) => {
+            console.error(err);
+        });
+}
+
+function setPassageContent(passage) {
+    readingState.passage = passage;
+    const body = document.getElementById('passage-body');
+    const toolsBox = document.getElementById('passage-tools');
+    const questionBox = document.getElementById('passage-questions');
+    if (!body || !toolsBox || !questionBox) return;
+    body.innerHTML = '';
+    toolsBox.innerHTML = '';
+    questionBox.innerHTML = '';
+
+    const assists = passage?.tools || {};
+    const assistCopy = readingState.locale?.strategySimulator?.assistCopy || {};
+    const assistConfig = [
+        { key: 'sentenceAnalyzerEnabled', label: assistCopy.sentenceAnalyzer || '句子分析器' },
+        { key: 'paragraphSummariesEnabled', label: assistCopy.paragraphSummary || '段落要点' },
+        { key: 'vocabLookupEnabled', label: assistCopy.vocabLookup || '词汇速记' }
+    ];
+    assistConfig.forEach(({ key, label }) => {
+        if (!assists[key]) return;
+        const id = `assist-${key}`;
+        const pill = document.createElement('label');
+        pill.className = 'toggle-pill';
+        pill.innerHTML = `
+            <input type="checkbox" id="${id}" ${key === 'paragraphSummariesEnabled' ? '' : 'checked'}>
+            <span>${label}</span>
+        `;
+        toolsBox.appendChild(pill);
+    });
+
+    (passage?.paragraphs || []).forEach((paragraph) => {
+        const wrapper = document.createElement('div');
+        wrapper.className = 'passage-paragraph';
+        wrapper.dataset.index = paragraph.index;
+        wrapper.innerHTML = `<p class="mb-0">${paragraph.text}</p>`;
+        if (assists.paragraphSummariesEnabled && paragraph.summary) {
+            const summary = document.createElement('div');
+            summary.className = 'paragraph-summary mt-2';
+            summary.dataset.index = paragraph.index;
+            summary.textContent = paragraph.summary;
+            wrapper.appendChild(summary);
+        }
+        body.appendChild(wrapper);
+    });
+
+    (passage?.questions || []).forEach((question, idx) => {
+        const card = document.createElement('div');
+        card.className = 'question-card';
+        card.dataset.id = question.id;
+        const optionsHtml = (question.options || []).map((opt, optIndex) => `
+            <div class="form-check">
+                <input class="form-check-input" type="radio" name="question-${idx}" id="question-${idx}-${optIndex}" value="${opt}">
+                <label class="form-check-label" for="question-${idx}-${optIndex}">${opt}</label>
+            </div>
+        `).join('');
+        card.innerHTML = `
+            <p class="mb-2"><strong>${idx + 1}.</strong> ${question.prompt}</p>
+            ${optionsHtml}
+            <div class="mt-3 d-flex gap-2">
+                <button class="btn btn-primary btn-sm" data-action="check">检查</button>
+                <button class="btn btn-outline-light btn-sm" data-action="reveal">揭示答案</button>
+            </div>
+            <div class="question-feedback" id="question-feedback-${idx}"></div>
+            <div class="distractor-note" id="question-distractor-${idx}"></div>
+        `;
+        questionBox.appendChild(card);
+
+        card.addEventListener('click', (event) => {
+            if (!(event.target instanceof HTMLElement)) return;
+            const action = event.target.dataset.action;
+            if (!action) return;
+            event.preventDefault();
+            const radios = card.querySelectorAll('input[type="radio"]');
+            const selected = Array.from(radios).find((input) => input.checked);
+            handleQuestionAction({
+                question,
+                index: idx,
+                action,
+                selectedValue: selected ? selected.value : null
+            });
+        });
+    });
+
+    const summaryToggle = document.getElementById('assist-paragraphSummariesEnabled');
+    if (summaryToggle) {
+        summaryToggle.addEventListener('change', () => {
+            document.querySelectorAll('.paragraph-summary').forEach((node) => {
+                node.style.display = summaryToggle.checked ? 'block' : 'none';
+            });
+        });
+        summaryToggle.dispatchEvent(new Event('change'));
+    }
+}
+
+function handleQuestionAction({ question, index, action, selectedValue }) {
+    const feedbackBox = document.getElementById(`question-feedback-${index}`);
+    const distractorBox = document.getElementById(`question-distractor-${index}`);
+    if (!feedbackBox || !question) return;
+    const localeMap = readingState.locale?.strategySimulator?.distractorCategories || {};
+
+    if (action === 'reveal') {
+        feedbackBox.innerHTML = `<span class="text-info"><i class="fas fa-eye me-1"></i>${question.explanation || ''}</span>`;
+        distractorBox.innerHTML = `<span class="text-success">正确答案：${question.answer}</span>`;
+        return;
+    }
+
+    if (!selectedValue) {
+        feedbackBox.innerHTML = `<span class="text-warning"><i class="fas fa-info-circle me-1"></i>先选择一个选项。</span>`;
+        distractorBox.innerHTML = '';
+        return;
+    }
+
+    if (selectedValue === question.answer) {
+        feedbackBox.innerHTML = `<span class="text-success"><i class="fas fa-check-circle me-1"></i>${question.explanation || '回答正确。'}</span>`;
+        distractorBox.innerHTML = '';
+        return;
+    }
+
+    const distractor = (question.distractors || []).find((item) => item.choice === selectedValue);
+    const categoryLabel = distractor ? (localeMap[distractor.category] || localeMap.Default || '') : '';
+    const analysis = distractor?.analysis || '';
+    feedbackBox.innerHTML = `<span class="text-danger"><i class="fas fa-times-circle me-1"></i>再想想原文证据。</span>`;
+    distractorBox.innerHTML = `${categoryLabel ? categoryLabel + '。' : ''}${analysis}`;
+}
+
+function fetchPassage(id) {
+    const url = new URL('{{ url_for("reading_passage_api") }}', window.location.origin);
+    if (id) url.searchParams.append('id', id);
+    fetch(url.toString())
+        .then((res) => res.json())
+        .then((data) => {
+            if (data.error) throw new Error(data.error);
+            setPassageContent(data);
+        })
+        .catch((err) => {
+            console.error(err);
+        });
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    setSentenceContent(readingState.sentence || {});
+    setParagraphContent(readingState.paragraph || {});
+    setPassageContent(readingState.passage || {});
+
+    document.getElementById('sentence-analyze')?.addEventListener('click', revealSentenceAnalysis);
+    document.getElementById('sentence-next')?.addEventListener('click', () => fetchSentence());
+    document.getElementById('paraphrase-submit')?.addEventListener('click', submitParaphrase);
+    document.getElementById('paraphrase-show-model')?.addEventListener('click', () => {
+        const modelBox = document.getElementById('paraphrase-model');
+        if (modelBox.style.display === 'block') {
+            modelBox.style.display = 'none';
+        } else {
+            modelBox.style.display = 'block';
+            if (readingState.sentence?.paraphrase_reference) {
+                modelBox.innerHTML = `<strong>${readingState.locale?.paraphrase?.model_intro || '参考表达'}：</strong> ${readingState.sentence.paraphrase_reference}`;
+            }
+        }
+    });
+    document.getElementById('paragraph-next')?.addEventListener('click', () => fetchParagraph());
+    document.getElementById('passage-refresh')?.addEventListener('click', () => fetchPassage());
+});
+</script>
+{% endblock %}

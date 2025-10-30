@@ -1,0 +1,163 @@
+[
+  {
+    "id": "astro_sentence_1",
+    "topic": "astronomy",
+    "text": "The nebula's intricate filaments were first observed by astronomers at the Beijing Observatory, which was established in the late nineteenth century to track celestial changes visible over East Asia.",
+    "analysis": [
+      {
+        "text": "The nebula's intricate filaments",
+        "type": "main_subject",
+        "tooltipKey": "main_subject"
+      },
+      {
+        "text": "were first observed",
+        "type": "main_verb",
+        "tooltipKey": "main_verb"
+      },
+      {
+        "text": "by astronomers at the Beijing Observatory",
+        "type": "prepositional_phrase",
+        "tooltipKey": "prep_phrase"
+      },
+      {
+        "text": "which was established in the late nineteenth century",
+        "type": "relative_clause",
+        "tooltipKey": "relative_clause"
+      },
+      {
+        "text": "to track celestial changes visible over East Asia",
+        "type": "infinitive_purpose",
+        "tooltipKey": "infinitive_purpose"
+      }
+    ],
+    "paraphrase_reference": "Astronomers working at the nineteenth-century Beijing Observatory were the first to document the nebula's detailed filaments so they could monitor changes above East Asia.",
+    "focus_points": [
+      {
+        "phrase": "Beijing Observatory",
+        "hint": "提及观测地点能够展示你理解句子背景。"
+      },
+      {
+        "phrase": "nineteenth century",
+        "hint": "补充时间信息说明你捕捉到历史细节。"
+      },
+      {
+        "phrase": "track celestial changes",
+        "hint": "不要忽略目的成分，它解释了为何进行观测。"
+      }
+    ]
+  },
+  {
+    "id": "eco_sentence_1",
+    "topic": "ecology",
+    "text": "While the mangrove forest appears resilient, its intricate root systems, which shelter juvenile fish, are increasingly threatened by rising sea temperatures that accelerate coastal erosion.",
+    "analysis": [
+      {
+        "text": "While",
+        "type": "subordinator",
+        "tooltipKey": "subordinator"
+      },
+      {
+        "text": "the mangrove forest",
+        "type": "main_subject",
+        "tooltipKey": "main_subject"
+      },
+      {
+        "text": "appears resilient",
+        "type": "main_verb",
+        "tooltipKey": "main_verb"
+      },
+      {
+        "text": "its intricate root systems",
+        "type": "contrast_subject",
+        "tooltipKey": "contrast_subject"
+      },
+      {
+        "text": "which shelter juvenile fish",
+        "type": "relative_clause",
+        "tooltipKey": "relative_clause"
+      },
+      {
+        "text": "are increasingly threatened",
+        "type": "contrast_verb",
+        "tooltipKey": "contrast_verb"
+      },
+      {
+        "text": "by rising sea temperatures",
+        "type": "prepositional_phrase",
+        "tooltipKey": "prep_phrase"
+      },
+      {
+        "text": "that accelerate coastal erosion",
+        "type": "relative_clause",
+        "tooltipKey": "relative_clause_detail"
+      }
+    ],
+    "paraphrase_reference": "Even though mangroves look strong, their roots that protect young fish are in more danger because warmer seas speed up erosion.",
+    "focus_points": [
+      {
+        "phrase": "looks strong but",
+        "hint": "解释转折，展示外表坚韧与实际危险的对比。"
+      },
+      {
+        "phrase": "shelter juvenile fish",
+        "hint": "说明根系的功能，体现句子细节。"
+      },
+      {
+        "phrase": "rising sea temperatures",
+        "hint": "指出威胁来源与后果。"
+      }
+    ]
+  },
+  {
+    "id": "anthro_sentence_1",
+    "topic": "anthropology",
+    "text": "Because the oral histories that elders recount contain embedded seasonal calendars, which help farmers anticipate monsoon shifts, linguists document each narrative carefully before the community relocates to urban centers.",
+    "analysis": [
+      {
+        "text": "Because",
+        "type": "subordinator",
+        "tooltipKey": "subordinator"
+      },
+      {
+        "text": "the oral histories that elders recount",
+        "type": "main_subject",
+        "tooltipKey": "main_subject"
+      },
+      {
+        "text": "contain embedded seasonal calendars",
+        "type": "main_verb",
+        "tooltipKey": "main_verb"
+      },
+      {
+        "text": "which help farmers anticipate monsoon shifts",
+        "type": "relative_clause",
+        "tooltipKey": "relative_clause"
+      },
+      {
+        "text": "linguists document each narrative carefully",
+        "type": "result_clause",
+        "tooltipKey": "result_clause"
+      },
+      {
+        "text": "before the community relocates to urban centers",
+        "type": "adverbial_clause_time",
+        "tooltipKey": "adverbial_clause_time"
+      }
+    ],
+    "paraphrase_reference": "Linguists record every story in detail before the villagers move to the city because the elders' oral histories include seasonal calendars that help farmers predict monsoons.",
+    "focus_points": [
+      {
+        "phrase": "record every story",
+        "hint": "保留主句的动作，说明语言学家的行为。"
+      },
+      {
+        "phrase": "before the villagers move",
+        "hint": "标出事件发生的时间顺序。"
+      },
+      {
+        "phrase": "help farmers predict monsoons",
+        "hint": "指出这些口述历史对农业的用途。"
+      }
+    ]
+  }
+]

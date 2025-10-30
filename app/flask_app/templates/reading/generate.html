@@ -1,0 +1,206 @@
+{% extends "base.html" %}
+
+{% block title %}Generate {{ practice_type_display }} Exercises - TOEFL Reading{% endblock %}
+
+{% block extra_css %}
+<style>
+    .generate-container {
+        max-width: 700px;
+        margin: 0 auto;
+        padding: 2rem 0;
+    }
+
+    .generate-card {
+        background: linear-gradient(135deg, #ffffff 0%, #eef4ff 100%);
+        border: 2px solid var(--teal-400);
+        border-radius: 1.5rem;
+        padding: 3rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
+    }
+
+    .generate-icon {
+        font-size: 4rem;
+        color: var(--teal-400);
+        margin-bottom: 1.5rem;
+        text-align: center;
+    }
+
+    .generate-title {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--toefl-text);
+        text-align: center;
+        margin-bottom: 1rem;
+    }
+
+    .generate-description {
+        color: var(--toefl-text-light);
+        text-align: center;
+        margin-bottom: 2.5rem;
+        font-size: 1rem;
+        line-height: 1.6;
+    }
+
+    .topic-input-group {
+        margin-bottom: 2rem;
+    }
+
+    .topic-label {
+        font-weight: 600;
+        color: var(--toefl-text);
+        margin-bottom: 0.75rem;
+        display: block;
+    }
+
+    .topic-input {
+        width: 100%;
+        padding: 0.875rem 1rem;
+        border: 2px solid var(--toefl-border);
+        border-radius: 0.75rem;
+        font-size: 1rem;
+        transition: all 0.2s;
+    }
+
+    .topic-input:focus {
+        outline: none;
+        border-color: var(--teal-400);
+        box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.15);
+    }
+
+    .topic-examples {
+        margin-top: 0.5rem;
+        font-size: 0.875rem;
+        color: var(--toefl-text-light);
+    }
+
+    .generate-btn {
+        width: 100%;
+        padding: 1rem;
+        font-size: 1.125rem;
+        font-weight: 600;
+        background: var(--teal-400);
+        border: none;
+        border-radius: 0.75rem;
+        color: white;
+        transition: all 0.3s;
+    }
+
+    .generate-btn:hover:not(:disabled) {
+        background: #0891b2;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(14, 165, 233, 0.3);
+    }
+
+    .generate-btn:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+
+    .info-box {
+        background: rgba(14, 165, 233, 0.08);
+        border: 1px solid rgba(14, 165, 233, 0.2);
+        border-radius: 0.75rem;
+        padding: 1rem;
+        margin-top: 2rem;
+        font-size: 0.9rem;
+        color: var(--toefl-text);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="generate-container">
+    <!-- Back Button -->
+    <div class="mb-3">
+        <a href="{{ url_for('reading_dashboard') }}" class="btn btn-outline-secondary btn-sm">
+            <i class="fas fa-arrow-left me-2"></i>Back to Reading Dashboard
+        </a>
+    </div>
+
+    <div class="generate-card">
+        <div class="generate-icon">
+            <i class="fas fa-{{ icon }}"></i>
+        </div>
+
+        <h1 class="generate-title">{{ practice_type_display }}</h1>
+
+        <p class="generate-description">
+            {{ description }}
+        </p>
+
+        <div class="topic-input-group">
+            <label for="topic-input" class="topic-label">
+                <i class="fas fa-bookmark me-2"></i>Topic (Optional)
+            </label>
+            <input
+                type="text"
+                id="topic-input"
+                class="topic-input"
+                placeholder="Leave blank for random topics, or specify one..."
+                autocomplete="off"
+            >
+            <div class="topic-examples">
+                <strong>Examples:</strong> {{ examples }}
+            </div>
+        </div>
+
+        <button id="generate-btn" class="btn generate-btn">
+            <i class="fas fa-magic me-2"></i>Generate 5 Exercises
+        </button>
+
+        <div class="info-box">
+            <i class="fas fa-info-circle me-2"></i>
+            <strong>Note:</strong> Generation may take a few moments as AI creates custom exercises for you.
+            You'll be able to navigate through all 5 exercises once they're ready.
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const topicInput = document.getElementById('topic-input');
+    const generateBtn = document.getElementById('generate-btn');
+    const practiceType = '{{ practice_type }}';
+
+    generateBtn.addEventListener('click', async function() {
+        const topic = topicInput.value.trim() || null;
+
+        // Disable button and show loading state
+        generateBtn.disabled = true;
+        generateBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Generating... This may take a moment';
+
+        try {
+            const response = await fetch(`/reading/practice/${practiceType}/generate`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ topic: topic })
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                window.location.href = result.redirect;
+            } else {
+                alert(`Failed to generate: ${result.message || 'Unknown error'}`);
+                generateBtn.disabled = false;
+                generateBtn.innerHTML = '<i class="fas fa-magic me-2"></i>Generate 5 Exercises';
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Failed to generate exercises. Please try again.');
+            generateBtn.disabled = false;
+            generateBtn.innerHTML = '<i class="fas fa-magic me-2"></i>Generate 5 Exercises';
+        }
+    });
+
+    // Allow Enter key to trigger generation
+    topicInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter' && !generateBtn.disabled) {
+            generateBtn.click();
+        }
+    });
+});
+</script>
+{% endblock %}

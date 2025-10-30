@@ -1,0 +1,895 @@
+{% extends "base.html" %}
+
+{% block title %}Writing Practice - {{ task.task_type|capitalize }} - TOEFL{% endblock %}
+
+{% block extra_css %}
+<style>
+    .writing-practice {
+        max-width: 1600px;
+        margin: 0 auto;
+        padding: 1rem;
+    }
+
+    .top-bar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+        padding: 1rem;
+        background: white;
+        border-radius: 0.75rem;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    }
+
+    .timer-display {
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: var(--teal-400);
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .timer-display.warning { color: #f59e0b; }
+    .timer-display.danger { color: #ef4444; }
+
+    .writing-layout {
+        display: grid;
+        grid-template-columns: 500px 1fr;
+        gap: 1.5rem;
+        height: calc(100vh - 200px);
+    }
+
+    @media (max-width: 1200px) {
+        .writing-layout {
+            grid-template-columns: 1fr;
+            height: auto;
+        }
+    }
+
+    /* Reference Panel (Left side) */
+    .reference-panel {
+        background: white;
+        border-radius: 0.75rem;
+        padding: 1.5rem;
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+        overflow-y: auto;
+        max-height: calc(100vh - 200px);
+    }
+
+    .reference-section {
+        margin-bottom: 2rem;
+    }
+
+    .reference-section h4 {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: var(--teal-400);
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .prompt-box {
+        background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+        border: 2px solid #3b82f6;
+        border-radius: 0.75rem;
+        padding: 1.25rem;
+        line-height: 1.7;
+        font-weight: 500;
+    }
+
+    .passage-box {
+        background: #f9fafb;
+        border: 1px solid #e5e7eb;
+        border-radius: 0.5rem;
+        padding: 1.5rem;
+        line-height: 1.9;
+        font-family: 'Georgia', serif;
+        max-height: 400px;
+        overflow-y: auto;
+    }
+
+    .passage-box p {
+        margin-bottom: 1rem;
+        text-indent: 2rem;
+    }
+
+    .audio-section {
+        background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+        border-radius: 0.75rem;
+        padding: 1.25rem;
+        text-align: center;
+    }
+
+    .audio-section audio {
+        width: 100%;
+        margin-top: 0.75rem;
+    }
+
+    .toggle-help-btn {
+        background: #fef3c7;
+        border: 2px solid #f59e0b;
+        color: #92400e;
+        padding: 0.75rem 1.25rem;
+        border-radius: 0.5rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+        width: 100%;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+    }
+
+    .toggle-help-btn:hover {
+        background: #fde68a;
+    }
+
+    .ai-help-panel {
+        display: none;
+        background: #fffbeb;
+        border: 2px solid #fbbf24;
+        border-radius: 0.75rem;
+        padding: 1.25rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .ai-help-panel.visible {
+        display: block;
+        animation: slideDown 0.3s ease-out;
+    }
+
+    @keyframes slideDown {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .ai-help-panel h5 {
+        color: #92400e;
+        font-weight: 700;
+        margin-bottom: 1rem;
+    }
+
+    .point-pair {
+        background: white;
+        padding: 1rem;
+        border-radius: 0.5rem;
+        margin-bottom: 0.75rem;
+        border-left: 4px solid #3b82f6;
+    }
+
+    .point-label {
+        font-weight: 600;
+        font-size: 0.85rem;
+        color: #3b82f6;
+        margin-bottom: 0.4rem;
+        text-transform: uppercase;
+    }
+
+    .outline-section {
+        background: white;
+        padding: 1rem;
+        border-radius: 0.5rem;
+        margin-bottom: 0.75rem;
+        border-left: 4px solid #10b981;
+    }
+
+    .discussion-post {
+        background: #f9fafb;
+        border: 1px solid #e5e7eb;
+        border-radius: 0.75rem;
+        padding: 1.25rem;
+        margin-bottom: 1rem;
+        line-height: 1.8;
+    }
+
+    .discussion-meta {
+        display: flex;
+        align-items: baseline;
+        gap: 0.5rem;
+        font-size: 0.95rem;
+    }
+
+    .discussion-meta strong {
+        color: #1f2937;
+        font-size: 1.05rem;
+    }
+
+    .discussion-stance {
+        color: #3b82f6;
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        letter-spacing: 0.08em;
+    }
+
+    .discussion-message {
+        margin-top: 0.75rem;
+        white-space: pre-wrap;
+    }
+
+    .highlight-card {
+        background: #eef2ff;
+        border-left: 4px solid #6366f1;
+        border-radius: 0.5rem;
+        padding: 1rem;
+        margin-bottom: 0.75rem;
+    }
+
+    .highlight-source {
+        font-weight: 700;
+        color: #4338ca;
+        font-size: 0.9rem;
+    }
+
+    .highlight-implication {
+        font-size: 0.9rem;
+        color: #4b5563;
+        margin-top: 0.4rem;
+    }
+
+    /* Editor Panel (Right side) */
+    .editor-panel {
+        background: white;
+        border-radius: 0.75rem;
+        padding: 1.5rem;
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+        display: flex;
+        flex-direction: column;
+    }
+
+    .editor-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+        padding-bottom: 1rem;
+        border-bottom: 2px solid #e5e7eb;
+    }
+
+    .editor-title {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: var(--toefl-text);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .word-counter {
+        display: flex;
+        gap: 1.5rem;
+        font-size: 0.95rem;
+    }
+
+    .counter-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .counter-value {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--teal-400);
+    }
+
+    .counter-label {
+        font-size: 0.75rem;
+        color: var(--toefl-text-light);
+        text-transform: uppercase;
+    }
+
+    #essayEditor {
+        flex: 1;
+        width: 100%;
+        padding: 1.5rem;
+        border: 2px solid #e5e7eb;
+        border-radius: 0.75rem;
+        font-family: 'Georgia', serif;
+        font-size: 1.1rem;
+        line-height: 2;
+        resize: none;
+        transition: border-color 0.3s;
+    }
+
+    #essayEditor:focus {
+        outline: none;
+        border-color: var(--teal-400);
+        box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.1);
+    }
+
+    .editor-footer {
+        display: flex;
+        gap: 1rem;
+        margin-top: 1rem;
+    }
+
+    .btn-action {
+        flex: 1;
+        padding: 1rem;
+        border-radius: 0.5rem;
+        font-weight: 600;
+        font-size: 1rem;
+        border: none;
+        cursor: pointer;
+        transition: all 0.3s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+    }
+
+    .btn-primary-action {
+        background: var(--teal-400);
+        color: white;
+    }
+
+    .btn-primary-action:hover:not(:disabled) {
+        background: #0891b2;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(14, 165, 233, 0.3);
+    }
+
+    .btn-primary-action:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+    .btn-secondary-action {
+        background: white;
+        color: #6b7280;
+        border: 2px solid #d1d5db;
+    }
+
+    .btn-secondary-action:hover {
+        background: #f3f4f6;
+        border-color: #9ca3af;
+    }
+
+    .paraphrase-tool {
+        position: fixed;
+        bottom: 2rem;
+        right: 2rem;
+        background: white;
+        border-radius: 1rem;
+        padding: 1.5rem;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+        max-width: 420px;
+        display: none;
+        z-index: 1000;
+        border: 2px solid var(--teal-400);
+    }
+
+    .paraphrase-tool.active {
+        display: block;
+        animation: slideUp 0.3s ease-out;
+    }
+
+    @keyframes slideUp {
+        from {
+            transform: translateY(20px);
+            opacity: 0;
+        }
+        to {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    }
+
+    .paraphrase-option {
+        background: #f0f9ff;
+        padding: 1rem;
+        border-radius: 0.5rem;
+        margin-bottom: 0.75rem;
+        cursor: pointer;
+        transition: all 0.3s;
+        border: 2px solid transparent;
+        line-height: 1.6;
+    }
+
+    .paraphrase-option:hover {
+        background: #dbeafe;
+        border-color: var(--teal-400);
+    }
+
+    .hint-text {
+        font-size: 0.9rem;
+        color: #6b7280;
+        font-style: italic;
+        padding: 0.75rem;
+        background: #f9fafb;
+        border-radius: 0.5rem;
+        margin-bottom: 1rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+{% set help_button_default_text = "Show AI Deconstruction" %}
+{% if task.task_type == 'discussion' %}
+    {% set help_button_default_text = "Show Discussion Checklist" %}
+{% elif task.task_type == 'independent' %}
+    {% set help_button_default_text = "Show AI Outline Suggestions" %}
+{% endif %}
+
+{% set task_icon = 'book-reader' %}
+{% set task_label = 'Integrated Task' %}
+{% if task.task_type == 'discussion' %}
+    {% set task_icon = 'comments' %}
+    {% set task_label = 'Academic Discussion' %}
+{% elif task.task_type == 'independent' %}
+    {% set task_icon = 'lightbulb' %}
+    {% set task_label = 'Independent Task' %}
+{% endif %}
+
+{% set editor_placeholder = "Begin writing your response here...&#10;&#10;Remember to organize your ideas clearly and support your points with specific examples." %}
+{% if task.task_type == 'discussion' %}
+    {% set editor_placeholder = "Join the discussion by addressing the professor and classmates. Reference their ideas directly and contribute a new perspective with specific support." %}
+{% endif %}
+
+<div class="writing-practice">
+    <!-- Top Bar with Timer and Back Button -->
+    <div class="top-bar">
+        <a href="{{ url_for('writing_dashboard') }}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+        </a>
+
+        <div class="timer-display" id="timerDisplay">
+            <i class="fas fa-clock"></i>
+            <span id="timerValue">{{ task.time_limit_minutes }}:00</span>
+        </div>
+
+        <span class="badge bg-primary" style="font-size: 1rem; padding: 0.5rem 1rem;">
+            <i class="fas fa-{{ task_icon }} me-2"></i>
+            {{ task_label }}
+        </span>
+    </div>
+
+    <!-- Main Writing Layout -->
+    <div class="writing-layout">
+        <!-- Left: Reference Materials -->
+        <div class="reference-panel">
+            <!-- Prompt -->
+            <div class="reference-section">
+                <h4><i class="fas fa-question-circle"></i>Writing Prompt</h4>
+                <div class="prompt-box">{{ task.prompt }}</div>
+            </div>
+
+{% if task.task_type == 'integrated' %}
+                <!-- Reading Passage -->
+                <div class="reference-section">
+                    <h4><i class="fas fa-book"></i>Reading Passage</h4>
+                    <div class="passage-box">
+                        {{ task.reading_text }}
+                    </div>
+                </div>
+
+                <!-- Listening Audio -->
+                {% if task.listening_audio_url %}
+                <div class="reference-section">
+                    <h4><i class="fas fa-headphones"></i>Lecture</h4>
+                    <div class="audio-section">
+                        <p class="mb-2"><strong>Listen carefully to the lecture</strong></p>
+                        <audio id="lectureAudio" controls>
+                            <source src="{{ task.listening_audio_url }}" type="audio/wav">
+                        </audio>
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- AI Deconstruction (Collapsible) -->
+                {% if task.deconstruction_data %}
+                <div class="reference-section">
+                    <button class="toggle-help-btn" onclick="toggleAIHelp()">
+                        <i class="fas fa-robot"></i>
+                        <span id="helpBtnText">{{ help_button_default_text }}</span>
+                    </button>
+
+                    <div class="ai-help-panel" id="aiHelpPanel">
+                        <h5><i class="fas fa-sitemap me-2"></i>Relationship Analysis</h5>
+                        <p><strong>Reading Main Point:</strong> {{ task.deconstruction_data.reading_main_point }}</p>
+                        <p class="mb-3"><strong>Lecture Stance:</strong> {{ task.deconstruction_data.lecture_stance }}</p>
+
+                        <h5 class="mt-3 mb-2">Key Point Pairs</h5>
+                        {% for pair in task.deconstruction_data.point_pairs %}
+                        <div class="point-pair">
+                            <div class="point-label">📖 Reading Point {{ loop.index }}</div>
+                            <p class="mb-2" style="font-size: 0.95rem;">{{ pair.reading_point }}</p>
+                            <div class="point-label">🎓 Lecture Response</div>
+                            <p class="mb-0" style="font-size: 0.95rem;">{{ pair.lecture_counter }}</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+
+            {% elif task.task_type == 'discussion' %}
+                {% set discussion = task.deconstruction_data or {} %}
+                <div class="reference-section">
+                    <h4><i class="fas fa-chalkboard-teacher"></i>Professor's Question</h4>
+                    <div class="prompt-box">{{ discussion.professor_question }}</div>
+                </div>
+
+                <div class="reference-section">
+                    <h4><i class="fas fa-users"></i>Classmates' Posts</h4>
+                    {% for post in (discussion.student_posts or []) %}
+                    <div class="discussion-post">
+                        <div class="discussion-meta">
+                            <strong>{{ post.name }}</strong>
+                            {% if post.stance %}
+                            <span class="discussion-stance">{{ post.stance }}</span>
+                            {% endif %}
+                        </div>
+                        <p class="discussion-message mb-0">{{ post.message }}</p>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                {% if discussion.discussion_highlights %}
+                <div class="reference-section">
+                    <h4><i class="fas fa-lightbulb"></i>Key Ideas to Engage</h4>
+                    {% for highlight in (discussion.discussion_highlights or []) %}
+                    <div class="highlight-card">
+                        <div class="highlight-source">{{ highlight.source }}</div>
+                        <p class="mb-1">{{ highlight.key_point }}</p>
+                        {% if highlight.implication %}
+                        <div class="highlight-implication">{{ highlight.implication }}</div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                {% if task.outline_data %}
+                <div class="reference-section">
+                    <button class="toggle-help-btn" onclick="toggleAIHelp()">
+                        <i class="fas fa-robot"></i>
+                        <span id="helpBtnText">{{ help_button_default_text }}</span>
+                    </button>
+
+                    <div class="ai-help-panel" id="aiHelpPanel">
+                        <h5><i class="fas fa-tasks me-2"></i>Discussion Checklist</h5>
+                        {% if task.outline_data.goals %}
+                        <div class="outline-section">
+                            <div class="point-label">Respond With Purpose</div>
+                            <ul style="margin: 0; padding-left: 1.1rem;">
+                                {% for goal in task.outline_data.goals %}
+                                <li>{{ goal }}</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                        {% endif %}
+
+                        {% if task.outline_data.language_expectations %}
+                        <div class="outline-section">
+                            <div class="point-label">Language Expectations</div>
+                            <ul style="margin: 0; padding-left: 1.1rem;">
+                                {% for item in task.outline_data.language_expectations %}
+                                <li>{{ item }}</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                        {% endif %}
+
+                        {% if task.outline_data.new_perspective_prompts %}
+                        <div class="outline-section">
+                            <div class="point-label">Add a New Perspective</div>
+                            <ul style="margin: 0; padding-left: 1.1rem;">
+                                {% for item in task.outline_data.new_perspective_prompts %}
+                                <li>{{ item }}</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endif %}
+
+            {% elif task.task_type == 'independent' %}
+                <!-- Independent Task: AI Outline (Collapsible) -->
+                {% if task.outline_data %}
+                <div class="reference-section">
+                    <button class="toggle-help-btn" onclick="toggleAIHelp()">
+                        <i class="fas fa-robot"></i>
+                        <span id="helpBtnText">{{ help_button_default_text }}</span>
+                    </button>
+
+                    <div class="ai-help-panel" id="aiHelpPanel">
+                        <h5><i class="fas fa-list-ol me-2"></i>Suggested Outline</h5>
+
+                        <div class="outline-section">
+                            <div class="point-label">Your Stance</div>
+                            <p style="font-size: 0.95rem;">{{ task.outline_data.stance }}</p>
+                        </div>
+
+                        <div class="outline-section">
+                            <div class="point-label">Thesis Statement</div>
+                            <p class="fst-italic" style="font-size: 0.95rem;">"{{ task.outline_data.thesis_statement }}"</p>
+                        </div>
+
+                        {% if task.outline_data.argument_1 %}
+                        <div class="outline-section">
+                            <div class="point-label">Argument 1</div>
+                            <p style="font-size: 0.95rem; font-weight: 600;">{{ task.outline_data.argument_1.main_point }}</p>
+                            <ul style="font-size: 0.9rem; margin-top: 0.5rem;">
+                                {% for detail in task.outline_data.argument_1.supporting_details %}
+                                <li>{{ detail }}</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                        {% endif %}
+
+                        {% if task.outline_data.argument_2 %}
+                        <div class="outline-section">
+                            <div class="point-label">Argument 2</div>
+                            <p style="font-size: 0.95rem; font-weight: 600;">{{ task.outline_data.argument_2.main_point }}</p>
+                            <ul style="font-size: 0.9rem; margin-top: 0.5rem;">
+                                {% for detail in task.outline_data.argument_2.supporting_details %}
+                                <li>{{ detail }}</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                        {% endif %}
+
+                        {% if task.outline_data.argument_3 %}
+                        <div class="outline-section">
+                            <div class="point-label">Argument 3</div>
+                            <p style="font-size: 0.95rem; font-weight: 600;">{{ task.outline_data.argument_3.main_point }}</p>
+                            <ul style="font-size: 0.9rem; margin-top: 0.5rem;">
+                                {% for detail in task.outline_data.argument_3.supporting_details %}
+                                <li>{{ detail }}</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                        {% endif %}
+
+                        <div class="hint-text mt-2">
+                            <strong>💡 Conclusion Tip:</strong> {{ task.outline_data.conclusion_approach }}
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            {% endif %}
+        </div>
+
+        <!-- Right: Essay Editor -->
+        <div class="editor-panel">
+            <div class="editor-header">
+                <div class="editor-title">
+                    <i class="fas fa-pen-fancy"></i>
+                    Your Essay
+                </div>
+                <div class="word-counter">
+                    <div class="counter-item">
+                        <div class="counter-value" id="wordCount">0</div>
+                        <div class="counter-label">Words</div>
+                    </div>
+                    <div class="counter-item">
+                        <div class="counter-value">{{ task.word_limit }}</div>
+                        <div class="counter-label">Target</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="hint-text">
+                {% if task.task_type == 'discussion' %}
+                    <i class="fas fa-comments me-1"></i>
+                    <strong>Discussion Tip:</strong> Cite at least one classmate or the professor by name, then add a fresh angle backed by evidence.
+                {% else %}
+                    <i class="fas fa-magic me-1"></i>
+                    <strong>Pro Tip:</strong> Select any sentence (5+ words) to get instant AI paraphrasing suggestions
+                {% endif %}
+            </div>
+
+            <textarea
+                id="essayEditor"
+                placeholder="{{ editor_placeholder }}"
+            ></textarea>
+
+            <div class="editor-footer">
+                <button class="btn-action btn-secondary-action" onclick="location.href='{{ url_for('writing_dashboard') }}'">
+                    <i class="fas fa-times"></i>
+                    Cancel
+                </button>
+                <button class="btn-action btn-primary-action" onclick="submitEssay()" id="submitBtn">
+                    <i class="fas fa-paper-plane"></i>
+                    Submit for Feedback
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Floating Paraphrase Tool -->
+    <div class="paraphrase-tool" id="paraphraseTool">
+        <h5 class="mb-3" style="color: var(--teal-400);">
+            <i class="fas fa-magic me-2"></i>Paraphrase Suggestions
+        </h5>
+        <div id="paraphraseLoading" style="text-align: center; padding: 1rem; display: none;">
+            <div class="spinner-border spinner-border-sm text-primary" role="status"></div>
+            <p class="mt-2 mb-0 small">Generating options...</p>
+        </div>
+        <div id="paraphraseOptions"></div>
+        <button class="btn btn-sm btn-outline-secondary mt-2 w-100" onclick="closeParaphraseTool()">
+            <i class="fas fa-times me-1"></i>Close
+        </button>
+    </div>
+</div>
+
+<script>
+let timerInterval = null;
+let timeRemaining = {{ task.time_limit_minutes }} * 60;
+const editor = document.getElementById('essayEditor');
+const minWords = {{ 150 if task.task_type == 'integrated' else 100 if task.task_type == 'discussion' else 200 }};
+const helpDefaultText = "{{ help_button_default_text }}";
+
+// Start timer immediately
+startTimer();
+
+function startTimer() {
+    updateTimerDisplay();
+    timerInterval = setInterval(() => {
+        timeRemaining--;
+        updateTimerDisplay();
+        if (timeRemaining <= 0) {
+            clearInterval(timerInterval);
+            alert('Time is up! You can still continue writing.');
+        }
+    }, 1000);
+}
+
+function updateTimerDisplay() {
+    const minutes = Math.floor(timeRemaining / 60);
+    const seconds = timeRemaining % 60;
+    const display = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+    document.getElementById('timerValue').textContent = display;
+
+    const timerEl = document.getElementById('timerDisplay');
+    timerEl.classList.remove('warning', 'danger');
+    if (timeRemaining <= 120) timerEl.classList.add('danger');
+    else if (timeRemaining <= 300) timerEl.classList.add('warning');
+}
+
+// Word count
+editor.addEventListener('input', updateStats);
+
+function updateStats() {
+    const text = editor.value.trim();
+    const words = text ? text.split(/\s+/).length : 0;
+    document.getElementById('wordCount').textContent = words;
+
+    const submitBtn = document.getElementById('submitBtn');
+    submitBtn.disabled = words < minWords;
+}
+
+// Toggle AI Help
+function toggleAIHelp() {
+    const panel = document.getElementById('aiHelpPanel');
+    const btnText = document.getElementById('helpBtnText');
+    if (!panel || !btnText) return;
+
+    if (panel.classList.contains('visible')) {
+        panel.classList.remove('visible');
+        btnText.textContent = helpDefaultText || 'Show AI Help';
+    } else {
+        panel.classList.add('visible');
+        btnText.textContent = 'Hide AI Help';
+    }
+}
+
+// Paraphrasing
+editor.addEventListener('mouseup', handleTextSelection);
+
+function handleTextSelection() {
+    const selectedText = window.getSelection().toString().trim();
+    if (selectedText && selectedText.split(/\s+/).length >= 5) {
+        requestParaphrases(selectedText);
+    } else {
+        closeParaphraseTool();
+    }
+}
+
+function requestParaphrases(text) {
+    const tool = document.getElementById('paraphraseTool');
+    const loading = document.getElementById('paraphraseLoading');
+    const options = document.getElementById('paraphraseOptions');
+
+    tool.classList.add('active');
+    loading.style.display = 'block';
+    options.innerHTML = '';
+
+    fetch('/writing/api/paraphrase', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ sentence: text, count: 3 })
+    })
+    .then(res => res.json())
+    .then(data => {
+        loading.style.display = 'none';
+        if (data.success && data.paraphrases && data.paraphrases.length > 0) {
+            data.paraphrases.forEach(para => {
+                const option = document.createElement('div');
+                option.className = 'paraphrase-option';
+                option.textContent = para;
+                option.onclick = () => insertParaphrase(para);
+                options.appendChild(option);
+            });
+        } else {
+            options.innerHTML = '<p class="text-muted small mb-0">No suggestions available.</p>';
+        }
+    })
+    .catch(err => {
+        loading.style.display = 'none';
+        options.innerHTML = '<p class="text-danger small mb-0">Failed to generate suggestions.</p>';
+    });
+}
+
+function insertParaphrase(text) {
+    const start = editor.selectionStart;
+    const end = editor.selectionEnd;
+    editor.value = editor.value.substring(0, start) + text + editor.value.substring(end);
+    editor.focus();
+    updateStats();
+    closeParaphraseTool();
+}
+
+function closeParaphraseTool() {
+    document.getElementById('paraphraseTool').classList.remove('active');
+}
+
+// Submit
+function submitEssay() {
+    const essayText = editor.value.trim();
+    if (!essayText) {
+        alert('Please write your essay before submitting.');
+        return;
+    }
+
+    const words = essayText.split(/\s+/).length;
+
+    if (words < minWords) {
+        if (!confirm(`Your essay has ${words} words (minimum: ${minWords}). Submit anyway?`)) {
+            return;
+        }
+    }
+
+    const submitBtn = document.getElementById('submitBtn');
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Analyzing...';
+
+    fetch('/writing/task/{{ task.id }}/submit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ essay_text: essayText, is_revision: false })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success && data.redirect) {
+            clearInterval(timerInterval);
+            window.location.href = data.redirect;
+        } else {
+            alert('Failed to submit. Please try again.');
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = '<i class="fas fa-paper-plane me-2"></i>Submit for Feedback';
+        }
+    })
+    .catch(err => {
+        alert('An error occurred. Please try again.');
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<i class="fas fa-paper-plane me-2"></i>Submit for Feedback';
+    });
+}
+
+updateStats();
+</script>
+{% endblock %}

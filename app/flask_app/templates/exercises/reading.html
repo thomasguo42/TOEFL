@@ -1,0 +1,174 @@
+{% extends "base.html" %}
+
+{% block title %}Reading Immersion - TOEFL Vocabulary Studio{% endblock %}
+
+{% block extra_css %}
+<style>
+    .vocab-highlight {
+        background: rgba(45, 212, 191, 0.2);
+        border-bottom: 2px solid var(--teal-400);
+        padding: 0 0.1rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-10">
+        <div class="card p-4 mb-4">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <h2 class="mb-0"><i class="fas fa-book-reader me-2 text-primary"></i>Reading Immersion Mode</h2>
+                {% if topic %}
+                <a class="btn btn-primary"
+                   href="{{ url_for('reading_immersion', topic=topic) }}"
+                   data-loading-target="{{ url_for('reading_immersion', topic=topic) }}"
+                   data-loading-generator="{{ url_for('generate_reading_passage_async') }}"
+                   data-loading-payload='{{ {"topic": topic}|tojson }}'
+                   data-loading-title="Reading Immersion"
+                   data-loading-message="Gemini 2.5 Flash Lite 正在刷新段落与测验…">
+                    <i class="fas fa-sync-alt me-1"></i> New Passage
+                </a>
+                {% endif %}
+            </div>
+            <p class="text-muted mb-0">
+                Select a TOEFL topic to see your study words embedded in a 200-word academic paragraph.
+                Highlighted vocabulary draws from your active SRS stages.
+            </p>
+        </div>
+
+        {% if not topic %}
+        <div class="card p-4">
+            <h4 class="mb-3 text-muted">Choose a topic to begin</h4>
+            <div class="d-flex flex-wrap gap-2">
+                {% for item in topics %}
+                <a class="btn btn-outline-light"
+                   href="{{ url_for('reading_immersion', topic=item) }}"
+                   data-loading-target="{{ url_for('reading_immersion', topic=item) }}"
+                   data-loading-generator="{{ url_for('generate_reading_passage_async') }}"
+                   data-loading-payload='{{ {"topic": item}|tojson }}'
+                   data-loading-title="Reading Immersion"
+                   data-loading-message="Gemini 2.5 Flash Lite 正在生成新的阅读段落…">
+                    {{ item }}
+                </a>
+                {% endfor %}
+            </div>
+            <p class="text-muted mt-3 mb-0">
+                Highlighted words: {{ highlight_words | join(', ') }}
+            </p>
+        </div>
+        {% else %}
+        <div class="card p-4 mb-4">
+            <div class="d-flex justify-content-between flex-wrap gap-2">
+                <div>
+                    <h4 class="mb-1">{{ topic }}</h4>
+                    <small class="text-muted">Highlighted words: {{ highlight_words | join(', ') }}</small>
+                </div>
+                <a class="btn btn-outline-light btn-sm" href="{{ url_for('reading_immersion') }}">
+                    <i class="fas fa-arrow-left me-1"></i>Choose another topic
+                </a>
+            </div>
+            <hr class="text-muted">
+            <div style="font-size: 1.1rem; line-height: 1.8;">
+                {{ passage_html }}
+            </div>
+            {% if ai_generated %}
+            <div class="text-muted small mt-3">
+                <i class="fas fa-robot me-1"></i>Paragraph generated with Gemini.
+            </div>
+            {% endif %}
+        </div>
+
+        {% if quiz %}
+        <div class="card p-4">
+            <h5 class="text-uppercase text-muted mb-3" style="letter-spacing: 0.12em;">Context Quiz</h5>
+            {% for item in quiz %}
+            {% set outer_index = loop.index0 %}
+            <div class="mb-4" data-question="{{ outer_index }}" data-answer="{{ item.answer }}">
+                <p class="mb-2"><strong>{{ loop.index }}.</strong> {{ item.question }}</p>
+                {% for option in item.options %}
+                <div class="form-check mb-2">
+                    <input class="form-check-input" type="radio" name="read-{{ outer_index }}"
+                           id="read-{{ outer_index }}-{{ loop.index0 }}" value="{{ option }}"
+                           data-rationale="{{ item.rationales[option]|default('')|escape }}">
+                    <label class="form-check-label" for="read-{{ outer_index }}-{{ loop.index0 }}">
+                        {{ option }}
+                    </label>
+                </div>
+                {% endfor %}
+                <div class="mt-2 d-flex gap-2">
+                    <button class="btn btn-primary btn-sm" type="button"
+                            onclick='checkReading({{ outer_index }}, "{{ item.answer|replace('"', '&quot;')|replace("'", '&#39;') }}", "{{ item.explanation_cn|replace('"', '&quot;')|replace("'", '&#39;') }}")'>
+                        Check
+                    </button>
+                    <button class="btn btn-outline-light btn-sm" type="button"
+                            onclick='revealReading({{ outer_index }}, "{{ item.answer|replace('"', '&quot;')|replace("'", '&#39;') }}", "{{ item.explanation_cn|replace('"', '&quot;')|replace("'", '&#39;') }}")'>
+                        Reveal
+                    </button>
+                </div>
+                <div class="mt-2" id="read-feedback-{{ outer_index }}"></div>
+                <div class="mt-2 text-info small" id="read-rationale-{{ outer_index }}"></div>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        {% endif %}
+    </div>
+</div>
+
+<script>
+function checkReading(index, answer, explanation) {
+    const group = `read-${index}`;
+    const selected = document.querySelector(`input[name="${group}"]:checked`);
+    const feedback = document.getElementById(`read-feedback-${index}`);
+    const rationaleBox = document.getElementById(`read-rationale-${index}`);
+    if (!feedback) return;
+
+    if (!selected) {
+        feedback.innerHTML = '<span class="text-warning"><i class="fas fa-info-circle me-1"></i>先选择一个答案。</span>';
+        return;
+    }
+
+    const isCorrect = selected.value.trim().toLowerCase() === answer.trim().toLowerCase();
+    const toneClass = isCorrect ? 'text-success' : 'text-danger';
+    const rationale = selected.dataset.rationale || '';
+    if (rationaleBox) {
+        rationaleBox.innerHTML = rationale ? `<span class="${toneClass}"><i class="fas fa-lightbulb me-1"></i>${rationale}</span>` : '';
+    }
+
+    if (isCorrect) {
+        feedback.innerHTML = `<span class="text-success"><i class="fas fa-check-circle me-1"></i>正确！${explanation}</span>`;
+    } else {
+        feedback.innerHTML = `<span class="text-danger"><i class="fas fa-times-circle me-1"></i>再想想上下文：${explanation}</span>`;
+    }
+}
+
+function revealReading(index, answer, explanation) {
+    const feedback = document.getElementById(`read-feedback-${index}`);
+    const rationaleBox = document.getElementById(`read-rationale-${index}`);
+    if (feedback) {
+        feedback.innerHTML = `<span class="text-info"><i class="fas fa-eye me-1"></i>正确答案：<strong>${answer}</strong>。${explanation}</span>`;
+    }
+    if (rationaleBox) {
+        const correctOption = [...document.querySelectorAll(`input[name="read-${index}"]`)].find(opt => opt.value === answer);
+        const rationale = correctOption ? (correctOption.dataset.rationale || '') : '';
+        rationaleBox.innerHTML = rationale ? `<span class="text-success"><i class="fas fa-lightbulb me-1"></i>${rationale}</span>` : '';
+    }
+}
+
+document.querySelectorAll('[data-question]').forEach((card) => {
+    const index = card.dataset.question;
+    const answer = (card.dataset.answer || '').trim().toLowerCase();
+    const inputs = card.querySelectorAll(`input[name="read-${index}"]`);
+    const rationaleBox = document.getElementById(`read-rationale-${index}`);
+    inputs.forEach((input) => {
+        input.addEventListener('change', () => {
+            if (rationaleBox) {
+                const rationale = input.dataset.rationale || '';
+                const toneClass = input.value.trim().toLowerCase() === answer ? 'text-success' : 'text-danger';
+                rationaleBox.innerHTML = rationale ? `<span class="${toneClass}"><i class="fas fa-lightbulb me-1"></i>${rationale}</span>` : '';
+            }
+        });
+    });
+});
+</script>
+{% endblock %}

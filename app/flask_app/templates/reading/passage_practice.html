@@ -1,0 +1,378 @@
+{% extends "base.html" %}
+
+{% block title %}Passage Practice - TOEFL Reading{% endblock %}
+
+{% block extra_css %}
+<style>
+    .practice-container {
+        max-width: 1000px;
+        margin: 0 auto;
+    }
+
+    .navigation-bar {
+        background: white;
+        border: 1px solid var(--toefl-border);
+        border-radius: 0.5rem;
+        padding: 1rem 1.5rem;
+        margin-bottom: 2rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .progress-indicator {
+        font-size: 1rem;
+        color: var(--toefl-text);
+    }
+
+    .nav-buttons button {
+        margin: 0 0.25rem;
+    }
+
+    .passage-card {
+        background: white;
+        border: 1px solid var(--toefl-border);
+        border-radius: 0.5rem;
+        padding: 2rem;
+        margin-bottom: 2rem;
+    }
+
+    .passage-paragraph {
+        font-size: 1.05rem;
+        line-height: 1.8;
+        color: var(--toefl-text);
+        margin-bottom: 1.5rem;
+        padding: 1.5rem;
+        background: var(--toefl-gray-bg);
+        border-left: 4px solid var(--toefl-primary);
+        border-radius: 0.5rem;
+    }
+
+    .paragraph-summary {
+        font-size: 0.9rem;
+        color: var(--toefl-text-light);
+        font-style: italic;
+        margin-top: 0.5rem;
+        padding-left: 1rem;
+        border-left: 2px solid var(--toefl-border);
+    }
+
+    .questions-section {
+        margin-top: 3rem;
+    }
+
+    .question-card {
+        background: white;
+        border: 1px solid var(--toefl-border);
+        border-radius: 0.5rem;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .question-prompt {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: var(--toefl-text);
+        margin-bottom: 1rem;
+    }
+
+    .option-item {
+        background: white;
+        border: 2px solid var(--toefl-border);
+        border-radius: 0.5rem;
+        padding: 1rem;
+        margin-bottom: 0.75rem;
+        cursor: pointer;
+        transition: all 0.2s;
+        color: var(--toefl-text);
+    }
+
+    .option-item:hover {
+        background: var(--toefl-gray-bg);
+        border-color: var(--toefl-primary);
+    }
+
+    .option-item.selected {
+        border-color: var(--toefl-primary);
+        background: var(--toefl-highlight-blue);
+    }
+
+    .option-item.correct {
+        border-color: var(--toefl-success);
+        background: var(--toefl-highlight-green);
+    }
+
+    .option-item.incorrect {
+        border-color: var(--toefl-danger);
+        background: #f8d7da;
+    }
+
+    .explanation {
+        margin-top: 1rem;
+        padding: 1rem;
+        background: var(--toefl-highlight-blue);
+        border: 1px solid var(--toefl-primary);
+        border-radius: 0.5rem;
+        display: none;
+        color: var(--toefl-text);
+    }
+
+    .explanation.show {
+        display: block;
+    }
+
+    .distractor-analysis {
+        margin-top: 0.75rem;
+        padding-top: 0.75rem;
+        border-top: 1px solid var(--toefl-border);
+    }
+
+    .distractor-item {
+        font-size: 0.9rem;
+        margin-bottom: 0.5rem;
+        color: var(--toefl-text);
+    }
+
+    .regenerate-btn {
+        position: fixed;
+        bottom: 2rem;
+        right: 2rem;
+        z-index: 100;
+    }
+
+    .check-btn {
+        margin-top: 1rem;
+    }
+
+    .btn-teal {
+        background: var(--toefl-primary);
+        border-color: var(--toefl-primary);
+        color: white;
+    }
+
+    .btn-teal:hover {
+        background: var(--toefl-primary-hover);
+        border-color: var(--toefl-primary-hover);
+        color: white;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="practice-container">
+    <!-- Back Button -->
+    <div class="mb-3">
+        <a href="{{ url_for('reading_dashboard') }}" class="btn btn-outline-secondary btn-sm">
+            <i class="fas fa-arrow-left me-2"></i>Back to Reading Dashboard
+        </a>
+    </div>
+
+    <!-- Navigation Bar -->
+    <div class="navigation-bar">
+        <div class="progress-indicator">
+            <i class="fas fa-list-ol me-2"></i>
+            <strong>Exercise {{ current_index + 1 }}</strong> of {{ total_count }}
+        </div>
+        <div class="nav-buttons">
+            <button class="btn btn-outline-secondary btn-sm" id="prevBtn" {% if current_index == 0 %}disabled{% endif %}>
+                <i class="fas fa-chevron-left me-1"></i>Previous
+            </button>
+            <button class="btn btn-outline-secondary btn-sm" id="nextBtn" {% if current_index >= total_count - 1 %}disabled{% endif %}>
+                Next<i class="fas fa-chevron-right ms-1"></i>
+            </button>
+        </div>
+    </div>
+
+    <h2 class="mb-4">
+        <i class="fas fa-book-open me-2"></i>{{ item.title if item else 'Passage Practice' }}
+    </h2>
+
+    {% if item %}
+    <!-- Passage Card -->
+    <div class="passage-card">
+        <div class="mb-3">
+            <span class="badge bg-info me-2">
+                <i class="fas fa-clock me-1"></i>{{ item.readingTimeMinutes }} min
+            </span>
+            <span class="badge bg-secondary">{{ item.topic }}</span>
+        </div>
+
+        {% for para in item.paragraphs %}
+        <div class="passage-paragraph">
+            {{ para.text }}
+            {% if para.summary %}
+            <div class="paragraph-summary">
+                <i class="fas fa-lightbulb me-1"></i>{{ para.summary }}
+            </div>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Questions Section -->
+    <div class="questions-section">
+        <h3 class="mb-4">
+            <i class="fas fa-question-circle me-2" style="color: var(--amber-400);"></i>
+            Comprehension Questions
+        </h3>
+
+        {% for question in item.questions %}
+        <div class="question-card" data-question-id="{{ question.id }}" data-answer="{{ question.answer }}">
+            <div class="question-prompt">
+                <span class="badge bg-secondary me-2">Q{{ loop.index }}</span>
+                {{ question.prompt }}
+            </div>
+
+            <div class="options-container">
+                {% for option in question.options %}
+                <div class="option-item" data-option="{{ option }}">
+                    <i class="fas fa-circle me-2" style="font-size: 0.5rem;"></i>
+                    {{ option }}
+                </div>
+                {% endfor %}
+            </div>
+
+            <button class="btn btn-sm btn-teal check-btn">
+                <i class="fas fa-check me-1"></i>Check Answer
+            </button>
+
+            <div class="explanation">
+                <div class="mb-2">
+                    <strong><i class="fas fa-lightbulb me-2" style="color: var(--emerald-400);"></i>Explanation:</strong>
+                </div>
+                <p class="mb-0">{{ question.explanation }}</p>
+
+                {% if question.distractors %}
+                <div class="distractor-analysis">
+                    <strong class="d-block mb-2">Distractor Analysis (干扰项分析):</strong>
+                    {% for distractor in question.distractors %}
+                    <div class="distractor-item">
+                        <strong>{{ distractor.choice }}:</strong>
+                        <span class="badge bg-secondary ms-1">{{ distractor.category }}</span>
+                        <span class="ms-2">{{ distractor.analysis }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="alert alert-warning">
+        <i class="fas fa-exclamation-triangle me-2"></i>
+        No content available. Please regenerate.
+    </div>
+    {% endif %}
+
+    <!-- Regenerate Button -->
+    <button class="btn btn-teal regenerate-btn" id="regenerateBtn">
+        <i class="fas fa-redo me-2"></i>Regenerate 5 New Sets
+    </button>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const regenerateBtn = document.getElementById('regenerateBtn');
+
+    // Navigation handlers
+    prevBtn.addEventListener('click', () => navigate('prev'));
+    nextBtn.addEventListener('click', () => navigate('next'));
+
+    async function navigate(direction) {
+        try {
+            const response = await fetch('/reading/practice/passage/navigate', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ direction })
+            });
+
+            if (response.ok) {
+                window.location.reload();
+            }
+        } catch (error) {
+            console.error('Navigation error:', error);
+        }
+    }
+
+    // Question interaction
+    document.querySelectorAll('.question-card').forEach(card => {
+        const options = card.querySelectorAll('.option-item');
+        const checkBtn = card.querySelector('.check-btn');
+        const explanation = card.querySelector('.explanation');
+        const correctAnswer = card.dataset.answer;
+        let selectedOption = null;
+
+        options.forEach(option => {
+            option.addEventListener('click', function() {
+                // Deselect all
+                options.forEach(opt => opt.classList.remove('selected'));
+                // Select this one
+                this.classList.add('selected');
+                selectedOption = this.dataset.option;
+            });
+        });
+
+        checkBtn.addEventListener('click', function() {
+            if (!selectedOption) {
+                alert('Please select an answer first.');
+                return;
+            }
+
+            // Show correct/incorrect feedback
+            options.forEach(option => {
+                const optionText = option.dataset.option;
+                if (optionText === correctAnswer) {
+                    option.classList.add('correct');
+                } else if (optionText === selectedOption) {
+                    option.classList.add('incorrect');
+                }
+                option.style.pointerEvents = 'none';
+            });
+
+            // Show explanation
+            explanation.classList.add('show');
+            this.disabled = true;
+        });
+    });
+
+    // Regenerate handler
+    regenerateBtn.addEventListener('click', async function() {
+        if (!confirm('This will generate 5 new passage exercises. Continue?')) {
+            return;
+        }
+
+        this.disabled = true;
+        this.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Generating...';
+
+        try {
+            const response = await fetch('/reading/practice/passage/generate', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                window.location.reload();
+            } else {
+                alert(data.message || 'Failed to generate. Please try again.');
+                this.disabled = false;
+                this.innerHTML = '<i class="fas fa-redo me-2"></i>Regenerate 5 New Sets';
+            }
+        } catch (error) {
+            console.error('Regenerate error:', error);
+            alert('An error occurred. Please try again.');
+            this.disabled = false;
+            this.innerHTML = '<i class="fas fa-redo me-2"></i>Regenerate 5 New Sets';
+        }
+    });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block title %}Settings - TOEFL Vocabulary Studio{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6 col-lg-5">
+        <div class="card shadow-lg p-4">
+            <h2 class="text-center mb-4">
+                <i class="fas fa-cog me-2"></i>Settings
+            </h2>
+
+            <form method="POST" action="{{ url_for('settings') }}">
+                <div class="mb-4">
+                    <label for="daily_goal" class="form-label">Daily Goal</label>
+                    <input type="number" class="form-control" id="daily_goal" name="daily_goal"
+                           value="{{ user.daily_goal }}" min="1" max="1000" required>
+                    <div class="form-text text-muted">
+                        Number of words to review each day (1-1000)
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary w-100 mt-3">
+                    <i class="fas fa-save me-2"></i>Save Changes
+                </button>
+            </form>
+
+            <hr class="my-4">
+
+            <div class="text-center">
+                <p class="text-muted mb-3">
+                    <i class="fas fa-user me-2"></i>{{ user.email }}
+                </p>
+                <p class="text-muted mb-3">
+                    <small>Account created: {{ user.created_at.strftime('%Y-%m-%d') }}</small>
+                </p>
+                <a href="{{ url_for('main_dashboard') }}" class="btn btn-outline-light">
+                    <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
