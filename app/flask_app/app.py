@@ -476,12 +476,15 @@ def init_database():
         db.create_all()
 
         inspector = inspect(db.engine)
-        columns = {col['name'] for col in inspector.get_columns('words')}
         with db.engine.begin() as conn:
-            if 'pronunciation_audio_url' not in columns:
+            word_columns = {col['name'] for col in inspector.get_columns('words')}
+            signpost_columns = {col['name'] for col in inspector.get_columns('listening_signposts')}
+            if 'pronunciation_audio_url' not in word_columns:
                 conn.execute(text('ALTER TABLE words ADD COLUMN pronunciation_audio_url VARCHAR(500)'))
-            if 'pronunciation_pitfall_cn' not in columns:
+            if 'pronunciation_pitfall_cn' not in word_columns:
                 conn.execute(text('ALTER TABLE words ADD COLUMN pronunciation_pitfall_cn TEXT'))
+            if 'option_explanations_cn' not in signpost_columns:
+                conn.execute(text('ALTER TABLE listening_signposts ADD COLUMN option_explanations_cn TEXT'))
 
         # Seed words from CSV files
         repo_root = Path(__file__).resolve().parents[3]
@@ -2062,6 +2065,25 @@ def generate_signpost():
             ]
             correct_answer = _sanitize_generated_text(segment_data.get('correct_answer', ''))
             explanation_cn = _sanitize_generated_text(segment_data.get('explanation_cn', ''))
+            raw_option_explanations = segment_data.get('option_explanations_cn') or segment_data.get('option_explanations') or {}
+            sanitized_option_explanations = {}
+            if isinstance(raw_option_explanations, dict):
+                for key, value in raw_option_explanations.items():
+                    sanitized = _sanitize_generated_text(value)
+                    if sanitized:
+                        sanitized_option_explanations[key] = sanitized
+
+            option_letters = [chr(ord('A') + idx) for idx in range(len(options))]
+            option_explanations_cn = {}
+            for idx, opt in enumerate(options):
+                explanation = sanitized_option_explanations.get(opt)
+                if not explanation and idx < len(option_letters):
+                    explanation = sanitized_option_explanations.get(option_letters[idx])
+                if not explanation:
+                    explanation = sanitized_option_explanations.get(str(idx))
+                if not explanation:
+                    explanation = '解析暂缺，请稍后重试。'
+                option_explanations_cn[opt] = explanation
 
             if not segment_text or not question_text or not options or not correct_answer:
                 current_app.logger.warning("Skipping malformed signpost segment (missing required fields).")
@@ -2087,7 +2109,8 @@ def generate_signpost():
                 question_text=question_text,
                 options=options,
                 correct_answer=correct_answer,
-                explanation_cn=explanation_cn
+                explanation_cn=explanation_cn,
+                option_explanations_cn=option_explanations_cn
             )
             db.session.add(signpost)
             db.session.flush()  # Get ID
@@ -2190,6 +2213,7 @@ def submit_signpost(signpost_id):
         'is_correct': is_correct,
         'correct_answer': signpost.correct_answer,
         'explanation_cn': signpost.explanation_cn,
+        'option_explanations_cn': signpost.option_explanations_cn or {opt: '解析暂缺，请稍后重试。' for opt in (signpost.options or [])},
         'score': score
     })
 
@@ -2570,6 +2594,7 @@ def submit_lecture(lecture_id):
             'raw_correct_answer': correct_answer,
             'explanation': question.explanation,
             'distractor_explanations': question.distractor_explanations,
+            'options': options,
             'answer_start_time': question.answer_start_time,
             'answer_end_time': question.answer_end_time
         })
@@ -2638,6 +2663,7 @@ def submit_conversation(conversation_id):
             'raw_correct_answer': correct_answer,
             'explanation': question.explanation,
             'distractor_explanations': question.distractor_explanations,
+            'options': options,
             'answer_start_time': question.answer_start_time,
             'answer_end_time': question.answer_end_time
         })
@@ -3145,6 +3171,13 @@ def reading_immersion():
                 options.append(answer_value)
             explanation = item.get('explanation_cn') or item.get('explanation') or '结合上下文理解含义。'
             rationale_source = item.get('rationales', {}) if isinstance(item, dict) else {}
+            if isinstance(rationale_source, list):
+                # Map list entries to corresponding options by index
+                rationale_source = {
+                    opt: rationale_source[idx]
+                    for idx, opt in enumerate(options)
+                    if idx < len(rationale_source)
+                }
             rationales = {}
             for opt in options:
                 rationale_text = rationale_source.get(opt)
@@ -3918,6 +3951,176 @@ def paraphrase_text():
 def healthcheck():
     """Health check endpoint."""
     return jsonify({'status': 'ok'})
+
+
+# ============================================================================
+# STANDALONE ESSAY GRADING ROUTES (Not TOEFL-related)
+# ============================================================================
+
+@app.route('/essay-grading')
+@login_required
+def essay_grading_home():
+    """Home page for standalone essay grading feature."""
+    return render_template('essay_grading/home.html')
+
+
+@app.route('/essay-grading/upload', methods=['GET', 'POST'])
+@login_required
+def essay_grading_upload():
+    """Upload handwritten essay for grading."""
+    from models import EssaySubmission, EssayGrading
+    from services.image_analyzer import get_image_analyzer
+    from services.essay_grader import get_essay_grader
+    import os
+    from uuid import uuid4
+
+    if request.method == 'GET':
+        return render_template('essay_grading/upload.html')
+
+    user = get_current_user()
+    if not user:
+        return jsonify({'error': 'Not authenticated'}), 401
+
+    # Check for image file
+    if 'image' not in request.files:
+        return jsonify({'error': 'No image file provided'}), 400
+
+    image_file = request.files['image']
+    if image_file.filename == '':
+        return jsonify({'error': 'No image selected'}), 400
+
+    # Validate file type
+    allowed_extensions = {'png', 'jpg', 'jpeg', 'gif', 'webp', 'pdf'}
+    if not ('.' in image_file.filename and
+            image_file.filename.rsplit('.', 1)[1].lower() in allowed_extensions):
+        return jsonify({'error': 'Invalid file type. Allowed: PNG, JPG, PDF'}), 400
+
+    # Get topic from form data
+    topic = request.form.get('topic', '').strip()
+    if not topic:
+        return jsonify({'error': 'Please provide an essay topic'}), 400
+
+    # Save image file
+    upload_dir = os.path.join(current_app.root_path, 'static', 'uploads', 'essay_grading')
+    os.makedirs(upload_dir, exist_ok=True)
+
+    filename = f"{user.id}_{uuid4().hex}.{image_file.filename.rsplit('.', 1)[1].lower()}"
+    image_path = os.path.join(upload_dir, filename)
+    image_file.save(image_path)
+
+    image_url = f"/static/uploads/essay_grading/{filename}"
+
+    # Extract text from image
+    current_app.logger.info(f"Extracting text from essay image: {image_path}")
+    analyzer = get_image_analyzer()
+    ocr_result = analyzer.analyze_essay_image(image_path, task_type='independent', topic=topic)
+
+    if not ocr_result['success']:
+        current_app.logger.warning(f"OCR failed for {image_path}: {ocr_result.get('error')}")
+        return jsonify({
+            'error': 'Could not extract text from image. Please ensure the image is clear and try again.',
+            'image_quality': ocr_result.get('image_quality', 'unknown'),
+            'recommendations': ocr_result.get('recommendations', [])
+        }), 400
+
+    extracted_text = ocr_result['extracted_text']
+    ocr_confidence = ocr_result['ocr_confidence']
+
+    if not extracted_text or len(extracted_text.strip()) < 10:
+        return jsonify({
+            'error': 'Could not extract sufficient text from image. Please upload a clearer image with more visible text.',
+            'image_quality': ocr_result.get('image_quality'),
+            'recommendations': ocr_result.get('recommendations', [])
+        }), 400
+
+    current_app.logger.info(f"Text extracted successfully. Length: {len(extracted_text)}, Confidence: {ocr_confidence}")
+
+    # Create submission record
+    submission = EssaySubmission(
+        user_id=user.id,
+        topic=topic,
+        image_url=image_url,
+        extracted_text=extracted_text,
+        ocr_confidence=ocr_confidence,
+        word_count=len(extracted_text.split()),
+        image_quality=ocr_result.get('image_quality'),
+        legibility_score=ocr_result.get('legibility_score')
+    )
+
+    db.session.add(submission)
+    db.session.commit()
+
+    # Grade the essay
+    current_app.logger.info(f"Grading essay submission {submission.id} for topic: {topic}")
+    grader = get_essay_grader()
+    grading_result = grader.grade_essay(extracted_text, topic)
+
+    if grading_result.get('success'):
+        grading = EssayGrading(
+            submission_id=submission.id,
+            corrected_text=grading_result.get('corrected_text'),
+            corrections_made=grading_result.get('corrections_made'),
+            topic_relevance_score=grading_result.get('topic_relevance_score'),
+            topic_coverage=grading_result.get('topic_coverage'),
+            missing_aspects=grading_result.get('missing_aspects'),
+            grammar_score=grading_result.get('grammar_score'),
+            vocabulary_score=grading_result.get('vocabulary_score'),
+            organization_score=grading_result.get('organization_score'),
+            overall_score=grading_result.get('overall_score'),
+            grammar_issues=grading_result.get('grammar_issues'),
+            vocabulary_suggestions=grading_result.get('vocabulary_suggestions'),
+            organization_feedback=grading_result.get('organization_feedback'),
+            content_feedback=grading_result.get('content_feedback'),
+            summary=grading_result.get('summary'),
+            strengths=grading_result.get('strengths'),
+            improvements=grading_result.get('improvements')
+        )
+        db.session.add(grading)
+        db.session.commit()
+
+    return jsonify({
+        'success': True,
+        'submission_id': submission.id,
+        'redirect': url_for('essay_grading_feedback', submission_id=submission.id)
+    })
+
+
+@app.route('/essay-grading/feedback/<int:submission_id>')
+@login_required
+def essay_grading_feedback(submission_id):
+    """Display grading feedback for a submission."""
+    from models import EssaySubmission, EssayGrading
+
+    user = get_current_user()
+    if not user:
+        return redirect(url_for('login'))
+
+    submission = EssaySubmission.query.get_or_404(submission_id)
+
+    # Ensure user owns this submission
+    if submission.user_id != user.id:
+        return "Unauthorized", 403
+
+    grading = submission.grading
+
+    return render_template('essay_grading/feedback.html',
+                         submission=submission,
+                         grading=grading)
+
+
+@app.route('/essay-grading/history')
+@login_required
+def essay_grading_history():
+    """View history of essay submissions."""
+    from models import EssaySubmission
+
+    user = get_current_user()
+    if not user:
+        return redirect(url_for('login'))
+
+    submissions = EssaySubmission.query.filter_by(user_id=user.id).order_by(EssaySubmission.created_at.desc()).all()
+
+    return render_template('essay_grading/history.html', submissions=submissions)
 
 
 # ============================================================================

@@ -1,0 +1,453 @@
+{% extends "base.html" %}
+
+{% block title %}Essay Grading Feedback{% endblock %}
+
+{% block extra_css %}
+<style>
+    .feedback-container {
+        max-width: 1400px;
+        margin: 2rem auto;
+        padding: 1rem;
+    }
+
+    .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: #3b82f6;
+        text-decoration: none;
+        margin-bottom: 1.5rem;
+        font-weight: 500;
+    }
+
+    .back-link:hover {
+        color: #2563eb;
+    }
+
+    .scores-card {
+        background: white;
+        border-radius: 1rem;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    .overall-score {
+        text-align: center;
+        padding: 2rem;
+        background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+        color: white;
+        border-radius: 1rem;
+        margin-bottom: 2rem;
+    }
+
+    .overall-score-value {
+        font-size: 4rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+    }
+
+    .overall-score-label {
+        font-size: 1.25rem;
+        opacity: 0.9;
+    }
+
+    .subscores {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1.5rem;
+    }
+
+    .subscore {
+        text-align: center;
+        padding: 1.5rem;
+        background: #f9fafb;
+        border-radius: 0.75rem;
+    }
+
+    .subscore-value {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: #3b82f6;
+        margin-bottom: 0.5rem;
+    }
+
+    .subscore-label {
+        font-size: 0.875rem;
+        color: #6b7280;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    .content-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 2rem;
+    }
+
+    @media (max-width: 1024px) {
+        .content-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .content-card {
+        background: white;
+        border-radius: 1rem;
+        padding: 2rem;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        margin-bottom: 2rem;
+    }
+
+    .card-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #1f2937;
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .section-title {
+        font-size: 1.125rem;
+        font-weight: 600;
+        color: #374151;
+        margin: 1.5rem 0 1rem;
+    }
+
+    .essay-image {
+        width: 100%;
+        max-height: 500px;
+        object-fit: contain;
+        border-radius: 0.75rem;
+        border: 2px solid #e5e7eb;
+        margin-bottom: 1rem;
+        cursor: pointer;
+    }
+
+    .ocr-info {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.75rem;
+        background: #f0f9ff;
+        border-radius: 0.5rem;
+        font-size: 0.875rem;
+        margin-bottom: 1rem;
+    }
+
+    .badge {
+        padding: 0.25rem 0.75rem;
+        border-radius: 0.375rem;
+        font-weight: 600;
+        font-size: 0.75rem;
+    }
+
+    .badge-success { background: #10b981; color: white; }
+    .badge-warning { background: #f59e0b; color: white; }
+    .badge-danger { background: #ef4444; color: white; }
+
+    .essay-text {
+        background: #f9fafb;
+        padding: 1.5rem;
+        border-radius: 0.75rem;
+        border: 1px solid #e5e7eb;
+        line-height: 2;
+        font-family: 'Georgia', serif;
+        white-space: pre-wrap;
+    }
+
+    .corrected-text {
+        background: #f0fdf4;
+        padding: 1.5rem;
+        border-radius: 0.75rem;
+        border: 2px solid #10b981;
+        line-height: 2;
+        font-family: 'Georgia', serif;
+        white-space: pre-wrap;
+    }
+
+    .feedback-list {
+        list-style: none;
+        padding: 0;
+    }
+
+    .feedback-item {
+        padding: 1rem;
+        background: #f9fafb;
+        border-radius: 0.5rem;
+        margin-bottom: 0.75rem;
+        border-left: 4px solid #3b82f6;
+    }
+
+    .feedback-item strong {
+        color: #1f2937;
+    }
+
+    .issue-card {
+        padding: 1rem;
+        background: #fef3c7;
+        border-radius: 0.5rem;
+        margin-bottom: 0.75rem;
+        border-left: 4px solid #f59e0b;
+    }
+
+    .correction {
+        color: #dc2626;
+        text-decoration: line-through;
+    }
+
+    .corrected {
+        color: #059669;
+        font-weight: 600;
+    }
+
+    .strength-item {
+        padding: 1rem;
+        background: #f0fdf4;
+        border-radius: 0.5rem;
+        margin-bottom: 0.75rem;
+        border-left: 4px solid #10b981;
+    }
+
+    .improvement-item {
+        padding: 1rem;
+        background: #fef2f2;
+        border-radius: 0.5rem;
+        margin-bottom: 0.75rem;
+        border-left: 4px solid #ef4444;
+    }
+
+    .summary-box {
+        padding: 1.5rem;
+        background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+        border-radius: 0.75rem;
+        border: 2px solid #3b82f6;
+        font-size: 1.05rem;
+        line-height: 1.8;
+    }
+
+    .topic-box {
+        padding: 1rem;
+        background: #fef3c7;
+        border-radius: 0.5rem;
+        border-left: 4px solid #f59e0b;
+        margin-bottom: 1.5rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="feedback-container">
+    <a href="{{ url_for('essay_grading_home') }}" class="back-link">
+        <i class="fas fa-arrow-left"></i>
+        Back to Essay Grading
+    </a>
+
+    <!-- Scores Overview -->
+    <div class="scores-card">
+        <div class="overall-score">
+            <div class="overall-score-value">{{ grading.overall_score|round(1) if grading and grading.overall_score else 'N/A' }}/10</div>
+            <div class="overall-score-label">Overall Score</div>
+        </div>
+
+        {% if grading %}
+        <div class="subscores">
+            <div class="subscore">
+                <div class="subscore-value">{{ grading.grammar_score|round(1) if grading.grammar_score else 'N/A' }}/10</div>
+                <div class="subscore-label">Grammar</div>
+            </div>
+            <div class="subscore">
+                <div class="subscore-value">{{ grading.vocabulary_score|round(1) if grading.vocabulary_score else 'N/A' }}/10</div>
+                <div class="subscore-label">Vocabulary</div>
+            </div>
+            <div class="subscore">
+                <div class="subscore-value">{{ grading.organization_score|round(1) if grading.organization_score else 'N/A' }}/10</div>
+                <div class="subscore-label">Organization</div>
+            </div>
+            <div class="subscore">
+                <div class="subscore-value">{{ grading.topic_relevance_score|round(1) if grading.topic_relevance_score else 'N/A' }}/10</div>
+                <div class="subscore-label">Topic Relevance</div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="content-grid">
+        <!-- Left Column: Essay Content -->
+        <div>
+            <!-- Original Essay -->
+            <div class="content-card">
+                <h2 class="card-title">
+                    <i class="fas fa-image"></i>
+                    Your Handwritten Essay
+                </h2>
+
+                {% if submission.topic %}
+                <div class="topic-box">
+                    <strong><i class="fas fa-lightbulb me-2"></i>Topic:</strong> {{ submission.topic }}
+                </div>
+                {% endif %}
+
+                <img src="{{ submission.image_url }}" alt="Handwritten Essay" class="essay-image"
+                     onclick="this.style.maxHeight = this.style.maxHeight === 'none' ? '500px' : 'none'">
+
+                <div class="ocr-info">
+                    <div>
+                        <strong>OCR Confidence:</strong>
+                        <span class="badge {% if submission.ocr_confidence >= 0.8 %}badge-success{% elif submission.ocr_confidence >= 0.6 %}badge-warning{% else %}badge-danger{% endif %}">
+                            {{ (submission.ocr_confidence * 100)|round(1) }}%
+                        </span>
+                    </div>
+                    <small class="text-muted">Click image to toggle full size</small>
+                </div>
+
+                <h3 class="section-title">Extracted Text</h3>
+                <div class="essay-text">{{ submission.extracted_text }}</div>
+            </div>
+
+            <!-- Corrected Version -->
+            {% if grading and grading.corrected_text %}
+            <div class="content-card">
+                <h2 class="card-title">
+                    <i class="fas fa-check-circle"></i>
+                    Corrected Version
+                </h2>
+                <div class="corrected-text">{{ grading.corrected_text }}</div>
+
+                {% if grading.corrections_made and grading.corrections_made|length > 0 %}
+                <h3 class="section-title">Corrections Made</h3>
+                <ul class="feedback-list">
+                    {% for correction in grading.corrections_made %}
+                    <li class="feedback-item">{{ correction }}</li>
+                    {% endfor %}
+                </ul>
+                {% endif %}
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Right Column: Feedback -->
+        <div>
+            <!-- Summary -->
+            {% if grading and grading.summary %}
+            <div class="content-card">
+                <h2 class="card-title">
+                    <i class="fas fa-comment-alt"></i>
+                    Summary
+                </h2>
+                <div class="summary-box">{{ grading.summary }}</div>
+            </div>
+            {% endif %}
+
+            <!-- Topic Coverage -->
+            {% if grading and grading.topic_coverage %}
+            <div class="content-card">
+                <h2 class="card-title">
+                    <i class="fas fa-bullseye"></i>
+                    Topic Coverage
+                </h2>
+                <p>{{ grading.topic_coverage }}</p>
+
+                {% if grading.missing_aspects and grading.missing_aspects|length > 0 %}
+                <h3 class="section-title">Missing Aspects</h3>
+                <ul class="feedback-list">
+                    {% for aspect in grading.missing_aspects %}
+                    <li class="improvement-item">{{ aspect }}</li>
+                    {% endfor %}
+                </ul>
+                {% endif %}
+            </div>
+            {% endif %}
+
+            <!-- Strengths -->
+            {% if grading and grading.strengths and grading.strengths|length > 0 %}
+            <div class="content-card">
+                <h2 class="card-title">
+                    <i class="fas fa-star"></i>
+                    Strengths
+                </h2>
+                <ul class="feedback-list">
+                    {% for strength in grading.strengths %}
+                    <li class="strength-item">{{ strength }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+
+            <!-- Areas for Improvement -->
+            {% if grading and grading.improvements and grading.improvements|length > 0 %}
+            <div class="content-card">
+                <h2 class="card-title">
+                    <i class="fas fa-arrow-up"></i>
+                    Areas for Improvement
+                </h2>
+                <ul class="feedback-list">
+                    {% for improvement in grading.improvements %}
+                    <li class="improvement-item">{{ improvement }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+
+            <!-- Grammar Issues -->
+            {% if grading and grading.grammar_issues and grading.grammar_issues|length > 0 %}
+            <div class="content-card">
+                <h2 class="card-title">
+                    <i class="fas fa-spell-check"></i>
+                    Grammar & Spelling
+                </h2>
+                {% for issue in grading.grammar_issues %}
+                <div class="issue-card">
+                    <strong>{{ issue.issue }}</strong><br>
+                    <span class="correction">{{ issue.original }}</span> →
+                    <span class="corrected">{{ issue.correction }}</span><br>
+                    <small class="text-muted">{{ issue.explanation }}</small>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <!-- Vocabulary Suggestions -->
+            {% if grading and grading.vocabulary_suggestions and grading.vocabulary_suggestions|length > 0 %}
+            <div class="content-card">
+                <h2 class="card-title">
+                    <i class="fas fa-book"></i>
+                    Vocabulary Suggestions
+                </h2>
+                {% for suggestion in grading.vocabulary_suggestions %}
+                <div class="issue-card">
+                    <strong>"{{ suggestion.word }}"</strong> →
+                    <span style="color: #059669;">{{ suggestion.suggestion }}</span><br>
+                    <small class="text-muted">{{ suggestion.context }}</small>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <!-- Organization Feedback -->
+            {% if grading and grading.organization_feedback %}
+            <div class="content-card">
+                <h2 class="card-title">
+                    <i class="fas fa-sitemap"></i>
+                    Organization & Structure
+                </h2>
+                <p>{{ grading.organization_feedback }}</p>
+            </div>
+            {% endif %}
+
+            <!-- Content Feedback -->
+            {% if grading and grading.content_feedback %}
+            <div class="content-card">
+                <h2 class="card-title">
+                    <i class="fas fa-file-alt"></i>
+                    Content Quality
+                </h2>
+                <p>{{ grading.content_feedback }}</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

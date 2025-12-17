@@ -1,0 +1,267 @@
+{% extends "base.html" %}
+
+{% block title %}Essay Grading History{% endblock %}
+
+{% block extra_css %}
+<style>
+    .history-container {
+        max-width: 1200px;
+        margin: 2rem auto;
+        padding: 1rem;
+    }
+
+    .page-header {
+        margin-bottom: 2rem;
+    }
+
+    .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: #3b82f6;
+        text-decoration: none;
+        margin-bottom: 1rem;
+        font-weight: 500;
+    }
+
+    .back-link:hover {
+        color: #2563eb;
+    }
+
+    .page-title {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: #1f2937;
+        margin-bottom: 0.5rem;
+    }
+
+    .page-subtitle {
+        color: #6b7280;
+    }
+
+    .submissions-grid {
+        display: grid;
+        gap: 1.5rem;
+    }
+
+    .submission-card {
+        background: white;
+        border-radius: 1rem;
+        padding: 1.5rem;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+        transition: transform 0.3s, box-shadow 0.3s;
+        cursor: pointer;
+        text-decoration: none;
+        color: inherit;
+        display: block;
+    }
+
+    .submission-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+    }
+
+    .submission-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: start;
+        margin-bottom: 1rem;
+    }
+
+    .submission-topic {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: #1f2937;
+        margin-bottom: 0.25rem;
+    }
+
+    .submission-date {
+        font-size: 0.875rem;
+        color: #6b7280;
+    }
+
+    .submission-score {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #3b82f6;
+    }
+
+    .submission-body {
+        display: grid;
+        grid-template-columns: auto 1fr auto;
+        gap: 1.5rem;
+        align-items: center;
+    }
+
+    .submission-thumbnail {
+        width: 150px;
+        height: 100px;
+        object-fit: cover;
+        border-radius: 0.5rem;
+        border: 2px solid #e5e7eb;
+    }
+
+    .submission-details {
+        flex: 1;
+    }
+
+    .detail-item {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-right: 1.5rem;
+        font-size: 0.875rem;
+        color: #6b7280;
+    }
+
+    .badge {
+        padding: 0.25rem 0.75rem;
+        border-radius: 0.375rem;
+        font-weight: 600;
+        font-size: 0.75rem;
+    }
+
+    .badge-success { background: #10b981; color: white; }
+    .badge-warning { background: #f59e0b; color: white; }
+    .badge-danger { background: #ef4444; color: white; }
+
+    .view-button {
+        padding: 0.75rem 1.5rem;
+        background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+        color: white;
+        border-radius: 0.5rem;
+        font-weight: 600;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+        background: white;
+        border-radius: 1rem;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+    }
+
+    .empty-icon {
+        font-size: 4rem;
+        color: #d1d5db;
+        margin-bottom: 1rem;
+    }
+
+    .empty-title {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: #1f2937;
+        margin-bottom: 0.5rem;
+    }
+
+    .empty-description {
+        color: #6b7280;
+        margin-bottom: 2rem;
+    }
+
+    .upload-button {
+        padding: 1rem 2rem;
+        background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+        color: white;
+        border-radius: 0.75rem;
+        font-weight: 600;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: transform 0.3s, box-shadow 0.3s;
+    }
+
+    .upload-button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 20px rgba(59, 130, 246, 0.4);
+        color: white;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="history-container">
+    <div class="page-header">
+        <a href="{{ url_for('essay_grading_home') }}" class="back-link">
+            <i class="fas fa-arrow-left"></i>
+            Back to Essay Grading
+        </a>
+        <h1 class="page-title">
+            <i class="fas fa-history me-2"></i>
+            Submission History
+        </h1>
+        <p class="page-subtitle">Review your previously submitted essays and track your progress</p>
+    </div>
+
+    {% if submissions and submissions|length > 0 %}
+    <div class="submissions-grid">
+        {% for submission in submissions %}
+        <a href="{{ url_for('essay_grading_feedback', submission_id=submission.id) }}" class="submission-card">
+            <div class="submission-header">
+                <div>
+                    <div class="submission-topic">{{ submission.topic or 'Untitled Essay' }}</div>
+                    <div class="submission-date">
+                        <i class="fas fa-calendar-alt me-1"></i>
+                        {{ submission.created_at.strftime('%B %d, %Y at %I:%M %p') if submission.created_at else 'Date unknown' }}
+                    </div>
+                </div>
+                <div class="submission-score">
+                    {% if submission.grading %}
+                        {{ submission.grading.overall_score|round(1) }}/10
+                    {% else %}
+                        N/A
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="submission-body">
+                <img src="{{ submission.image_url }}" alt="Essay thumbnail" class="submission-thumbnail">
+
+                <div class="submission-details">
+                    <div class="detail-item">
+                        <i class="fas fa-font"></i>
+                        {{ submission.word_count }} words
+                    </div>
+                    <div class="detail-item">
+                        <i class="fas fa-image"></i>
+                        OCR:
+                        <span class="badge {% if submission.ocr_confidence >= 0.8 %}badge-success{% elif submission.ocr_confidence >= 0.6 %}badge-warning{% else %}badge-danger{% endif %}">
+                            {{ (submission.ocr_confidence * 100)|round(1) if submission.ocr_confidence else 0 }}%
+                        </span>
+                    </div>
+                    {% if submission.image_quality %}
+                    <div class="detail-item">
+                        <i class="fas fa-star"></i>
+                        Quality: {{ submission.image_quality|title }}
+                    </div>
+                    {% endif %}
+                </div>
+
+                <div class="view-button">
+                    View Details
+                    <i class="fas fa-arrow-right"></i>
+                </div>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <div class="empty-icon">
+            <i class="fas fa-file-alt"></i>
+        </div>
+        <h2 class="empty-title">No Essays Yet</h2>
+        <p class="empty-description">You haven't submitted any essays for grading. Upload your first essay to get started!</p>
+        <a href="{{ url_for('essay_grading_upload') }}" class="upload-button">
+            <i class="fas fa-upload"></i>
+            Upload Your First Essay
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

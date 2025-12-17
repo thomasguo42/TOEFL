@@ -365,6 +365,7 @@ Generate:
    - Strategic analysis (策略分析) in Simplified Chinese explaining how to apply the strategy
    - Brief explanation for why each distractor is wrong
    - Text evidence location (which paragraph/sentence)
+4. ALL passage text, questions, options, and evidence must remain in English. Chinese is ONLY allowed inside strategy_analysis_cn and distractor explanations.
 
 IMPORTANT: Generate exactly 5 questions. Each question should test different parts of the passage. Count your questions before responding to ensure there are 5.
 

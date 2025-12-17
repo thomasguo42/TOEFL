@@ -1,8 +1,24 @@
 """SQLAlchemy database models for TOEFL vocabulary app."""
 from datetime import datetime, timezone
+import sqlite3
+
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import event
+from sqlalchemy.engine import Engine
 
 db = SQLAlchemy()
+
+
+@event.listens_for(Engine, "connect")
+def _set_sqlite_pragma(dbapi_connection, connection_record):
+    """Configure SQLite connections for better concurrency."""
+    if isinstance(dbapi_connection, sqlite3.Connection):
+        cursor = dbapi_connection.cursor()
+        cursor.execute("PRAGMA journal_mode=WAL;")
+        cursor.execute("PRAGMA synchronous=NORMAL;")
+        cursor.execute("PRAGMA foreign_keys=ON;")
+        cursor.execute("PRAGMA busy_timeout=15000;")
+        cursor.close()
 
 
 def utcnow():
@@ -174,6 +190,7 @@ class ListeningSignpost(db.Model):
     options = db.Column(db.JSON, nullable=False)  # List of answer options
     correct_answer = db.Column(db.String(255), nullable=False)
     explanation_cn = db.Column(db.Text, nullable=True)  # Chinese explanation
+    option_explanations_cn = db.Column(db.JSON, nullable=True)  # Chinese rationale per option
     created_at = db.Column(db.DateTime(timezone=True), default=utcnow, nullable=False)
 
     def __repr__(self):
@@ -191,6 +208,7 @@ class ListeningSignpost(db.Model):
             'options': self.options,
             'correct_answer': self.correct_answer,
             'explanation_cn': self.explanation_cn,
+            'option_explanations_cn': self.option_explanations_cn or {},
         }
 
 
@@ -545,6 +563,12 @@ class WritingResponse(db.Model):
     word_count = db.Column(db.Integer, nullable=True)
     time_spent_seconds = db.Column(db.Integer, nullable=True)  # Time spent writing
 
+    # Image submission fields
+    image_url = db.Column(db.String(500), nullable=True)  # Path to uploaded essay image
+    is_image_submission = db.Column(db.Boolean, default=False)  # Distinguish image from text
+    extracted_text = db.Column(db.Text, nullable=True)  # OCR-extracted text from image
+    ocr_confidence = db.Column(db.Float, nullable=True)  # Confidence score of OCR (0-1)
+
     # Metadata
     attempt_number = db.Column(db.Integer, default=1)  # Allow multiple attempts/revisions
     is_revised = db.Column(db.Boolean, default=False)  # Is this a revision?
@@ -569,6 +593,10 @@ class WritingResponse(db.Model):
             'essay_text': self.essay_text,
             'word_count': self.word_count,
             'time_spent_seconds': self.time_spent_seconds,
+            'image_url': self.image_url,
+            'is_image_submission': self.is_image_submission,
+            'extracted_text': self.extracted_text,
+            'ocr_confidence': self.ocr_confidence,
             'attempt_number': self.attempt_number,
             'is_revised': self.is_revised,
             'parent_response_id': self.parent_response_id,
@@ -644,4 +672,116 @@ class WritingFeedback(db.Model):
             'example_accuracy': self.example_accuracy,
             'paraphrase_quality': self.paraphrase_quality,
             'source_integration': self.source_integration,
+        }
+
+
+# ============================================
+# STANDALONE ESSAY GRADING MODELS
+# (Not related to TOEFL - separate feature)
+# ============================================
+
+class EssaySubmission(db.Model):
+    """Standalone essay submission for grading (not TOEFL-related)."""
+    __tablename__ = 'essay_submissions'
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id', ondelete='CASCADE'), nullable=False)
+
+    # Essay details
+    topic = db.Column(db.Text, nullable=True)  # User-provided topic
+    image_url = db.Column(db.String(500), nullable=False)  # Path to uploaded image
+    extracted_text = db.Column(db.Text, nullable=False)  # OCR-extracted text
+    ocr_confidence = db.Column(db.Float, nullable=True)  # OCR confidence score (0-1)
+    word_count = db.Column(db.Integer, nullable=True)
+
+    # Image quality info
+    image_quality = db.Column(db.String(50), nullable=True)  # 'excellent', 'good', 'fair', 'poor'
+    legibility_score = db.Column(db.Float, nullable=True)  # 0-1
+
+    # Metadata
+    created_at = db.Column(db.DateTime(timezone=True), default=utcnow, nullable=False)
+
+    # Relationships
+    user = db.relationship('User', backref='essay_submissions')
+    grading = db.relationship('EssayGrading', back_populates='submission', uselist=False, cascade='all, delete-orphan')
+
+    def __repr__(self):
+        return f'<EssaySubmission id={self.id} user={self.user_id}>'
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'user_id': self.user_id,
+            'topic': self.topic,
+            'image_url': self.image_url,
+            'extracted_text': self.extracted_text,
+            'ocr_confidence': self.ocr_confidence,
+            'word_count': self.word_count,
+            'image_quality': self.image_quality,
+            'legibility_score': self.legibility_score,
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+        }
+
+
+class EssayGrading(db.Model):
+    """AI grading and feedback for standalone essay submission."""
+    __tablename__ = 'essay_gradings'
+
+    id = db.Column(db.Integer, primary_key=True)
+    submission_id = db.Column(db.Integer, db.ForeignKey('essay_submissions.id', ondelete='CASCADE'), nullable=False, unique=True)
+
+    # Corrected version
+    corrected_text = db.Column(db.Text, nullable=True)  # Grammar and spelling corrected version
+    corrections_made = db.Column(db.JSON, nullable=True)  # List of corrections made
+
+    # Evaluation based on topic
+    topic_relevance_score = db.Column(db.Float, nullable=True)  # 0-10
+    topic_coverage = db.Column(db.Text, nullable=True)  # How well the essay addresses the topic
+    missing_aspects = db.Column(db.JSON, nullable=True)  # List of aspects not covered
+
+    # Overall quality scores
+    grammar_score = db.Column(db.Float, nullable=True)  # 0-10
+    vocabulary_score = db.Column(db.Float, nullable=True)  # 0-10
+    organization_score = db.Column(db.Float, nullable=True)  # 0-10
+    overall_score = db.Column(db.Float, nullable=True)  # 0-10
+
+    # Detailed feedback
+    grammar_issues = db.Column(db.JSON, nullable=True)  # List of grammar issues with corrections
+    vocabulary_suggestions = db.Column(db.JSON, nullable=True)  # Vocabulary improvements
+    organization_feedback = db.Column(db.Text, nullable=True)  # Structure and organization feedback
+    content_feedback = db.Column(db.Text, nullable=True)  # Content quality feedback
+
+    # Summary
+    summary = db.Column(db.Text, nullable=True)  # Overall assessment
+    strengths = db.Column(db.JSON, nullable=True)  # List of strengths
+    improvements = db.Column(db.JSON, nullable=True)  # List of areas for improvement
+
+    created_at = db.Column(db.DateTime(timezone=True), default=utcnow, nullable=False)
+
+    # Relationships
+    submission = db.relationship('EssaySubmission', back_populates='grading')
+
+    def __repr__(self):
+        return f'<EssayGrading submission_id={self.submission_id} score={self.overall_score}>'
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'submission_id': self.submission_id,
+            'corrected_text': self.corrected_text,
+            'corrections_made': self.corrections_made,
+            'topic_relevance_score': self.topic_relevance_score,
+            'topic_coverage': self.topic_coverage,
+            'missing_aspects': self.missing_aspects,
+            'grammar_score': self.grammar_score,
+            'vocabulary_score': self.vocabulary_score,
+            'organization_score': self.organization_score,
+            'overall_score': self.overall_score,
+            'grammar_issues': self.grammar_issues,
+            'vocabulary_suggestions': self.vocabulary_suggestions,
+            'organization_feedback': self.organization_feedback,
+            'content_feedback': self.content_feedback,
+            'summary': self.summary,
+            'strengths': self.strengths,
+            'improvements': self.improvements,
         }

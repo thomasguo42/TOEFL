@@ -1,0 +1,370 @@
+{% extends "base.html" %}
+
+{% block title %}Upload Essay for Grading{% endblock %}
+
+{% block extra_css %}
+<style>
+    .upload-container {
+        max-width: 900px;
+        margin: 2rem auto;
+        padding: 2rem;
+    }
+
+    .upload-card {
+        background: white;
+        border-radius: 1rem;
+        padding: 2.5rem;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    .page-title {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #1f2937;
+        margin-bottom: 0.5rem;
+        text-align: center;
+    }
+
+    .page-subtitle {
+        color: #6b7280;
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+
+    .upload-area {
+        border: 3px dashed #3b82f6;
+        border-radius: 1rem;
+        padding: 4rem 2rem;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.3s;
+        background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+        margin-bottom: 2rem;
+    }
+
+    .upload-area:hover {
+        border-color: #2563eb;
+        background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%);
+        transform: translateY(-2px);
+    }
+
+    .upload-area.drag-over {
+        border-color: #1d4ed8;
+        background: linear-gradient(135deg, #bae6fd 0%, #7dd3fc 100%);
+        transform: scale(1.02);
+    }
+
+    .upload-icon {
+        width: 80px;
+        height: 80px;
+        color: #3b82f6;
+        margin: 0 auto 1.5rem;
+        display: block;
+    }
+
+    .upload-area h3 {
+        color: #1f2937;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+    }
+
+    .upload-area p {
+        color: #6b7280;
+    }
+
+    .form-section {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-label {
+        display: block;
+        font-weight: 600;
+        color: #374151;
+        margin-bottom: 0.5rem;
+    }
+
+    .form-input {
+        width: 100%;
+        padding: 0.75rem;
+        border: 2px solid #d1d5db;
+        border-radius: 0.5rem;
+        font-size: 1rem;
+        transition: border-color 0.3s;
+    }
+
+    .form-input:focus {
+        outline: none;
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+
+    .image-preview {
+        border-radius: 0.75rem;
+        overflow: hidden;
+        border: 2px solid #e5e7eb;
+        margin-bottom: 1.5rem;
+    }
+
+    .image-preview img {
+        width: 100%;
+        max-height: 500px;
+        object-fit: contain;
+    }
+
+    .submit-btn {
+        width: 100%;
+        padding: 1rem;
+        background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+        color: white;
+        border: none;
+        border-radius: 0.75rem;
+        font-size: 1.1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+
+    .submit-btn:hover:not(:disabled) {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 20px rgba(59, 130, 246, 0.4);
+    }
+
+    .submit-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+    .status-message {
+        text-align: center;
+        padding: 1.5rem;
+        border-radius: 0.75rem;
+        margin-top: 1.5rem;
+        display: none;
+    }
+
+    .status-message.processing {
+        background: #eff6ff;
+        border: 2px solid #3b82f6;
+        color: #1e40af;
+        display: block;
+    }
+
+    .spinner {
+        border: 3px solid #e5e7eb;
+        border-top: 3px solid #3b82f6;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        animation: spin 1s linear infinite;
+        margin: 0 auto 1rem;
+    }
+
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+
+    .helper-text {
+        font-size: 0.875rem;
+        color: #6b7280;
+        margin-top: 0.25rem;
+    }
+
+    .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: #3b82f6;
+        text-decoration: none;
+        margin-bottom: 1.5rem;
+        font-weight: 500;
+    }
+
+    .back-link:hover {
+        color: #2563eb;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="upload-container">
+    <a href="{{ url_for('essay_grading_home') }}" class="back-link">
+        <i class="fas fa-arrow-left"></i>
+        Back to Essay Grading
+    </a>
+
+    <div class="upload-card">
+        <h1 class="page-title">Upload Handwritten Essay</h1>
+        <p class="page-subtitle">Get instant AI-powered grading and feedback</p>
+
+        <form id="uploadForm">
+            <!-- Topic Input -->
+            <div class="form-section">
+                <label for="topicInput" class="form-label">
+                    <i class="fas fa-lightbulb me-2"></i>Essay Topic *
+                </label>
+                <input type="text" id="topicInput" class="form-input"
+                       placeholder="e.g., The impact of social media on society"
+                       required>
+                <p class="helper-text">Provide the topic or prompt your essay addresses</p>
+            </div>
+
+            <!-- Image Upload Area -->
+            <div class="upload-area" id="uploadArea">
+                <svg class="upload-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path d="M7 18v-6a5 5 0 0 1 10 0v6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M7 18h10" stroke-width="2" stroke-linecap="round"/>
+                    <path d="M12 12v6" stroke-width="2" stroke-linecap="round"/>
+                    <path d="M12 12L9 9M12 12l3-3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <h3>Drag and drop your essay image here</h3>
+                <p>or click to browse files</p>
+                <p class="helper-text mt-2">Supported: PNG, JPG, GIF, WebP, PDF (Max 10MB)</p>
+                <input type="file" id="imageInput" accept="image/*,.pdf" hidden required>
+            </div>
+
+            <!-- Image Preview -->
+            <div id="imagePreview" style="display: none;">
+                <div class="image-preview">
+                    <img id="previewImg" src="" alt="Essay preview">
+                </div>
+            </div>
+
+            <!-- Submit Button -->
+            <button type="submit" class="submit-btn" id="submitBtn">
+                <i class="fas fa-check-circle me-2"></i>
+                Submit for Grading
+            </button>
+
+            <!-- Status Message -->
+            <div class="status-message" id="statusMessage">
+                <div class="spinner"></div>
+                <p id="statusText">Processing your essay...</p>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+const uploadArea = document.getElementById('uploadArea');
+const imageInput = document.getElementById('imageInput');
+const imagePreview = document.getElementById('imagePreview');
+const previewImg = document.getElementById('previewImg');
+const submitBtn = document.getElementById('submitBtn');
+const uploadForm = document.getElementById('uploadForm');
+const statusMessage = document.getElementById('statusMessage');
+const statusText = document.getElementById('statusText');
+
+// Click to upload
+uploadArea.addEventListener('click', () => imageInput.click());
+
+// Drag and drop
+uploadArea.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    uploadArea.classList.add('drag-over');
+});
+
+uploadArea.addEventListener('dragleave', () => {
+    uploadArea.classList.remove('drag-over');
+});
+
+uploadArea.addEventListener('drop', (e) => {
+    e.preventDefault();
+    uploadArea.classList.remove('drag-over');
+    const files = e.dataTransfer.files;
+    if (files.length > 0) {
+        imageInput.files = files;
+        handleImageSelected();
+    }
+});
+
+// File selection
+imageInput.addEventListener('change', handleImageSelected);
+
+function handleImageSelected() {
+    const file = imageInput.files[0];
+    if (!file) return;
+
+    // Validate file type
+    const validTypes = ['image/png', 'image/jpeg', 'image/gif', 'image/webp', 'application/pdf'];
+    if (!validTypes.includes(file.type)) {
+        alert('Invalid file type. Please upload PNG, JPG, GIF, WebP, or PDF files only.');
+        imageInput.value = '';
+        return;
+    }
+
+    // Validate file size (10MB)
+    const maxSize = 10 * 1024 * 1024;
+    if (file.size > maxSize) {
+        alert('File size exceeds 10MB. Please upload a smaller file.');
+        imageInput.value = '';
+        return;
+    }
+
+    // Show preview
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        previewImg.src = e.target.result;
+        imagePreview.style.display = 'block';
+    };
+    reader.readAsDataURL(file);
+}
+
+// Form submission
+uploadForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const topic = document.getElementById('topicInput').value.trim();
+    const file = imageInput.files[0];
+
+    if (!topic) {
+        alert('Please enter an essay topic');
+        return;
+    }
+
+    if (!file) {
+        alert('Please select an image file');
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append('topic', topic);
+    formData.append('image', file);
+
+    // Show loading state
+    submitBtn.disabled = true;
+    statusMessage.classList.add('processing');
+    statusText.textContent = 'Extracting text from your essay...';
+
+    try {
+        const response = await fetch('/essay-grading/upload', {
+            method: 'POST',
+            body: formData
+        });
+
+        const data = await response.json();
+
+        if (response.ok && data.success) {
+            statusText.textContent = 'Success! Redirecting to feedback...';
+            setTimeout(() => {
+                window.location.href = data.redirect;
+            }, 500);
+        } else {
+            statusMessage.classList.remove('processing');
+            submitBtn.disabled = false;
+
+            let errorMsg = data.error || 'Failed to process essay. Please try again.';
+            if (data.recommendations && data.recommendations.length > 0) {
+                errorMsg += '\n\nRecommendations:\n' + data.recommendations.join('\n');
+            }
+            alert(errorMsg);
+        }
+    } catch (error) {
+        console.error('Upload error:', error);
+        statusMessage.classList.remove('processing');
+        submitBtn.disabled = false;
+        alert('An error occurred while uploading. Please try again.');
+    }
+});
+</script>
+{% endblock %}

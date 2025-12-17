@@ -1,0 +1,307 @@
+{% extends "base.html" %}
+
+{% block title %}Essay Grading{% endblock %}
+
+{% block extra_css %}
+<style>
+    .hero-section {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 4rem 2rem;
+        text-align: center;
+        margin-bottom: 3rem;
+    }
+
+    .hero-title {
+        font-size: 3rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+    }
+
+    .hero-subtitle {
+        font-size: 1.25rem;
+        opacity: 0.9;
+        max-width: 600px;
+        margin: 0 auto;
+    }
+
+    .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 2rem 3rem;
+    }
+
+    .action-cards {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 2rem;
+        margin-bottom: 3rem;
+    }
+
+    .action-card {
+        background: white;
+        border-radius: 1rem;
+        padding: 2.5rem;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        text-align: center;
+        transition: transform 0.3s, box-shadow 0.3s;
+        text-decoration: none;
+        color: inherit;
+        display: block;
+    }
+
+    .action-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+    }
+
+    .action-card-icon {
+        width: 80px;
+        height: 80px;
+        margin: 0 auto 1.5rem;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2.5rem;
+    }
+
+    .icon-blue {
+        background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+        color: white;
+    }
+
+    .icon-green {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        color: white;
+    }
+
+    .action-card-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #1f2937;
+        margin-bottom: 0.75rem;
+    }
+
+    .action-card-description {
+        color: #6b7280;
+        line-height: 1.6;
+    }
+
+    .features-section {
+        margin-bottom: 3rem;
+    }
+
+    .section-title {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #1f2937;
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+
+    .features-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+    }
+
+    .feature-card {
+        background: white;
+        border-radius: 0.75rem;
+        padding: 1.5rem;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+    }
+
+    .feature-icon {
+        font-size: 2rem;
+        color: #3b82f6;
+        margin-bottom: 0.75rem;
+    }
+
+    .feature-title {
+        font-size: 1.125rem;
+        font-weight: 600;
+        color: #1f2937;
+        margin-bottom: 0.5rem;
+    }
+
+    .feature-description {
+        color: #6b7280;
+        font-size: 0.95rem;
+        line-height: 1.5;
+    }
+
+    .cta-section {
+        background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+        border-radius: 1rem;
+        padding: 3rem 2rem;
+        text-align: center;
+        border: 2px solid #3b82f6;
+    }
+
+    .cta-title {
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: #1f2937;
+        margin-bottom: 1rem;
+    }
+
+    .cta-button {
+        display: inline-block;
+        padding: 1rem 2.5rem;
+        background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+        color: white;
+        border-radius: 0.75rem;
+        font-size: 1.125rem;
+        font-weight: 600;
+        text-decoration: none;
+        transition: transform 0.3s, box-shadow 0.3s;
+    }
+
+    .cta-button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 20px rgba(59, 130, 246, 0.4);
+        color: white;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="hero-section">
+    <h1 class="hero-title">
+        <i class="fas fa-graduation-cap me-3"></i>
+        Essay Grading
+    </h1>
+    <p class="hero-subtitle">
+        Upload your handwritten essay and get instant AI-powered grading with detailed feedback on grammar, vocabulary, organization, and topic coverage
+    </p>
+</div>
+
+<div class="container">
+    <!-- Main Actions -->
+    <div class="action-cards">
+        <a href="{{ url_for('essay_grading_upload') }}" class="action-card">
+            <div class="action-card-icon icon-blue">
+                <i class="fas fa-upload"></i>
+            </div>
+            <h2 class="action-card-title">Upload New Essay</h2>
+            <p class="action-card-description">
+                Upload a photo or scan of your handwritten essay for instant AI grading and comprehensive feedback
+            </p>
+        </a>
+
+        <a href="{{ url_for('essay_grading_history') }}" class="action-card">
+            <div class="action-card-icon icon-green">
+                <i class="fas fa-history"></i>
+            </div>
+            <h2 class="action-card-title">View History</h2>
+            <p class="action-card-description">
+                Review your previously submitted essays and track your progress over time
+            </p>
+        </a>
+    </div>
+
+    <!-- Features Section -->
+    <div class="features-section">
+        <h2 class="section-title">How It Works</h2>
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon"><i class="fas fa-camera"></i></div>
+                <h3 class="feature-title">1. Upload Image</h3>
+                <p class="feature-description">
+                    Take a clear photo or scan of your handwritten essay and upload it
+                </p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon"><i class="fas fa-robot"></i></div>
+                <h3 class="feature-title">2. AI Analysis</h3>
+                <p class="feature-description">
+                    Our AI extracts the text and analyzes grammar, vocabulary, organization, and topic coverage
+                </p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon"><i class="fas fa-check-circle"></i></div>
+                <h3 class="feature-title">3. Get Feedback</h3>
+                <p class="feature-description">
+                    Receive detailed feedback with corrections, suggestions, and a comprehensive score
+                </p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon"><i class="fas fa-chart-line"></i></div>
+                <h3 class="feature-title">4. Improve</h3>
+                <p class="feature-description">
+                    Learn from the feedback and track your writing improvement over time
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Features Highlights -->
+    <div class="features-section">
+        <h2 class="section-title">Features</h2>
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon"><i class="fas fa-spell-check"></i></div>
+                <h3 class="feature-title">Grammar Correction</h3>
+                <p class="feature-description">
+                    Automatically correct grammar, spelling, and punctuation errors
+                </p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon"><i class="fas fa-book"></i></div>
+                <h3 class="feature-title">Vocabulary Enhancement</h3>
+                <p class="feature-description">
+                    Get suggestions for better word choices and more sophisticated vocabulary
+                </p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon"><i class="fas fa-sitemap"></i></div>
+                <h3 class="feature-title">Organization Analysis</h3>
+                <p class="feature-description">
+                    Feedback on essay structure, coherence, and logical flow
+                </p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon"><i class="fas fa-bullseye"></i></div>
+                <h3 class="feature-title">Topic Relevance</h3>
+                <p class="feature-description">
+                    Evaluate how well your essay addresses the given topic
+                </p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon"><i class="fas fa-star"></i></div>
+                <h3 class="feature-title">Strengths & Weaknesses</h3>
+                <p class="feature-description">
+                    Identify what you did well and areas that need improvement
+                </p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon"><i class="fas fa-tachometer-alt"></i></div>
+                <h3 class="feature-title">Instant Results</h3>
+                <p class="feature-description">
+                    Get comprehensive feedback in seconds, not days
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Call to Action -->
+    <div class="cta-section">
+        <h2 class="cta-title">Ready to improve your writing?</h2>
+        <p style="color: #6b7280; margin-bottom: 1.5rem;">Upload your first essay now and get instant feedback</p>
+        <a href="{{ url_for('essay_grading_upload') }}" class="cta-button">
+            <i class="fas fa-upload me-2"></i>
+            Upload Essay
+        </a>
+    </div>
+</div>
+{% endblock %}

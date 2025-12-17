@@ -331,7 +331,9 @@ For EACH segment:
 - NO hesitations like "um", "uh" - speak clearly like real TOEFL audio
 - Create a multiple-choice question about what the professor is about to do
 - Provide 4 answer options (one correct, three distractors)
-- Include Chinese explanation
+- Supply `explanation_cn` summarizing why the correct option matches (Simplified Chinese, ≤40 characters)
+- Supply `option_explanations_cn` with EVERY option text as keys and ≤40 character Simplified Chinese rationales explaining why that option is correct or incorrect
+- ALL other content (segment text, question, options) must remain in English. Chinese is ONLY allowed inside `explanation_cn` and `option_explanations_cn`.
 
 Example: "Ancient civilizations developed complex irrigation systems. However, many of these techniques were lost over time. Today, archaeologists are rediscovering these methods."
 
@@ -345,7 +347,13 @@ Return JSON format:
             "question_text": "What is the professor about to do?",
             "options": ["option1", "option2", "option3", "option4"],
             "correct_answer": "the correct option text",
-            "explanation_cn": "Chinese explanation"
+            "explanation_cn": "Correct option rationale in Simplified Chinese",
+            "option_explanations_cn": {{
+                "option1": "为什么此选项正确或错误（简洁中文）",
+                "option2": "为什么此选项正确或错误（简洁中文）",
+                "option3": "为什么此选项正确或错误（简洁中文）",
+                "option4": "为什么此选项正确或错误（简洁中文）"
+            }}
         }},
         ... ({count} total segments)
     ]
@@ -432,6 +440,9 @@ Also create a multiple-choice question:
 - Question: "What is the professor about to do?" or "What does this phrase signal?"
 - 4 answer options (one correct, three distractors)
 - Correct answer should reflect the signpost function
+- Provide `explanation_cn` summarizing why the correct option is right (Simplified Chinese, ≤40 characters)
+- Provide `option_explanations_cn` with EVERY option mapped to a ≤40 character Simplified Chinese rationale explaining why it is correct or incorrect
+- ALL other text (segment, question, options) must stay in English. Chinese is ONLY allowed inside `explanation_cn` and `option_explanations_cn`.
 
 Return JSON format:
 {{
@@ -441,7 +452,13 @@ Return JSON format:
     "question_text": "What is the professor about to do?",
     "options": ["option1", "option2", "option3", "option4"],
     "correct_answer": "the correct option text",
-    "explanation_cn": "Chinese explanation of why this signpost signals this action"
+    "explanation_cn": "简洁说明正确选项原因（中文）",
+    "option_explanations_cn": {{
+        "option1": "中文解析，说明选项正确或错误原因",
+        "option2": "中文解析，说明选项正确或错误原因",
+        "option3": "中文解析，说明选项正确或错误原因",
+        "option4": "中文解析，说明选项正确或错误原因"
+    }}
 }}
 
 Example of good style: "Ancient civilizations developed complex irrigation systems. However, many of these techniques were lost over time. Today, archaeologists are rediscovering these methods."
@@ -499,8 +516,10 @@ Also generate:
 1. **5-6 TOEFL-style questions** (multiple choice):
    - Mix of question types: main idea, detail, inference, purpose, attitude
    - Each question should have 4 options
-   - Include explanation for correct answer
-   - Include explanations for why each distractor is wrong
+   - Include explanation for correct answer (Simplified Chinese, ≤70 characters)
+   - Include explanations for why each distractor is wrong (Simplified Chinese, ≤70 characters each)
+   - Provide `distractor_explanations` keyed by the EXACT option text
+   - ALL question text, options, transcript quotes, and notes must remain in English. Chinese is ONLY allowed inside the explanation fields.
    - CRITICAL: For each question, identify the EXACT portion of the transcript that contains the answer
      and provide approximate timestamps (in seconds) where this information appears
 
@@ -698,8 +717,10 @@ Also generate:
 1. **5-6 TOEFL-style questions**:
    - Focus on: main purpose, details, speaker attitude, implied meaning
    - Each with 4 options
-   - Include explanation for correct answer
-   - Include explanations for each distractor
+   - Include explanation for correct answer (Simplified Chinese, ≤70 characters)
+   - Include explanations for each distractor (Simplified Chinese, ≤70 characters each)
+   - Provide `distractor_explanations` keyed by the EXACT option text
+   - ALL transcript text, questions, options, and notes must remain in English. Chinese is ONLY allowed inside the explanation fields.
    - Provide approximate timestamps for where answer appears
 
 2. **Expert Notes**:
