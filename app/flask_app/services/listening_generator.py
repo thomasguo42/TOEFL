@@ -1,5 +1,5 @@
 """
-Listening content generator service using Gemini AI.
+Listening content generator service using DeepSeek.
 
 This service generates all content for the TOEFL Listening section:
 - Feature 1: Dictation sentences (15-25 words, complex academic)
@@ -570,7 +570,7 @@ Estimate based on position in the 500-word transcript."""
         return count - LECTURE_WORD_COUNT_MAX
 
     def _refine_length(initial_payload: Dict, word_count: int) -> Optional[Dict]:
-        """Ask Gemini to expand or tighten the lecture to hit the target range."""
+        """Ask DeepSeek to expand or tighten the lecture to hit the target range."""
         try:
             refinement_prompt = f"""You generated a lecture on {topic}, but the transcript length was {word_count} words.
 Revise the entire lecture package so the transcript is BETWEEN {LECTURE_WORD_COUNT_MIN} and {LECTURE_WORD_COUNT_MAX} words.

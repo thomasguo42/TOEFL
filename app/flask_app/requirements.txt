@@ -21,3 +21,4 @@ transformers==4.48.1
 xformers==0.0.32.post2
 # Kokoro TTS for natural voice generation
 kokoro==0.9.4
+# DeepSeek REST client (requests)

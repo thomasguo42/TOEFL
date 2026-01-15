@@ -51,7 +51,7 @@ class EssayGrader:
         """
         if not self.client or not self.client.is_configured:
             return {
-                'error': 'Gemini API not configured',
+                'error': 'DeepSeek API not configured',
                 'success': False
             }
 
@@ -136,7 +136,7 @@ Provide a JSON response with the following structure:
                 feedback['success'] = True
                 return feedback
             else:
-                current_app.logger.error("Essay grading failed: No response from Gemini API")
+                current_app.logger.error("Essay grading failed: No response from DeepSeek API")
                 return {
                     'error': 'Failed to generate grading feedback',
                     'success': False

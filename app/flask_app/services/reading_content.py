@@ -1,4 +1,4 @@
-"""Generate structured TOEFL reading practice content with Gemini 2.5 Pro."""
+"""Generate structured TOEFL reading practice content with DeepSeek."""
 from __future__ import annotations
 
 import json
@@ -82,18 +82,18 @@ DISTRACTOR_CATEGORIES = [
 ]
 
 SENTENCE_SYSTEM_PROMPT = (
-    "You are Gemini 2.5 Flash Lite serving as a TOEFL reading coach for Chinese learners. "
+    "You are DeepSeek serving as a TOEFL reading coach for Chinese learners. "
     "Produce one complex academic sentence and granular analysis that helps learners dissect structure. "
     "Return strict JSON matching the requested schema. Hints must be in Simplified Chinese; other narrative text stays in English."
 )
 
 PARAGRAPH_SYSTEM_PROMPT = (
-    "You are Gemini 2.5 Flash Lite building paragraph comprehension drills for TOEFL beginners in China. "
+    "You are DeepSeek building paragraph comprehension drills for TOEFL beginners in China. "
     "Deliver a paragraph along with sentence roles, topic sentences, and transition annotations in strict JSON."
 )
 
 PASSAGE_SYSTEM_PROMPT = (
-    "You are Gemini 2.5 Flash Lite acting as an expert TOEFL tutor. "
+    "You are DeepSeek acting as an expert TOEFL tutor. "
     "Design a short guided passage with scaffolding toggles and question rationales targeted at Chinese learners. "
     "Strictly follow the JSON schema provided."
 )
@@ -138,7 +138,7 @@ def _resolve_fallback(items: List[Dict[str, Any]]) -> Optional[Dict[str, Any]]:
 
 
 def _generate_sentence(topic: Optional[str], client: GeminiClient, max_retries: int = 2) -> Optional[Dict[str, Any]]:
-    """Generate a sentence using Gemini with retry logic.
+    """Generate a sentence using DeepSeek with retry logic.
 
     Args:
         topic: Optional topic for the sentence
@@ -149,7 +149,7 @@ def _generate_sentence(topic: Optional[str], client: GeminiClient, max_retries: 
         Dictionary with sentence data, or None on failure
     """
     if not client or not client.is_configured:
-        current_app.logger.error("Gemini API not configured - cannot generate sentence")
+        current_app.logger.error("DeepSeek API not configured - cannot generate sentence")
         return None
 
     focus_topic = topic or random.choice(SENTENCE_TOPICS)
@@ -189,7 +189,7 @@ def _generate_sentence(topic: Optional[str], client: GeminiClient, max_retries: 
 
 
 def _generate_paragraph(topic: Optional[str], client: GeminiClient, max_retries: int = 2) -> Optional[Dict[str, Any]]:
-    """Generate a paragraph using Gemini with retry logic.
+    """Generate a paragraph using DeepSeek with retry logic.
 
     Args:
         topic: Optional topic for the paragraph
@@ -200,7 +200,7 @@ def _generate_paragraph(topic: Optional[str], client: GeminiClient, max_retries:
         Dictionary with paragraph data, or None on failure
     """
     if not client or not client.is_configured:
-        current_app.logger.error("Gemini API not configured - cannot generate paragraph")
+        current_app.logger.error("DeepSeek API not configured - cannot generate paragraph")
         return None
 
     focus_topic = topic or random.choice(PARAGRAPH_TOPICS)
@@ -239,7 +239,7 @@ def _generate_paragraph(topic: Optional[str], client: GeminiClient, max_retries:
 
 
 def _generate_passage(topic: Optional[str], client: GeminiClient, max_retries: int = 2) -> Optional[Dict[str, Any]]:
-    """Generate a passage using Gemini with retry logic.
+    """Generate a passage using DeepSeek with retry logic.
 
     Args:
         topic: Optional topic for the passage
@@ -250,7 +250,7 @@ def _generate_passage(topic: Optional[str], client: GeminiClient, max_retries: i
         Dictionary with passage data, or None on failure
     """
     if not client or not client.is_configured:
-        current_app.logger.error("Gemini API not configured - cannot generate passage")
+        current_app.logger.error("DeepSeek API not configured - cannot generate passage")
         return None
 
     focus_topic = topic or random.choice(PASSAGE_TOPICS)
@@ -295,16 +295,16 @@ def _generate_passage(topic: Optional[str], client: GeminiClient, max_retries: i
 
 
 def get_sentence(sentence_id: Optional[str] = None, topic: Optional[str] = None) -> Optional[Dict[str, Any]]:
-    """Get a sentence using Gemini AI.
+    """Get a sentence using DeepSeek.
 
-    This function ALWAYS uses Gemini. No fallback to seed files.
+    This function ALWAYS uses DeepSeek. No fallback to seed files.
 
     Args:
         sentence_id: Unused, kept for API compatibility
         topic: Optional topic for the sentence
 
     Returns:
-        Dictionary with sentence data, or None if Gemini fails
+        Dictionary with sentence data, or None if DeepSeek fails
     """
     client = get_gemini_client()
     result = _generate_sentence(topic, client)
@@ -319,16 +319,16 @@ def get_sentence(sentence_id: Optional[str] = None, topic: Optional[str] = None)
 
 
 def get_paragraph(paragraph_id: Optional[str] = None, topic: Optional[str] = None) -> Optional[Dict[str, Any]]:
-    """Get a paragraph using Gemini AI.
+    """Get a paragraph using DeepSeek.
 
-    This function ALWAYS uses Gemini. No fallback to seed files.
+    This function ALWAYS uses DeepSeek. No fallback to seed files.
 
     Args:
         paragraph_id: Unused, kept for API compatibility
         topic: Optional topic for the paragraph
 
     Returns:
-        Dictionary with paragraph data, or None if Gemini fails
+        Dictionary with paragraph data, or None if DeepSeek fails
     """
     client = get_gemini_client()
     result = _generate_paragraph(topic, client)
@@ -343,16 +343,16 @@ def get_paragraph(paragraph_id: Optional[str] = None, topic: Optional[str] = Non
 
 
 def get_passage(passage_id: Optional[str] = None, topic: Optional[str] = None) -> Optional[Dict[str, Any]]:
-    """Get a passage using Gemini AI.
+    """Get a passage using DeepSeek.
 
-    This function ALWAYS uses Gemini. No fallback to seed files.
+    This function ALWAYS uses DeepSeek. No fallback to seed files.
 
     Args:
         passage_id: Unused, kept for API compatibility
         topic: Optional topic for the passage
 
     Returns:
-        Dictionary with passage data, or None if Gemini fails
+        Dictionary with passage data, or None if DeepSeek fails
     """
     client = get_gemini_client()
     result = _generate_passage(topic, client)
@@ -407,13 +407,13 @@ def evaluate_paraphrase(
 
     client = get_gemini_client()
     if not client or not client.is_configured:
-        current_app.logger.error("Gemini client unavailable for paraphrase evaluation - API key not configured!")
+        current_app.logger.error("DeepSeek client unavailable for paraphrase evaluation - API key not configured!")
         return {
             "score": 0.0,
             "category": "needs_work",
             "missing_points": ["AI 评估服务暂时不可用，请联系管理员。"],
             "model_answer": reference,
-            "gemini_feedback": "Gemini API 未配置，无法提供智能评估。",
+            "gemini_feedback": "DeepSeek API 未配置，无法提供智能评估。",
         }
 
     checkpoints = []
@@ -442,18 +442,18 @@ def evaluate_paraphrase(
     )
 
     try:
-        current_app.logger.info(f"Calling Gemini 2.5 Flash Lite for paraphrase evaluation of sentence_id={sentence_id}")
+        current_app.logger.info(f"Calling DeepSeek for paraphrase evaluation of sentence_id={sentence_id}")
         response = client.generate_json(
             prompt,
             temperature=0.2,
             system_instruction=(
-                "You are Gemini 2.5 Flash Lite acting as an attentive TOEFL tutor who compares student paraphrases with a reference answer. "
+                "You are DeepSeek acting as an attentive TOEFL tutor who compares student paraphrases with a reference answer. "
                 "Be concise and focus on meaning coverage."
             ),
             max_output_tokens=768,
             model_override="gemini-2.5-flash-lite",
         )
-        current_app.logger.info(f"Gemini 2.5 Flash Lite response received for sentence_id={sentence_id}")
+        current_app.logger.info(f"DeepSeek response received for sentence_id={sentence_id}")
         if isinstance(response, dict):
             score = response.get("score")
             category = response.get("category")
@@ -486,7 +486,7 @@ def evaluate_paraphrase(
                         normalized_missing.append(entry.strip())
 
             if not normalized_missing:
-                # Extract hints from focus points if Gemini didn't provide any
+                # Extract hints from focus points if DeepSeek didn't provide any
                 normalized_missing = [point.get("hint") for point in focus_points if point.get("hint")]
 
             final_score = normalized_score if normalized_score is not None else 0.5
@@ -500,7 +500,7 @@ def evaluate_paraphrase(
                 "gemini_feedback": feedback.strip() if isinstance(feedback, str) and feedback.strip() else None,
             }
     except Exception as exc:
-        current_app.logger.error("Gemini paraphrase evaluation failed: %s", exc)
+        current_app.logger.error("DeepSeek paraphrase evaluation failed: %s", exc)
         return {
             "score": 0.0,
             "category": "needs_work",

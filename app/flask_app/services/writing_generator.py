@@ -1,5 +1,5 @@
 """
-Writing task generation service using Gemini AI.
+Writing task generation service using DeepSeek.
 Generates Integrated and Academic Discussion writing tasks for TOEFL practice.
 """
 from __future__ import annotations
@@ -52,7 +52,7 @@ def generate_integrated_task(topic: Optional[str] = None) -> Optional[Dict]:
     """
     client = get_gemini_client()
     if not client or not client.is_configured:
-        current_app.logger.error("Gemini API not configured")
+        current_app.logger.error("DeepSeek API not configured")
         return None
 
     chosen_topic = topic or random.choice(INTEGRATED_TOPICS)
@@ -143,7 +143,7 @@ def generate_discussion_task(topic: Optional[str] = None) -> Optional[Dict]:
     """
     client = get_gemini_client()
     if not client or not client.is_configured:
-        current_app.logger.error("Gemini API not configured")
+        current_app.logger.error("DeepSeek API not configured")
         return None
 
     chosen_topic = topic or random.choice(DISCUSSION_TOPICS)

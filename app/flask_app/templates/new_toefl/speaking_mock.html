@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+
+{% block title %}New TOEFL Speaking Mock{% endblock %}
+
+{% block extra_css %}
+<style>
+    .mock-panel {
+        background: #ffffff;
+        border: 1px solid var(--toefl-border);
+        border-radius: 1.25rem;
+        padding: 2rem;
+    }
+
+    .mock-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1rem;
+        margin-top: 1.5rem;
+    }
+
+    .meta-chip {
+        background: var(--toefl-gray-bg);
+        border: 1px solid var(--toefl-border-light);
+        border-radius: 999px;
+        padding: 0.35rem 0.9rem;
+        font-size: 0.85rem;
+        color: var(--toefl-text-light);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-10 col-xl-8">
+        <div class="d-flex align-items-center justify-content-between flex-wrap gap-3 mb-4">
+            <div>
+                <h1 class="mb-2"><i class="fas fa-microphone me-2"></i>Speaking Mock Exam</h1>
+                <p class="text-muted mb-0">Generate listen-and-repeat plus interview prompts with speaking evaluation.</p>
+            </div>
+            <a href="{{ url_for('new_toefl_dashboard') }}" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left me-2"></i>Back to Mock Hub
+            </a>
+        </div>
+
+        <div class="mock-panel">
+            <h4 class="mb-3">Mock Format</h4>
+            <p class="text-muted">
+                DeepSeek will generate prompts and expected responses using the existing speaking generator.
+                Evaluation will reuse the SpeechRater feedback pipeline.
+            </p>
+
+            <div class="mock-meta">
+                <span class="meta-chip">11 questions</span>
+                <span class="meta-chip">Listen & repeat</span>
+                <span class="meta-chip">Interview responses</span>
+            </div>
+
+            <div class="mt-4">
+                <button class="btn btn-warning" id="generateSpeaking">
+                    <i class="fas fa-wand-magic-sparkles me-2"></i>Generate Speaking Mock (DeepSeek)
+                </button>
+                <span class="text-muted ms-2" id="speakingStatus">Ready to generate.</span>
+            </div>
+        </div>
+
+        <div class="mt-4" id="speakingContent"></div>
+    </div>
+</div>
+{% endblock %}
+
+{% block head %}
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const generateBtn = document.getElementById('generateSpeaking');
+    const statusEl = document.getElementById('speakingStatus');
+    const contentEl = document.getElementById('speakingContent');
+
+    const renderTasks = (tasks) => {
+        if (!tasks || !tasks.length) {
+            contentEl.innerHTML = '<div class="alert alert-warning">No tasks generated.</div>';
+            return;
+        }
+        const baseUrl = '{{ url_for("new_toefl_speaking_task", task_id=0) }}';
+        const items = tasks.map((task) => {
+            const url = baseUrl.replace('/0', `/${task.id}`);
+            return `
+            <div class="card mb-3">
+                <div class="card-body d-flex justify-content-between align-items-center flex-wrap gap-3">
+                    <div>
+                        <div class="fw-semibold">${task.label}</div>
+                        <div class="text-muted small">Response time: ${task.response_time}s</div>
+                    </div>
+                    <a class="btn btn-outline-primary" href="${url}">Start Task</a>
+                </div>
+            </div>
+            `;
+        }).join('');
+        contentEl.innerHTML = items;
+    };
+
+    generateBtn.addEventListener('click', async () => {
+        statusEl.textContent = 'Generating speaking mock...';
+        generateBtn.disabled = true;
+        contentEl.innerHTML = '';
+
+        try {
+            const res = await fetch('{{ url_for("new_toefl_speaking_generate") }}', { method: 'POST' });
+            const data = await res.json();
+            if (!data.success) {
+                statusEl.textContent = data.message || 'Generation failed.';
+                generateBtn.disabled = false;
+                return;
+            }
+            renderTasks(data.tasks || []);
+            statusEl.textContent = 'Mock generated. Open each task to record.';
+        } catch (err) {
+            statusEl.textContent = 'Generation failed. Please try again.';
+        } finally {
+            generateBtn.disabled = false;
+        }
+    });
+});
+</script>
+{% endblock %}

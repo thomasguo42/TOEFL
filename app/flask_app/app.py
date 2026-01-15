@@ -5,6 +5,7 @@ Main application file with all routes and session management.
 import os
 import random
 import re
+import time
 from collections import deque
 from datetime import datetime, timezone
 from pathlib import Path
@@ -55,6 +56,12 @@ from services.drill_store import (
     count as count_drill_store,
 )
 from services.locale_loader import load_locale
+from services.new_toefl_mock import (
+    generate_listening_mock,
+    generate_reading_mock,
+    generate_speaking_mock,
+    generate_writing_mock,
+)
 from services.reading_content import (
     evaluate_paraphrase,
     get_paragraph,
@@ -78,6 +85,7 @@ from services.listening_generator import (
 )
 from services.speech_rater import get_speech_rater
 from services.speaking_feedback_engine import get_feedback_engine
+from services.writing_analyzer import get_writing_analyzer
 from models import (
     ListeningSentence,
     ListeningSignpost,
@@ -111,6 +119,10 @@ if not hasattr(app, '_reading_batches'):
 # This avoids session cookie size limits when storing 5 questions
 if not hasattr(app, '_question_drills'):
     app._question_drills = {}
+
+# Server-side cache for new TOEFL mocks (reading/listening/writing)
+if not hasattr(app, '_new_toefl_cache'):
+    app._new_toefl_cache = {}
 
 _WORD_COUNT_NOTE_PATTERN = re.compile(r'\(\s*\d+\s*words?\s*\)', re.IGNORECASE)
 _MULTISPACE_PATTERN = re.compile(r'[ \t]{2,}')
@@ -211,6 +223,52 @@ def _format_answer_display(answer: str, options: Optional[List[str]]) -> str:
         return letter_map[letter]
     return answer
 
+
+def _normalize_sentence(text: str) -> str:
+    if not text:
+        return ''
+    lowered = text.lower()
+    lowered = re.sub(r"[^a-z0-9\\s]", "", lowered)
+    lowered = _MULTISPACE_PATTERN.sub(' ', lowered)
+    return lowered.strip()
+
+
+def _store_new_toefl_payload(section: str, user_id: int, payload: Dict[str, Any]) -> str:
+    cache = getattr(current_app, '_new_toefl_cache', {})
+    cache_id = f"new_toefl_{section}_{user_id}_{int(time.time())}"
+    cache[cache_id] = payload
+    current_app._new_toefl_cache = cache
+    session[f'new_toefl_{section}_id'] = cache_id
+    return cache_id
+
+
+def _get_new_toefl_payload(section: str) -> Optional[Dict[str, Any]]:
+    cache_id = session.get(f'new_toefl_{section}_id')
+    if not cache_id:
+        return None
+    cache = getattr(current_app, '_new_toefl_cache', {})
+    return cache.get(cache_id)
+
+
+def _clear_new_toefl_payload(section: str) -> None:
+    cache_id = session.pop(f'new_toefl_{section}_id', None)
+    if not cache_id:
+        return
+    cache = getattr(current_app, '_new_toefl_cache', {})
+    if cache_id in cache:
+        del cache[cache_id]
+        current_app._new_toefl_cache = cache
+
+
+def _throttle_new_toefl(section: str, window_seconds: int = 90) -> bool:
+    now = time.time()
+    key = f'new_toefl_{section}_last'
+    last = session.get(key)
+    if last and isinstance(last, (int, float)) and now - last < window_seconds:
+        return True
+    session[key] = now
+    return False
+
 def _normalize_gap_fill_items(exercises: list[dict]) -> list[dict]:
     normalized = []
     for item in exercises or []:
@@ -299,7 +357,7 @@ def _normalize_synonym_items(exercises: list[dict]) -> list[dict]:
 
 
 def _prepare_gap_fill_payload(user: User):
-    """Generate 5 sets of gap-fill exercises by calling Gemini 5 times."""
+    """Generate 5 sets of gap-fill exercises by calling DeepSeek 5 times."""
     import time
 
     words = get_words_reviewed_today(user.id)
@@ -308,9 +366,9 @@ def _prepare_gap_fill_payload(user: User):
 
     client = get_gemini_client()
     if not client or not client.is_configured:
-        return None, None, 'Gemini API is not configured. Please check your API key in the config.'
+        return None, None, 'DeepSeek API is not configured. Please check your API key in the config.'
 
-    # Generate 5 sets, one at a time - GeminiClient handles retries and backoff for API errors
+    # Generate 5 sets, one at a time - DeepSeekClient handles retries and backoff for API errors
     exercises = []
     for i in range(5):
         # Pick a word for this set
@@ -328,14 +386,14 @@ def _prepare_gap_fill_payload(user: User):
             # Continue to try remaining exercises
 
     if not exercises:
-        return None, None, 'Gemini failed to generate gap-fill exercises. Please try again in a moment.'
+        return None, None, 'DeepSeek failed to generate gap-fill exercises. Please try again in a moment.'
 
     normalized = _normalize_gap_fill_items(exercises)
     return normalized, True, None
 
 
 def _prepare_synonym_payload(user: User):
-    """Generate 5 sets of synonym exercises by calling Gemini 5 times."""
+    """Generate 5 sets of synonym exercises by calling DeepSeek 5 times."""
     import time
 
     words = get_words_reviewed_today(user.id)
@@ -344,9 +402,9 @@ def _prepare_synonym_payload(user: User):
 
     client = get_gemini_client()
     if not client or not client.is_configured:
-        return None, None, 'Gemini API is not configured. Please check your API key in the config.'
+        return None, None, 'DeepSeek API is not configured. Please check your API key in the config.'
 
-    # Generate 5 sets, one at a time - GeminiClient handles retries and backoff for API errors
+    # Generate 5 sets, one at a time - DeepSeekClient handles retries and backoff for API errors
     exercises = []
     for i in range(5):
         # Pick a word for this set
@@ -364,14 +422,14 @@ def _prepare_synonym_payload(user: User):
             # Continue to try remaining exercises
 
     if not exercises:
-        return None, None, 'Gemini failed to generate synonym exercises. Please try again in a moment.'
+        return None, None, 'DeepSeek failed to generate synonym exercises. Please try again in a moment.'
 
     normalized = _normalize_synonym_items(exercises)
     return normalized, True, None
 
 
 def _prepare_reading_passage_payload(user: User, topic: Optional[str]):
-    """Generate 5 sets of reading passages by calling Gemini 5 times."""
+    """Generate 5 sets of reading passages by calling DeepSeek 5 times."""
     import time
 
     topics = [
@@ -386,9 +444,9 @@ def _prepare_reading_passage_payload(user: User, topic: Optional[str]):
 
     client = get_gemini_client()
     if not client or not client.is_configured:
-        return None, None, None, 'Gemini API is not configured. Please check your API key in the config.'
+        return None, None, None, 'DeepSeek API is not configured. Please check your API key in the config.'
 
-    # Generate 5 sets, one at a time - GeminiClient handles retries and backoff for API errors
+    # Generate 5 sets, one at a time - DeepSeekClient handles retries and backoff for API errors
     passages = []
     for i in range(5):
         # Pick a topic for this set (rotate through topics if not specified)
@@ -422,7 +480,7 @@ def _prepare_reading_passage_payload(user: User, topic: Optional[str]):
             # Continue to try remaining passages
 
     if not passages:
-        return None, None, None, 'Gemini failed to generate reading passages. Please try again in a moment.'
+        return None, None, None, 'DeepSeek failed to generate reading passages. Please try again in a moment.'
 
     # Return first passage (for single-passage view) but store all 5 for batch navigation
     first_passage = passages[0]
@@ -927,6 +985,483 @@ def main_dashboard():
     )
 
 
+@app.route('/old-toefl')
+@login_required
+def old_toefl_dashboard():
+    """Old TOEFL hub for existing section practice tools."""
+    user = get_current_user()
+    if not user:
+        return redirect(url_for('login'))
+
+    return render_template('old_toefl_dashboard.html', user=user)
+
+
+@app.route('/new-toefl')
+@login_required
+def new_toefl_dashboard():
+    """New TOEFL mock exam hub."""
+    user = get_current_user()
+    if not user:
+        return redirect(url_for('login'))
+
+    return render_template('new_toefl_dashboard.html', user=user)
+
+
+@app.route('/new-toefl/reading-mock')
+@login_required
+def new_toefl_reading_mock():
+    """New TOEFL reading mock exam."""
+    user = get_current_user()
+    if not user:
+        return redirect(url_for('login'))
+
+    return render_template('new_toefl/reading_mock.html', user=user)
+
+
+@app.route('/new-toefl/listening-mock')
+@login_required
+def new_toefl_listening_mock():
+    """New TOEFL listening mock exam."""
+    user = get_current_user()
+    if not user:
+        return redirect(url_for('login'))
+
+    return render_template('new_toefl/listening_mock.html', user=user)
+
+
+@app.route('/new-toefl/speaking-mock')
+@login_required
+def new_toefl_speaking_mock():
+    """New TOEFL speaking mock exam."""
+    user = get_current_user()
+    if not user:
+        return redirect(url_for('login'))
+
+    return render_template('new_toefl/speaking_mock.html', user=user)
+
+
+@app.route('/new-toefl/writing-mock')
+@login_required
+def new_toefl_writing_mock():
+    """New TOEFL writing mock exam."""
+    user = get_current_user()
+    if not user:
+        return redirect(url_for('login'))
+
+    return render_template('new_toefl/writing_mock.html', user=user)
+
+
+@app.route('/new-toefl/speaking/task/<int:task_id>')
+@login_required
+def new_toefl_speaking_task(task_id):
+    """Launch a single New TOEFL speaking mock task."""
+    from models import SpeakingTask
+
+    user = get_current_user()
+    if not user:
+        return redirect(url_for('login'))
+
+    task = SpeakingTask.query.get_or_404(task_id)
+    return render_template(
+        'speaking/practice.html',
+        task=task,
+        user=user,
+        mock_back_url=url_for('new_toefl_speaking_mock'),
+        hide_regenerate=True,
+        mock_mode=True,
+    )
+
+
+@app.route('/new-toefl/api/reading/generate', methods=['POST'])
+@login_required
+def new_toefl_reading_generate():
+    """Generate a New TOEFL reading mock exam."""
+    user = get_current_user()
+    if not user:
+        return jsonify({'success': False, 'message': 'Unauthorized'}), 401
+
+    if _throttle_new_toefl('reading'):
+        cached = _get_new_toefl_payload('reading')
+        if cached:
+            return jsonify({'success': True, 'cached': True, 'mock': cached})
+        return jsonify({'success': False, 'message': 'Please wait a minute before generating again.'}), 429
+
+    client = get_gemini_client()
+    if not client or not client.is_configured:
+        return jsonify({'success': False, 'message': 'DeepSeek API is not configured'}), 503
+
+    mock = generate_reading_mock(client)
+    if not mock:
+        cached = _get_new_toefl_payload('reading')
+        if cached:
+            return jsonify({'success': True, 'cached': True, 'mock': cached})
+        return jsonify({'success': False, 'message': 'AI is busy right now. Please try again shortly.'}), 503
+
+    cache_id = _store_new_toefl_payload('reading', user.id, mock)
+    return jsonify({'success': True, 'cache_id': cache_id, 'mock': mock})
+
+
+@app.route('/new-toefl/api/listening/generate', methods=['POST'])
+@login_required
+def new_toefl_listening_generate():
+    """Generate a New TOEFL listening mock exam."""
+    user = get_current_user()
+    if not user:
+        return jsonify({'success': False, 'message': 'Unauthorized'}), 401
+
+    if _throttle_new_toefl('listening'):
+        cached = _get_new_toefl_payload('listening')
+        if cached:
+            return jsonify({'success': True, 'cached': True, 'mock': cached})
+        return jsonify({'success': False, 'message': 'Please wait a minute before generating again.'}), 429
+
+    client = get_gemini_client()
+    if not client or not client.is_configured:
+        return jsonify({'success': False, 'message': 'DeepSeek API is not configured'}), 503
+
+    tts = get_tts_service()
+    mock = generate_listening_mock(client, tts)
+    if not mock:
+        cached = _get_new_toefl_payload('listening')
+        if cached:
+            return jsonify({'success': True, 'cached': True, 'mock': cached})
+        return jsonify({'success': False, 'message': 'AI is busy right now. Please try again shortly.'}), 503
+
+    cache_id = _store_new_toefl_payload('listening', user.id, mock)
+    return jsonify({'success': True, 'cache_id': cache_id, 'mock': mock})
+
+
+@app.route('/new-toefl/api/speaking/generate', methods=['POST'])
+@login_required
+def new_toefl_speaking_generate():
+    """Generate a New TOEFL speaking mock exam and persist tasks."""
+    from models import SpeakingTask
+
+    user = get_current_user()
+    if not user:
+        return jsonify({'success': False, 'message': 'Unauthorized'}), 401
+
+    if _throttle_new_toefl('speaking'):
+        task_ids = session.get('new_toefl_speaking_task_ids') or []
+        if task_ids:
+            tasks = [{'id': task_id, 'label': f'Task {idx + 1}', 'task_type': 'new_toefl_cached', 'response_time': 45} for idx, task_id in enumerate(task_ids)]
+            return jsonify({'success': True, 'cached': True, 'tasks': tasks})
+        return jsonify({'success': False, 'message': 'Please wait a minute before generating again.'}), 429
+
+    client = get_gemini_client()
+    if not client or not client.is_configured:
+        return jsonify({'success': False, 'message': 'DeepSeek API is not configured'}), 503
+
+    tts = get_tts_service()
+    mock = generate_speaking_mock(client, tts)
+    if not mock:
+        task_ids = session.get('new_toefl_speaking_task_ids') or []
+        if task_ids:
+            tasks = [{'id': task_id, 'label': f'Task {idx + 1}', 'task_type': 'new_toefl_cached', 'response_time': 45} for idx, task_id in enumerate(task_ids)]
+            return jsonify({'success': True, 'cached': True, 'tasks': tasks})
+        return jsonify({'success': False, 'message': 'AI is busy right now. Please try again shortly.'}), 503
+
+    tasks: List[Dict[str, Any]] = []
+    repeat_items = mock.get('repeat', [])
+    interview_items = mock.get('interview', [])
+
+    for idx, item in enumerate(repeat_items, start=1):
+        prompt = (item.get('prompt') or '').strip()
+        if not prompt:
+            continue
+        task = SpeakingTask(
+            task_number=100 + idx,
+            task_type='new_toefl_repeat',
+            topic='Listen and Repeat',
+            prompt=prompt,
+            listening_audio_url=item.get('audio_url'),
+            listening_transcript=prompt,
+            preparation_time=0,
+            response_time=item.get('response_time_seconds', 10),
+        )
+        db.session.add(task)
+        db.session.flush()
+        tasks.append({
+            'id': task.id,
+            'label': f'Repeat {idx}',
+            'task_type': task.task_type,
+            'response_time': task.response_time,
+        })
+
+    for idx, item in enumerate(interview_items, start=1):
+        prompt = (item.get('prompt') or '').strip()
+        if not prompt:
+            continue
+        task = SpeakingTask(
+            task_number=200 + idx,
+            task_type='new_toefl_interview',
+            topic='Interview',
+            prompt=prompt,
+            listening_audio_url=item.get('audio_url'),
+            listening_transcript=prompt,
+            preparation_time=0,
+            response_time=item.get('response_time_seconds', 45),
+            response_template='; '.join(item.get('focus_points') or []),
+        )
+        db.session.add(task)
+        db.session.flush()
+        tasks.append({
+            'id': task.id,
+            'label': f'Interview {idx}',
+            'task_type': task.task_type,
+            'response_time': task.response_time,
+        })
+
+    db.session.commit()
+    session['new_toefl_speaking_task_ids'] = [task['id'] for task in tasks]
+
+    return jsonify({'success': True, 'tasks': tasks})
+
+
+@app.route('/new-toefl/api/writing/generate', methods=['POST'])
+@login_required
+def new_toefl_writing_generate():
+    """Generate a New TOEFL writing mock exam."""
+    user = get_current_user()
+    if not user:
+        return jsonify({'success': False, 'message': 'Unauthorized'}), 401
+
+    if _throttle_new_toefl('writing'):
+        cached = _get_new_toefl_payload('writing')
+        if cached:
+            return jsonify({'success': True, 'cached': True, 'mock': cached})
+        return jsonify({'success': False, 'message': 'Please wait a minute before generating again.'}), 429
+
+    client = get_gemini_client()
+    if not client or not client.is_configured:
+        return jsonify({'success': False, 'message': 'DeepSeek API is not configured'}), 503
+
+    mock = generate_writing_mock(client)
+    if not mock:
+        cached = _get_new_toefl_payload('writing')
+        if cached:
+            return jsonify({'success': True, 'cached': True, 'mock': cached})
+        return jsonify({'success': False, 'message': 'AI is busy right now. Please try again shortly.'}), 503
+
+    cache_id = _store_new_toefl_payload('writing', user.id, mock)
+    return jsonify({'success': True, 'cache_id': cache_id, 'mock': mock})
+
+
+@app.route('/new-toefl/api/reading/submit', methods=['POST'])
+@login_required
+def new_toefl_reading_submit():
+    """Score New TOEFL reading mock answers."""
+    user = get_current_user()
+    if not user:
+        return jsonify({'success': False, 'message': 'Unauthorized'}), 401
+
+    payload = _get_new_toefl_payload('reading')
+    if not payload:
+        return jsonify({'success': False, 'message': 'Reading mock not found'}), 404
+
+    data = request.get_json() or {}
+    answers = data.get('answers') or {}
+
+    results = {'cloze': [], 'daily_life': [], 'academic': []}
+    correct = 0
+    total = 0
+
+    for cloze in payload.get('cloze', []) or []:
+        blanks = cloze.get('blanks', [])
+        entry_answers = (answers.get('cloze') or {}).get(cloze.get('id'), {})
+        for blank in blanks:
+            token = blank.get('token')
+            expected = blank.get('answer')
+            user_answer = entry_answers.get(token, '')
+            is_correct = (user_answer or '').strip().casefold() == (expected or '').strip().casefold()
+            results['cloze'].append({
+                'id': cloze.get('id'),
+                'token': token,
+                'correct': is_correct,
+                'expected': expected,
+                'user': user_answer,
+                'hint': blank.get('hint'),
+            })
+            total += 1
+            correct += 1 if is_correct else 0
+
+    for daily in payload.get('daily_life', []) or []:
+        entry_answers = (answers.get('daily_life') or {}).get(daily.get('id'), {})
+        for idx, question in enumerate(daily.get('questions', []) or []):
+            selected = entry_answers.get(str(idx), '')
+            is_correct = _answers_match(selected, question.get('answer', ''), question.get('options'))
+            results['daily_life'].append({
+                'id': daily.get('id'),
+                'index': idx,
+                'correct': is_correct,
+                'expected': question.get('answer'),
+                'selected': selected,
+                'rationales': question.get('rationales', {}),
+            })
+            total += 1
+            correct += 1 if is_correct else 0
+
+    academic = payload.get('academic') or {}
+    academic_answers = answers.get('academic') or {}
+    for idx, question in enumerate(academic.get('questions', []) or []):
+        selected = academic_answers.get(str(idx), '')
+        is_correct = _answers_match(selected, question.get('answer', ''), question.get('options'))
+        results['academic'].append({
+            'index': idx,
+            'correct': is_correct,
+            'expected': question.get('answer'),
+            'selected': selected,
+            'rationales': question.get('rationales', {}),
+        })
+        total += 1
+        correct += 1 if is_correct else 0
+
+    score = round((correct / total) * 100, 1) if total else 0.0
+    return jsonify({'success': True, 'score': score, 'correct': correct, 'total': total, 'results': results})
+
+
+@app.route('/new-toefl/api/listening/submit', methods=['POST'])
+@login_required
+def new_toefl_listening_submit():
+    """Score New TOEFL listening mock answers."""
+    user = get_current_user()
+    if not user:
+        return jsonify({'success': False, 'message': 'Unauthorized'}), 401
+
+    payload = _get_new_toefl_payload('listening')
+    if not payload:
+        return jsonify({'success': False, 'message': 'Listening mock not found'}), 404
+
+    data = request.get_json() or {}
+    answers = data.get('answers') or {}
+
+    results = {'responses': [], 'conversation': [], 'talk': []}
+    correct = 0
+    total = 0
+
+    response_answers = answers.get('responses') or {}
+    for idx, item in enumerate(payload.get('responses', []) or []):
+        selected = response_answers.get(str(idx), '')
+        is_correct = _answers_match(selected, item.get('answer', ''), item.get('options'))
+        results['responses'].append({
+            'index': idx,
+            'correct': is_correct,
+            'expected': item.get('answer'),
+            'selected': selected,
+            'rationales': item.get('rationales', {}),
+        })
+        total += 1
+        correct += 1 if is_correct else 0
+
+    conversation = payload.get('conversation') or {}
+    conv_answers = answers.get('conversation') or {}
+    for idx, question in enumerate(conversation.get('questions', []) or []):
+        selected = conv_answers.get(str(idx), '')
+        is_correct = _answers_match(selected, question.get('answer', ''), question.get('options'))
+        results['conversation'].append({
+            'index': idx,
+            'correct': is_correct,
+            'expected': question.get('answer'),
+            'selected': selected,
+            'rationales': question.get('rationales', {}),
+        })
+        total += 1
+        correct += 1 if is_correct else 0
+
+    talk = payload.get('talk') or {}
+    talk_answers = answers.get('talk') or {}
+    for idx, question in enumerate(talk.get('questions', []) or []):
+        selected = talk_answers.get(str(idx), '')
+        is_correct = _answers_match(selected, question.get('answer', ''), question.get('options'))
+        results['talk'].append({
+            'index': idx,
+            'correct': is_correct,
+            'expected': question.get('answer'),
+            'selected': selected,
+            'rationales': question.get('rationales', {}),
+        })
+        total += 1
+        correct += 1 if is_correct else 0
+
+    score = round((correct / total) * 100, 1) if total else 0.0
+    return jsonify({'success': True, 'score': score, 'correct': correct, 'total': total, 'results': results})
+
+
+@app.route('/new-toefl/api/writing/submit', methods=['POST'])
+@login_required
+def new_toefl_writing_submit():
+    """Score New TOEFL writing mock answers."""
+    user = get_current_user()
+    if not user:
+        return jsonify({'success': False, 'message': 'Unauthorized'}), 401
+
+    payload = _get_new_toefl_payload('writing')
+    if not payload:
+        return jsonify({'success': False, 'message': 'Writing mock not found'}), 404
+
+    data = request.get_json() or {}
+    answers = data.get('answers') or {}
+
+    sentence_results = []
+    correct = 0
+    total = 0
+    for idx, item in enumerate(payload.get('sentence_build', []) or []):
+        expected = _normalize_sentence(item.get('answer', ''))
+        user_answer = _normalize_sentence((answers.get('sentence_build') or {}).get(str(idx), ''))
+        is_correct = bool(expected) and expected == user_answer
+        sentence_results.append({
+            'index': idx,
+            'correct': is_correct,
+            'expected': item.get('answer'),
+            'user': (answers.get('sentence_build') or {}).get(str(idx), ''),
+        })
+        total += 1
+        correct += 1 if is_correct else 0
+
+    analyzer = get_writing_analyzer()
+    email_text = (answers.get('email_text') or '').strip()
+    discussion_text = (answers.get('discussion_text') or '').strip()
+
+    email_task = payload.get('email') or {}
+    email_prompt = (
+        f"{email_task.get('scenario', '')}\n\nRequirements:\n- "
+        + "\n- ".join(email_task.get('instructions', []) or [])
+    )
+    email_feedback = analyzer.analyze_essay(
+        essay_text=email_text,
+        task_type='email',
+        prompt=email_prompt,
+        reading_text=None,
+        listening_transcript=None,
+        discussion_context=None,
+    )
+
+    discussion_task = payload.get('discussion') or {}
+    discussion_context = {
+        'professor_question': discussion_task.get('professor_prompt'),
+        'student_posts': discussion_task.get('student_posts', []),
+    }
+    discussion_feedback = analyzer.analyze_essay(
+        essay_text=discussion_text,
+        task_type='discussion',
+        prompt=discussion_task.get('professor_prompt', ''),
+        reading_text=None,
+        listening_transcript=None,
+        discussion_context=discussion_context,
+    )
+
+    score = round((correct / total) * 100, 1) if total else 0.0
+    return jsonify({
+        'success': True,
+        'sentence_score': score,
+        'sentence_correct': correct,
+        'sentence_total': total,
+        'sentence_results': sentence_results,
+        'email_feedback': email_feedback,
+        'discussion_feedback': discussion_feedback,
+    })
+
+
 @app.route('/vocab/dashboard')
 @login_required
 def vocab_dashboard():
@@ -1169,7 +1704,7 @@ def search():
 @app.route('/loading')
 @login_required
 def loading_page():
-    """Generic loading screen that triggers Gemini generation before redirect."""
+    """Generic loading screen that triggers DeepSeek generation before redirect."""
     target = request.args.get('target')
     if not target:
         flash('Missing target for loading redirect.', 'warning')
@@ -1177,7 +1712,7 @@ def loading_page():
 
     generator = request.args.get('generator')
     title = request.args.get('title') or "Generating AI Content"
-    message = request.args.get('message') or "Gemini 2.5 Flash Lite is preparing your personalized exercises..."
+    message = request.args.get('message') or "DeepSeek is preparing your personalized exercises..."
 
     return render_template(
         'loading.html',
@@ -1203,13 +1738,13 @@ def reading_bootstrap():
     if not user:
         return jsonify({'success': False, 'message': 'Unauthorized'}), 401
 
-    # Generate content - GeminiClient handles retries and backoff for API errors
+    # Generate content - DeepSeekClient handles retries and backoff for API errors
     sentence = get_sentence()
     paragraph = get_paragraph()
     passage = get_passage()
 
     if not sentence or not paragraph or not passage:
-        return jsonify({'success': False, 'message': 'Gemini currently unavailable.'}), 503
+        return jsonify({'success': False, 'message': 'DeepSeek currently unavailable.'}), 503
 
     # Store in server-side cache instead of session to avoid cookie size issues
     import time
@@ -1293,7 +1828,7 @@ def generate_reading_batch(practice_type):
     if topic:
         topic = topic.strip() or None
 
-    # Generate 5 sets - GeminiClient handles retries and backoff for API errors
+    # Generate 5 sets - DeepSeekClient handles retries and backoff for API errors
     batch = []
     generator_map = {
         'sentence': get_sentence,
@@ -1759,7 +2294,7 @@ def dictation_trainer():
 @app.route('/listening/api/dictation/generate', methods=['POST'])
 @login_required
 def generate_dictation():
-    """Generate 5 new dictation sentences using Gemini and TTS (batch generation)."""
+    """Generate 5 new dictation sentences using DeepSeek and TTS (batch generation)."""
     user = get_current_user()
     if not user:
         return jsonify({'success': False, 'message': 'Unauthorized'}), 401
@@ -1773,7 +2308,7 @@ def generate_dictation():
     }
     session.modified = True
 
-    # Get Gemini client
+    # Get DeepSeek client
     client = get_gemini_client()
     if not client or not client.is_configured:
         return jsonify({
@@ -2022,7 +2557,7 @@ def signpost_trainer():
 @app.route('/listening/api/signpost/generate', methods=['POST'])
 @login_required
 def generate_signpost():
-    """Generate 5 new signpost exercises using Gemini and TTS (batch generation)."""
+    """Generate 5 new signpost exercises using DeepSeek and TTS (batch generation)."""
     user = get_current_user()
     if not user:
         return jsonify({'success': False, 'message': 'Unauthorized'}), 401
@@ -2032,7 +2567,7 @@ def generate_signpost():
     session['signpost_filters'] = {'topic': topic or ''}
     session.modified = True
 
-    # Get Gemini client
+    # Get DeepSeek client
     client = get_gemini_client()
     if not client or not client.is_configured:
         return jsonify({
@@ -2267,7 +2802,7 @@ def conversation_simulator():
 @app.route('/listening/api/lecture/generate', methods=['POST'])
 @login_required
 def generate_lecture_exercise():
-    """Generate a full lecture with questions using Gemini and TTS."""
+    """Generate a full lecture with questions using DeepSeek and TTS."""
     user = get_current_user()
     if not user:
         return jsonify({'success': False, 'message': 'Unauthorized'}), 401
@@ -2413,7 +2948,7 @@ def generate_lecture_exercise():
 @app.route('/listening/api/conversation/generate', methods=['POST'])
 @login_required
 def generate_conversation_exercise():
-    """Generate a conversation with questions using Gemini and TTS."""
+    """Generate a conversation with questions using DeepSeek and TTS."""
     user = get_current_user()
     if not user:
         return jsonify({'success': False, 'message': 'Unauthorized'}), 401
@@ -2760,7 +3295,7 @@ def question_type_practice(question_type_id):
             target=url_for('question_type_practice', question_type_id=question_type_id),
             generator=url_for('generate_question_type_drill_async', question_type_id=question_type_id),
             title=f"生成 {q_type['name_cn']} 练习",
-            message="Gemini 2.5 Flash Lite 正在为你精心准备题型练习..."
+            message="DeepSeek 正在为你精心准备题型练习..."
         ))
 
     # Retrieve drill from persistent store
@@ -2787,7 +3322,7 @@ def question_type_practice(question_type_id):
 @app.route('/reading/api/question-types/<question_type_id>/generate', methods=['POST'])
 @login_required
 def generate_question_type_drill_async(question_type_id):
-    """Generate a drill for a specific question type using Gemini."""
+    """Generate a drill for a specific question type using DeepSeek."""
     user = get_current_user()
     if not user:
         return jsonify({'success': False, 'message': 'Unauthorized'}), 401
@@ -2797,10 +3332,10 @@ def generate_question_type_drill_async(question_type_id):
     if not q_type:
         return jsonify({'success': False, 'message': 'Question type not found'}), 404
 
-    # Get Gemini client
+    # Get DeepSeek client
     client = get_gemini_client()
     if not client or not client.is_configured:
-        return jsonify({'success': False, 'message': 'Gemini API is not configured'}), 503
+        return jsonify({'success': False, 'message': 'DeepSeek API is not configured'}), 503
 
     # Generate drill
     raw_drill = generate_question_type_drill(question_type_id, client)
@@ -2808,17 +3343,17 @@ def generate_question_type_drill_async(question_type_id):
     if not raw_drill:
         return jsonify({
             'success': False,
-            'message': 'Gemini 生成失败，请稍后重试。'
+            'message': 'DeepSeek 生成失败，请稍后重试。'
         }), 503
 
     # Transform drill data for template
-    # Gemini returns: {passage, topic, questions: [{question_text, options, correct_answer, ...}]}
+    # DeepSeek returns: {passage, topic, questions: [{question_text, options, correct_answer, ...}]}
     # Store all questions (3-5) and track current index
 
     if not raw_drill.get('questions') or len(raw_drill['questions']) < 5:
         return jsonify({
             'success': False,
-            'message': f'Gemini 返回的数据格式不正确（生成了{len(raw_drill.get("questions", []))}个问题，需要5个）。请重试。'
+            'message': f'DeepSeek 返回的数据格式不正确（生成了{len(raw_drill.get("questions", []))}个问题，需要5个）。请重试。'
         }), 503
 
     # Transform all questions

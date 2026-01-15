@@ -236,7 +236,7 @@ QUESTION_TYPES = {
 }
 
 # System prompts for generating question type drills
-QUESTION_TYPE_SYSTEM_PROMPT = """You are Gemini 2.5 Flash-Lite acting as an expert TOEFL Reading instructor specializing in question type strategies.
+QUESTION_TYPE_SYSTEM_PROMPT = """You are DeepSeek acting as an expert TOEFL Reading instructor specializing in question type strategies.
 
 You will generate focused practice materials for specific TOEFL reading question types. Your materials must:
 1. Follow the exact JSON schema provided
@@ -273,7 +273,7 @@ def generate_question_type_drill(
     client = client or get_gemini_client()
 
     if not client or not client.is_configured:
-        current_app.logger.error("Gemini API not configured - cannot generate question type drill")
+        current_app.logger.error("DeepSeek API not configured - cannot generate question type drill")
         return None
 
     if question_type_id not in QUESTION_TYPES:
@@ -298,14 +298,14 @@ def generate_question_type_drill(
             # Log what we received for debugging
             if payload is None:
                 current_app.logger.error(
-                    f"Gemini returned None for '{question_type_id}' on attempt {attempt + 1}. "
+                    f"DeepSeek returned None for '{question_type_id}' on attempt {attempt + 1}. "
                     f"Possible causes: API error, JSON parsing failure, or empty response."
                 )
             elif isinstance(payload, dict):
                 num_questions = len(payload.get('questions', []))
-                current_app.logger.info(f"Gemini returned {num_questions} questions for '{question_type_id}'")
+                current_app.logger.info(f"DeepSeek returned {num_questions} questions for '{question_type_id}'")
             else:
-                current_app.logger.error(f"Gemini returned non-dict payload: {type(payload)}")
+                current_app.logger.error(f"DeepSeek returned non-dict payload: {type(payload)}")
 
             if isinstance(payload, dict) and _validate_drill_payload(payload, question_type_id):
                 current_app.logger.info(

@@ -97,7 +97,9 @@ pip install -q -r requirements.txt
 export FLASK_APP=app.py
 export FLASK_ENV="${FLASK_ENV:-development}"
 export PORT="${PORT}"
-export GEMINI_API_KEY="AIzaSyAJrbPs_fr5hUqt08qUAporCHztsoZgFzE"  # User's API key
+export GEMINI_API_KEY="AIzaSyBg7txhTF786IxZffdr8VEENMT-r5f9kCA"  # User's API key
+export GEMINI_MODEL="${GEMINI_MODEL:-gemini-2.5-flash-lite}"
+export GEMINI_FALLBACK_MODEL="${GEMINI_FALLBACK_MODEL:-gemini-2.5-flash}"
 
 echo "[FLASK] Initializing database..."
 python -c "from app import init_database; init_database()"

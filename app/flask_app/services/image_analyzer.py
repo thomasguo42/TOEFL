@@ -126,7 +126,7 @@ class ImageAnalyzer:
         if not self.client or not self.client.is_configured:
             return {
                 'success': False,
-                'error': 'Gemini API not configured',
+                'error': 'DeepSeek API not configured',
                 'extracted_text': '',
                 'confidence': 0.0
             }

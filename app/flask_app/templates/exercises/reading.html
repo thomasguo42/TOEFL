@@ -25,7 +25,7 @@
                    data-loading-generator="{{ url_for('generate_reading_passage_async') }}"
                    data-loading-payload='{{ {"topic": topic}|tojson }}'
                    data-loading-title="Reading Immersion"
-                   data-loading-message="Gemini 2.5 Flash Lite 正在刷新段落与测验…">
+                   data-loading-message="DeepSeek 正在刷新段落与测验…">
                     <i class="fas fa-sync-alt me-1"></i> New Passage
                 </a>
                 {% endif %}
@@ -47,7 +47,7 @@
                    data-loading-generator="{{ url_for('generate_reading_passage_async') }}"
                    data-loading-payload='{{ {"topic": item}|tojson }}'
                    data-loading-title="Reading Immersion"
-                   data-loading-message="Gemini 2.5 Flash Lite 正在生成新的阅读段落…">
+                   data-loading-message="DeepSeek 正在生成新的阅读段落…">
                     {{ item }}
                 </a>
                 {% endfor %}
@@ -73,7 +73,7 @@
             </div>
             {% if ai_generated %}
             <div class="text-muted small mt-3">
-                <i class="fas fa-robot me-1"></i>Paragraph generated with Gemini.
+                <i class="fas fa-robot me-1"></i>Paragraph generated with DeepSeek.
             </div>
             {% endif %}
         </div>

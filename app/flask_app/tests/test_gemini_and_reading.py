@@ -32,26 +32,26 @@ def app_context():
 
 def test_max_tokens_empty_text_falls_back_to_flash(monkeypatch):
     # Arrange: ensure fallback is enabled
-    monkeypatch.setenv("GEMINI_MODEL", "gemini-2.5-flash-lite")
-    monkeypatch.setenv("GEMINI_FALLBACK_MODEL", "gemini-2.5-flash")
-    monkeypatch.setenv("GEMINI_FALLBACK_ON_MAX_TOKENS", "true")
+    monkeypatch.setenv("DEEPSEEK_MODEL", "deepseek-chat")
+    monkeypatch.setenv("DEEPSEEK_FALLBACK_MODEL", "deepseek-reasoner")
+    monkeypatch.setenv("DEEPSEEK_FALLBACK_ON_EMPTY", "true")
     client = GeminiClient(api_key="test-key")
 
-    # First response: MAX_TOKENS with empty text
+    # First response: empty content to trigger fallback
     first = _Resp(200, {
-        "candidates": [
+        "choices": [
             {
-                "finishReason": "MAX_TOKENS",
-                "content": {"parts": [{"text": ""}]},
+                "finish_reason": "length",
+                "message": {"content": ""},
             }
         ]
     })
     # Second (fallback model) response: valid JSON text
     second = _Resp(200, {
-        "candidates": [
+        "choices": [
             {
-                "finishReason": "STOP",
-                "content": {"parts": [{"text": "{\"ok\": true}"}]},
+                "finish_reason": "stop",
+                "message": {"content": "{\"ok\": true}"},
             }
         ]
     })
@@ -59,7 +59,7 @@ def test_max_tokens_empty_text_falls_back_to_flash(monkeypatch):
     calls = []
 
     def fake_post(url, json=None, timeout=None):  # noqa: A002 - shadowing builtin allowed in tests
-        calls.append(url)
+        calls.append(json)
         return first if len(calls) == 1 else second
 
     with mock.patch("app.flask_app.services.gemini_client.requests.post", side_effect=fake_post):
@@ -67,8 +67,8 @@ def test_max_tokens_empty_text_falls_back_to_flash(monkeypatch):
 
     assert result == {"ok": True}
     # Ensure we tried the primary and then the fallback model
-    assert "gemini-2.5-pro" in calls[0]
-    assert "gemini-2.5-flash" in calls[1]
+    assert calls[0]["model"] == "deepseek-chat"
+    assert calls[1]["model"] == "deepseek-reasoner"
 
 
 def test_robust_json_substring_extraction():
@@ -79,7 +79,7 @@ def test_robust_json_substring_extraction():
 
 
 def test_seed_fallback_on_429(monkeypatch):
-    # Make Gemini raise HTTPError (429) to trigger outer retry/fallback logic
+    # Make DeepSeek raise HTTPError (429) to trigger outer retry/fallback logic
     import requests
 
     def raise_429(*args, **kwargs):
@@ -101,4 +101,3 @@ def test_seed_fallback_on_429(monkeypatch):
     assert isinstance(sentence, dict) and sentence.get("text")
     assert isinstance(paragraph, dict) and paragraph.get("paragraph")
     assert isinstance(passage, dict) and passage.get("paragraphs")
-

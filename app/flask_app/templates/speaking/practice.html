@@ -126,12 +126,15 @@
 {% block content %}
 <div class="practice-container">
     <div class="mb-3 d-flex justify-content-between align-items-center">
-        <a href="{{ url_for('speaking_dashboard') }}" class="btn btn-outline-secondary btn-sm">
-            <i class="fas fa-arrow-left me-2"></i>Back to Speaking Dashboard
+        <a href="{{ mock_back_url or url_for('speaking_dashboard') }}" class="btn btn-outline-secondary btn-sm">
+            <i class="fas fa-arrow-left me-2"></i>
+            {% if mock_back_url %}Back to New TOEFL Mock{% else %}Back to Speaking Dashboard{% endif %}
         </a>
+        {% if not hide_regenerate %}
         <a href="{{ url_for('speaking_task_regenerate', task_number=task.task_number) }}" class="btn btn-outline-primary btn-sm">
             <i class="fas fa-sync-alt me-2"></i>Generate New Task
         </a>
+        {% endif %}
     </div>
 
     <div class="task-header">

@@ -1,0 +1,224 @@
+{% extends "base.html" %}
+
+{% block title %}New TOEFL Listening Mock{% endblock %}
+
+{% block extra_css %}
+<style>
+    .mock-panel {
+        background: #ffffff;
+        border: 1px solid var(--toefl-border);
+        border-radius: 1.25rem;
+        padding: 2rem;
+    }
+
+    .mock-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1rem;
+        margin-top: 1.5rem;
+    }
+
+    .meta-chip {
+        background: var(--toefl-gray-bg);
+        border: 1px solid var(--toefl-border-light);
+        border-radius: 999px;
+        padding: 0.35rem 0.9rem;
+        font-size: 0.85rem;
+        color: var(--toefl-text-light);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-10 col-xl-8">
+        <div class="d-flex align-items-center justify-content-between flex-wrap gap-3 mb-4">
+            <div>
+                <h1 class="mb-2"><i class="fas fa-headphones me-2"></i>Listening Mock Exam</h1>
+                <p class="text-muted mb-0">Generate a full new TOEFL listening mock with response selection and talk questions.</p>
+            </div>
+            <a href="{{ url_for('new_toefl_dashboard') }}" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left me-2"></i>Back to Mock Hub
+            </a>
+        </div>
+
+        <div class="mock-panel">
+            <h4 class="mb-3">Mock Format</h4>
+            <p class="text-muted">
+                DeepSeek will generate listening prompts using the existing listening generators and TTS pipeline.
+                Scoring will mirror current listening practice evaluation.
+            </p>
+
+            <div class="mock-meta">
+                <span class="meta-chip">35-45 questions</span>
+                <span class="meta-chip">No backtracking</span>
+                <span class="meta-chip">Responses + talks</span>
+            </div>
+
+            <div class="mt-4">
+                <button class="btn btn-warning" id="generateListening">
+                    <i class="fas fa-wand-magic-sparkles me-2"></i>Generate Listening Mock (DeepSeek)
+                </button>
+                <button class="btn btn-outline-secondary ms-2" id="submitListening" disabled>
+                    <i class="fas fa-check me-2"></i>Submit Answers
+                </button>
+                <span class="text-muted ms-2" id="listeningStatus">Ready to generate.</span>
+            </div>
+        </div>
+
+        <div class="mt-4" id="listeningContent"></div>
+        <div class="mt-4" id="listeningResults"></div>
+    </div>
+</div>
+{% endblock %}
+
+{% block head %}
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const generateBtn = document.getElementById('generateListening');
+    const submitBtn = document.getElementById('submitListening');
+    const statusEl = document.getElementById('listeningStatus');
+    const contentEl = document.getElementById('listeningContent');
+    const resultsEl = document.getElementById('listeningResults');
+    let currentMock = null;
+
+    const escapeHtml = (text) => (text || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/\"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+
+    const renderQuestion = (groupName, question, idx) => {
+        const options = (question.options || []).map((opt, optIdx) => `
+            <div class="form-check">
+                <input class="form-check-input" type="radio" name="${groupName}" value="${escapeHtml(opt)}" id="${groupName}-${optIdx}">
+                <label class="form-check-label" for="${groupName}-${optIdx}">${escapeHtml(opt)}</label>
+            </div>
+        `).join('');
+        return `
+            <div class="mb-3">
+                <div class="fw-semibold mb-2">${idx + 1}. ${escapeHtml(question.question || '')}</div>
+                ${options}
+            </div>
+        `;
+    };
+
+    const renderResponses = (items) => (items || []).map((item, idx) => `
+        <div class="card mb-3">
+            <div class="card-body">
+                <h5 class="card-title">Listen and Choose a Response</h5>
+                ${item.audio_url ? `<audio controls class="w-100 mb-3"><source src="${item.audio_url}" type="audio/mpeg"></audio>` : ''}
+                ${renderQuestion(`response-${idx}`, item, idx)}
+            </div>
+        </div>
+    `).join('');
+
+    const renderConversation = (conversation) => {
+        if (!conversation) return '';
+        const questionsHtml = (conversation.questions || []).map((q, idx) => renderQuestion(`conversation-${idx}`, q, idx)).join('');
+        return `
+            <div class="card mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">Conversation</h5>
+                    ${conversation.audio_url ? `<audio controls class="w-100 mb-3"><source src="${conversation.audio_url}" type="audio/mpeg"></audio>` : ''}
+                    ${questionsHtml}
+                </div>
+            </div>
+        `;
+    };
+
+    const renderTalk = (talk) => {
+        if (!talk) return '';
+        const questionsHtml = (talk.questions || []).map((q, idx) => renderQuestion(`talk-${idx}`, q, idx)).join('');
+        return `
+            <div class="card mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">Announcement / Academic Talk</h5>
+                    ${talk.audio_url ? `<audio controls class="w-100 mb-3"><source src="${talk.audio_url}" type="audio/mpeg"></audio>` : ''}
+                    ${questionsHtml}
+                </div>
+            </div>
+        `;
+    };
+
+    const collectAnswers = () => {
+        const answers = { responses: {}, conversation: {}, talk: {} };
+        (currentMock?.responses || []).forEach((_, idx) => {
+            const selected = document.querySelector(`input[name="response-${idx}"]:checked`);
+            answers.responses[idx] = selected ? selected.value : '';
+        });
+        (currentMock?.conversation?.questions || []).forEach((_, idx) => {
+            const selected = document.querySelector(`input[name="conversation-${idx}"]:checked`);
+            answers.conversation[idx] = selected ? selected.value : '';
+        });
+        (currentMock?.talk?.questions || []).forEach((_, idx) => {
+            const selected = document.querySelector(`input[name="talk-${idx}"]:checked`);
+            answers.talk[idx] = selected ? selected.value : '';
+        });
+        return answers;
+    };
+
+    const renderResults = (payload) => {
+        if (!payload) return;
+        resultsEl.innerHTML = `<div class="alert alert-info">Score: ${payload.score}% (${payload.correct}/${payload.total})</div>`;
+    };
+
+    generateBtn.addEventListener('click', async () => {
+        statusEl.textContent = 'Generating listening mock...';
+        generateBtn.disabled = true;
+        submitBtn.disabled = true;
+        resultsEl.innerHTML = '';
+        contentEl.innerHTML = '';
+
+        try {
+            const res = await fetch('{{ url_for("new_toefl_listening_generate") }}', { method: 'POST' });
+            const data = await res.json();
+            if (!data.success) {
+                statusEl.textContent = data.message || 'Generation failed.';
+                generateBtn.disabled = false;
+                return;
+            }
+            currentMock = data.mock;
+            contentEl.innerHTML = [
+                renderResponses(currentMock.responses),
+                renderConversation(currentMock.conversation),
+                renderTalk(currentMock.talk),
+            ].join('');
+            statusEl.textContent = 'Mock generated. Complete the questions.';
+            submitBtn.disabled = false;
+        } catch (err) {
+            statusEl.textContent = 'Generation failed. Please try again.';
+        } finally {
+            generateBtn.disabled = false;
+        }
+    });
+
+    submitBtn.addEventListener('click', async () => {
+        const answers = collectAnswers();
+        submitBtn.disabled = true;
+        statusEl.textContent = 'Submitting answers...';
+
+        try {
+            const res = await fetch('{{ url_for("new_toefl_listening_submit") }}', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ answers }),
+            });
+            const data = await res.json();
+            if (!data.success) {
+                statusEl.textContent = data.message || 'Submit failed.';
+                submitBtn.disabled = false;
+                return;
+            }
+            renderResults(data);
+            statusEl.textContent = 'Results ready.';
+        } catch (err) {
+            statusEl.textContent = 'Submit failed. Please try again.';
+        } finally {
+            submitBtn.disabled = false;
+        }
+    });
+});
+</script>
+{% endblock %}

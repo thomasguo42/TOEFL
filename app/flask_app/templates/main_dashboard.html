@@ -4,96 +4,126 @@
 
 {% block extra_css %}
 <style>
-    .section-card {
-        background: linear-gradient(135deg, #ffffff 0%, #eef3ff 100%);
+    .section-panel {
+        background: #ffffff;
         border: 1px solid var(--toefl-border);
         border-radius: 1.5rem;
         padding: 2rem;
-        text-decoration: none;
-        display: block;
-        transition: all 0.3s ease;
         height: 100%;
         position: relative;
         overflow: hidden;
+        box-shadow: 0 18px 30px rgba(15, 23, 42, 0.04);
     }
 
-    .section-card::before {
+    .section-panel::before {
         content: '';
         position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: linear-gradient(135deg, rgba(14, 165, 233, 0.12) 0%, rgba(14, 165, 233, 0) 60%);
-        opacity: 0;
-        transition: opacity 0.3s ease;
+        inset: 0;
+        opacity: 0.6;
+        pointer-events: none;
     }
 
-    .section-card:hover::before {
-        opacity: 1;
+    .section-panel.vocab::before {
+        background: radial-gradient(circle at top left, rgba(56, 189, 248, 0.18), transparent 55%);
     }
 
-    .section-card:hover {
-        transform: translateY(-8px);
-        border-color: var(--teal-400);
-        text-decoration: none;
+    .section-panel.old::before {
+        background: radial-gradient(circle at top left, rgba(34, 211, 238, 0.16), transparent 55%);
     }
 
-    .section-card.disabled {
-        opacity: 0.75;
-        cursor: not-allowed;
+    .section-panel.new::before {
+        background: radial-gradient(circle at top left, rgba(251, 191, 36, 0.18), transparent 55%);
     }
 
-    .section-card.disabled:hover {
-        transform: none;
-        border-color: var(--toefl-border);
+    .panel-header {
+        position: relative;
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+        margin-bottom: 1.5rem;
     }
 
-    .section-icon {
-        font-size: 3rem;
-        color: var(--teal-400);
-        margin-bottom: 1rem;
+    .panel-icon {
+        width: 3.25rem;
+        height: 3.25rem;
+        border-radius: 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        color: #fff;
     }
 
-    .section-title {
-        font-size: 1.75rem;
+    .vocab .panel-icon {
+        background: linear-gradient(135deg, #0ea5e9, #2563eb);
+    }
+
+    .old .panel-icon {
+        background: linear-gradient(135deg, #14b8a6, #0ea5e9);
+    }
+
+    .new .panel-icon {
+        background: linear-gradient(135deg, #f59e0b, #f97316);
+    }
+
+    .panel-title {
+        font-size: 1.6rem;
         font-weight: 700;
-        color: var(--toefl-text);
-        margin-bottom: 0.5rem;
+        margin-bottom: 0.35rem;
     }
 
-    .section-description {
+    .panel-description {
         color: var(--toefl-text-light);
-        margin-bottom: 1rem;
+        margin: 0;
         font-size: 0.95rem;
     }
 
-    .section-status {
-        display: inline-block;
-        padding: 0.25rem 0.75rem;
-        border-radius: 0.5rem;
-        font-size: 0.75rem;
+    .panel-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+        margin-top: 1.5rem;
+    }
+
+    .panel-actions .btn {
         font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
     }
 
-    .status-active {
-        background: rgba(14, 165, 233, 0.12);
-        color: var(--teal-400);
+    .mini-grid {
+        display: grid;
+        gap: 0.75rem;
     }
 
-    .status-coming-soon {
-        background: rgba(148, 163, 184, 0.18);
-        color: var(--toefl-text-light);
+    .mini-card {
+        background: var(--toefl-gray-bg);
+        border: 1px solid var(--toefl-border-light);
+        border-radius: 0.9rem;
+        padding: 0.9rem 1rem;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.75rem;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        color: var(--toefl-text);
+    }
+
+    .mini-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 12px 20px rgba(15, 23, 42, 0.08);
+        text-decoration: none;
+    }
+
+    .mini-card span {
+        font-weight: 600;
     }
 
     .progress-summary {
-        background: #ffffff;
-        border: 1px solid var(--toefl-border);
+        background: var(--toefl-gray-bg);
+        border: 1px solid var(--toefl-border-light);
         border-radius: 1rem;
-        padding: 1.5rem;
-        margin-bottom: 2rem;
+        padding: 1rem;
+        margin-top: 1.5rem;
     }
 
     .progress-stat {
@@ -101,14 +131,14 @@
     }
 
     .progress-number {
-        font-size: 2rem;
+        font-size: 1.5rem;
         font-weight: 700;
         color: var(--teal-400);
     }
 
     .progress-label {
         color: var(--toefl-text-light);
-        font-size: 0.875rem;
+        font-size: 0.75rem;
         text-transform: uppercase;
         letter-spacing: 0.05em;
     }
@@ -122,123 +152,147 @@
             <i class="fas fa-graduation-cap me-3"></i>TOEFL Study Center
         </h1>
 
-        <!-- Progress Summary -->
-        <div class="progress-summary mb-4">
-            <div class="row">
-                <div class="col-md-3 progress-stat">
-                    <div class="progress-number">{{ progress.reviewed }}</div>
-                    <div class="progress-label">Words Today</div>
-                </div>
-                <div class="col-md-3 progress-stat">
-                    <div class="progress-number">{{ progress.new_count }}</div>
-                    <div class="progress-label">New</div>
-                </div>
-                <div class="col-md-3 progress-stat">
-                    <div class="progress-number">{{ progress.review_count }}</div>
-                    <div class="progress-label">Reviews</div>
-                </div>
-                <div class="col-md-3 progress-stat">
-                    <div class="progress-number">{{ progress.remaining }}</div>
-                    <div class="progress-label">Remaining</div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Section Cards -->
         <div class="row g-4">
-            <!-- Vocabulary Section -->
-            <div class="col-md-6 col-lg-4">
-                <a href="{{ url_for('vocab_dashboard') }}" class="section-card">
-                    <div class="section-icon">
-                        <i class="fas fa-book"></i>
+            <div class="col-12 col-xl-4">
+                <div class="section-panel vocab">
+                    <div class="panel-header">
+                        <div class="panel-icon">
+                            <i class="fas fa-book"></i>
+                        </div>
+                        <div>
+                            <div class="panel-title">Vocabulary</div>
+                            <p class="panel-description">Spaced repetition, pronunciation, and post-session drills.</p>
+                        </div>
                     </div>
-                    <h3 class="section-title">Vocabulary</h3>
-                    <p class="section-description">
-                        Build your word power with SRS learning, contextual exercises, and pronunciation drills.
-                    </p>
-                    <span class="section-status status-active">Active</span>
-                </a>
-            </div>
 
-            <!-- Reading Section -->
-            <div class="col-md-6 col-lg-4">
-                <a href="{{ url_for('reading_dashboard') }}" class="section-card">
-                    <div class="section-icon">
-                        <i class="fas fa-glasses"></i>
+                    <div class="mini-grid">
+                        <a href="{{ url_for('vocab_dashboard') }}" class="mini-card">
+                            <span>Vocabulary Dashboard</span>
+                            <i class="fas fa-chevron-right"></i>
+                        </a>
+                        <a href="{{ url_for('vocab_session') }}" class="mini-card">
+                            <span>Start Study Session</span>
+                            <i class="fas fa-chevron-right"></i>
+                        </a>
+                        <a href="{{ url_for('exercises_hub') }}" class="mini-card">
+                            <span>Vocab Exercises Hub</span>
+                            <i class="fas fa-chevron-right"></i>
+                        </a>
+                        <a href="{{ url_for('browse_words') }}" class="mini-card">
+                            <span>Word Bank</span>
+                            <i class="fas fa-chevron-right"></i>
+                        </a>
                     </div>
-                    <h3 class="section-title">Reading</h3>
-                    <p class="section-description">
-                        Master sentence analysis, paragraph structure, and passage comprehension with AI-powered practice.
-                    </p>
-                    <span class="section-status status-active">Active</span>
-                </a>
-            </div>
 
-            <!-- Writing Section -->
-            <div class="col-md-6 col-lg-4">
-                <a href="{{ url_for('writing_dashboard') }}" class="section-card">
-                    <div class="section-icon">
-                        <i class="fas fa-pen-fancy"></i>
+                    <div class="progress-summary">
+                        <div class="row g-2">
+                            <div class="col-6 progress-stat">
+                                <div class="progress-number">{{ progress.reviewed }}</div>
+                                <div class="progress-label">Words Today</div>
+                            </div>
+                            <div class="col-6 progress-stat">
+                                <div class="progress-number">{{ progress.remaining }}</div>
+                                <div class="progress-label">Remaining</div>
+                            </div>
+                            <div class="col-6 progress-stat">
+                                <div class="progress-number">{{ progress.new_count }}</div>
+                                <div class="progress-label">New</div>
+                            </div>
+                            <div class="col-6 progress-stat">
+                                <div class="progress-number">{{ progress.review_count }}</div>
+                                <div class="progress-label">Reviews</div>
+                            </div>
+                        </div>
                     </div>
-                    <h3 class="section-title">Writing</h3>
-                    <p class="section-description">
-                        Practice integrated essays and academic discussions with AI feedback, in-line annotations, and revision tools.
-                    </p>
-                    <span class="section-status status-active">Active</span>
-                </a>
-            </div>
-
-            <!-- Listening Section -->
-            <div class="col-md-6 col-lg-4">
-                <a href="{{ url_for('listening_dashboard') }}" class="section-card">
-                    <div class="section-icon">
-                        <i class="fas fa-headphones"></i>
-                    </div>
-                    <h3 class="section-title">Listening</h3>
-                    <p class="section-description">
-                        Master listening comprehension with AI-powered dictation, signpost training, and full lecture simulators.
-                    </p>
-                    <span class="section-status status-active">Active</span>
-                </a>
-            </div>
-
-            <!-- Speaking Section -->
-            <div class="col-md-6 col-lg-4">
-                <a href="{{ url_for('speaking_dashboard') }}" class="section-card">
-                    <div class="section-icon">
-                        <i class="fas fa-microphone"></i>
-                    </div>
-                    <h3 class="section-title">Speaking</h3>
-                    <p class="section-description">
-                        Practice all 4 TOEFL speaking tasks and receive AI-powered feedback on delivery, language use, and content.
-                    </p>
-                    <span class="section-status status-active">Active</span>
-                </a>
-            </div>
-
-            <!-- Mock Tests (Coming Soon) -->
-            <div class="col-md-6 col-lg-4">
-                <div class="section-card disabled">
-                    <div class="section-icon">
-                        <i class="fas fa-clipboard-check"></i>
-                    </div>
-                    <h3 class="section-title">Mock Tests</h3>
-                    <p class="section-description">
-                        Take full-length practice tests with realistic timing and comprehensive score reports.
-                    </p>
-                    <span class="section-status status-coming-soon">Coming Soon</span>
                 </div>
             </div>
-        </div>
 
-        <!-- Quick Actions -->
-        <div class="mt-5 text-center">
-            <a href="{{ url_for('vocab_session') }}" class="btn btn-teal btn-lg me-3">
-                <i class="fas fa-play me-2"></i>Start Learning
-            </a>
-            <a href="{{ url_for('settings') }}" class="btn btn-outline-secondary btn-lg">
-                <i class="fas fa-cog me-2"></i>Settings
-            </a>
+            <div class="col-12 col-xl-4">
+                <div class="section-panel old">
+                    <div class="panel-header">
+                        <div class="panel-icon">
+                            <i class="fas fa-layer-group"></i>
+                        </div>
+                        <div>
+                            <div class="panel-title">Old TOEFL</div>
+                            <p class="panel-description">All legacy section training (excluding vocab workflows).</p>
+                        </div>
+                    </div>
+
+                    <div class="mini-grid">
+                        <a href="{{ url_for('reading_dashboard') }}" class="mini-card">
+                            <span>Reading Practice</span>
+                            <i class="fas fa-chevron-right"></i>
+                        </a>
+                        <a href="{{ url_for('listening_dashboard') }}" class="mini-card">
+                            <span>Listening Practice</span>
+                            <i class="fas fa-chevron-right"></i>
+                        </a>
+                        <a href="{{ url_for('speaking_dashboard') }}" class="mini-card">
+                            <span>Speaking Practice</span>
+                            <i class="fas fa-chevron-right"></i>
+                        </a>
+                        <a href="{{ url_for('writing_dashboard') }}" class="mini-card">
+                            <span>Writing Practice</span>
+                            <i class="fas fa-chevron-right"></i>
+                        </a>
+                        <a href="{{ url_for('essay_grading_home') }}" class="mini-card">
+                            <span>Essay Grading Studio</span>
+                            <i class="fas fa-chevron-right"></i>
+                        </a>
+                        <a href="{{ url_for('old_toefl_dashboard') }}" class="mini-card">
+                            <span>Old TOEFL Hub</span>
+                            <i class="fas fa-chevron-right"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-xl-4">
+                <div class="section-panel new">
+                    <div class="panel-header">
+                        <div class="panel-icon">
+                            <i class="fas fa-bolt"></i>
+                        </div>
+                        <div>
+                            <div class="panel-title">New TOEFL</div>
+                            <p class="panel-description">Mock exams for the January 2026 format.</p>
+                        </div>
+                    </div>
+
+                    <div class="mini-grid">
+                        <a href="{{ url_for('new_toefl_dashboard') }}" class="mini-card">
+                            <span>New TOEFL Mock Exams</span>
+                            <i class="fas fa-chevron-right"></i>
+                        </a>
+                        <a href="{{ url_for('new_toefl_reading_mock') }}" class="mini-card">
+                            <span>Reading Mock Exam</span>
+                            <i class="fas fa-chevron-right"></i>
+                        </a>
+                        <a href="{{ url_for('new_toefl_listening_mock') }}" class="mini-card">
+                            <span>Listening Mock Exam</span>
+                            <i class="fas fa-chevron-right"></i>
+                        </a>
+                        <a href="{{ url_for('new_toefl_speaking_mock') }}" class="mini-card">
+                            <span>Speaking Mock Exam</span>
+                            <i class="fas fa-chevron-right"></i>
+                        </a>
+                        <a href="{{ url_for('new_toefl_writing_mock') }}" class="mini-card">
+                            <span>Writing Mock Exam</span>
+                            <i class="fas fa-chevron-right"></i>
+                        </a>
+                    </div>
+
+                    <div class="panel-actions">
+                        <a href="{{ url_for('new_toefl_dashboard') }}" class="btn btn-warning btn-sm">
+                            <i class="fas fa-clipboard-check me-2"></i>Open Mock Hub
+                        </a>
+                        <a href="{{ url_for('settings') }}" class="btn btn-outline-secondary btn-sm">
+                            <i class="fas fa-cog me-2"></i>Settings
+                        </a>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>

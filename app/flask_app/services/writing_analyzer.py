@@ -1,5 +1,5 @@
 """
-Writing analysis and feedback service using Gemini AI.
+Writing analysis and feedback service using DeepSeek.
 Provides comprehensive feedback with scoring, annotations, and actionable suggestions.
 """
 from __future__ import annotations
@@ -61,7 +61,7 @@ class WritingAnalyzer:
 
         feedback = self._normalize_feedback(llm_feedback, task_type=task_type)
         if not feedback:
-            current_app.logger.warning("Gemini feedback normalization failed; returning empty feedback object.")
+            current_app.logger.warning("DeepSeek feedback normalization failed; returning empty feedback object.")
             return self._empty_feedback()
         return feedback
 
@@ -264,21 +264,21 @@ Return STRICT JSON with ALL fields. Be CONCISE - respect character limits. Use c
 """
 
         try:
-            current_app.logger.info(f"Calling Gemini AI for essay analysis (task_type={task_type}, word_count={word_count})")
+            current_app.logger.info(f"Calling DeepSeek for essay analysis (task_type={task_type}, word_count={word_count})")
             result = self.client.generate_json(
                 prompt=analysis_prompt,
                 temperature=0.4,
                 system_instruction="You are a meticulous TOEFL Writing evaluator who provides detailed, actionable feedback in compact JSON format.",
                 max_output_tokens=4096  # Increased for comprehensive content evaluation
             )
-            current_app.logger.info(f"Gemini AI response received. Type: {type(result)}")
+            current_app.logger.info(f"DeepSeek response received. Type: {type(result)}")
 
             if isinstance(result, dict):
-                current_app.logger.info(f"Gemini returned dict with keys: {list(result.keys())}")
+                current_app.logger.info(f"DeepSeek returned dict with keys: {list(result.keys())}")
                 return result
             if isinstance(result, str):
                 parsed = json.loads(result)
-                current_app.logger.info(f"Gemini returned string, parsed to dict with keys: {list(parsed.keys())}")
+                current_app.logger.info(f"DeepSeek returned string, parsed to dict with keys: {list(parsed.keys())}")
                 return parsed
 
         except Exception as e:
@@ -287,9 +287,9 @@ Return STRICT JSON with ALL fields. Be CONCISE - respect character limits. Use c
         return None
 
     def _normalize_feedback(self, raw_feedback: Dict[str, Any], task_type: str) -> Optional[Dict[str, Any]]:
-        """Normalize Gemini feedback into DB-safe structures with strict typing."""
+        """Normalize DeepSeek feedback into DB-safe structures with strict typing."""
         if not isinstance(raw_feedback, dict):
-            current_app.logger.warning("Gemini feedback payload was not a dict: %s", type(raw_feedback))
+            current_app.logger.warning("DeepSeek feedback payload was not a dict: %s", type(raw_feedback))
             return None
         data = self._flatten_feedback(raw_feedback)
 
@@ -326,7 +326,7 @@ Return STRICT JSON with ALL fields. Be CONCISE - respect character limits. Use c
         return normalized
 
     def _flatten_feedback(self, payload: Dict[str, Any]) -> Dict[str, Any]:
-        """Flatten common nested Gemini structures into a single dict."""
+        """Flatten common nested DeepSeek structures into a single dict."""
         flattened: Dict[str, Any] = {}
         for key, value in payload.items():
             flattened[key] = value
@@ -359,7 +359,7 @@ Return STRICT JSON with ALL fields. Be CONCISE - respect character limits. Use c
         return None
 
     def _apply_score_strictness(self, feedback: Dict[str, Any], data: Dict[str, Any], task_type: str) -> None:
-        """Apply defensive score downgrades when Gemini flags major issues."""
+        """Apply defensive score downgrades when DeepSeek flags major issues."""
         if task_type == 'integrated':
             severity = 0
             keyword_flags = ('irrelevant', 'not address', 'fails to', 'missing', 'does not', 'misinterpret', 'inaccurate', 'fabricated', 'off-topic')
@@ -596,7 +596,7 @@ Return STRICT JSON with ALL fields. Be CONCISE - respect character limits. Use c
             'source_integration': None,
         }
 
-        # Gemini sometimes nests all integrated feedback under content_accuracy
+        # DeepSeek sometimes nests all integrated feedback under content_accuracy
         nested_source = raw_feedback.get('content_accuracy')
         if isinstance(nested_source, dict):
             integrated_defaults['content_accuracy'] = self._normalize_text_field(nested_source.get('content_accuracy'))

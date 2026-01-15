@@ -1,5 +1,5 @@
 """
-Speaking task generation service using Gemini AI.
+Speaking task generation service using DeepSeek.
 Generates Independent and Integrated speaking tasks for TOEFL practice.
 """
 from __future__ import annotations
@@ -97,7 +97,7 @@ def generate_independent_task(topic: Optional[str] = None) -> Optional[Dict]:
     """
     client = get_gemini_client()
     if not client or not client.is_configured:
-        current_app.logger.error("Gemini API not configured")
+        current_app.logger.error("DeepSeek API not configured")
         return None
 
     chosen_topic = topic or random.choice(INDEPENDENT_TOPICS)
@@ -153,7 +153,7 @@ def generate_integrated_task_2(topic: Optional[str] = None) -> Optional[Dict]:
     """
     client = get_gemini_client()
     if not client or not client.is_configured:
-        current_app.logger.error("Gemini API not configured")
+        current_app.logger.error("DeepSeek API not configured")
         return None
 
     chosen_topic = topic or random.choice(INTEGRATED_TOPICS)
@@ -249,7 +249,7 @@ def generate_integrated_task_3(topic: Optional[str] = None) -> Optional[Dict]:
     """
     client = get_gemini_client()
     if not client or not client.is_configured:
-        current_app.logger.error("Gemini API not configured")
+        current_app.logger.error("DeepSeek API not configured")
         return None
 
     academic_topics = [
@@ -333,7 +333,7 @@ def generate_integrated_task_4(topic: Optional[str] = None) -> Optional[Dict]:
     """
     client = get_gemini_client()
     if not client or not client.is_configured:
-        current_app.logger.error("Gemini API not configured")
+        current_app.logger.error("DeepSeek API not configured")
         return None
 
     academic_topics = [

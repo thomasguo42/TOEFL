@@ -1,0 +1,237 @@
+{% extends "base.html" %}
+
+{% block title %}New TOEFL Writing Mock{% endblock %}
+
+{% block extra_css %}
+<style>
+    .mock-panel {
+        background: #ffffff;
+        border: 1px solid var(--toefl-border);
+        border-radius: 1.25rem;
+        padding: 2rem;
+    }
+
+    .mock-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1rem;
+        margin-top: 1.5rem;
+    }
+
+    .meta-chip {
+        background: var(--toefl-gray-bg);
+        border: 1px solid var(--toefl-border-light);
+        border-radius: 999px;
+        padding: 0.35rem 0.9rem;
+        font-size: 0.85rem;
+        color: var(--toefl-text-light);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-10 col-xl-8">
+        <div class="d-flex align-items-center justify-content-between flex-wrap gap-3 mb-4">
+            <div>
+                <h1 class="mb-2"><i class="fas fa-pen-nib me-2"></i>Writing Mock Exam</h1>
+                <p class="text-muted mb-0">Generate sentence-building, email, and academic discussion tasks.</p>
+            </div>
+            <a href="{{ url_for('new_toefl_dashboard') }}" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left me-2"></i>Back to Mock Hub
+            </a>
+        </div>
+
+        <div class="mock-panel">
+            <h4 class="mb-3">Mock Format</h4>
+            <p class="text-muted">
+                DeepSeek will generate each task using the same writing prompt patterns and scoring logic as the current writing tools.
+            </p>
+
+            <div class="mock-meta">
+                <span class="meta-chip">12 questions</span>
+                <span class="meta-chip">Sentence build + email</span>
+                <span class="meta-chip">Academic discussion</span>
+            </div>
+
+            <div class="mt-4">
+                <button class="btn btn-warning" id="generateWriting">
+                    <i class="fas fa-wand-magic-sparkles me-2"></i>Generate Writing Mock (DeepSeek)
+                </button>
+                <button class="btn btn-outline-secondary ms-2" id="submitWriting" disabled>
+                    <i class="fas fa-check me-2"></i>Submit Answers
+                </button>
+                <span class="text-muted ms-2" id="writingStatus">Ready to generate.</span>
+            </div>
+        </div>
+
+        <div class="mt-4" id="writingContent"></div>
+        <div class="mt-4" id="writingResults"></div>
+    </div>
+</div>
+{% endblock %}
+
+{% block head %}
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const generateBtn = document.getElementById('generateWriting');
+    const submitBtn = document.getElementById('submitWriting');
+    const statusEl = document.getElementById('writingStatus');
+    const contentEl = document.getElementById('writingContent');
+    const resultsEl = document.getElementById('writingResults');
+    let currentMock = null;
+
+    const escapeHtml = (text) => (text || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/\"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+
+    const renderSentenceBuild = (items) => {
+        if (!items || !items.length) return '';
+        const rows = items.map((item, idx) => `
+            <div class="card mb-3">
+                <div class="card-body">
+                    <div class="fw-semibold mb-2">Sentence ${idx + 1}: ${escapeHtml(item.prompt || '')}</div>
+                    <div class="mb-2 text-muted small">${(item.tokens || []).map(escapeHtml).join(' | ')}</div>
+                    <input class="form-control" data-sentence-index="${idx}" placeholder="Type the correct sentence">
+                </div>
+            </div>
+        `).join('');
+        return `<div class="mb-4"><h5>Build a Sentence</h5>${rows}</div>`;
+    };
+
+    const renderEmail = (task) => {
+        if (!task) return '';
+        const instructions = (task.instructions || []).map((line) => `<li>${escapeHtml(line)}</li>`).join('');
+        return `
+            <div class="card mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">Write an Email</h5>
+                    <p class="card-text">${escapeHtml(task.scenario || '')}</p>
+                    <ul>${instructions}</ul>
+                    <div class="mb-2 text-muted small">To: ${escapeHtml(task.to_name || '')} | Subject: ${escapeHtml(task.subject || '')}</div>
+                    <textarea class="form-control" rows="6" id="emailText" placeholder="Write your email response"></textarea>
+                </div>
+            </div>
+        `;
+    };
+
+    const renderDiscussion = (task) => {
+        if (!task) return '';
+        const posts = (task.student_posts || []).map((post) => `
+            <div class="border rounded p-2 mb-2">
+                <div class="fw-semibold">${escapeHtml(post.name || 'Student')}</div>
+                <div class="text-muted small">${escapeHtml(post.stance || '')}</div>
+                <div>${escapeHtml(post.message || '')}</div>
+            </div>
+        `).join('');
+        return `
+            <div class="card mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">Academic Discussion</h5>
+                    <p class="card-text">${escapeHtml(task.professor_prompt || '')}</p>
+                    ${posts}
+                    <textarea class="form-control" rows="6" id="discussionText" placeholder="Write your discussion post"></textarea>
+                </div>
+            </div>
+        `;
+    };
+
+    const collectAnswers = () => {
+        const sentenceBuild = {};
+        document.querySelectorAll('[data-sentence-index]').forEach((input) => {
+            sentenceBuild[input.dataset.sentenceIndex] = input.value || '';
+        });
+        return {
+            sentence_build: sentenceBuild,
+            email_text: document.getElementById('emailText')?.value || '',
+            discussion_text: document.getElementById('discussionText')?.value || '',
+        };
+    };
+
+    const renderResults = (payload) => {
+        if (!payload) return;
+        const emailScore = payload.email_feedback?.overall_score ?? 'N/A';
+        const emailSummary = escapeHtml(payload.email_feedback?.coach_summary || '');
+        const discussionScore = payload.discussion_feedback?.overall_score ?? 'N/A';
+        const discussionSummary = escapeHtml(payload.discussion_feedback?.coach_summary || '');
+        const summary = `
+            <div class="alert alert-info">
+                Sentence Build Score: ${payload.sentence_score}% (${payload.sentence_correct}/${payload.sentence_total})
+            </div>
+            <div class="card mb-3">
+                <div class="card-body">
+                    <h5>Email Feedback (Score: ${emailScore})</h5>
+                    <p class="mb-0">${emailSummary || 'No summary returned.'}</p>
+                </div>
+            </div>
+            <div class="card mb-3">
+                <div class="card-body">
+                    <h5>Discussion Feedback (Score: ${discussionScore})</h5>
+                    <p class="mb-0">${discussionSummary || 'No summary returned.'}</p>
+                </div>
+            </div>
+        `;
+        resultsEl.innerHTML = summary;
+    };
+
+    generateBtn.addEventListener('click', async () => {
+        statusEl.textContent = 'Generating writing mock...';
+        generateBtn.disabled = true;
+        submitBtn.disabled = true;
+        resultsEl.innerHTML = '';
+        contentEl.innerHTML = '';
+
+        try {
+            const res = await fetch('{{ url_for("new_toefl_writing_generate") }}', { method: 'POST' });
+            const data = await res.json();
+            if (!data.success) {
+                statusEl.textContent = data.message || 'Generation failed.';
+                generateBtn.disabled = false;
+                return;
+            }
+            currentMock = data.mock;
+            contentEl.innerHTML = [
+                renderSentenceBuild(currentMock.sentence_build),
+                renderEmail(currentMock.email),
+                renderDiscussion(currentMock.discussion),
+            ].join('');
+            statusEl.textContent = 'Mock generated. Complete the tasks.';
+            submitBtn.disabled = false;
+        } catch (err) {
+            statusEl.textContent = 'Generation failed. Please try again.';
+        } finally {
+            generateBtn.disabled = false;
+        }
+    });
+
+    submitBtn.addEventListener('click', async () => {
+        const answers = collectAnswers();
+        submitBtn.disabled = true;
+        statusEl.textContent = 'Submitting answers...';
+
+        try {
+            const res = await fetch('{{ url_for("new_toefl_writing_submit") }}', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ answers }),
+            });
+            const data = await res.json();
+            if (!data.success) {
+                statusEl.textContent = data.message || 'Submit failed.';
+                submitBtn.disabled = false;
+                return;
+            }
+            renderResults(data);
+            statusEl.textContent = 'Results ready.';
+        } catch (err) {
+            statusEl.textContent = 'Submit failed. Please try again.';
+        } finally {
+            submitBtn.disabled = false;
+        }
+    });
+});
+</script>
+{% endblock %}

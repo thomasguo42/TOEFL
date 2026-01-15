@@ -1,4 +1,4 @@
-"""High-level helpers to generate individual exercise sets using Gemini 2.5 Flash Lite."""
+"""High-level helpers to generate individual exercise sets using DeepSeek."""
 from __future__ import annotations
 
 from typing import Dict, List, Optional
@@ -9,7 +9,7 @@ from models import Word
 from .gemini_client import GeminiClient, get_gemini_client
 
 VOCAB_SYSTEM_PROMPT = (
-    "You are Gemini 2.5 Flash Lite acting as an experienced TOEFL vocabulary coach for Chinese learners. "
+    "You are DeepSeek acting as an experienced TOEFL vocabulary coach for Chinese learners. "
     "Always return valid JSON that exactly follows the requested schema. Use an academic but encouraging tone, "
     "and provide concise Simplified Chinese rationales that explain why each option works or fails in context."
 )
@@ -28,7 +28,7 @@ def generate_gap_fill_single(word: Word, client: Optional[GeminiClient] = None) 
     client = client or get_gemini_client()
 
     if not client or not client.is_configured:
-        current_app.logger.error("Gemini API not configured - cannot generate gap-fill exercise")
+        current_app.logger.error("DeepSeek API not configured - cannot generate gap-fill exercise")
         return None
 
     prompt = (
@@ -80,7 +80,7 @@ def generate_synonym_single(word: Word, client: Optional[GeminiClient] = None) -
     client = client or get_gemini_client()
 
     if not client or not client.is_configured:
-        current_app.logger.error("Gemini API not configured - cannot generate synonym exercise")
+        current_app.logger.error("DeepSeek API not configured - cannot generate synonym exercise")
         return None
 
     prompt = (
@@ -137,7 +137,7 @@ def generate_reading_passage_single(words: List[Word], topic: str, client: Optio
     client = client or get_gemini_client()
 
     if not client or not client.is_configured:
-        current_app.logger.error("Gemini API not configured - cannot generate reading passage")
+        current_app.logger.error("DeepSeek API not configured - cannot generate reading passage")
         return None
 
     word_list = ", ".join(w.lemma for w in words)
@@ -163,7 +163,7 @@ def generate_reading_passage_single(words: List[Word], topic: str, client: Optio
             prompt,
             temperature=0.55,
             system_instruction=(
-                "You are Gemini 2.5 Flash Lite designing TOEFL reading immersion for Chinese learners. "
+                "You are DeepSeek designing TOEFL reading immersion for Chinese learners. "
                 "Follow the JSON schema exactly, embed every requested vocabulary item naturally, "
                 "and deliver succinct Simplified Chinese rationales."
             ),

@@ -288,7 +288,7 @@
                 {{ (locale_cn or {}).get('sentencePractice', {}).get('paraphraseHeading', 'Paraphrase Drill (改写练习)') }}
             </h4>
             <p class="paraphrase-helper">
-                {{ (locale_cn or {}).get('sentencePractice', {}).get('paraphraseInstruction', '请用自己的话改写该句子，保持核心信息不变。Gemini 会帮你检查覆盖度。') }}
+                {{ (locale_cn or {}).get('sentencePractice', {}).get('paraphraseInstruction', '请用自己的话改写该句子，保持核心信息不变。DeepSeek 会帮你检查覆盖度。') }}
             </p>
             <textarea
                 id="paraphraseInput"
@@ -298,7 +298,7 @@
             ></textarea>
             <div class="paraphrase-actions">
                 <button class="btn btn-outline-light btn-sm" id="checkParaphraseBtn">
-                    <i class="fas fa-magic me-2"></i>{{ (locale_cn or {}).get('sentencePractice', {}).get('submitLabel', '提交给 Gemini 检查') }}
+                    <i class="fas fa-magic me-2"></i>{{ (locale_cn or {}).get('sentencePractice', {}).get('submitLabel', '提交给 DeepSeek 检查') }}
                 </button>
                 <div class="paraphrase-status" id="paraphraseStatus"></div>
             </div>
@@ -426,9 +426,9 @@ document.addEventListener('DOMContentLoaded', function() {
         function setLoading(isLoading) {
             submitBtn.disabled = isLoading;
             if (isLoading) {
-                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>' + (sentenceLocale.checkingLabel || '正在调用 Gemini 评估...');
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>' + (sentenceLocale.checkingLabel || '正在调用 DeepSeek 评估...');
             } else {
-                submitBtn.innerHTML = '<i class="fas fa-magic me-2"></i>' + (sentenceLocale.submitLabel || '提交给 Gemini 检查');
+                submitBtn.innerHTML = '<i class="fas fa-magic me-2"></i>' + (sentenceLocale.submitLabel || '提交给 DeepSeek 检查');
             }
         }
 
@@ -460,14 +460,14 @@ document.addEventListener('DOMContentLoaded', function() {
             errorEl.classList.add('d-none');
 
             if (!text) {
-                handleError(sentenceLocale.emptyInput || '请先输入你的改写，再提交给 Gemini 检查。');
+                handleError(sentenceLocale.emptyInput || '请先输入你的改写，再提交给 DeepSeek 检查。');
                 inputEl.focus();
                 return;
             }
 
             resetFeedback();
             setLoading(true);
-            statusEl.textContent = sentenceLocale.checkingLabel || '正在调用 Gemini 评估...';
+            statusEl.textContent = sentenceLocale.checkingLabel || '正在调用 DeepSeek 评估...';
 
             fetch('/reading/api/paraphrase', {
                 method: 'POST',

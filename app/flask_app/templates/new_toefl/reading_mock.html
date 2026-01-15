@@ -1,0 +1,325 @@
+{% extends "base.html" %}
+
+{% block title %}New TOEFL Reading Mock{% endblock %}
+
+{% block extra_css %}
+<style>
+    .mock-panel {
+        background: #ffffff;
+        border: 1px solid var(--toefl-border);
+        border-radius: 1.25rem;
+        padding: 2rem;
+    }
+
+    .mock-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1rem;
+        margin-top: 1.5rem;
+    }
+
+    .meta-chip {
+        background: var(--toefl-gray-bg);
+        border: 1px solid var(--toefl-border-light);
+        border-radius: 999px;
+        padding: 0.35rem 0.9rem;
+        font-size: 0.85rem;
+        color: var(--toefl-text-light);
+    }
+
+    .cloze-wrap {
+        display: inline-block;
+        position: relative;
+        vertical-align: baseline;
+    }
+
+    .cloze-underscores {
+        display: inline-block;
+        font-family: "Courier New", Courier, monospace;
+        letter-spacing: 0.08em;
+        color: var(--toefl-text-light);
+        line-height: 1.2em;
+    }
+
+    .cloze-input {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 1.2em;
+        background: transparent;
+        border: none;
+        outline: none;
+        padding: 0;
+        font-family: "Courier New", Courier, monospace;
+        letter-spacing: 0.08em;
+        color: var(--toefl-text);
+        line-height: 1.2em;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-10 col-xl-8">
+        <div class="d-flex align-items-center justify-content-between flex-wrap gap-3 mb-4">
+            <div>
+                <h1 class="mb-2"><i class="fas fa-glasses me-2"></i>Reading Mock Exam</h1>
+                <p class="text-muted mb-0">Generate a full new TOEFL reading mock with cloze, daily-life, and academic tasks.</p>
+            </div>
+            <a href="{{ url_for('new_toefl_dashboard') }}" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left me-2"></i>Back to Mock Hub
+            </a>
+        </div>
+
+        <div class="mock-panel">
+            <h4 class="mb-3">Mock Format</h4>
+            <p class="text-muted">
+                DeepSeek will generate section content using the same pipeline as existing reading exercises. Evaluation will
+                reuse the current reading checking logic for accuracy + explanation.
+            </p>
+
+            <div class="mock-meta">
+                <span class="meta-chip">35-48 questions</span>
+                <span class="meta-chip">Module-based timing</span>
+                <span class="meta-chip">Cloze + daily-life + academic</span>
+            </div>
+
+            <div class="mt-4">
+                <button class="btn btn-warning" id="generateReading">
+                    <i class="fas fa-wand-magic-sparkles me-2"></i>Generate Reading Mock (DeepSeek)
+                </button>
+                <button class="btn btn-outline-secondary ms-2" id="submitReading" disabled>
+                    <i class="fas fa-check me-2"></i>Submit Answers
+                </button>
+                <span class="text-muted ms-2" id="readingStatus">Ready to generate.</span>
+            </div>
+        </div>
+
+        <div class="mt-4" id="readingContent"></div>
+        <div class="mt-4" id="readingResults"></div>
+    </div>
+</div>
+{% endblock %}
+
+{% block head %}
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const generateBtn = document.getElementById('generateReading');
+    const submitBtn = document.getElementById('submitReading');
+    const statusEl = document.getElementById('readingStatus');
+    const contentEl = document.getElementById('readingContent');
+    const resultsEl = document.getElementById('readingResults');
+    let currentMock = null;
+
+    const escapeHtml = (text) => (text || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/\"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+
+    const renderCloze = (item) => {
+        const paragraph = escapeHtml(item.paragraph || '');
+        let replaced = paragraph;
+        const blanks = Array.isArray(item.blanks) ? item.blanks : [];
+        blanks.forEach((blank) => {
+            const token = escapeHtml(blank.token || '');
+            if (!token) return;
+            const prefix = token.replace(/_+$/, '');
+            const rawAnswer = (blank.answer || '').toString();
+            let missingCount = token.length - prefix.length;
+            if (rawAnswer) {
+                const startsWithPrefix = rawAnswer.toLowerCase().startsWith(prefix.toLowerCase());
+                if (startsWithPrefix) {
+                    missingCount = Math.max(1, rawAnswer.length - prefix.length);
+                } else {
+                    missingCount = Math.max(1, rawAnswer.length);
+                }
+            }
+            const blanksHint = '_'.repeat(missingCount);
+            const wrap = `<span class="cloze-wrap" style="width:${missingCount}ch"><span class="cloze-underscores">${blanksHint}</span><input class="cloze-input" data-cloze-id="${item.id}" data-token="${token}" data-expected-len="${missingCount}" maxlength="${missingCount}" size="${missingCount}"></span>`;
+            const input = `${prefix}${wrap}`;
+            if (replaced.includes(token)) {
+                replaced = replaced.split(token).join(input);
+            }
+        });
+
+        if (!blanks.length) {
+            replaced = replaced.replace(/([A-Za-z]+)(_{2,})/g, (match, head, blanksRun) => {
+                const token = `${head}${blanksRun}`;
+                const missingCount = blanksRun.length;
+                const blanksHint = '_'.repeat(missingCount);
+                const wrap = `<span class="cloze-wrap" style="width:${missingCount}ch"><span class="cloze-underscores">${blanksHint}</span><input class="cloze-input" data-cloze-id="${item.id}" data-token="${token}" data-expected-len="${missingCount}" maxlength="${missingCount}" size="${missingCount}"></span>`;
+                return `${head}${wrap}`;
+            });
+        }
+
+        return `
+            <div class="card mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">Complete the Words</h5>
+                    <p class="card-text">${replaced}</p>
+                </div>
+            </div>
+        `;
+    };
+
+    const renderQuestion = (groupName, question, idx) => {
+        const options = (question.options || []).map((opt, optIdx) => `
+            <div class="form-check">
+                <input class="form-check-input" type="radio" name="${groupName}" value="${escapeHtml(opt)}" id="${groupName}-${optIdx}">
+                <label class="form-check-label" for="${groupName}-${optIdx}">${escapeHtml(opt)}</label>
+            </div>
+        `).join('');
+        return `
+            <div class="mb-3">
+                <div class="fw-semibold mb-2">${idx + 1}. ${escapeHtml(question.question || '')}</div>
+                ${options}
+            </div>
+        `;
+    };
+
+    const renderDaily = (item) => {
+        const questionsHtml = (item.questions || []).map((q, idx) => renderQuestion(`daily-${item.id}-${idx}`, q, idx)).join('');
+        return `
+            <div class="card mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">Read in Daily Life</h5>
+                    <p class="card-text">${escapeHtml(item.source_text || '')}</p>
+                    ${questionsHtml}
+                </div>
+            </div>
+        `;
+    };
+
+    const renderAcademic = (item) => {
+        if (!item) return '';
+        const questionsHtml = (item.questions || []).map((q, idx) => renderQuestion(`academic-${idx}`, q, idx)).join('');
+        return `
+            <div class="card mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">Academic Passage</h5>
+                    <p class="card-text">${escapeHtml(item.passage || '')}</p>
+                    ${questionsHtml}
+                </div>
+            </div>
+        `;
+    };
+
+    const collectAnswers = () => {
+        const answers = { cloze: {}, daily_life: {}, academic: {} };
+        document.querySelectorAll('[data-cloze-id][data-token]').forEach((input) => {
+            const clozeId = input.dataset.clozeId;
+            const token = input.dataset.token;
+            if (!answers.cloze[clozeId]) {
+                answers.cloze[clozeId] = {};
+            }
+            answers.cloze[clozeId][token] = input.value || '';
+        });
+
+        (currentMock?.daily_life || []).forEach((item) => {
+            const groupAnswers = {};
+            (item.questions || []).forEach((_, idx) => {
+                const selected = document.querySelector(`input[name="daily-${item.id}-${idx}"]:checked`);
+                groupAnswers[idx] = selected ? selected.value : '';
+            });
+            answers.daily_life[item.id] = groupAnswers;
+        });
+
+        (currentMock?.academic?.questions || []).forEach((_, idx) => {
+            const selected = document.querySelector(`input[name="academic-${idx}"]:checked`);
+            answers.academic[idx] = selected ? selected.value : '';
+        });
+
+        return answers;
+    };
+
+    const renderResults = (payload) => {
+        if (!payload) return;
+        const summary = `<div class="alert alert-info">Score: ${payload.score}% (${payload.correct}/${payload.total})</div>`;
+        resultsEl.innerHTML = summary;
+    };
+
+    const validateClozeLengths = () => {
+        const inputs = document.querySelectorAll('.cloze-input');
+        for (const input of inputs) {
+            const expected = Number(input.getAttribute('data-expected-len') || 0);
+            const value = (input.value || '').trim();
+            if (expected && value.length !== expected) {
+                return false;
+            }
+        }
+        return true;
+    };
+
+    generateBtn.addEventListener('click', async () => {
+        statusEl.textContent = 'Generating reading mock...';
+        generateBtn.disabled = true;
+        submitBtn.disabled = true;
+        resultsEl.innerHTML = '';
+        contentEl.innerHTML = '';
+
+        try {
+            const res = await fetch('{{ url_for("new_toefl_reading_generate") }}', { method: 'POST' });
+            const data = await res.json();
+            if (!data.success) {
+                statusEl.textContent = data.message || 'Generation failed.';
+                generateBtn.disabled = false;
+                return;
+            }
+            currentMock = data.mock;
+            const clozeHtml = (currentMock.cloze || []).map(renderCloze).join('');
+            const dailyHtml = (currentMock.daily_life || []).map(renderDaily).join('');
+            const academicHtml = renderAcademic(currentMock.academic);
+            contentEl.innerHTML = clozeHtml + dailyHtml + academicHtml;
+            statusEl.textContent = 'Mock generated. Complete the questions.';
+            submitBtn.disabled = false;
+        } catch (err) {
+            statusEl.textContent = 'Generation failed. Please try again.';
+        } finally {
+            generateBtn.disabled = false;
+        }
+    });
+
+    submitBtn.addEventListener('click', async () => {
+        if (!validateClozeLengths()) {
+            statusEl.textContent = 'Please complete every cloze blank with the exact number of letters.';
+            return;
+        }
+        const answers = collectAnswers();
+        submitBtn.disabled = true;
+        statusEl.textContent = 'Submitting answers...';
+
+        try {
+            const res = await fetch('{{ url_for("new_toefl_reading_submit") }}', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ answers }),
+            });
+            const data = await res.json();
+            if (!data.success) {
+                statusEl.textContent = data.message || 'Submit failed.';
+                submitBtn.disabled = false;
+                return;
+            }
+            renderResults(data);
+            statusEl.textContent = 'Results ready.';
+        } catch (err) {
+            statusEl.textContent = 'Submit failed. Please try again.';
+        } finally {
+            submitBtn.disabled = false;
+        }
+    });
+
+    document.addEventListener('input', (event) => {
+        const target = event.target;
+        if (!target || !target.classList || !target.classList.contains('cloze-input')) return;
+        const expected = Number(target.getAttribute('data-expected-len') || 0);
+        if (expected && target.value.length > expected) {
+            target.value = target.value.slice(0, expected);
+        }
+    });
+});
+</script>
+{% endblock %}
