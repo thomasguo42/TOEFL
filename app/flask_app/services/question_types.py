@@ -621,7 +621,11 @@ def _validate_drill_payload(payload: Dict[str, Any], question_type_id: str) -> b
                 current_app.logger.error(f"Validation failed: question {idx} missing required fields")
                 return False
             if not isinstance(q["options"], list) or len(q["options"]) != 4:
-                current_app.logger.error(f"Validation failed: question {idx} has invalid options (need 4, got {len(q['options']) if isinstance(q.get('options'), list) else 'N/A'})")
+                current_app.logger.error(
+                    "Validation failed: question %s has invalid options (need 4, got %s)",
+                    idx,
+                    len(q["options"]) if isinstance(q.get("options"), list) else "N/A",
+                )
                 return False
 
     return True

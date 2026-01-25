@@ -58,8 +58,8 @@ def test_max_tokens_empty_text_falls_back_to_flash(monkeypatch):
 
     calls = []
 
-    def fake_post(url, json=None, timeout=None):  # noqa: A002 - shadowing builtin allowed in tests
-        calls.append(json)
+    def fake_post(url, json=None, timeout=None, **kwargs):  # noqa: A002 - shadowing builtin allowed in tests
+        calls.append(json or kwargs.get("json"))
         return first if len(calls) == 1 else second
 
     with mock.patch("app.flask_app.services.gemini_client.requests.post", side_effect=fake_post):

@@ -6,13 +6,29 @@ import os
 import random
 import re
 import time
+import logging
+from logging.handlers import RotatingFileHandler
+import threading
 from collections import deque
 from datetime import datetime, timezone
 from pathlib import Path
 from uuid import uuid4
 from typing import Optional, List, Dict, Any, Tuple
 
-from flask import Flask, render_template, request, redirect, url_for, session, flash, jsonify, current_app
+from flask import (
+    Flask,
+    render_template,
+    request,
+    redirect,
+    url_for,
+    session,
+    flash,
+    jsonify,
+    current_app,
+    g,
+    has_request_context,
+)
+from werkzeug.exceptions import HTTPException
 from flask_cors import CORS
 from sqlalchemy import and_, or_, inspect, text, func
 from markupsafe import Markup
@@ -100,6 +116,79 @@ from models import (
 app = Flask(__name__)
 app.config.from_object(config[os.getenv('FLASK_ENV', 'development')])
 
+# ----------------------------------------------------------------------------
+# Logging
+# ----------------------------------------------------------------------------
+
+def _configure_logging(flask_app: Flask) -> None:
+    root_logger = logging.getLogger()
+
+    log_level_name = os.getenv("LOG_LEVEL", "INFO").upper()
+    level = getattr(logging, log_level_name, logging.INFO)
+
+    formatter = logging.Formatter(
+        fmt="%(asctime)s %(levelname)s %(name)s [req=%(request_id)s] %(message)s",
+        datefmt="%Y-%m-%d %H:%M:%S",
+    )
+
+    class _RequestIdFilter(logging.Filter):
+        def filter(self, record: logging.LogRecord) -> bool:  # noqa: A003 - name mandated by stdlib
+            if has_request_context():
+                record.request_id = getattr(g, "request_id", "-")
+            else:
+                record.request_id = "-"
+            return True
+
+    request_filter = _RequestIdFilter()
+
+    log_dir_value = os.getenv("LOG_DIR")
+    if log_dir_value:
+        log_dir = Path(log_dir_value).expanduser()
+    else:
+        repo_root = Path(__file__).resolve().parents[3]
+        log_dir = repo_root / "logs"
+    log_dir.mkdir(parents=True, exist_ok=True)
+    log_path = log_dir / "app.log"
+
+    def _has_handler_named(name: str) -> bool:
+        return any(getattr(handler, "name", None) == name for handler in root_logger.handlers)
+
+    def _has_file_handler(target: Path) -> bool:
+        target_str = str(target)
+        for handler in root_logger.handlers:
+            if isinstance(handler, logging.FileHandler) and getattr(handler, "baseFilename", "") == target_str:
+                return True
+        return False
+
+    if not _has_handler_named("toefl_stream"):
+        stream = logging.StreamHandler()
+        stream.name = "toefl_stream"
+        stream.setLevel(level)
+        stream.setFormatter(formatter)
+        stream.addFilter(request_filter)
+        root_logger.addHandler(stream)
+
+    if not _has_file_handler(log_path):
+        file_handler = RotatingFileHandler(
+            log_path,
+        maxBytes=5 * 1024 * 1024,
+        backupCount=3,
+        encoding="utf-8",
+    )
+        file_handler.name = "toefl_file"
+        file_handler.setLevel(level)
+        file_handler.setFormatter(formatter)
+        file_handler.addFilter(request_filter)
+        root_logger.addHandler(file_handler)
+
+    root_logger.setLevel(level)
+    logging.getLogger("werkzeug").setLevel(level)
+    flask_app.logger.setLevel(level)
+    flask_app.logger.propagate = True
+
+
+_configure_logging(app)
+
 # Initialize extensions
 db.init_app(app)
 CORS(app, resources={r"/*": {"origins": "*"}})
@@ -123,10 +212,53 @@ if not hasattr(app, '_question_drills'):
 # Server-side cache for new TOEFL mocks (reading/listening/writing)
 if not hasattr(app, '_new_toefl_cache'):
     app._new_toefl_cache = {}
+if not hasattr(app, '_new_toefl_jobs'):
+    app._new_toefl_jobs = {}
+if not hasattr(app, '_new_toefl_jobs_lock'):
+    app._new_toefl_jobs_lock = threading.Lock()
 
 _WORD_COUNT_NOTE_PATTERN = re.compile(r'\(\s*\d+\s*words?\s*\)', re.IGNORECASE)
 _MULTISPACE_PATTERN = re.compile(r'[ \t]{2,}')
 _CHOICE_PREFIX_PATTERN = re.compile(r'^\s*([A-Z])[\)\.\:\-\s]')
+
+def _prewarm_tts_blocking() -> None:
+    """Block server start until Kokoro is warm (prevents Cloudflare 524 on first request)."""
+    if os.getenv("PREWARM_TTS", "true").strip().lower() not in {"1", "true", "yes", "y"}:
+        return
+    try:
+        with app.app_context():
+            tts = get_tts_service()
+            t0 = time.monotonic()
+            current_app.logger.info("Startup: prewarming TTS...")
+            tts.prewarm()
+            current_app.logger.info("Startup: TTS prewarm done in %.2fs", time.monotonic() - t0)
+    except Exception:
+        app.logger.exception("Startup: TTS prewarm failed")
+
+@app.before_request
+def _assign_request_id():
+    # Prefer incoming header for tracing through proxies/tunnels.
+    rid = request.headers.get("X-Request-Id") or request.headers.get("CF-Ray") or uuid4().hex[:12]
+    g.request_id = rid
+    g._request_start = time.monotonic()
+
+
+@app.after_request
+def _log_request(response):
+    start = getattr(g, "_request_start", None)
+    if start is not None:
+        elapsed_ms = int((time.monotonic() - start) * 1000)
+        current_app.logger.info("%s %s -> %s (%sms)", request.method, request.path, response.status_code, elapsed_ms)
+    response.headers["X-Request-Id"] = getattr(g, "request_id", "-")
+    return response
+
+
+@app.errorhandler(Exception)
+def _unhandled_exception(exc):
+    if isinstance(exc, HTTPException):
+        return exc
+    current_app.logger.exception("Unhandled exception: %s", exc)
+    return jsonify({"success": False, "message": "Internal server error", "request_id": getattr(g, "request_id", None)}), 500
 
 
 def _sanitize_generated_text(text: Optional[str]) -> str:
@@ -240,6 +372,34 @@ def _store_new_toefl_payload(section: str, user_id: int, payload: Dict[str, Any]
     current_app._new_toefl_cache = cache
     session[f'new_toefl_{section}_id'] = cache_id
     return cache_id
+
+
+def _reserve_new_toefl_payload(section: str, user_id: int) -> str:
+    cache = getattr(current_app, '_new_toefl_cache', {})
+    cache_id = f"new_toefl_{section}_{user_id}_{int(time.time())}"
+    cache[cache_id] = {}
+    current_app._new_toefl_cache = cache
+    session[f'new_toefl_{section}_id'] = cache_id
+    return cache_id
+
+
+def _get_new_toefl_job(job_id: str) -> Optional[Dict[str, Any]]:
+    jobs = getattr(current_app, "_new_toefl_jobs", {})
+    return jobs.get(job_id) if isinstance(jobs, dict) else None
+
+
+def _put_new_toefl_job(job_id: str, payload: Dict[str, Any]) -> None:
+    lock = getattr(current_app, "_new_toefl_jobs_lock", None)
+    jobs = getattr(current_app, "_new_toefl_jobs", {})
+    if not isinstance(jobs, dict):
+        jobs = {}
+    if lock:
+        with lock:
+            jobs[job_id] = payload
+            current_app._new_toefl_jobs = jobs
+    else:
+        jobs[job_id] = payload
+        current_app._new_toefl_jobs = jobs
 
 
 def _get_new_toefl_payload(section: str) -> Optional[Dict[str, Any]]:
@@ -1109,6 +1269,15 @@ def new_toefl_listening_generate():
     if not user:
         return jsonify({'success': False, 'message': 'Unauthorized'}), 401
 
+    current_app.logger.info("New TOEFL listening generation requested (user_id=%s)", user.id)
+
+    # If a job is already in progress for this session, return it to avoid duplicates.
+    existing_job_id = session.get("new_toefl_listening_job_id")
+    if isinstance(existing_job_id, str):
+        existing = _get_new_toefl_job(existing_job_id)
+        if isinstance(existing, dict) and existing.get("status") in {"queued", "running"}:
+            return jsonify({'success': True, 'job_id': existing_job_id, 'status': existing.get("status")})
+
     if _throttle_new_toefl('listening'):
         cached = _get_new_toefl_payload('listening')
         if cached:
@@ -1119,16 +1288,103 @@ def new_toefl_listening_generate():
     if not client or not client.is_configured:
         return jsonify({'success': False, 'message': 'DeepSeek API is not configured'}), 503
 
-    tts = get_tts_service()
-    mock = generate_listening_mock(client, tts)
-    if not mock:
-        cached = _get_new_toefl_payload('listening')
-        if cached:
-            return jsonify({'success': True, 'cached': True, 'mock': cached})
-        return jsonify({'success': False, 'message': 'AI is busy right now. Please try again shortly.'}), 503
+    # Async generation to avoid Cloudflare 524 timeouts (TTS can take minutes).
+    cache_id = _reserve_new_toefl_payload('listening', user.id)
+    job_id = f"job_listening_{user.id}_{uuid4().hex[:10]}"
+    session["new_toefl_listening_job_id"] = job_id
 
-    cache_id = _store_new_toefl_payload('listening', user.id, mock)
-    return jsonify({'success': True, 'cache_id': cache_id, 'mock': mock})
+    _put_new_toefl_job(job_id, {
+        "status": "queued",
+        "section": "listening",
+        "user_id": user.id,
+        "cache_id": cache_id,
+        "created_at": time.time(),
+        "error": None,
+    })
+
+    def _worker(job_id_value: str, cache_id_value: str, user_id_value: int) -> None:
+        try:
+            with app.app_context():
+                _put_new_toefl_job(job_id_value, {
+                    **(_get_new_toefl_job(job_id_value) or {}),
+                    "status": "running",
+                    "started_at": time.time(),
+                })
+                t0 = time.monotonic()
+                client_local = get_gemini_client()
+                if not client_local or not client_local.is_configured:
+                    _put_new_toefl_job(job_id_value, {
+                        **(_get_new_toefl_job(job_id_value) or {}),
+                        "status": "failed",
+                        "finished_at": time.time(),
+                        "error": "DeepSeek API is not configured",
+                    })
+                    return
+
+                tts = get_tts_service()
+                current_app.logger.info("Listening mock (async): acquired TTS service (job_id=%s)", job_id_value)
+                mock = generate_listening_mock(client_local, tts)
+                elapsed = time.monotonic() - t0
+                current_app.logger.info("Listening mock (async): finished in %.2fs (job_id=%s)", elapsed, job_id_value)
+
+                if not mock:
+                    _put_new_toefl_job(job_id_value, {
+                        **(_get_new_toefl_job(job_id_value) or {}),
+                        "status": "failed",
+                        "finished_at": time.time(),
+                        "error": "AI is busy right now. Please try again shortly.",
+                    })
+                    return
+
+                cache = getattr(current_app, "_new_toefl_cache", {})
+                cache[cache_id_value] = mock
+                current_app._new_toefl_cache = cache
+
+                _put_new_toefl_job(job_id_value, {
+                    **(_get_new_toefl_job(job_id_value) or {}),
+                    "status": "done",
+                    "finished_at": time.time(),
+                    "error": None,
+                })
+        except Exception as exc:
+            with app.app_context():
+                current_app.logger.exception("Listening mock (async) crashed (job_id=%s): %s", job_id_value, exc)
+                _put_new_toefl_job(job_id_value, {
+                    **(_get_new_toefl_job(job_id_value) or {}),
+                    "status": "failed",
+                    "finished_at": time.time(),
+                    "error": "Generation crashed. Check server logs.",
+                })
+
+    threading.Thread(target=_worker, args=(job_id, cache_id, user.id), daemon=True).start()
+    return jsonify({'success': True, 'job_id': job_id, 'cache_id': cache_id, 'status': 'queued'})
+
+
+@app.route('/new-toefl/api/listening/job/<job_id>', methods=['GET'])
+@login_required
+def new_toefl_listening_job(job_id: str):
+    """Poll listening mock generation job status."""
+    user = get_current_user()
+    if not user:
+        return jsonify({'success': False, 'message': 'Unauthorized'}), 401
+
+    job = _get_new_toefl_job(job_id)
+    if not isinstance(job, dict) or job.get("section") != "listening":
+        return jsonify({'success': False, 'message': 'Job not found'}), 404
+    if job.get("user_id") != user.id:
+        return jsonify({'success': False, 'message': 'Unauthorized'}), 403
+
+    status = job.get("status")
+    response: Dict[str, Any] = {
+        "success": True,
+        "job_id": job_id,
+        "status": status,
+        "error": job.get("error"),
+    }
+    if status == "done":
+        payload = _get_new_toefl_payload("listening")
+        response["mock"] = payload
+    return jsonify(response)
 
 
 @app.route('/new-toefl/api/speaking/generate', methods=['POST'])
@@ -1293,6 +1549,8 @@ def new_toefl_reading_submit():
             results['daily_life'].append({
                 'id': daily.get('id'),
                 'index': idx,
+                'question': question.get('question'),
+                'options': question.get('options'),
                 'correct': is_correct,
                 'expected': question.get('answer'),
                 'selected': selected,
@@ -1308,6 +1566,8 @@ def new_toefl_reading_submit():
         is_correct = _answers_match(selected, question.get('answer', ''), question.get('options'))
         results['academic'].append({
             'index': idx,
+            'question': question.get('question'),
+            'options': question.get('options'),
             'correct': is_correct,
             'expected': question.get('answer'),
             'selected': selected,
@@ -1345,6 +1605,9 @@ def new_toefl_listening_submit():
         is_correct = _answers_match(selected, item.get('answer', ''), item.get('options'))
         results['responses'].append({
             'index': idx,
+            'prompt': item.get('prompt'),
+            'question': item.get('question'),
+            'options': item.get('options'),
             'correct': is_correct,
             'expected': item.get('answer'),
             'selected': selected,
@@ -1360,6 +1623,8 @@ def new_toefl_listening_submit():
         is_correct = _answers_match(selected, question.get('answer', ''), question.get('options'))
         results['conversation'].append({
             'index': idx,
+            'question': question.get('question'),
+            'options': question.get('options'),
             'correct': is_correct,
             'expected': question.get('answer'),
             'selected': selected,
@@ -1375,6 +1640,8 @@ def new_toefl_listening_submit():
         is_correct = _answers_match(selected, question.get('answer', ''), question.get('options'))
         results['talk'].append({
             'index': idx,
+            'question': question.get('question'),
+            'options': question.get('options'),
             'correct': is_correct,
             'expected': question.get('answer'),
             'selected': selected,
@@ -1411,6 +1678,8 @@ def new_toefl_writing_submit():
         is_correct = bool(expected) and expected == user_answer
         sentence_results.append({
             'index': idx,
+            'prompt': item.get('prompt'),
+            'tokens': item.get('tokens'),
             'correct': is_correct,
             'expected': item.get('answer'),
             'user': (answers.get('sentence_build') or {}).get(str(idx), ''),
@@ -4681,4 +4950,5 @@ def internal_error(error):
 
 if __name__ == '__main__':
     init_database()
+    _prewarm_tts_blocking()
     app.run(host='0.0.0.0', port=int(os.getenv('PORT', 1111)), debug=True)

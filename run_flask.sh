@@ -97,9 +97,17 @@ pip install -q -r requirements.txt
 export FLASK_APP=app.py
 export FLASK_ENV="${FLASK_ENV:-development}"
 export PORT="${PORT}"
-export GEMINI_API_KEY="AIzaSyBg7txhTF786IxZffdr8VEENMT-r5f9kCA"  # User's API key
+export LOG_DIR="${LOG_DIR:-$ROOT_DIR/logs}"
+export LOG_LEVEL="${LOG_LEVEL:-DEBUG}"
+export LLM_PROVIDER="${LLM_PROVIDER:-gemini}"
 export GEMINI_MODEL="${GEMINI_MODEL:-gemini-2.5-flash-lite}"
 export GEMINI_FALLBACK_MODEL="${GEMINI_FALLBACK_MODEL:-gemini-2.5-flash}"
+
+# Prefer providing API keys via environment variables instead of hardcoding.
+# DeepSeek client reads DEEPSEEK_API_KEY (preferred) or GEMINI_API_KEY (legacy fallback).
+if [[ -z "${DEEPSEEK_API_KEY:-}" && -z "${GEMINI_API_KEY:-}" ]]; then
+    echo "[WARN] No DEEPSEEK_API_KEY/GEMINI_API_KEY set. AI generation will be unavailable."
+fi
 
 echo "[FLASK] Initializing database..."
 python -c "from app import init_database; init_database()"

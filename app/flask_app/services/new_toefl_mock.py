@@ -1,7 +1,9 @@
 """DeepSeek-powered content generation for the New TOEFL mock exams."""
 from __future__ import annotations
 
+import math
 import random
+import re
 from typing import Any, Dict, List, Optional
 from uuid import uuid4
 
@@ -23,12 +25,15 @@ READING_CLOZE_TOPICS = [
 
 READING_SYSTEM_PROMPT = (
     "You are DeepSeek creating New TOEFL reading mock questions. "
-    "Return strict JSON matching the requested schema. Avoid markdown or extra text."
+    "Return strict JSON matching the requested schema. Avoid markdown or extra text. "
+    "All multiple-choice items MUST be unambiguous: exactly ONE option is correct, and every distractor must be clearly wrong."
 )
 
 LISTENING_SYSTEM_PROMPT = (
     "You are DeepSeek creating New TOEFL listening mock questions. "
-    "Return strict JSON matching the requested schema. Avoid markdown or extra text."
+    "Return strict JSON matching the requested schema. Avoid markdown or extra text. "
+    "All multiple-choice items MUST be unambiguous: exactly ONE option is correct, and every distractor must be clearly wrong. "
+    "Before responding, mentally verify that the 3 wrong options are clearly wrong."
 )
 
 SPEAKING_SYSTEM_PROMPT = (
@@ -44,6 +49,129 @@ WRITING_SYSTEM_PROMPT = (
 
 def _safe_text(value: Any) -> str:
     return str(value or "").strip()
+
+_WORD_RE = re.compile(r"\b[A-Za-z]{6,14}\b")
+_STOPWORDS = {
+    "about",
+    "above",
+    "after",
+    "again",
+    "below",
+    "because",
+    "between",
+    "before",
+    "during",
+    "every",
+    "first",
+    "found",
+    "however",
+    "might",
+    "never",
+    "other",
+    "their",
+    "there",
+    "these",
+    "therefore",
+    "through",
+    "together",
+    "under",
+    "where",
+    "which",
+    "while",
+    "without",
+    "would",
+}
+
+
+def _build_cloze_from_paragraph(paragraph: str, blank_count: Optional[int] = None) -> Optional[Dict[str, Any]]:
+    """Deterministically build a strict cloze task from a paragraph.
+
+    Rules enforced here (no reliance on LLM correctness):
+    - Choose 5–6 words (or `blank_count` if provided)
+    - Replace each chosen word with a partial blank like `poll___`
+    - Keep at least 1/3 of the characters (minimum 2), and remove >= 1 character
+    - Ensure each `token` appears in the final paragraph
+    """
+    text = _safe_text(paragraph)
+    if not text:
+        return None
+
+    # Collect candidate word occurrences with positions so we can replace safely.
+    occurrences: List[Dict[str, Any]] = []
+    for match in _WORD_RE.finditer(text):
+        word = match.group(0)
+        if not word:
+            continue
+        # Avoid proper nouns (capitalized). Keeps things simpler and matches "not proper nouns" intent.
+        if word[0].isupper():
+            continue
+        if word.lower() in _STOPWORDS:
+            continue
+        occurrences.append({"word": word, "start": match.start(), "end": match.end()})
+
+    if not occurrences:
+        return None
+
+    # Prefer unique words.
+    seen = set()
+    unique: List[Dict[str, Any]] = []
+    for occ in occurrences:
+        key = str(occ["word"]).lower()
+        if key in seen:
+            continue
+        seen.add(key)
+        unique.append(occ)
+
+    target_count = blank_count if isinstance(blank_count, int) else random.randint(5, 6)
+    if len(unique) < target_count:
+        # If we can't get enough unique words, fall back to occurrences (may include repeats).
+        pool = occurrences
+    else:
+        pool = unique
+
+    if len(pool) < target_count:
+        return None
+
+    chosen = random.sample(pool, k=target_count)
+
+    blanks: List[Dict[str, Any]] = []
+    paragraph_out = text
+    for entry in chosen:
+        answer = str(entry["word"])
+        keep_len = max(2, int(math.ceil(len(answer) / 3.0)))
+        if keep_len >= len(answer):
+            keep_len = max(1, len(answer) - 1)
+        missing = len(answer) - keep_len
+        if missing <= 0:
+            continue
+        token = f"{answer[:keep_len]}{'_' * missing}"
+
+        # Replace only the first exact word boundary occurrence.
+        pattern = rf"\b{re.escape(answer)}\b"
+        new_text, replaced = re.subn(pattern, token, paragraph_out, count=1)
+        if replaced != 1:
+            continue
+        paragraph_out = new_text
+
+        blanks.append(
+            {
+                "token": token,
+                "answer": answer,
+                "part_of_speech": "unknown",
+                "hint": "Complete the word using context.",
+            }
+        )
+
+    if len(blanks) != target_count:
+        return None
+    if not all(blank["token"] in paragraph_out for blank in blanks):
+        return None
+
+    return {
+        "id": f"cloze_{uuid4().hex[:8]}",
+        "paragraph": paragraph_out,
+        "blanks": blanks,
+    }
 
 
 # ---------------------------------------------------------------------------
@@ -61,20 +189,13 @@ def _generate_cloze_paragraph(
 
     focus_topic = topic or "academic life"
     prompt = (
-        "Create ONE New TOEFL reading cloze task (Complete the Words).\n"
+        "Create ONE New TOEFL reading cloze paragraph for \"Complete the Words\".\n"
         f"Topic: {focus_topic}\n\n"
         "OUTPUT RULES:\n"
-        "1. Return a JSON object with keys: id, paragraph, blanks.\n"
-        "2. paragraph must be 90-120 words. Replace each missing word with a PARTIAL blank, e.g., \"poll___\".\n"
-        "   - Keep the first 2-4 letters of the target word, then add underscores for the missing letters.\n"
-        "   - The number of underscores should match the number of missing letters.\n"
-        f"3. Provide exactly {blank_count} blanks.\n"
-        "4. blanks is an array with objects: token, answer, part_of_speech, hint.\n"
-        "   - token must match the exact partial blank string used in the paragraph (e.g., \"poll___\").\n"
-        "5. answer must be the full word that completes the blank.\n"
-        "6. hint is a concise English clue (<= 12 words) describing meaning or grammar.\n"
-        "7. Ensure the missing words are moderately advanced (CEFR B2-C1) and not proper nouns.\n"
-        "8. Return strict JSON only."
+        "1. Return a JSON object with keys: id, paragraph.\n"
+        "2. paragraph must be 90-120 words, academic tone, cohesive.\n"
+        "3. Do NOT include blanks. The system will create blanks deterministically.\n"
+        "4. Return strict JSON only."
     )
 
     payload = client.generate_json(
@@ -87,22 +208,19 @@ def _generate_cloze_paragraph(
         return None
 
     paragraph = _safe_text(payload.get("paragraph"))
-    blanks = payload.get("blanks")
-    if not paragraph or not isinstance(blanks, list) or len(blanks) != blank_count:
-        return None
-    tokens = [_safe_text(blank.get("token")) for blank in blanks]
-    if not all(tokens):
-        return None
-    if not all("_" in token for token in tokens):
-        return None
-    if not all(token in paragraph for token in tokens):
+    if not paragraph:
         return None
 
-    return {
-        "id": payload.get("id") or f"cloze_{uuid4().hex[:8]}",
-        "paragraph": paragraph,
-        "blanks": blanks,
-    }
+    # Choose 5–6 blanks; keep strict behavior for callers that still pass blank_count.
+    target = blank_count if isinstance(blank_count, int) else None
+    # If blank_count was explicitly provided as 5, still allow 5–6 by default here.
+    if target == 5:
+        target = None
+    built = _build_cloze_from_paragraph(paragraph, blank_count=target)
+    if not built:
+        return None
+    built["id"] = payload.get("id") or built["id"]
+    return built
 
 
 def _generate_daily_life_set(client: GeminiClient) -> Optional[Dict[str, Any]]:
@@ -122,30 +240,37 @@ def _generate_daily_life_set(client: GeminiClient) -> Optional[Dict[str, Any]]:
         "4. Each question has: question, options (array of 4), answer, rationales.\n"
         "5. answer must exactly match one option.\n"
         "6. rationales is an object mapping each option to a concise English explanation (<= 18 words).\n"
-        "7. Keep language clear and realistic for real-life reading.\n"
-        "8. Return strict JSON only."
+        "7. UNAMBIGUITY: Only ONE option may be correct for each question. Make distractors plausible but decisively wrong.\n"
+        "   - Avoid near-duplicates (synonyms that both fit).\n"
+        "   - Avoid two general statements that both match the text.\n"
+        "   - Before returning, mentally verify the 3 wrong options are wrong.\n"
+        "8. Keep language clear and realistic for real-life reading.\n"
+        "9. Return strict JSON only."
     )
 
-    payload = client.generate_json(
-        prompt,
-        temperature=0.35,
-        system_instruction=READING_SYSTEM_PROMPT,
-        max_output_tokens=1600,
-    )
-    if not isinstance(payload, dict):
-        return None
+    for _ in range(3):
+        payload = client.generate_json(
+            prompt,
+            temperature=0.35,
+            system_instruction=READING_SYSTEM_PROMPT,
+            max_output_tokens=1600,
+        )
+        if not isinstance(payload, dict):
+            continue
 
-    source_text = _safe_text(payload.get("source_text"))
-    questions = payload.get("questions")
-    if not source_text or not isinstance(questions, list) or len(questions) != 2:
-        return None
+        source_text = _safe_text(payload.get("source_text"))
+        questions = payload.get("questions")
+        if not source_text or not isinstance(questions, list) or len(questions) != 2:
+            continue
 
-    return {
-        "id": payload.get("id") or f"daily_{uuid4().hex[:8]}",
-        "source_text": source_text,
-        "source_type": payload.get("source_type", "email"),
-        "questions": questions,
-    }
+        return {
+            "id": payload.get("id") or f"daily_{uuid4().hex[:8]}",
+            "source_text": source_text,
+            "source_type": payload.get("source_type", "email"),
+            "questions": questions,
+        }
+
+    return None
 
 
 def _generate_academic_passage_set(client: GeminiClient) -> Optional[Dict[str, Any]]:
@@ -166,28 +291,34 @@ def _generate_academic_passage_set(client: GeminiClient) -> Optional[Dict[str, A
         "4. Each question has: question, options (array of 4), answer, rationales.\n"
         "5. answer must exactly match one option.\n"
         "6. rationales is an object mapping each option to a concise English explanation (<= 20 words).\n"
-        "7. Return strict JSON only."
+        "7. UNAMBIGUITY: Only ONE option may be correct per question. Distractors must be clearly wrong given the passage.\n"
+        "   - Avoid two options that are both supported by the passage.\n"
+        "   - If two could be correct, rewrite distractors until only one remains.\n"
+        "8. Return strict JSON only."
     )
 
-    payload = client.generate_json(
-        prompt,
-        temperature=0.35,
-        system_instruction=READING_SYSTEM_PROMPT,
-        max_output_tokens=2200,
-    )
-    if not isinstance(payload, dict):
-        return None
+    for _ in range(3):
+        payload = client.generate_json(
+            prompt,
+            temperature=0.35,
+            system_instruction=READING_SYSTEM_PROMPT,
+            max_output_tokens=2200,
+        )
+        if not isinstance(payload, dict):
+            continue
 
-    passage = _safe_text(payload.get("passage"))
-    questions = payload.get("questions")
-    if not passage or not isinstance(questions, list) or len(questions) != 4:
-        return None
+        passage = _safe_text(payload.get("passage"))
+        questions = payload.get("questions")
+        if not passage or not isinstance(questions, list) or len(questions) != 4:
+            continue
 
-    return {
-        "id": payload.get("id") or f"academic_{uuid4().hex[:8]}",
-        "passage": passage,
-        "questions": questions,
-    }
+        return {
+            "id": payload.get("id") or f"academic_{uuid4().hex[:8]}",
+            "passage": passage,
+            "questions": questions,
+        }
+
+    return None
 
 
 def generate_reading_mock(client: Optional[GeminiClient] = None) -> Optional[Dict[str, Any]]:
@@ -212,6 +343,22 @@ def generate_reading_mock(client: Optional[GeminiClient] = None) -> Optional[Dic
             daily_life_tasks.append(item)
 
     academic = _generate_academic_passage_set(client)
+
+    # Ensure we have cloze tasks even if paragraph generation fails, by building from other text.
+    if len(cloze_tasks) < 2:
+        sources: List[str] = []
+        if academic and isinstance(academic, dict) and academic.get("passage"):
+            sources.append(str(academic.get("passage")))
+        for daily in daily_life_tasks:
+            if isinstance(daily, dict) and daily.get("source_text"):
+                sources.append(str(daily.get("source_text")))
+
+        for source in sources:
+            if len(cloze_tasks) >= 2:
+                break
+            fallback = _build_cloze_from_paragraph(source)
+            if fallback:
+                cloze_tasks.append(fallback)
 
     if not cloze_tasks and not daily_life_tasks and not academic:
         return None
@@ -241,24 +388,30 @@ def _generate_listen_response_items(client: GeminiClient, count: int = 6) -> Opt
         "4. prompt is a short sentence or question suitable for spoken audio (8-12 words).\n"
         "5. answer must exactly match one option.\n"
         "6. rationales maps each option to a concise English reason (<= 14 words).\n"
-        "7. Avoid cultural references; keep campus or everyday situations.\n"
-        "8. Return strict JSON only."
+        "7. UNAMBIGUITY: Exactly ONE option must be the only pragmatically appropriate response.\n"
+        "   - Make wrong options clearly mismatched in intent (wrong question type, contradictory, irrelevant, wrong tone).\n"
+        "   - Do NOT include two polite variants that would both be acceptable.\n"
+        "   - Before returning, check that ONLY the answer option is acceptable.\n"
+        "8. Avoid cultural references; keep campus or everyday situations.\n"
+        "9. Return strict JSON only."
     )
 
-    payload = client.generate_json(
-        prompt,
-        temperature=0.35,
-        system_instruction=LISTENING_SYSTEM_PROMPT,
-        max_output_tokens=1500,
-    )
-    if not isinstance(payload, dict):
-        return None
+    for _ in range(3):
+        payload = client.generate_json(
+            prompt,
+            temperature=0.35,
+            system_instruction=LISTENING_SYSTEM_PROMPT,
+            max_output_tokens=1500,
+        )
+        if not isinstance(payload, dict):
+            continue
 
-    items = payload.get("items")
-    if not isinstance(items, list) or len(items) != count:
-        return None
+        items = payload.get("items")
+        if not isinstance(items, list) or len(items) != count:
+            continue
 
-    return items
+        return items
+    return None
 
 
 def _generate_conversation_set(client: GeminiClient) -> Optional[Dict[str, Any]]:
@@ -274,28 +427,32 @@ def _generate_conversation_set(client: GeminiClient) -> Optional[Dict[str, Any]]
         "4. questions is an array of exactly 3 objects.\n"
         "5. Each question has: question, options (array of 4), answer, rationales.\n"
         "6. rationales maps each option to concise English reasons (<= 18 words).\n"
-        "7. Return strict JSON only."
+        "7. UNAMBIGUITY: Only ONE option may be correct for each question. Distractors must be clearly wrong.\n"
+        "   - Ensure each wrong option contradicts or is unsupported by the conversation.\n"
+        "8. Return strict JSON only."
     )
 
-    payload = client.generate_json(
-        prompt,
-        temperature=0.35,
-        system_instruction=LISTENING_SYSTEM_PROMPT,
-        max_output_tokens=2000,
-    )
-    if not isinstance(payload, dict):
-        return None
+    for _ in range(3):
+        payload = client.generate_json(
+            prompt,
+            temperature=0.35,
+            system_instruction=LISTENING_SYSTEM_PROMPT,
+            max_output_tokens=2000,
+        )
+        if not isinstance(payload, dict):
+            continue
 
-    segments = payload.get("segments")
-    questions = payload.get("questions")
-    if not isinstance(segments, list) or not isinstance(questions, list) or len(questions) != 3:
-        return None
+        segments = payload.get("segments")
+        questions = payload.get("questions")
+        if not isinstance(segments, list) or not isinstance(questions, list) or len(questions) != 3:
+            continue
 
-    return {
-        "id": payload.get("id") or f"conv_{uuid4().hex[:8]}",
-        "segments": segments,
-        "questions": questions,
-    }
+        return {
+            "id": payload.get("id") or f"conv_{uuid4().hex[:8]}",
+            "segments": segments,
+            "questions": questions,
+        }
+    return None
 
 
 def _generate_talk_set(client: GeminiClient) -> Optional[Dict[str, Any]]:
@@ -310,28 +467,32 @@ def _generate_talk_set(client: GeminiClient) -> Optional[Dict[str, Any]]:
         "3. questions is an array of exactly 3 objects.\n"
         "4. Each question has: question, options (array of 4), answer, rationales.\n"
         "5. rationales maps each option to concise English reasons (<= 18 words).\n"
-        "6. Return strict JSON only."
+        "6. UNAMBIGUITY: Only ONE option may be correct for each question. Distractors must be clearly wrong.\n"
+        "   - Ensure each wrong option contradicts or is unsupported by the talk.\n"
+        "7. Return strict JSON only."
     )
 
-    payload = client.generate_json(
-        prompt,
-        temperature=0.35,
-        system_instruction=LISTENING_SYSTEM_PROMPT,
-        max_output_tokens=2000,
-    )
-    if not isinstance(payload, dict):
-        return None
+    for _ in range(3):
+        payload = client.generate_json(
+            prompt,
+            temperature=0.35,
+            system_instruction=LISTENING_SYSTEM_PROMPT,
+            max_output_tokens=2000,
+        )
+        if not isinstance(payload, dict):
+            continue
 
-    talk = _safe_text(payload.get("talk"))
-    questions = payload.get("questions")
-    if not talk or not isinstance(questions, list) or len(questions) != 3:
-        return None
+        talk = _safe_text(payload.get("talk"))
+        questions = payload.get("questions")
+        if not talk or not isinstance(questions, list) or len(questions) != 3:
+            continue
 
-    return {
-        "id": payload.get("id") or f"talk_{uuid4().hex[:8]}",
-        "talk": talk,
-        "questions": questions,
-    }
+        return {
+            "id": payload.get("id") or f"talk_{uuid4().hex[:8]}",
+            "talk": talk,
+            "questions": questions,
+        }
+    return None
 
 
 def generate_listening_mock(
@@ -344,7 +505,9 @@ def generate_listening_mock(
 
     tts = tts or TTSService()
 
+    current_app.logger.info("New TOEFL listening mock: generating response items...")
     response_items = _generate_listen_response_items(client) or []
+    current_app.logger.info("New TOEFL listening mock: response items=%s", len(response_items))
     for item in response_items:
         prompt_text = _safe_text(item.get("prompt"))
         if not prompt_text:
@@ -353,6 +516,7 @@ def generate_listening_mock(
         if audio:
             item["audio_url"] = f"/static/{audio.audio_path}"
 
+    current_app.logger.info("New TOEFL listening mock: generating conversation...")
     conversation = _generate_conversation_set(client)
     if conversation:
         segments = conversation.get("segments", [])
@@ -360,6 +524,7 @@ def generate_listening_mock(
         if audio:
             conversation["audio_url"] = f"/static/{audio.audio_path}"
 
+    current_app.logger.info("New TOEFL listening mock: generating talk...")
     talk = _generate_talk_set(client)
     if talk:
         audio = tts.generate_audio(talk.get("talk", ""), filename_prefix="new_toefl_talk")
@@ -367,6 +532,7 @@ def generate_listening_mock(
             talk["audio_url"] = f"/static/{audio.audio_path}"
 
     if not response_items and not conversation and not talk:
+        current_app.logger.warning("New TOEFL listening mock: nothing generated")
         return None
 
     return {

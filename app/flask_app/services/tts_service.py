@@ -22,6 +22,7 @@ import os
 import time
 import json
 import io
+import threading
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 import requests
@@ -65,6 +66,14 @@ class TTSService:
         self.provider = os.getenv('TTS_PROVIDER', 'kokoro').lower()  # Default to Kokoro for natural voice
         self.audio_dir = None  # Will be set when app context is available
         self.kokoro_pipe = None  # Lazy-loaded Kokoro pipeline
+        # Re-entrant: prewarm may call synthesis helpers which also lock.
+        self._kokoro_lock = threading.RLock()
+        self.device = os.getenv("TTS_DEVICE")
+        if not self.device:
+            if self.provider == "kokoro" and KOKORO_AVAILABLE:
+                self.device = "cuda:0" if torch.cuda.is_available() else "cpu"
+            else:
+                self.device = "cpu"
 
     def _ensure_audio_dir(self) -> Path:
         """Ensure audio directory exists."""
@@ -72,6 +81,58 @@ class TTSService:
             self.audio_dir = Path(current_app.root_path) / "static" / "listening_audio"
             self.audio_dir.mkdir(parents=True, exist_ok=True)
         return self.audio_dir
+
+    def prewarm(self) -> None:
+        """Pre-load Kokoro weights/voices so first user request doesn't block.
+
+        Safe to call multiple times.
+        """
+        if self.provider != "kokoro" or not KOKORO_AVAILABLE:
+            return
+
+        try:
+            # Ensure directory exists under app context.
+            self._ensure_audio_dir()
+        except Exception:
+            # If called outside app context, skip.
+            return
+
+        try:
+            # 1) Ensure pipeline is instantiated on the target device.
+            with self._kokoro_lock:
+                if self.kokoro_pipe is None:
+                    current_app.logger.info("Prewarming Kokoro pipeline...")
+                    if self.device.startswith("cuda") and torch.cuda.is_available():
+                        current_app.logger.info("Kokoro device: cuda (%s)", torch.cuda.get_device_name(0))
+                    else:
+                        current_app.logger.info("Kokoro device: %s", self.device)
+                    self.kokoro_pipe = KPipeline(lang_code='a', device=self.device)
+                    current_app.logger.info("Kokoro pipeline prewarmed")
+
+            # 2) Trigger first-run voice/model loads without doing MP3 export work.
+            self._prewarm_kokoro_synthesis(text="Prewarming audio.", voice_id="af_heart")
+        except Exception:
+            # Prewarm is best-effort; real requests can still fall back.
+            current_app.logger.exception("Kokoro prewarm failed")
+
+    def _prewarm_kokoro_synthesis(self, *, text: str, voice_id: str) -> None:
+        """Warm up generation path (weights/voice) without exporting audio files."""
+        if not self.kokoro_pipe:
+            return
+        with self._kokoro_lock:
+            gen = self.kokoro_pipe(text, voice=voice_id)
+            # Drain generator to force full forward pass / voice load.
+            for chunk in gen:
+                if len(chunk) >= 3:
+                    _, _, audio_data = chunk
+                else:
+                    audio_data = chunk
+                # Force materialization.
+                if KOKORO_AVAILABLE and isinstance(audio_data, torch.Tensor):
+                    _ = audio_data.detach().cpu().numpy()
+                else:
+                    _ = np.asarray(audio_data)
+            current_app.logger.info("Kokoro synthesis prewarm complete (voice=%s)", voice_id)
 
     def generate_audio(
         self,
@@ -251,15 +312,26 @@ class TTSService:
             current_app.logger.warning("Kokoro not available, falling back to gTTS")
             return self._generate_gtts(text, filename_prefix)
 
-        # Lazy-load Kokoro pipeline
+        # Lazy-load Kokoro pipeline, but avoid blocking request threads indefinitely.
         if self.kokoro_pipe is None:
+            timeout_s = float(os.getenv("KOKORO_LOAD_LOCK_TIMEOUT_SECONDS", "0").strip() or "0")
+            acquired = self._kokoro_lock.acquire(timeout=timeout_s) if timeout_s > 0 else self._kokoro_lock.acquire(blocking=False)
+            if not acquired:
+                current_app.logger.warning("Kokoro is still warming up; falling back to gTTS for this request.")
+                return self._generate_gtts(text, filename_prefix)
             try:
-                current_app.logger.info("Loading Kokoro pipeline...")
-                self.kokoro_pipe = KPipeline(lang_code='a')  # Auto language routing
-                current_app.logger.info("Kokoro pipeline loaded successfully")
+                if self.kokoro_pipe is None:
+                    current_app.logger.info("Loading Kokoro pipeline...")
+                    self.kokoro_pipe = KPipeline(lang_code='a', device=self.device)  # Auto language routing
+                    current_app.logger.info("Kokoro pipeline loaded successfully")
             except Exception as e:
                 current_app.logger.error(f"Failed to load Kokoro pipeline: {e}")
                 return self._generate_gtts(text, filename_prefix)
+            finally:
+                try:
+                    self._kokoro_lock.release()
+                except Exception:
+                    pass
 
         audio_dir = self._ensure_audio_dir()
         timestamp = int(time.time() * 1000)
@@ -275,16 +347,15 @@ class TTSService:
             voice_id = voice
 
         try:
-            # Generate audio with Kokoro
-            # Kokoro follows punctuation naturally for pauses
-            gen = self.kokoro_pipe(text, voice=voice_id)
-
+            # Guard pipeline usage (it may not be thread-safe).
             audio_chunks = []
-            for _, _, audio_data in gen:
-                if isinstance(audio_data, torch.Tensor):
-                    audio_chunks.append(audio_data.detach().cpu().numpy())
-                else:
-                    audio_chunks.append(np.asarray(audio_data))
+            with self._kokoro_lock:
+                gen = self.kokoro_pipe(text, voice=voice_id)
+                for _, _, audio_data in gen:
+                    if isinstance(audio_data, torch.Tensor):
+                        audio_chunks.append(audio_data.detach().cpu().numpy())
+                    else:
+                        audio_chunks.append(np.asarray(audio_data))
 
             if not audio_chunks:
                 raise ValueError("Kokoro returned no audio data")
@@ -595,7 +666,9 @@ class TTSService:
         if self.kokoro_pipe is None:
             try:
                 current_app.logger.info("Loading Kokoro pipeline for multi-speaker...")
-                self.kokoro_pipe = KPipeline(lang_code='a')
+                with self._kokoro_lock:
+                    if self.kokoro_pipe is None:
+                        self.kokoro_pipe = KPipeline(lang_code='a', device=self.device)
                 current_app.logger.info("Kokoro pipeline loaded")
             except Exception as e:
                 current_app.logger.error(f"Failed to load Kokoro: {e}")
@@ -637,13 +710,14 @@ class TTSService:
                     continue
 
                 # Generate audio for this segment
-                gen = self.kokoro_pipe(text, voice=voice)
                 segment_chunks = []
-                for _, _, audio_data in gen:
-                    if isinstance(audio_data, torch.Tensor):
-                        segment_chunks.append(audio_data.detach().cpu().numpy())
-                    else:
-                        segment_chunks.append(np.asarray(audio_data))
+                with self._kokoro_lock:
+                    gen = self.kokoro_pipe(text, voice=voice)
+                    for _, _, audio_data in gen:
+                        if isinstance(audio_data, torch.Tensor):
+                            segment_chunks.append(audio_data.detach().cpu().numpy())
+                        else:
+                            segment_chunks.append(np.asarray(audio_data))
 
                 if not segment_chunks:
                     current_app.logger.warning(f"Kokoro returned no audio for segment speaker={speaker}")
@@ -702,4 +776,10 @@ class TTSService:
 
 def get_tts_service() -> TTSService:
     """Factory function to get TTS service instance."""
-    return TTSService()
+    global _tts_service
+    if _tts_service is None:
+        _tts_service = TTSService()
+    return _tts_service
+
+
+_tts_service: Optional[TTSService] = None

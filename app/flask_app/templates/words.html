@@ -2,6 +2,26 @@
 
 {% block title %}Browse Words - TOEFL Vocabulary Studio{% endblock %}
 
+{% block extra_css %}
+<style>
+    .word-tabs .nav-link {
+        color: var(--toefl-text);
+        background: #ffffff;
+        border-color: var(--toefl-border-light);
+    }
+
+    .word-tabs .nav-link.active {
+        color: var(--toefl-text);
+        background: var(--toefl-gray-bg);
+        border-color: var(--toefl-border);
+    }
+
+    .word-table {
+        color: var(--toefl-text);
+    }
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="row justify-content-center">
     <div class="col-lg-10">
@@ -16,7 +36,7 @@
         </div>
 
         <!-- Category Tabs -->
-        <ul class="nav nav-tabs mb-4">
+        <ul class="nav nav-tabs mb-4 word-tabs">
             <li class="nav-item">
                 <a class="nav-link {% if category == 'new' %}active{% endif %}"
                    href="{{ url_for('browse_words', category='new') }}">
@@ -49,7 +69,7 @@
 
             {% if enriched_words %}
             <div class="table-responsive">
-                <table class="table table-dark table-hover">
+                <table class="table table-hover word-table">
                     <thead>
                         <tr>
                             <th>Word</th>

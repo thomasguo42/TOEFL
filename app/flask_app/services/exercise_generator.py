@@ -11,7 +11,8 @@ from .gemini_client import GeminiClient, get_gemini_client
 VOCAB_SYSTEM_PROMPT = (
     "You are DeepSeek acting as an experienced TOEFL vocabulary coach for Chinese learners. "
     "Always return valid JSON that exactly follows the requested schema. Use an academic but encouraging tone, "
-    "and provide concise Simplified Chinese rationales that explain why each option works or fails in context."
+    "and provide concise Simplified Chinese rationales that explain why each option works or fails in context. "
+    "All multiple-choice questions MUST be unambiguous: exactly ONE option is correct, and distractors must be clearly wrong."
 )
 
 
@@ -39,6 +40,8 @@ def generate_gap_fill_single(word: Word, client: Optional[GeminiClient] = None) 
         "3. Provide exactly four options (strings). Only one option may be correct.\n"
         "4. The answer value must match one of the options exactly (case-sensitive).\n"
         "5. Distractors should be near synonyms or collocations that fail because of meaning, tone, or grammar.\n"
+        "   UNAMBIGUITY: The sentence must make ONLY the correct option idiomatic and logical.\n"
+        "   SELF-CHECK: If you can argue for two options, rewrite distractors until only one is defensible.\n"
         "6. rationales must include ≤35 character Simplified Chinese feedback for EVERY option (all 4 options).\n"
         "7. Maintain an academic TOEFL register and ensure context clearly signals the correct choice.\n"
         "8. ALL text except the rationales must remain in English. Chinese is ONLY allowed inside the rationales.\n\n"
@@ -88,6 +91,8 @@ def generate_synonym_single(word: Word, client: Optional[GeminiClient] = None) -
         "OUTPUT RULES:\n"
         "1. Return a JSON object (NOT an array) with keys: word, sentence, options, answer, explanation_cn, rationales.\n"
         "2. Provide exactly four options (strings). Only one should perfectly match the nuance required by the sentence.\n"
+        "   UNAMBIGUITY: Make the sentence context decisive; no two options can both reasonably fit.\n"
+        "   SELF-CHECK: If two options seem acceptable, strengthen the context and rewrite distractors.\n"
         "3. Highlight the target word inside the sentence with double asterisks, for example **resilient**.\n"
         "4. The sentence should be 22-30 words, academic TOEFL tone, and reveal why the answer is best.\n"
         "5. answer must equal one of the options exactly. explanation_cn must be ≤40 Simplified Chinese characters summarising the winning nuance.\n"
@@ -150,6 +155,7 @@ def generate_reading_passage_single(words: List[Word], topic: str, client: Optio
         "2. The passage must read like a polished academic text with clear flow and transitions.\n"
         "3. quiz must contain 3 or 4 question objects. Each object requires keys: word, question, options (exactly 4 strings), answer, explanation_cn, rationales.\n"
         "4. Only one option per question may be correct; answer must match one option exactly.\n"
+        "   UNAMBIGUITY: Make each question decidable from the passage; no two options can be justified.\n"
         "5. explanation_cn must be ≤50 Simplified Chinese characters explaining why the answer fits the passage.\n"
         "6. rationales must cover EVERY option (all 4) in ≤40 Simplified Chinese characters, identifying error types (反向, 未提及, 语义不符, etc.).\n"
         "7. ALL other content (passage, questions, options) must stay in English. Chinese is ONLY allowed inside explanation_cn and rationales.\n"
@@ -165,7 +171,7 @@ def generate_reading_passage_single(words: List[Word], topic: str, client: Optio
             system_instruction=(
                 "You are DeepSeek designing TOEFL reading immersion for Chinese learners. "
                 "Follow the JSON schema exactly, embed every requested vocabulary item naturally, "
-                "and deliver succinct Simplified Chinese rationales."
+                "deliver succinct Simplified Chinese rationales, and ensure each MCQ has exactly one correct choice."
             ),
             max_output_tokens=2048,
         )

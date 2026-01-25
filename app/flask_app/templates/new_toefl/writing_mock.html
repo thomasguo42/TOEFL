@@ -153,28 +153,135 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const renderResults = (payload) => {
         if (!payload) return;
-        const emailScore = payload.email_feedback?.overall_score ?? 'N/A';
-        const emailSummary = escapeHtml(payload.email_feedback?.coach_summary || '');
-        const discussionScore = payload.discussion_feedback?.overall_score ?? 'N/A';
-        const discussionSummary = escapeHtml(payload.discussion_feedback?.coach_summary || '');
-        const summary = `
+        const sentenceSummary = `
             <div class="alert alert-info">
                 Sentence Build Score: ${payload.sentence_score}% (${payload.sentence_correct}/${payload.sentence_total})
             </div>
-            <div class="card mb-3">
-                <div class="card-body">
-                    <h5>Email Feedback (Score: ${emailScore})</h5>
-                    <p class="mb-0">${emailSummary || 'No summary returned.'}</p>
+        `;
+
+        const sentenceRows = (payload.sentence_results || []).map((item, idx) => {
+            const statusClass = item.correct ? 'text-success' : 'text-danger';
+            const prompt = escapeHtml(item.prompt || '');
+            const tokens = Array.isArray(item.tokens) ? item.tokens.map(escapeHtml).join(' | ') : '';
+            const expected = escapeHtml(item.expected || '');
+            const user = escapeHtml(item.user || '');
+            return `
+                <div class="d-flex align-items-start gap-3 py-2 border-bottom">
+                    <div class="${statusClass} fw-semibold">${item.correct ? 'Correct' : 'Wrong'}</div>
+                    <div class="flex-grow-1">
+                        <div><strong>Sentence ${idx + 1}</strong></div>
+                        ${prompt ? `<div class="text-muted">${prompt}</div>` : ''}
+                        ${tokens ? `<div class="small text-muted">${tokens}</div>` : ''}
+                        <div><strong>Your answer:</strong> ${user || '<em>blank</em>'}</div>
+                        <div><strong>Expected:</strong> ${expected}</div>
+                    </div>
                 </div>
-            </div>
+            `;
+        }).join('');
+
+        const renderBullets = (items) => {
+            const list = Array.isArray(items) ? items.filter(Boolean) : [];
+            if (!list.length) return '';
+            return `<ul class="mb-0">${list.map((t) => `<li>${escapeHtml(t)}</li>`).join('')}</ul>`;
+        };
+
+        const renderSubscores = (feedback) => {
+            if (!feedback) return '';
+            const rows = [
+                ['Overall (0-30)', feedback.overall_score],
+                ['Content (0-5)', feedback.content_development_score],
+                ['Organization (0-5)', feedback.organization_structure_score],
+                ['Vocabulary (0-5)', feedback.vocabulary_language_score],
+                ['Grammar (0-5)', feedback.grammar_mechanics_score],
+            ].filter(([, val]) => val !== undefined && val !== null);
+            return `
+                <div class="small text-muted">
+                    ${rows.map(([label, val]) => `<span class="me-3"><strong>${escapeHtml(label)}:</strong> ${escapeHtml(String(val))}</span>`).join('')}
+                </div>
+            `;
+        };
+
+        const renderTaskFeedback = (title, feedback, extraFields = []) => {
+            if (!feedback) {
+                return `
+                    <div class="card mb-3">
+                        <div class="card-body">
+                            <h5 class="mb-0">${escapeHtml(title)}</h5>
+                            <div class="text-muted">No feedback returned.</div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            const coachSummary = escapeHtml(feedback.coach_summary || '');
+            const annotations = Array.isArray(feedback.annotations) ? feedback.annotations : [];
+            const annotationsHtml = annotations.length ? `
+                <div class="mt-3">
+                    <h6 class="mb-2">In-line Notes</h6>
+                    <div class="small">
+                        ${annotations.slice(0, 8).map((ann) => {
+                            const text = escapeHtml(ann?.text || '');
+                            const comment = escapeHtml(ann?.comment || '');
+                            const type = escapeHtml(ann?.type || '');
+                            if (!text && !comment) return '';
+                            return `<div class="border rounded p-2 mb-2"><div class="text-muted">${type}</div><div><strong>${text}</strong></div><div>${comment}</div></div>`;
+                        }).join('')}
+                    </div>
+                </div>
+            ` : '';
+            const extras = extraFields.map(({ key, label }) => {
+                const value = feedback[key];
+                if (value === undefined || value === null) return '';
+                if (Array.isArray(value)) {
+                    return value.length ? `<div class="mt-3"><h6 class="mb-2">${escapeHtml(label)}</h6>${renderBullets(value)}</div>` : '';
+                }
+                const text = escapeHtml(String(value));
+                return text ? `<div class="mt-3"><h6 class="mb-2">${escapeHtml(label)}</h6><div class="text-muted">${text}</div></div>` : '';
+            }).join('');
+
+            return `
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <h5 class="mb-2">${escapeHtml(title)} (Score: ${escapeHtml(String(feedback.overall_score ?? 'N/A'))})</h5>
+                        ${renderSubscores(feedback)}
+                        ${coachSummary ? `<p class="mt-3 mb-0">${coachSummary}</p>` : '<p class="mt-3 mb-0 text-muted">No summary returned.</p>'}
+
+                        ${feedback.strengths?.length ? `<div class="mt-3"><h6 class="mb-2">Strengths</h6>${renderBullets(feedback.strengths)}</div>` : ''}
+                        ${feedback.improvements?.length ? `<div class="mt-3"><h6 class="mb-2">Improvements</h6>${renderBullets(feedback.improvements)}</div>` : ''}
+                        ${feedback.grammar_issues?.length ? `<div class="mt-3"><h6 class="mb-2">Grammar</h6>${renderBullets(feedback.grammar_issues)}</div>` : ''}
+                        ${feedback.vocabulary_suggestions?.length ? `<div class="mt-3"><h6 class="mb-2">Vocabulary</h6>${renderBullets(feedback.vocabulary_suggestions)}</div>` : ''}
+                        ${feedback.organization_notes?.length ? `<div class="mt-3"><h6 class="mb-2">Organization</h6>${renderBullets(feedback.organization_notes)}</div>` : ''}
+                        ${feedback.content_suggestions?.length ? `<div class="mt-3"><h6 class="mb-2">Content</h6>${renderBullets(feedback.content_suggestions)}</div>` : ''}
+                        ${annotationsHtml}
+                        ${extras}
+                    </div>
+                </div>
+            `;
+        };
+
+        const sentenceDetails = `
             <div class="card mb-3">
                 <div class="card-body">
-                    <h5>Discussion Feedback (Score: ${discussionScore})</h5>
-                    <p class="mb-0">${discussionSummary || 'No summary returned.'}</p>
+                    <h5 class="card-title">Sentence-by-sentence Feedback</h5>
+                    ${sentenceRows || '<div class="text-muted">No sentence results.</div>'}
                 </div>
             </div>
         `;
-        resultsEl.innerHTML = summary;
+
+        const emailDetails = renderTaskFeedback('Email Feedback', payload.email_feedback);
+        const discussionDetails = renderTaskFeedback(
+            'Discussion Feedback',
+            payload.discussion_feedback,
+            [
+                { key: 'content_accuracy', label: 'Thread Alignment' },
+                { key: 'point_coverage', label: 'Classmate References' },
+                { key: 'example_accuracy', label: 'New Contribution' },
+                { key: 'paraphrase_quality', label: 'Tone & Style' },
+                { key: 'source_integration', label: 'Evidence Precision' },
+            ],
+        );
+
+        resultsEl.innerHTML = sentenceSummary + sentenceDetails + emailDetails + discussionDetails;
     };
 
     generateBtn.addEventListener('click', async () => {

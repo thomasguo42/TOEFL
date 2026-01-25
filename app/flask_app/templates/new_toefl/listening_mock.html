@@ -90,6 +90,7 @@ document.addEventListener('DOMContentLoaded', () => {
         .replace(/'/g, '&#39;');
 
     const renderQuestion = (groupName, question, idx) => {
+        const stem = question.question || question.prompt || '';
         const options = (question.options || []).map((opt, optIdx) => `
             <div class="form-check">
                 <input class="form-check-input" type="radio" name="${groupName}" value="${escapeHtml(opt)}" id="${groupName}-${optIdx}">
@@ -98,7 +99,7 @@ document.addEventListener('DOMContentLoaded', () => {
         `).join('');
         return `
             <div class="mb-3">
-                <div class="fw-semibold mb-2">${idx + 1}. ${escapeHtml(question.question || '')}</div>
+                <div class="fw-semibold mb-2">${idx + 1}. ${escapeHtml(stem)}</div>
                 ${options}
             </div>
         `;
@@ -161,7 +162,65 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const renderResults = (payload) => {
         if (!payload) return;
-        resultsEl.innerHTML = `<div class="alert alert-info">Score: ${payload.score}% (${payload.correct}/${payload.total})</div>`;
+        const summary = `<div class="alert alert-info">Score: ${payload.score}% (${payload.correct}/${payload.total})</div>`;
+        const results = payload.results || {};
+
+        const renderRow = (label, item, idx) => {
+            const statusClass = item.correct ? 'text-success' : 'text-danger';
+            const expected = escapeHtml(item.expected || '');
+            const selected = escapeHtml(item.selected || '');
+            const stem = escapeHtml(item.prompt || item.question || '');
+            const rationales = item.rationales || {};
+            const options = Array.isArray(item.options) ? item.options.map(escapeHtml).join(' · ') : '';
+            const optionKeys = Array.isArray(item.options) && item.options.length ? item.options : Object.keys(rationales || {});
+            const optionRationales = (optionKeys || []).map((opt) => {
+                const rationale = escapeHtml(rationales[opt] || '');
+                const isCorrect = String(opt) === String(item.expected || '');
+                const isSelected = String(opt) === String(item.selected || '');
+                const badgeClass = isCorrect ? 'bg-success' : 'bg-secondary';
+                const labelText = isCorrect ? 'Correct' : 'Wrong';
+                const selectedMark = isSelected ? '<span class="badge bg-info ms-2">Your choice</span>' : '';
+                return `
+                    <div class="mt-1">
+                        <span class="badge ${badgeClass}">${labelText}</span>
+                        <span class="ms-2 ${isSelected ? 'fw-semibold' : ''}">${escapeHtml(String(opt))}</span>
+                        ${selectedMark}
+                        ${rationale ? `<div class="text-muted small ms-1">${rationale}</div>` : ''}
+                    </div>
+                `;
+            }).join('');
+
+            return `
+                <div class="d-flex align-items-start gap-3 py-2 border-bottom">
+                    <div class="${statusClass} fw-semibold">${item.correct ? 'Correct' : 'Wrong'}</div>
+                    <div class="flex-grow-1">
+                        <div><strong>${label} ${idx + 1}</strong></div>
+                        ${stem ? `<div class="text-muted">${stem}</div>` : ''}
+                        ${options ? `<div class="small text-muted">${options}</div>` : ''}
+                        <div><strong>Your answer:</strong> ${selected || '<em>blank</em>'}</div>
+                        <div><strong>Expected:</strong> ${expected}</div>
+                        ${optionRationales ? `<div class="mt-2"><div class="fw-semibold">Option Explanations</div>${optionRationales}</div>` : ''}
+                    </div>
+                </div>
+            `;
+        };
+
+        const responseRows = (results.responses || []).map((item, idx) => renderRow('Response', item, idx)).join('');
+        const conversationRows = (results.conversation || []).map((item, idx) => renderRow('Conversation Q', item, idx)).join('');
+        const talkRows = (results.talk || []).map((item, idx) => renderRow('Talk Q', item, idx)).join('');
+
+        const details = `
+            <div class="card mt-3">
+                <div class="card-body">
+                    <h5 class="card-title">Detailed Feedback</h5>
+                    ${responseRows ? `<h6 class="mt-3">Listen and Choose a Response</h6>${responseRows}` : ''}
+                    ${conversationRows ? `<h6 class="mt-3">Conversation</h6>${conversationRows}` : ''}
+                    ${talkRows ? `<h6 class="mt-3">Announcement / Academic Talk</h6>${talkRows}` : ''}
+                </div>
+            </div>
+        `;
+
+        resultsEl.innerHTML = summary + details;
     };
 
     generateBtn.addEventListener('click', async () => {
@@ -179,14 +238,64 @@ document.addEventListener('DOMContentLoaded', () => {
                 generateBtn.disabled = false;
                 return;
             }
-            currentMock = data.mock;
-            contentEl.innerHTML = [
-                renderResponses(currentMock.responses),
-                renderConversation(currentMock.conversation),
-                renderTalk(currentMock.talk),
-            ].join('');
-            statusEl.textContent = 'Mock generated. Complete the questions.';
-            submitBtn.disabled = false;
+            if (data.mock) {
+                currentMock = data.mock;
+                contentEl.innerHTML = [
+                    renderResponses(currentMock.responses),
+                    renderConversation(currentMock.conversation),
+                    renderTalk(currentMock.talk),
+                ].join('');
+                statusEl.textContent = data.cached ? 'Loaded cached mock. Complete the questions.' : 'Mock generated. Complete the questions.';
+                submitBtn.disabled = false;
+                return;
+            }
+            // Async job: poll until ready to avoid Cloudflare 524 timeouts.
+            const jobId = data.job_id;
+            if (!jobId) {
+                statusEl.textContent = data.message || 'Generation failed.';
+                generateBtn.disabled = false;
+                return;
+            }
+
+            statusEl.textContent = 'Generating listening mock (this can take ~1-3 minutes)...';
+
+            const poll = async () => {
+                const pollRes = await fetch(`{{ url_for("new_toefl_listening_job", job_id="JOB_ID") }}`.replace('JOB_ID', jobId));
+                const pollData = await pollRes.json();
+                if (!pollData.success) {
+                    statusEl.textContent = pollData.message || pollData.error || 'Generation failed.';
+                    return false;
+                }
+                if (pollData.status === 'failed') {
+                    statusEl.textContent = pollData.error || 'Generation failed.';
+                    return false;
+                }
+                if (pollData.status === 'done') {
+                    currentMock = pollData.mock;
+                    contentEl.innerHTML = [
+                        renderResponses(currentMock.responses),
+                        renderConversation(currentMock.conversation),
+                        renderTalk(currentMock.talk),
+                    ].join('');
+                    statusEl.textContent = 'Mock generated. Complete the questions.';
+                    submitBtn.disabled = false;
+                    return true;
+                }
+                return null;
+            };
+
+            // Poll up to ~6 minutes.
+            let attempts = 0;
+            const maxAttempts = 180; // 180 * 2s = 6 minutes
+            while (attempts < maxAttempts) {
+                attempts += 1;
+                const outcome = await poll();
+                if (outcome === true || outcome === false) break;
+                await new Promise((r) => setTimeout(r, 2000));
+            }
+            if (attempts >= maxAttempts) {
+                statusEl.textContent = 'Generation is taking too long. Please try again.';
+            }
         } catch (err) {
             statusEl.textContent = 'Generation failed. Please try again.';
         } finally {

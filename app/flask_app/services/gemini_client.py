@@ -1,4 +1,4 @@
-"""Client wrapper around the DeepSeek Chat Completions API."""
+"""Client wrapper around LLM providers (DeepSeek REST or Google Gemini SDK)."""
 from __future__ import annotations
 
 import json
@@ -11,9 +11,16 @@ from flask import current_app
 
 
 class GeminiClient:
-    """Lightweight client for structured content generation via DeepSeek."""
+    """Lightweight client for structured content generation via DeepSeek or Gemini.
 
-    DEFAULT_MODEL = "deepseek-chat"
+    Provider selection:
+    - Set `LLM_PROVIDER=gemini` to use Google Gemini via `google.generativeai`.
+    - Set `LLM_PROVIDER=deepseek` to use DeepSeek Chat Completions REST.
+    - If unset, defaults to `gemini` when `GEMINI_API_KEY` is present and `DEEPSEEK_API_KEY` is not.
+    """
+
+    DEFAULT_DEEPSEEK_MODEL = "deepseek-chat"
+    DEFAULT_GEMINI_MODEL = "gemini-2.5-flash-lite"
     DEFAULT_TIMEOUT = 40
     MAX_RETRIES = 5
     RETRY_STATUS_CODES = {408, 409, 429, 500, 502, 503, 504}
@@ -21,14 +28,26 @@ class GeminiClient:
     BACKOFF_MAX_SECONDS = 30
 
     def __init__(self, api_key: Optional[str] = None):
-        self.api_key = api_key or os.getenv("DEEPSEEK_API_KEY") or os.getenv("GEMINI_API_KEY")
-        self.model = os.getenv("DEEPSEEK_MODEL", self.DEFAULT_MODEL)
-        self.api_root = os.getenv("DEEPSEEK_API_URL", "https://api.deepseek.com/v1/chat/completions")
+        provider = os.getenv("LLM_PROVIDER", "").strip().lower()
+        if provider not in {"gemini", "deepseek"}:
+            provider = "gemini" if (os.getenv("GEMINI_API_KEY") and not os.getenv("DEEPSEEK_API_KEY")) else "deepseek"
+        self.provider = provider
+
+        if self.provider == "gemini":
+            self.api_key = api_key or os.getenv("GEMINI_API_KEY")
+            self.model = os.getenv("GEMINI_MODEL", self.DEFAULT_GEMINI_MODEL)
+            self.fallback_model = os.getenv("GEMINI_FALLBACK_MODEL", "")
+            self.api_root = ""
+        else:
+            self.api_key = api_key or os.getenv("DEEPSEEK_API_KEY") or os.getenv("GEMINI_API_KEY")
+            self.model = os.getenv("DEEPSEEK_MODEL", self.DEFAULT_DEEPSEEK_MODEL)
+            self.api_root = os.getenv("DEEPSEEK_API_URL", "https://api.deepseek.com/v1/chat/completions")
+            self.fallback_model = os.getenv("DEEPSEEK_FALLBACK_MODEL", "")
+
         try:
             self.timeout = int(os.getenv("DEEPSEEK_TIMEOUT_SECONDS", str(self.DEFAULT_TIMEOUT)))
         except ValueError:
             self.timeout = self.DEFAULT_TIMEOUT
-        self.fallback_model = os.getenv("DEEPSEEK_FALLBACK_MODEL", "")
         self.enable_fallback_on_empty = (
             os.getenv("DEEPSEEK_FALLBACK_ON_EMPTY", "true").strip().lower() in {"1", "true", "yes", "y"}
         )
@@ -49,8 +68,19 @@ class GeminiClient:
     ) -> Optional[Any]:
         """Send a prompt and attempt to parse JSON out of the response."""
         if not self.is_configured:
-            current_app.logger.error("DeepSeek API not configured - API key missing")
+            current_app.logger.error("%s API not configured - API key missing", self.provider)
             return None
+
+        if self.provider == "gemini":
+            return self._generate_json_gemini(
+                prompt=prompt,
+                temperature=temperature,
+                system_instruction=system_instruction,
+                response_mime=response_mime,
+                max_output_tokens=max_output_tokens,
+                model_override=model_override,
+                disable_retries=disable_retries,
+            )
 
         messages = []
         if system_instruction:
@@ -190,6 +220,93 @@ class GeminiClient:
         if parsed is None:
             current_app.logger.error(
                 "DeepSeek JSON parsing failed. Text length: %s, First 500 chars: %s",
+                len(text),
+                text[:500],
+            )
+        return parsed
+
+    def _generate_json_gemini(
+        self,
+        *,
+        prompt: str,
+        temperature: float,
+        system_instruction: Optional[str],
+        response_mime: str,
+        max_output_tokens: Optional[int],
+        model_override: Optional[str],
+        disable_retries: bool,
+    ) -> Optional[Any]:
+        """Gemini SDK path using google.generativeai."""
+        try:
+            import google.generativeai as genai
+            from google.generativeai import types
+        except Exception as exc:
+            current_app.logger.error("Gemini SDK not available: %s", exc)
+            return None
+
+        genai.configure(api_key=self.api_key)
+
+        def _call(model_name: str) -> Optional[str]:
+            cfg = types.GenerationConfig(
+                temperature=temperature,
+                max_output_tokens=max_output_tokens,
+                response_mime_type=response_mime or "application/json",
+            )
+            model = genai.GenerativeModel(
+                model_name=model_name,
+                system_instruction=system_instruction,
+                generation_config=cfg,
+            )
+            resp = model.generate_content(prompt)
+            return getattr(resp, "text", None)
+
+        attempt = 0
+        backoff = self.BACKOFF_INITIAL_SECONDS
+        max_attempts = 1 if disable_retries else self.MAX_RETRIES
+        primary_model = model_override or self.model
+
+        last_text: Optional[str] = None
+        while attempt < max_attempts:
+            try:
+                last_text = _call(primary_model)
+                break
+            except Exception as exc:
+                if attempt < max_attempts - 1:
+                    wait = min(backoff, self.BACKOFF_MAX_SECONDS)
+                    current_app.logger.warning(
+                        "Gemini request failed (%s). Retrying in %.1fs (attempt %s/%s).",
+                        str(exc)[:140],
+                        wait,
+                        attempt + 1,
+                        max_attempts,
+                    )
+                    time.sleep(wait)
+                    attempt += 1
+                    backoff *= 2
+                    continue
+                current_app.logger.error("Gemini request failed: %s", exc)
+                return None
+
+        text = (last_text or "").strip()
+        if not text and self.enable_fallback_on_empty and self.fallback_model and self.fallback_model != primary_model:
+            current_app.logger.warning(
+                "Gemini returned empty content; retrying with fallback model=%s",
+                self.fallback_model,
+            )
+            try:
+                text = (_call(self.fallback_model) or "").strip()
+            except Exception as exc:
+                current_app.logger.error("Gemini fallback request failed: %s", exc)
+                return None
+
+        if not text:
+            current_app.logger.error("Gemini response contained empty text.")
+            return None
+
+        parsed = self._robust_parse_json(text)
+        if parsed is None:
+            current_app.logger.error(
+                "Gemini JSON parsing failed. Text length: %s, First 500 chars: %s",
                 len(text),
                 text[:500],
             )

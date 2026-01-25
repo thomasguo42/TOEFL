@@ -276,7 +276,8 @@ def _generate_passage(topic: Optional[str], client: GeminiClient, max_retries: i
         payload = client.generate_json(
             prompt,
             temperature=0.45,
-            system_instruction=PASSAGE_SYSTEM_PROMPT,
+            system_instruction=PASSAGE_SYSTEM_PROMPT
+            + " CRITICAL: every multiple-choice question must have exactly one correct option; no ambiguity.",
             max_output_tokens=4096,
         )
         result = _coerce_passage(payload, focus_topic)

@@ -126,7 +126,8 @@ document.addEventListener('DOMContentLoaded', () => {
         blanks.forEach((blank) => {
             const token = escapeHtml(blank.token || '');
             if (!token) return;
-            const prefix = token.replace(/_+$/, '');
+            const leadingMatch = token.match(/^[A-Za-z]+/);
+            const prefix = leadingMatch ? leadingMatch[0] : token.replace(/_+$/, '');
             const rawAnswer = (blank.answer || '').toString();
             let missingCount = token.length - prefix.length;
             if (rawAnswer) {
@@ -138,7 +139,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
             const blanksHint = '_'.repeat(missingCount);
-            const wrap = `<span class="cloze-wrap" style="width:${missingCount}ch"><span class="cloze-underscores">${blanksHint}</span><input class="cloze-input" data-cloze-id="${item.id}" data-token="${token}" data-expected-len="${missingCount}" maxlength="${missingCount}" size="${missingCount}"></span>`;
+            const wrap = `<span class="cloze-wrap" style="width:${missingCount}ch"><span class="cloze-underscores">${blanksHint}</span><input class="cloze-input" data-cloze-id="${item.id}" data-token="${token}" data-prefix="${escapeHtml(prefix)}" data-expected-len="${missingCount}" maxlength="${missingCount}" size="${missingCount}"></span>`;
             const input = `${prefix}${wrap}`;
             if (replaced.includes(token)) {
                 replaced = replaced.split(token).join(input);
@@ -150,7 +151,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const token = `${head}${blanksRun}`;
                 const missingCount = blanksRun.length;
                 const blanksHint = '_'.repeat(missingCount);
-                const wrap = `<span class="cloze-wrap" style="width:${missingCount}ch"><span class="cloze-underscores">${blanksHint}</span><input class="cloze-input" data-cloze-id="${item.id}" data-token="${token}" data-expected-len="${missingCount}" maxlength="${missingCount}" size="${missingCount}"></span>`;
+                const wrap = `<span class="cloze-wrap" style="width:${missingCount}ch"><span class="cloze-underscores">${blanksHint}</span><input class="cloze-input" data-cloze-id="${item.id}" data-token="${token}" data-prefix="${escapeHtml(head)}" data-expected-len="${missingCount}" maxlength="${missingCount}" size="${missingCount}"></span>`;
                 return `${head}${wrap}`;
             });
         }
@@ -212,10 +213,11 @@ document.addEventListener('DOMContentLoaded', () => {
         document.querySelectorAll('[data-cloze-id][data-token]').forEach((input) => {
             const clozeId = input.dataset.clozeId;
             const token = input.dataset.token;
+            const prefix = input.dataset.prefix || '';
             if (!answers.cloze[clozeId]) {
                 answers.cloze[clozeId] = {};
             }
-            answers.cloze[clozeId][token] = input.value || '';
+            answers.cloze[clozeId][token] = `${prefix}${input.value || ''}`;
         });
 
         (currentMock?.daily_life || []).forEach((item) => {
@@ -238,7 +240,101 @@ document.addEventListener('DOMContentLoaded', () => {
     const renderResults = (payload) => {
         if (!payload) return;
         const summary = `<div class="alert alert-info">Score: ${payload.score}% (${payload.correct}/${payload.total})</div>`;
-        resultsEl.innerHTML = summary;
+        const results = payload.results || {};
+
+        const renderOptionRationales = (item) => {
+            const rationales = item?.rationales || {};
+            const options = Array.isArray(item?.options) && item.options.length ? item.options : Object.keys(rationales || {});
+            if (!options || !options.length) return '';
+            const expected = item.expected || '';
+            const selected = item.selected || '';
+            const rows = options.map((opt) => {
+                const rationale = escapeHtml(rationales[opt] || '');
+                const isCorrect = String(opt) === String(expected);
+                const isSelected = String(opt) === String(selected);
+                const badgeClass = isCorrect ? 'bg-success' : 'bg-secondary';
+                const label = isCorrect ? 'Correct' : 'Wrong';
+                const selectedMark = isSelected ? '<span class="badge bg-info ms-2">Your choice</span>' : '';
+                return `
+                    <div class="mt-1">
+                        <span class="badge ${badgeClass}">${label}</span>
+                        <span class="ms-2 ${isSelected ? 'fw-semibold' : ''}">${escapeHtml(String(opt))}</span>
+                        ${selectedMark}
+                        ${rationale ? `<div class="text-muted small ms-1">${rationale}</div>` : ''}
+                    </div>
+                `;
+            }).join('');
+            return `<div class="mt-2"><div class="fw-semibold">Option Explanations</div>${rows}</div>`;
+        };
+
+        const clozeRows = (results.cloze || []).map((item) => {
+            const statusClass = item.correct ? 'text-success' : 'text-danger';
+            const expected = escapeHtml(item.expected || '');
+            const user = escapeHtml(item.user || '');
+            const hint = escapeHtml(item.hint || '');
+            return `
+                <div class="d-flex align-items-start gap-3 py-2 border-bottom">
+                    <div class="${statusClass} fw-semibold">${item.correct ? 'Correct' : 'Wrong'}</div>
+                    <div>
+                        <div><strong>Blank:</strong> ${escapeHtml(item.token || '')}</div>
+                        <div><strong>Your answer:</strong> ${user || '<em>blank</em>'}</div>
+                        <div><strong>Expected:</strong> ${expected}</div>
+                        ${hint ? `<div class="text-muted"><strong>Hint:</strong> ${hint}</div>` : ''}
+                    </div>
+                </div>
+            `;
+        }).join('');
+
+        const dailyRows = (results.daily_life || []).map((item, idx) => {
+            const statusClass = item.correct ? 'text-success' : 'text-danger';
+            const expected = escapeHtml(item.expected || '');
+            const selected = escapeHtml(item.selected || '');
+            const questionText = escapeHtml(item.question || '');
+            return `
+                <div class="d-flex align-items-start gap-3 py-2 border-bottom">
+                    <div class="${statusClass} fw-semibold">${item.correct ? 'Correct' : 'Wrong'}</div>
+                    <div>
+                        <div><strong>Daily Q${idx + 1}</strong></div>
+                        ${questionText ? `<div class="text-muted">${questionText}</div>` : ''}
+                        <div><strong>Your answer:</strong> ${selected || '<em>blank</em>'}</div>
+                        <div><strong>Expected:</strong> ${expected}</div>
+                        ${renderOptionRationales(item)}
+                    </div>
+                </div>
+            `;
+        }).join('');
+
+        const academicRows = (results.academic || []).map((item, idx) => {
+            const statusClass = item.correct ? 'text-success' : 'text-danger';
+            const expected = escapeHtml(item.expected || '');
+            const selected = escapeHtml(item.selected || '');
+            const questionText = escapeHtml(item.question || '');
+            return `
+                <div class="d-flex align-items-start gap-3 py-2 border-bottom">
+                    <div class="${statusClass} fw-semibold">${item.correct ? 'Correct' : 'Wrong'}</div>
+                    <div>
+                        <div><strong>Academic Q${idx + 1}</strong></div>
+                        ${questionText ? `<div class="text-muted">${questionText}</div>` : ''}
+                        <div><strong>Your answer:</strong> ${selected || '<em>blank</em>'}</div>
+                        <div><strong>Expected:</strong> ${expected}</div>
+                        ${renderOptionRationales(item)}
+                    </div>
+                </div>
+            `;
+        }).join('');
+
+        const details = `
+            <div class="card mt-3">
+                <div class="card-body">
+                    <h5 class="card-title">Detailed Feedback</h5>
+                    ${clozeRows ? `<h6 class="mt-3">Cloze</h6>${clozeRows}` : ''}
+                    ${dailyRows ? `<h6 class="mt-3">Daily Life</h6>${dailyRows}` : ''}
+                    ${academicRows ? `<h6 class="mt-3">Academic</h6>${academicRows}` : ''}
+                </div>
+            </div>
+        `;
+
+        resultsEl.innerHTML = summary + details;
     };
 
     const validateClozeLengths = () => {

@@ -76,11 +76,27 @@ function checkGapFill(index, answer) {
         return;
     }
 
-    const rationale = selected.dataset.rationale || '';
+    const inputs = [...document.querySelectorAll(`input[name="${groupName}"]`)];
+    const rationalesHtml = inputs.map((input) => {
+        const opt = input.value || '';
+        const rationale = input.dataset.rationale || '';
+        const isCorrect = opt.trim().toLowerCase() === answer.trim().toLowerCase();
+        const isSelected = selected && selected.value === opt;
+        const badgeClass = isCorrect ? 'bg-success' : 'bg-secondary';
+        const badgeText = isCorrect ? 'Correct' : 'Wrong';
+        const selectedMark = isSelected ? '<span class="badge bg-info ms-2">Your choice</span>' : '';
+        return `
+            <div class="mt-1">
+                <span class="badge ${badgeClass}">${badgeText}</span>
+                <span class="ms-2 ${isSelected ? 'fw-semibold' : ''}">${opt}</span>
+                ${selectedMark}
+                ${rationale ? `<div class="text-muted small ms-1">${rationale}</div>` : ''}
+            </div>
+        `;
+    }).join('');
     const isCorrect = selected.value.trim().toLowerCase() === answer.trim().toLowerCase();
-    const toneClass = isCorrect ? 'text-success' : 'text-danger';
     if (rationaleBox) {
-        rationaleBox.innerHTML = rationale ? `<span class="${toneClass}"><i class="fas fa-lightbulb me-1"></i>${rationale}</span>` : '';
+        rationaleBox.innerHTML = `<div class="fw-semibold text-muted">Option Explanations</div>${rationalesHtml}`;
     }
 
     if (isCorrect) {
@@ -92,14 +108,27 @@ function checkGapFill(index, answer) {
 
 function revealGapFill(index, answer) {
     const feedback = document.getElementById(`gap-feedback-${index}`);
-    const correctOption = [...document.querySelectorAll(`input[name="gap-${index}"]`)].find(opt => opt.value === answer);
     const rationaleBox = document.getElementById(`gap-rationale-${index}`);
     if (feedback) {
         feedback.innerHTML = `<span class="text-info"><i class="fas fa-eye me-1"></i>The best fit is <strong>${answer}</strong>.</span>`;
     }
-    if (rationaleBox && correctOption) {
-        const rationale = correctOption.dataset.rationale || '';
-        rationaleBox.innerHTML = rationale ? `<span class="text-success"><i class="fas fa-lightbulb me-1"></i>${rationale}</span>` : '';
+    if (rationaleBox) {
+        const inputs = [...document.querySelectorAll(`input[name="gap-${index}"]`)];
+        const rationalesHtml = inputs.map((input) => {
+            const opt = input.value || '';
+            const rationale = input.dataset.rationale || '';
+            const isCorrect = opt.trim().toLowerCase() === answer.trim().toLowerCase();
+            const badgeClass = isCorrect ? 'bg-success' : 'bg-secondary';
+            const badgeText = isCorrect ? 'Correct' : 'Wrong';
+            return `
+                <div class="mt-1">
+                    <span class="badge ${badgeClass}">${badgeText}</span>
+                    <span class="ms-2">${opt}</span>
+                    ${rationale ? `<div class="text-muted small ms-1">${rationale}</div>` : ''}
+                </div>
+            `;
+        }).join('');
+        rationaleBox.innerHTML = `<div class="fw-semibold text-muted">Option Explanations</div>${rationalesHtml}`;
     }
 }
 
@@ -111,9 +140,25 @@ document.querySelectorAll('[data-question]').forEach((card) => {
     inputs.forEach((input) => {
         input.addEventListener('change', () => {
             if (rationaleBox) {
-                const rationale = input.dataset.rationale || '';
-                const toneClass = input.value.trim().toLowerCase() === answer ? 'text-success' : 'text-danger';
-                rationaleBox.innerHTML = rationale ? `<span class="${toneClass}"><i class="fas fa-lightbulb me-1"></i>${rationale}</span>` : '';
+                const allInputs = [...inputs];
+                const rationalesHtml = allInputs.map((optInput) => {
+                    const opt = optInput.value || '';
+                    const rationale = optInput.dataset.rationale || '';
+                    const isCorrect = opt.trim().toLowerCase() === answer;
+                    const isSelected = optInput === input;
+                    const badgeClass = isCorrect ? 'bg-success' : 'bg-secondary';
+                    const badgeText = isCorrect ? 'Correct' : 'Wrong';
+                    const selectedMark = isSelected ? '<span class="badge bg-info ms-2">Your choice</span>' : '';
+                    return `
+                        <div class="mt-1">
+                            <span class="badge ${badgeClass}">${badgeText}</span>
+                            <span class="ms-2 ${isSelected ? 'fw-semibold' : ''}">${opt}</span>
+                            ${selectedMark}
+                            ${rationale ? `<div class="text-muted small ms-1">${rationale}</div>` : ''}
+                        </div>
+                    `;
+                }).join('');
+                rationaleBox.innerHTML = `<div class="fw-semibold text-muted">Option Explanations</div>${rationalesHtml}`;
             }
         });
     });
