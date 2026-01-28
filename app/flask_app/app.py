@@ -9,6 +9,7 @@ import time
 import logging
 from logging.handlers import RotatingFileHandler
 import threading
+from difflib import SequenceMatcher
 from collections import deque
 from datetime import datetime, timezone
 from pathlib import Path
@@ -77,6 +78,18 @@ from services.new_toefl_mock import (
     generate_reading_mock,
     generate_speaking_mock,
     generate_writing_mock,
+    get_interview_sets,
+)
+from services.full_length_tests import (
+    list_full_length_tests,
+    get_reading_section,
+    get_listening_section,
+    get_writing_section,
+)
+from services.full_length_mock import (
+    build_full_length_reading_mock,
+    build_full_length_listening_mock,
+    build_full_length_writing_mock,
 )
 from services.reading_content import (
     evaluate_paraphrase,
@@ -219,7 +232,7 @@ if not hasattr(app, '_new_toefl_jobs_lock'):
 
 _WORD_COUNT_NOTE_PATTERN = re.compile(r'\(\s*\d+\s*words?\s*\)', re.IGNORECASE)
 _MULTISPACE_PATTERN = re.compile(r'[ \t]{2,}')
-_CHOICE_PREFIX_PATTERN = re.compile(r'^\s*([A-Z])[\)\.\:\-\s]')
+_CHOICE_PREFIX_PATTERN = re.compile(r'^\s*([A-Z])[\)\.\:\-]')
 
 def _prewarm_tts_blocking() -> None:
     """Block server start until Kokoro is warm (prevents Cloudflare 524 on first request)."""
@@ -363,6 +376,67 @@ def _normalize_sentence(text: str) -> str:
     lowered = re.sub(r"[^a-z0-9\\s]", "", lowered)
     lowered = _MULTISPACE_PATTERN.sub(' ', lowered)
     return lowered.strip()
+
+def _normalize_for_similarity(text: str) -> str:
+    if not text:
+        return ""
+    lowered = text.lower()
+    lowered = re.sub(r"[^a-z0-9\\s]", " ", lowered)
+    lowered = _MULTISPACE_PATTERN.sub(" ", lowered)
+    return lowered.strip()
+
+
+def _too_similar(candidate: str, existing: List[str], threshold: float = 0.88) -> bool:
+    cand = _normalize_for_similarity(candidate)
+    if not cand or not existing:
+        return False
+    for prior in existing:
+        prev = _normalize_for_similarity(prior)
+        if not prev:
+            continue
+        ratio = SequenceMatcher(None, cand, prev).ratio()
+        if ratio >= threshold:
+            return True
+    return False
+
+
+def _extract_practice_text(item: Dict[str, Any], practice_type: str) -> str:
+    if not isinstance(item, dict):
+        return ""
+    if practice_type == "sentence":
+        return str(item.get("text") or "")
+    if practice_type == "paragraph":
+        return str(item.get("paragraph") or "")
+    if practice_type == "passage":
+        paragraphs = item.get("paragraphs") or []
+        if isinstance(paragraphs, list):
+            return "\n".join(str(p.get("text") or "") for p in paragraphs if isinstance(p, dict))
+        return ""
+    return ""
+
+
+def _expand_topic_variants(base_topic: str, count: int) -> List[str]:
+    base = (base_topic or "").strip()
+    if not base:
+        return []
+    facets = [
+        "history",
+        "recent research",
+        "case study",
+        "methodology",
+        "applications",
+        "trade-offs",
+        "ethical debate",
+        "policy impact",
+        "data trends",
+        "future directions",
+    ]
+    random.shuffle(facets)
+    variants = []
+    for idx in range(count):
+        facet = facets[idx % len(facets)]
+        variants.append(f"{base} ({facet})")
+    return variants
 
 
 def _store_new_toefl_payload(section: str, user_id: int, payload: Dict[str, Any]) -> str:
@@ -768,7 +842,7 @@ def index():
 def register():
     """User registration page."""
     if 'user_id' in session:
-        return redirect(url_for('vocab_session'))
+        return redirect(url_for('main_dashboard'))
 
     if request.method == 'POST':
         email = request.form.get('email', '').strip().lower()
@@ -807,7 +881,7 @@ def register():
         session['user_email'] = user.email
         session.permanent = True
         flash(f'Welcome, {email}! Your account has been created.', 'success')
-        return redirect(url_for('vocab_session'))
+        return redirect(url_for('main_dashboard'))
 
     return render_template('register.html')
 
@@ -816,7 +890,7 @@ def register():
 def login():
     """User login page."""
     if 'user_id' in session:
-        return redirect(url_for('vocab_session'))
+        return redirect(url_for('main_dashboard'))
 
     if request.method == 'POST':
         email = request.form.get('email', '').strip().lower()
@@ -829,7 +903,7 @@ def login():
             session['user_email'] = user.email
             session.permanent = True
             flash(f'Welcome back, {email}!', 'success')
-            return redirect(url_for('vocab_session'))
+            return redirect(url_for('main_dashboard'))
         else:
             flash('Invalid email or password.', 'danger')
 
@@ -1159,7 +1233,7 @@ def old_toefl_dashboard():
 @app.route('/new-toefl')
 @login_required
 def new_toefl_dashboard():
-    """New TOEFL mock exam hub."""
+    """New TOEFL hub page (mock + practice)."""
     user = get_current_user()
     if not user:
         return redirect(url_for('login'))
@@ -1167,10 +1241,76 @@ def new_toefl_dashboard():
     return render_template('new_toefl_dashboard.html', user=user)
 
 
+@app.route('/new-toefl/mock')
+@login_required
+def new_toefl_mock_hub():
+    """New TOEFL full-length mock hub."""
+    user = get_current_user()
+    if not user:
+        return redirect(url_for('login'))
+
+    return render_template('new_toefl/mock_dashboard.html', user=user)
+
+
+@app.route('/new-toefl/practice')
+@login_required
+def new_toefl_practice_hub():
+    """New TOEFL AI practice hub."""
+    user = get_current_user()
+    if not user:
+        return redirect(url_for('login'))
+
+    return render_template('new_toefl/practice_dashboard.html', user=user)
+
+
 @app.route('/new-toefl/reading-mock')
 @login_required
 def new_toefl_reading_mock():
-    """New TOEFL reading mock exam."""
+    """New TOEFL reading mock exam (full-length tests)."""
+    user = get_current_user()
+    if not user:
+        return redirect(url_for('login'))
+
+    return render_template('new_toefl/reading_full_mock.html', user=user)
+
+
+@app.route('/new-toefl/listening-mock')
+@login_required
+def new_toefl_listening_mock():
+    """New TOEFL listening mock exam (full-length tests)."""
+    user = get_current_user()
+    if not user:
+        return redirect(url_for('login'))
+
+    return render_template('new_toefl/listening_full_mock.html', user=user)
+
+
+@app.route('/new-toefl/speaking-mock')
+@login_required
+def new_toefl_speaking_mock():
+    """New TOEFL speaking mock exam (full-length tests)."""
+    user = get_current_user()
+    if not user:
+        return redirect(url_for('login'))
+
+    return render_template('new_toefl/speaking_full_mock.html', user=user)
+
+
+@app.route('/new-toefl/writing-mock')
+@login_required
+def new_toefl_writing_mock():
+    """New TOEFL writing mock exam (full-length tests)."""
+    user = get_current_user()
+    if not user:
+        return redirect(url_for('login'))
+
+    return render_template('new_toefl/writing_full_mock.html', user=user)
+
+
+@app.route('/new-toefl/reading-practice')
+@login_required
+def new_toefl_reading_practice():
+    """New TOEFL reading practice (AI generated)."""
     user = get_current_user()
     if not user:
         return redirect(url_for('login'))
@@ -1178,10 +1318,10 @@ def new_toefl_reading_mock():
     return render_template('new_toefl/reading_mock.html', user=user)
 
 
-@app.route('/new-toefl/listening-mock')
+@app.route('/new-toefl/listening-practice')
 @login_required
-def new_toefl_listening_mock():
-    """New TOEFL listening mock exam."""
+def new_toefl_listening_practice():
+    """New TOEFL listening practice (AI generated)."""
     user = get_current_user()
     if not user:
         return redirect(url_for('login'))
@@ -1189,10 +1329,10 @@ def new_toefl_listening_mock():
     return render_template('new_toefl/listening_mock.html', user=user)
 
 
-@app.route('/new-toefl/speaking-mock')
+@app.route('/new-toefl/speaking-practice')
 @login_required
-def new_toefl_speaking_mock():
-    """New TOEFL speaking mock exam."""
+def new_toefl_speaking_practice():
+    """New TOEFL speaking practice (AI generated)."""
     user = get_current_user()
     if not user:
         return redirect(url_for('login'))
@@ -1200,10 +1340,10 @@ def new_toefl_speaking_mock():
     return render_template('new_toefl/speaking_mock.html', user=user)
 
 
-@app.route('/new-toefl/writing-mock')
+@app.route('/new-toefl/writing-practice')
 @login_required
-def new_toefl_writing_mock():
-    """New TOEFL writing mock exam."""
+def new_toefl_writing_practice():
+    """New TOEFL writing practice (AI generated)."""
     user = get_current_user()
     if not user:
         return redirect(url_for('login'))
@@ -1226,7 +1366,7 @@ def new_toefl_speaking_task(task_id):
         'speaking/practice.html',
         task=task,
         user=user,
-        mock_back_url=url_for('new_toefl_speaking_mock'),
+        mock_back_url=url_for('new_toefl_speaking_practice'),
         hide_regenerate=True,
         mock_mode=True,
     )
@@ -1397,6 +1537,9 @@ def new_toefl_speaking_generate():
     if not user:
         return jsonify({'success': False, 'message': 'Unauthorized'}), 401
 
+    payload = request.get_json(silent=True) or {}
+    interview_set_id = payload.get('interview_set_id')
+
     if _throttle_new_toefl('speaking'):
         task_ids = session.get('new_toefl_speaking_task_ids') or []
         if task_ids:
@@ -1409,7 +1552,7 @@ def new_toefl_speaking_generate():
         return jsonify({'success': False, 'message': 'DeepSeek API is not configured'}), 503
 
     tts = get_tts_service()
-    mock = generate_speaking_mock(client, tts)
+    mock = generate_speaking_mock(client, tts, interview_set_id=interview_set_id)
     if not mock:
         task_ids = session.get('new_toefl_speaking_task_ids') or []
         if task_ids:
@@ -1450,6 +1593,313 @@ def new_toefl_speaking_generate():
             continue
         task = SpeakingTask(
             task_number=200 + idx,
+            task_type='new_toefl_interview',
+            topic='Interview',
+            prompt=prompt,
+            listening_audio_url=item.get('audio_url'),
+            listening_transcript=prompt,
+            preparation_time=0,
+            response_time=item.get('response_time_seconds', 45),
+            response_template='; '.join(item.get('focus_points') or []),
+        )
+        db.session.add(task)
+        db.session.flush()
+        tasks.append({
+            'id': task.id,
+            'label': f'Interview {idx}',
+            'task_type': task.task_type,
+            'response_time': task.response_time,
+        })
+
+    db.session.commit()
+    session['new_toefl_speaking_task_ids'] = [task['id'] for task in tasks]
+
+    return jsonify({'success': True, 'tasks': tasks})
+
+
+@app.route('/new-toefl/api/speaking/interview-sets', methods=['GET'])
+@login_required
+def new_toefl_speaking_interview_sets():
+    """Return available interview sets for New TOEFL speaking mock."""
+    user = get_current_user()
+    if not user:
+        return jsonify({'success': False, 'message': 'Unauthorized'}), 401
+
+    sets = get_interview_sets()
+    summary = [{'id': item.get('id'), 'title': item.get('title')} for item in sets]
+    return jsonify({'success': True, 'sets': summary})
+
+
+@app.route('/new-toefl/api/mock/tests', methods=['GET'])
+@login_required
+def new_toefl_mock_tests():
+    """Return available full-length mock tests."""
+    user = get_current_user()
+    if not user:
+        return jsonify({'success': False, 'message': 'Unauthorized'}), 401
+
+    return jsonify({'success': True, 'tests': list_full_length_tests()})
+
+
+@app.route('/new-toefl/api/mock/reading/<test_id>', methods=['GET'])
+@login_required
+def new_toefl_mock_reading(test_id: str):
+    """Return full-length reading mock content for a test."""
+    user = get_current_user()
+    if not user:
+        return jsonify({'success': False, 'message': 'Unauthorized'}), 401
+
+    payload = get_reading_section(test_id)
+    if not payload:
+        return jsonify({'success': False, 'message': 'Reading test not found'}), 404
+
+    return jsonify({'success': True, 'data': payload})
+
+
+@app.route('/new-toefl/api/mock/reading/load/<test_id>', methods=['GET'])
+@login_required
+def new_toefl_mock_reading_load(test_id: str):
+    """Build full-length reading mock data and cache it for scoring."""
+    user = get_current_user()
+    if not user:
+        return jsonify({'success': False, 'message': 'Unauthorized'}), 401
+
+    client = get_gemini_client()
+    if not client or not client.is_configured:
+        return jsonify({'success': False, 'message': 'Gemini API is not configured'}), 503
+
+    mock = build_full_length_reading_mock(test_id, client=client)
+    if not mock:
+        return jsonify({'success': False, 'message': 'Reading mock not found'}), 404
+
+    cache_id = _store_new_toefl_payload('reading', user.id, mock)
+    return jsonify({'success': True, 'cache_id': cache_id, 'mock': mock})
+
+
+@app.route('/new-toefl/api/mock/listening/<test_id>', methods=['GET'])
+@login_required
+def new_toefl_mock_listening(test_id: str):
+    """Return full-length listening mock content for a test."""
+    user = get_current_user()
+    if not user:
+        return jsonify({'success': False, 'message': 'Unauthorized'}), 401
+
+    payload = get_listening_section(test_id)
+    if not payload:
+        return jsonify({'success': False, 'message': 'Listening test not found'}), 404
+
+    return jsonify({'success': True, 'data': payload})
+
+
+@app.route('/new-toefl/api/mock/listening/generate/<test_id>', methods=['POST'])
+@login_required
+def new_toefl_mock_listening_generate(test_id: str):
+    """Generate a full-length listening mock with audio in the background."""
+    user = get_current_user()
+    if not user:
+        return jsonify({'success': False, 'message': 'Unauthorized'}), 401
+
+    existing_job_id = session.get("new_toefl_mock_listening_job_id")
+    if isinstance(existing_job_id, str):
+        existing = _get_new_toefl_job(existing_job_id)
+        if isinstance(existing, dict) and existing.get("status") in {"queued", "running"}:
+            return jsonify({'success': True, 'job_id': existing_job_id, 'status': existing.get("status")})
+
+    client = get_gemini_client()
+    if not client or not client.is_configured:
+        return jsonify({'success': False, 'message': 'Gemini API is not configured'}), 503
+
+    cache_id = _reserve_new_toefl_payload('listening', user.id)
+    job_id = f"job_listening_full_{user.id}_{uuid4().hex[:10]}"
+    session["new_toefl_mock_listening_job_id"] = job_id
+
+    _put_new_toefl_job(job_id, {
+        "status": "queued",
+        "section": "listening_full",
+        "user_id": user.id,
+        "cache_id": cache_id,
+        "created_at": time.time(),
+        "error": None,
+    })
+
+    def _worker(job_id_value: str, cache_id_value: str, user_id_value: int, test_id_value: str) -> None:
+        try:
+            with app.app_context():
+                _put_new_toefl_job(job_id_value, {
+                    **(_get_new_toefl_job(job_id_value) or {}),
+                    "status": "running",
+                    "started_at": time.time(),
+                })
+                client_local = get_gemini_client()
+                if not client_local or not client_local.is_configured:
+                    _put_new_toefl_job(job_id_value, {
+                        **(_get_new_toefl_job(job_id_value) or {}),
+                        "status": "failed",
+                        "finished_at": time.time(),
+                        "error": "Gemini API is not configured",
+                    })
+                    return
+
+                tts = get_tts_service()
+                mock = build_full_length_listening_mock(test_id_value, client=client_local, tts=tts)
+                if not mock:
+                    _put_new_toefl_job(job_id_value, {
+                        **(_get_new_toefl_job(job_id_value) or {}),
+                        "status": "failed",
+                        "finished_at": time.time(),
+                        "error": "Listening mock not found",
+                    })
+                    return
+
+                cache = getattr(current_app, "_new_toefl_cache", {})
+                cache[cache_id_value] = mock
+                current_app._new_toefl_cache = cache
+
+                _put_new_toefl_job(job_id_value, {
+                    **(_get_new_toefl_job(job_id_value) or {}),
+                    "status": "done",
+                    "finished_at": time.time(),
+                    "error": None,
+                })
+        except Exception as exc:
+            with app.app_context():
+                current_app.logger.exception("Listening full mock crashed (job_id=%s): %s", job_id_value, exc)
+                _put_new_toefl_job(job_id_value, {
+                    **(_get_new_toefl_job(job_id_value) or {}),
+                    "status": "failed",
+                    "finished_at": time.time(),
+                    "error": "Generation crashed. Check server logs.",
+                })
+
+    threading.Thread(target=_worker, args=(job_id, cache_id, user.id, test_id), daemon=True).start()
+    return jsonify({'success': True, 'job_id': job_id, 'cache_id': cache_id, 'status': 'queued'})
+
+
+@app.route('/new-toefl/api/mock/listening/job/<job_id>', methods=['GET'])
+@login_required
+def new_toefl_mock_listening_job(job_id: str):
+    """Poll full-length listening mock generation status."""
+    user = get_current_user()
+    if not user:
+        return jsonify({'success': False, 'message': 'Unauthorized'}), 401
+
+    job = _get_new_toefl_job(job_id)
+    if not isinstance(job, dict) or job.get("section") != "listening_full":
+        return jsonify({'success': False, 'message': 'Job not found'}), 404
+    if job.get("user_id") != user.id:
+        return jsonify({'success': False, 'message': 'Unauthorized'}), 403
+
+    response: Dict[str, Any] = {
+        "success": True,
+        "job_id": job_id,
+        "status": job.get("status"),
+        "error": job.get("error"),
+    }
+    if job.get("status") == "done":
+        payload = _get_new_toefl_payload("listening")
+        response["mock"] = payload
+    return jsonify(response)
+
+
+@app.route('/new-toefl/api/mock/writing/<test_id>', methods=['GET'])
+@login_required
+def new_toefl_mock_writing(test_id: str):
+    """Return full-length writing mock content for a test."""
+    user = get_current_user()
+    if not user:
+        return jsonify({'success': False, 'message': 'Unauthorized'}), 401
+
+    payload = get_writing_section(test_id)
+    if not payload:
+        return jsonify({'success': False, 'message': 'Writing test not found'}), 404
+
+    return jsonify({'success': True, 'data': payload})
+
+
+@app.route('/new-toefl/api/mock/writing/load/<test_id>', methods=['GET'])
+@login_required
+def new_toefl_mock_writing_load(test_id: str):
+    """Build full-length writing mock data and cache it for scoring."""
+    user = get_current_user()
+    if not user:
+        return jsonify({'success': False, 'message': 'Unauthorized'}), 401
+
+    mock = build_full_length_writing_mock(test_id)
+    if not mock:
+        return jsonify({'success': False, 'message': 'Writing mock not found'}), 404
+
+    cache_id = _store_new_toefl_payload('writing', user.id, mock)
+    return jsonify({'success': True, 'cache_id': cache_id, 'mock': mock})
+
+
+@app.route('/new-toefl/api/mock/speaking/<test_id>', methods=['GET'])
+@login_required
+def new_toefl_mock_speaking(test_id: str):
+    """Return full-length speaking mock prompts for a test."""
+    user = get_current_user()
+    if not user:
+        return jsonify({'success': False, 'message': 'Unauthorized'}), 401
+
+    sets = get_interview_sets()
+    selected = next((item for item in sets if item.get('id') == test_id), None)
+    if not selected:
+        return jsonify({'success': False, 'message': 'Speaking test not found'}), 404
+
+    return jsonify({'success': True, 'data': selected})
+
+
+@app.route('/new-toefl/api/mock/speaking/generate/<test_id>', methods=['POST'])
+@login_required
+def new_toefl_mock_speaking_generate(test_id: str):
+    """Generate full-length speaking mock tasks for a selected test."""
+    from models import SpeakingTask
+
+    user = get_current_user()
+    if not user:
+        return jsonify({'success': False, 'message': 'Unauthorized'}), 401
+
+    tts = get_tts_service()
+    client = get_gemini_client()
+    if not client or not client.is_configured:
+        return jsonify({'success': False, 'message': 'Gemini API is not configured'}), 503
+
+    mock = generate_speaking_mock(client, tts, interview_set_id=test_id)
+    if not mock:
+        return jsonify({'success': False, 'message': 'Speaking mock not found'}), 404
+
+    tasks: List[Dict[str, Any]] = []
+    repeat_items = mock.get('repeat', [])
+    interview_items = mock.get('interview', [])
+
+    for idx, item in enumerate(repeat_items, start=1):
+        prompt = (item.get('prompt') or '').strip()
+        if not prompt:
+            continue
+        task = SpeakingTask(
+            task_number=500 + idx,
+            task_type='new_toefl_repeat',
+            topic='Listen and Repeat',
+            prompt=prompt,
+            listening_audio_url=item.get('audio_url'),
+            listening_transcript=prompt,
+            preparation_time=0,
+            response_time=item.get('response_time_seconds', 10),
+        )
+        db.session.add(task)
+        db.session.flush()
+        tasks.append({
+            'id': task.id,
+            'label': f'Repeat {idx}',
+            'task_type': task.task_type,
+            'response_time': task.response_time,
+        })
+
+    for idx, item in enumerate(interview_items, start=1):
+        prompt = (item.get('prompt') or '').strip()
+        if not prompt:
+            continue
+        task = SpeakingTask(
+            task_number=600 + idx,
             task_type='new_toefl_interview',
             topic='Interview',
             prompt=prompt,
@@ -1555,26 +2005,35 @@ def new_toefl_reading_submit():
                 'expected': question.get('answer'),
                 'selected': selected,
                 'rationales': question.get('rationales', {}),
+                'evidence_quote': question.get('evidence_quote') or question.get('evidenceQuote'),
             })
             total += 1
             correct += 1 if is_correct else 0
 
-    academic = payload.get('academic') or {}
+    academic_payload = payload.get('academic')
+    academic_sets = academic_payload if isinstance(academic_payload, list) else [academic_payload] if academic_payload else []
     academic_answers = answers.get('academic') or {}
-    for idx, question in enumerate(academic.get('questions', []) or []):
-        selected = academic_answers.get(str(idx), '')
-        is_correct = _answers_match(selected, question.get('answer', ''), question.get('options'))
-        results['academic'].append({
-            'index': idx,
-            'question': question.get('question'),
-            'options': question.get('options'),
-            'correct': is_correct,
-            'expected': question.get('answer'),
-            'selected': selected,
-            'rationales': question.get('rationales', {}),
-        })
-        total += 1
-        correct += 1 if is_correct else 0
+    for academic in academic_sets:
+        if not academic:
+            continue
+        academic_id = academic.get('id') or 'academic'
+        entry_answers = academic_answers.get(academic_id, {}) if isinstance(academic_answers, dict) else {}
+        for idx, question in enumerate(academic.get('questions', []) or []):
+            selected = entry_answers.get(str(idx), '')
+            is_correct = _answers_match(selected, question.get('answer', ''), question.get('options'))
+            results['academic'].append({
+                'id': academic_id,
+                'index': idx,
+                'question': question.get('question'),
+                'options': question.get('options'),
+                'correct': is_correct,
+                'expected': question.get('answer'),
+                'selected': selected,
+                'rationales': question.get('rationales', {}),
+                'evidence_quote': question.get('evidence_quote') or question.get('evidenceQuote'),
+            })
+            total += 1
+            correct += 1 if is_correct else 0
 
     score = round((correct / total) * 100, 1) if total else 0.0
     return jsonify({'success': True, 'score': score, 'correct': correct, 'total': total, 'results': results})
@@ -1616,39 +2075,53 @@ def new_toefl_listening_submit():
         total += 1
         correct += 1 if is_correct else 0
 
-    conversation = payload.get('conversation') or {}
+    conversation_payload = payload.get('conversation')
+    conv_sets = conversation_payload if isinstance(conversation_payload, list) else [conversation_payload] if conversation_payload else []
     conv_answers = answers.get('conversation') or {}
-    for idx, question in enumerate(conversation.get('questions', []) or []):
-        selected = conv_answers.get(str(idx), '')
-        is_correct = _answers_match(selected, question.get('answer', ''), question.get('options'))
-        results['conversation'].append({
-            'index': idx,
-            'question': question.get('question'),
-            'options': question.get('options'),
-            'correct': is_correct,
-            'expected': question.get('answer'),
-            'selected': selected,
-            'rationales': question.get('rationales', {}),
-        })
-        total += 1
-        correct += 1 if is_correct else 0
+    for conv in conv_sets:
+        if not conv:
+            continue
+        conv_id = conv.get('id') or f"conv_{len(results['conversation'])}"
+        entry_answers = conv_answers.get(conv_id, {}) if isinstance(conv_answers, dict) else {}
+        for idx, question in enumerate(conv.get('questions', []) or []):
+            selected = entry_answers.get(str(idx), '')
+            is_correct = _answers_match(selected, question.get('answer', ''), question.get('options'))
+            results['conversation'].append({
+                'id': conv_id,
+                'index': idx,
+                'question': question.get('question'),
+                'options': question.get('options'),
+                'correct': is_correct,
+                'expected': question.get('answer'),
+                'selected': selected,
+                'rationales': question.get('rationales', {}),
+            })
+            total += 1
+            correct += 1 if is_correct else 0
 
-    talk = payload.get('talk') or {}
+    talk_payload = payload.get('talk')
+    talk_sets = talk_payload if isinstance(talk_payload, list) else [talk_payload] if talk_payload else []
     talk_answers = answers.get('talk') or {}
-    for idx, question in enumerate(talk.get('questions', []) or []):
-        selected = talk_answers.get(str(idx), '')
-        is_correct = _answers_match(selected, question.get('answer', ''), question.get('options'))
-        results['talk'].append({
-            'index': idx,
-            'question': question.get('question'),
-            'options': question.get('options'),
-            'correct': is_correct,
-            'expected': question.get('answer'),
-            'selected': selected,
-            'rationales': question.get('rationales', {}),
-        })
-        total += 1
-        correct += 1 if is_correct else 0
+    for talk in talk_sets:
+        if not talk:
+            continue
+        talk_id = talk.get('id') or f"talk_{len(results['talk'])}"
+        entry_answers = talk_answers.get(talk_id, {}) if isinstance(talk_answers, dict) else {}
+        for idx, question in enumerate(talk.get('questions', []) or []):
+            selected = entry_answers.get(str(idx), '')
+            is_correct = _answers_match(selected, question.get('answer', ''), question.get('options'))
+            results['talk'].append({
+                'id': talk_id,
+                'index': idx,
+                'question': question.get('question'),
+                'options': question.get('options'),
+                'correct': is_correct,
+                'expected': question.get('answer'),
+                'selected': selected,
+                'rationales': question.get('rationales', {}),
+            })
+            total += 1
+            correct += 1 if is_correct else 0
 
     score = round((correct / total) * 100, 1) if total else 0.0
     return jsonify({'success': True, 'score': score, 'correct': correct, 'total': total, 'results': results})
@@ -1726,7 +2199,9 @@ def new_toefl_writing_submit():
         'sentence_correct': correct,
         'sentence_total': total,
         'sentence_results': sentence_results,
+        'email_text': email_text,
         'email_feedback': email_feedback,
+        'discussion_text': discussion_text,
         'discussion_feedback': discussion_feedback,
     })
 
@@ -2097,7 +2572,7 @@ def generate_reading_batch(practice_type):
     if topic:
         topic = topic.strip() or None
 
-    # Generate 5 sets - DeepSeekClient handles retries and backoff for API errors
+    # Generate 5 sets with diversity guards.
     batch = []
     generator_map = {
         'sentence': get_sentence,
@@ -2106,17 +2581,53 @@ def generate_reading_batch(practice_type):
     }
     generator = generator_map[practice_type]
 
+    requested_topic_variants = _expand_topic_variants(topic, 5) if topic else []
+    used_texts: List[str] = []
+    used_topics: set[str] = set()
+
     for i in range(5):
-        try:
-            item = generator(topic=topic)
-            if item:
-                batch.append(item)
-                current_app.logger.info(f"Successfully generated {practice_type} #{i+1} with topic={topic}")
-            else:
-                current_app.logger.warning(f"Failed to generate {practice_type} #{i+1} - generator returned None")
-        except Exception as e:
-            current_app.logger.error(f"Error generating {practice_type} #{i+1}: {e}")
-            # Even on error, continue to try remaining items
+        item = None
+        attempts = 0
+        while attempts < 6 and item is None:
+            attempts += 1
+            topic_for_item = None
+            if requested_topic_variants:
+                topic_for_item = requested_topic_variants[i]
+            elif topic:
+                topic_for_item = topic
+
+            try:
+                candidate = generator(topic=topic_for_item)
+                if not candidate:
+                    continue
+
+                candidate_topic = str(candidate.get("topic") or topic_for_item or "").strip()
+                text_blob = _extract_practice_text(candidate, practice_type)
+
+                if candidate_topic and candidate_topic in used_topics:
+                    continue
+                if text_blob and _too_similar(text_blob, used_texts, threshold=0.88):
+                    continue
+
+                item = candidate
+                if candidate_topic:
+                    used_topics.add(candidate_topic)
+                if text_blob:
+                    used_texts.append(text_blob)
+            except Exception as e:
+                current_app.logger.error(f"Error generating {practice_type} #{i+1}: {e}")
+
+        if item:
+            batch.append(item)
+            current_app.logger.info(
+                "Generated %s #%s (attempts=%s, topic=%s)",
+                practice_type,
+                i + 1,
+                attempts,
+                (item.get("topic") or topic or ""),
+            )
+        else:
+            current_app.logger.warning("Failed to generate diverse %s #%s after retries", practice_type, i + 1)
 
     if not batch:
         return jsonify({'success': False, 'message': f'Failed to generate {practice_type} practice sets.'}), 503
@@ -4177,6 +4688,61 @@ def _unique_list(items: List[str]) -> List[str]:
     return ordered
 
 
+def _score_listen_and_repeat(prompt: str, transcript: str) -> Dict[str, Any]:
+    """Score listen-and-repeat responses using rubric-aligned similarity checks."""
+    def _tokens(text: str) -> List[str]:
+        return re.findall(r"[A-Za-z']+", (text or "").lower())
+
+    prompt_tokens = _tokens(prompt)
+    response_tokens = _tokens(transcript)
+
+    if not response_tokens:
+        return {
+            "score_5": 0,
+            "score_100": 0.0,
+            "similarity": 0.0,
+            "note": "No response or unintelligible response.",
+        }
+
+    if response_tokens == prompt_tokens:
+        return {
+            "score_5": 5,
+            "score_100": 100.0,
+            "similarity": 1.0,
+            "note": "Exact repetition with fully intelligible delivery.",
+        }
+
+    similarity = SequenceMatcher(None, prompt_tokens, response_tokens).ratio()
+    length_ratio = (len(response_tokens) / len(prompt_tokens)) if prompt_tokens else 0.0
+
+    if similarity >= 0.90:
+        score = 4
+        note = "Meaning captured with minor changes in words or grammar."
+    elif similarity >= 0.80:
+        score = 3
+        note = "Response is essentially full but meaning shifts in places."
+    elif similarity >= 0.60:
+        score = 2
+        note = "Significant parts are missing or inaccurate."
+    elif similarity >= 0.40:
+        score = 1
+        note = "Only a small portion of the prompt is captured."
+    else:
+        score = 0
+        note = "Response is largely unintelligible or unrelated to the prompt."
+
+    if length_ratio < 0.3:
+        score = min(score, 1)
+        note = "Very short response; most of the prompt is missing."
+
+    return {
+        "score_5": score,
+        "score_100": round(score * 20, 1),
+        "similarity": round(similarity, 3),
+        "note": note,
+    }
+
+
 @app.route('/speaking')
 @app.route('/speaking/dashboard')
 @login_required
@@ -4383,47 +4949,96 @@ def speaking_submit_response(task_id):
     else:
         current_app.logger.info('SpeechRater unavailable; skipping delivery analysis.')
 
+    repeat_task = task.task_type == 'new_toefl_repeat'
     engine = get_feedback_engine()
-    language_result = engine.evaluate_language_use(transcription)
-    topic_result = engine.evaluate_topic_development(
-        task.prompt,
-        transcription,
-        task.reading_text,
-        task.listening_transcript,
-    )
+    language_result = None
+    topic_result = None
+    if not repeat_task:
+        language_result = engine.evaluate_language_use(transcription)
+        topic_result = engine.evaluate_topic_development(
+            task.prompt,
+            transcription,
+            task.reading_text,
+            task.listening_transcript,
+            task.task_type,
+        )
 
     response.transcription = transcription
     response.audio_duration_seconds = audio_duration
 
-    if isinstance(speech_metrics, dict):
-        speech_metrics.setdefault('lexical_diversity', language_result.lexical_diversity)
-        speech_metrics.setdefault('total_words', language_result.total_words)
-        speech_metrics.setdefault('average_sentence_length', language_result.average_sentence_length)
-        speech_metrics.setdefault('academic_word_count', language_result.academic_word_count)
-        speech_metrics.setdefault('academic_words_used', language_result.academic_words_used)
+    if language_result:
+        if isinstance(speech_metrics, dict):
+            speech_metrics.setdefault('lexical_diversity', language_result.lexical_diversity)
+            speech_metrics.setdefault('total_words', language_result.total_words)
+            speech_metrics.setdefault('average_sentence_length', language_result.average_sentence_length)
+            speech_metrics.setdefault('academic_word_count', language_result.academic_word_count)
+            speech_metrics.setdefault('academic_words_used', language_result.academic_words_used)
+        else:
+            speech_metrics = {
+                'lexical_diversity': language_result.lexical_diversity,
+                'total_words': language_result.total_words,
+                'average_sentence_length': language_result.average_sentence_length,
+                'academic_word_count': language_result.academic_word_count,
+                'academic_words_used': language_result.academic_words_used,
+            }
+
+    if repeat_task:
+        repeat_eval = _score_listen_and_repeat(task.listening_transcript or task.prompt or "", transcription)
+        delivery_score = repeat_eval["score_100"]
+        fluency_score = None
+        pronunciation_score = None
+        rhythm_score = None
+        language_use_score = None
+        topic_development_score = None
+        overall_score = repeat_eval["score_100"]
+
+        repeat_strengths: List[str] = []
+        repeat_improvements: List[str] = []
+        if repeat_eval["score_5"] >= 4:
+            repeat_strengths.append("Repeats the prompt accurately with only minor differences.")
+        elif repeat_eval["score_5"] == 3:
+            repeat_strengths.append("Most content words are present.")
+            repeat_improvements.append("Keep the original meaning by avoiding substitutions or omissions.")
+        elif repeat_eval["score_5"] == 2:
+            repeat_improvements.append("Include the full sentence; several key words are missing.")
+        elif repeat_eval["score_5"] <= 1:
+            repeat_improvements.append("Repeat the entire sentence, not fragments or unrelated words.")
+
+        combined_strengths = _unique_list(delivery_strengths + repeat_strengths)
+        combined_improvements = _unique_list(delivery_improvements + repeat_improvements)
+        specific_feedback = _unique_list([
+            f"Similarity to prompt: {repeat_eval['similarity']}",
+            repeat_eval["note"],
+        ])
+        task_fulfillment = repeat_eval["note"]
+        clarity_coherence = "Intelligibility based on how closely the response matches the prompt."
+        support_sufficiency = "Not applicable for listen-and-repeat tasks."
+        grammar_errors = []
+        vocabulary_suggestions = []
+        lexical_diversity = None
+        academic_word_count = None
     else:
-        speech_metrics = {
-            'lexical_diversity': language_result.lexical_diversity,
-            'total_words': language_result.total_words,
-            'average_sentence_length': language_result.average_sentence_length,
-            'academic_word_count': language_result.academic_word_count,
-            'academic_words_used': language_result.academic_words_used,
-        }
+        delivery_score = delivery_score if delivery_score is not None else (60.0 if transcription else 0.0)
+        fluency_score = fluency_score if fluency_score is not None else delivery_score
+        pronunciation_score = pronunciation_score if pronunciation_score is not None else delivery_score
+        rhythm_score = rhythm_score if rhythm_score is not None else delivery_score
 
-    delivery_score = delivery_score if delivery_score is not None else (60.0 if transcription else 0.0)
-    fluency_score = fluency_score if fluency_score is not None else delivery_score
-    pronunciation_score = pronunciation_score if pronunciation_score is not None else delivery_score
-    rhythm_score = rhythm_score if rhythm_score is not None else delivery_score
+        language_use_score = language_result.score if language_result else 0.0
+        topic_development_score = topic_result.score if topic_result else 0.0
 
-    language_use_score = language_result.score
-    topic_development_score = topic_result.score
+        scores = [score for score in [delivery_score, language_use_score, topic_development_score] if score]
+        overall_score = round(sum(scores) / len(scores), 1) if scores else 0.0
 
-    scores = [score for score in [delivery_score, language_use_score, topic_development_score] if score]
-    overall_score = round(sum(scores) / len(scores), 1) if scores else 0.0
-
-    combined_strengths = _unique_list(delivery_strengths + language_result.strengths + topic_result.strengths)
-    combined_improvements = _unique_list(delivery_improvements + language_result.improvements + topic_result.improvements)
-    specific_feedback = _unique_list(specific_feedback or language_result.improvements[:1] + topic_result.improvements[:1])
+        combined_strengths = _unique_list(delivery_strengths + (language_result.strengths if language_result else []) + (topic_result.strengths if topic_result else []))
+        combined_improvements = _unique_list(delivery_improvements + (language_result.improvements if language_result else []) + (topic_result.improvements if topic_result else []))
+        specific_feedback = _unique_list(specific_feedback or (language_result.improvements[:1] if language_result else []) + (topic_result.improvements[:1] if topic_result else []))
+        task_fulfillment = topic_result.task_fulfillment if topic_result else None
+        clarity_coherence = topic_result.clarity_coherence if topic_result else None
+        support_sufficiency = topic_result.support_sufficiency if topic_result else None
+        grammar_errors = language_result.grammar_issues if language_result else []
+        vocabulary_suggestions = language_result.vocabulary_suggestions if language_result else []
+        lexical_diversity = language_result.lexical_diversity if language_result else None
+        academic_word_count = language_result.academic_word_count if language_result else None
 
     feedback = SpeakingFeedback(
         response_id=response.id,
@@ -4435,13 +5050,13 @@ def speaking_submit_response(task_id):
         pronunciation_score=pronunciation_score,
         rhythm_score=rhythm_score,
         speech_metrics=speech_metrics,
-        lexical_diversity=language_result.lexical_diversity,
-        academic_word_count=language_result.academic_word_count,
-        grammar_errors=language_result.grammar_issues,
-        vocabulary_suggestions=language_result.vocabulary_suggestions,
-        task_fulfillment=topic_result.task_fulfillment,
-        clarity_coherence=topic_result.clarity_coherence,
-        support_sufficiency=topic_result.support_sufficiency,
+        lexical_diversity=lexical_diversity,
+        academic_word_count=academic_word_count,
+        grammar_errors=grammar_errors,
+        vocabulary_suggestions=vocabulary_suggestions,
+        task_fulfillment=task_fulfillment,
+        clarity_coherence=clarity_coherence,
+        support_sufficiency=support_sufficiency,
         strengths=combined_strengths,
         areas_for_improvement=combined_improvements,
         specific_feedback=specific_feedback,

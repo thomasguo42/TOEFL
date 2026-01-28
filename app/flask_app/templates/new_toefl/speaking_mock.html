@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}New TOEFL Speaking Mock{% endblock %}
+{% block title %}New TOEFL Speaking Practice{% endblock %}
 
 {% block extra_css %}
 <style>
@@ -34,18 +34,18 @@
     <div class="col-lg-10 col-xl-8">
         <div class="d-flex align-items-center justify-content-between flex-wrap gap-3 mb-4">
             <div>
-                <h1 class="mb-2"><i class="fas fa-microphone me-2"></i>Speaking Mock Exam</h1>
+                <h1 class="mb-2"><i class="fas fa-microphone me-2"></i>Speaking Practice</h1>
                 <p class="text-muted mb-0">Generate listen-and-repeat plus interview prompts with speaking evaluation.</p>
             </div>
-            <a href="{{ url_for('new_toefl_dashboard') }}" class="btn btn-outline-secondary">
-                <i class="fas fa-arrow-left me-2"></i>Back to Mock Hub
+            <a href="{{ url_for('new_toefl_practice_hub') }}" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left me-2"></i>Back to Practice Hub
             </a>
         </div>
 
         <div class="mock-panel">
-            <h4 class="mb-3">Mock Format</h4>
+            <h4 class="mb-3">Practice Format</h4>
             <p class="text-muted">
-                DeepSeek will generate prompts and expected responses using the existing speaking generator.
+                Gemini will generate prompts and expected responses using the existing speaking generator.
                 Evaluation will reuse the SpeechRater feedback pipeline.
             </p>
 
@@ -56,8 +56,12 @@
             </div>
 
             <div class="mt-4">
+                <label class="form-label fw-semibold">Choose full-length interview set</label>
+                <select class="form-select mb-3" id="interviewSet">
+                    <option value="">Loading interview sets...</option>
+                </select>
                 <button class="btn btn-warning" id="generateSpeaking">
-                    <i class="fas fa-wand-magic-sparkles me-2"></i>Generate Speaking Mock (DeepSeek)
+                    <i class="fas fa-wand-magic-sparkles me-2"></i>Generate Speaking Practice
                 </button>
                 <span class="text-muted ms-2" id="speakingStatus">Ready to generate.</span>
             </div>
@@ -74,6 +78,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const generateBtn = document.getElementById('generateSpeaking');
     const statusEl = document.getElementById('speakingStatus');
     const contentEl = document.getElementById('speakingContent');
+    const interviewSetEl = document.getElementById('interviewSet');
 
     const renderTasks = (tasks) => {
         if (!tasks || !tasks.length) {
@@ -98,13 +103,35 @@ document.addEventListener('DOMContentLoaded', () => {
         contentEl.innerHTML = items;
     };
 
+    const loadInterviewSets = async () => {
+        if (!interviewSetEl) return;
+        interviewSetEl.innerHTML = '<option value="">Loading interview sets...</option>';
+        try {
+            const res = await fetch('{{ url_for("new_toefl_speaking_interview_sets") }}');
+            const data = await res.json();
+            if (!data.success) throw new Error('Failed');
+            const options = (data.sets || []).map((item, idx) => {
+                const label = item.title || `Interview Set ${idx + 1}`;
+                return `<option value="${item.id}">${label}</option>`;
+            }).join('');
+            interviewSetEl.innerHTML = options || '<option value="">No sets available</option>';
+        } catch (err) {
+            interviewSetEl.innerHTML = '<option value="">No sets available</option>';
+        }
+    };
+
     generateBtn.addEventListener('click', async () => {
         statusEl.textContent = 'Generating speaking mock...';
         generateBtn.disabled = true;
         contentEl.innerHTML = '';
 
         try {
-            const res = await fetch('{{ url_for("new_toefl_speaking_generate") }}', { method: 'POST' });
+            const setId = interviewSetEl ? interviewSetEl.value : '';
+            const res = await fetch('{{ url_for("new_toefl_speaking_generate") }}', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ interview_set_id: setId || null }),
+            });
             const data = await res.json();
             if (!data.success) {
                 statusEl.textContent = data.message || 'Generation failed.';
@@ -119,6 +146,8 @@ document.addEventListener('DOMContentLoaded', () => {
             generateBtn.disabled = false;
         }
     });
+
+    loadInterviewSets();
 });
 </script>
 {% endblock %}

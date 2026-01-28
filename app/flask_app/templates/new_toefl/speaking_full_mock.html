@@ -1,0 +1,126 @@
+{% extends "base.html" %}
+
+{% block title %}New TOEFL Speaking Mock{% endblock %}
+
+{% block extra_css %}
+<style>
+    .mock-panel {
+        background: #ffffff;
+        border: 1px solid var(--toefl-border);
+        border-radius: 1.25rem;
+        padding: 2rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-10 col-xl-8">
+        <div class="d-flex align-items-center justify-content-between flex-wrap gap-3 mb-4">
+            <div>
+                <h1 class="mb-2"><i class="fas fa-microphone me-2"></i>Speaking Mock Exam</h1>
+                <p class="text-muted mb-0">Select a full-length practice test and record every response.</p>
+            </div>
+            <a href="{{ url_for('new_toefl_mock_hub') }}" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left me-2"></i>Back to Mock Hub
+            </a>
+        </div>
+
+        <div class="mock-panel">
+            <h4 class="mb-3">Mock Format</h4>
+            <p class="text-muted">
+                Prompts are pulled directly from the full-length practice tests. Audio is generated for each prompt.
+            </p>
+
+            <div class="mt-4">
+                <label class="form-label fw-semibold">Select Practice Test</label>
+                <select class="form-select mb-3" id="speakingTest"></select>
+                <button class="btn btn-warning" id="loadSpeaking">
+                    <i class="fas fa-play me-2"></i>Load Speaking Mock
+                </button>
+                <span class="text-muted ms-2" id="speakingStatus">Select a test to begin.</span>
+            </div>
+        </div>
+
+        <div class="mt-4" id="speakingContent"></div>
+    </div>
+</div>
+{% endblock %}
+
+{% block head %}
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const loadBtn = document.getElementById('loadSpeaking');
+    const statusEl = document.getElementById('speakingStatus');
+    const contentEl = document.getElementById('speakingContent');
+    const testSelect = document.getElementById('speakingTest');
+
+    const escapeHtml = (text) => (text || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/\"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+
+    const renderTasks = (tasks) => {
+        if (!tasks || !tasks.length) {
+            contentEl.innerHTML = '<div class="alert alert-warning">No tasks generated.</div>';
+            return;
+        }
+        const baseUrl = '{{ url_for("new_toefl_speaking_task", task_id=0) }}';
+        const items = tasks.map((task) => {
+            const url = baseUrl.replace('/0', `/${task.id}`);
+            return `
+            <div class="card mb-3">
+                <div class="card-body d-flex justify-content-between align-items-center flex-wrap gap-3">
+                    <div>
+                        <div class="fw-semibold">${escapeHtml(task.label || '')}</div>
+                        <div class="text-muted small">Response time: ${task.response_time}s</div>
+                    </div>
+                    <a class="btn btn-outline-primary" href="${url}">Start Task</a>
+                </div>
+            </div>
+            `;
+        }).join('');
+        contentEl.innerHTML = items;
+    };
+
+    const loadTests = async () => {
+        try {
+            const res = await fetch('{{ url_for("new_toefl_speaking_interview_sets") }}');
+            const data = await res.json();
+            const options = (data.sets || []).map((test) => `<option value="${test.id}">${escapeHtml(test.title || test.id)}</option>`).join('');
+            testSelect.innerHTML = options || '<option value="">No tests available</option>';
+        } catch (err) {
+            testSelect.innerHTML = '<option value="">No tests available</option>';
+        }
+    };
+
+    loadBtn.addEventListener('click', async () => {
+        const testId = testSelect.value;
+        if (!testId) return;
+        statusEl.textContent = 'Generating speaking mock...';
+        loadBtn.disabled = true;
+        contentEl.innerHTML = '';
+
+        try {
+            const res = await fetch(`/new-toefl/api/mock/speaking/generate/${testId}`, { method: 'POST' });
+            const data = await res.json();
+            if (!data.success) {
+                statusEl.textContent = data.message || 'Generation failed.';
+                loadBtn.disabled = false;
+                return;
+            }
+            renderTasks(data.tasks || []);
+            statusEl.textContent = 'Mock generated. Open each task to record.';
+        } catch (err) {
+            statusEl.textContent = 'Generation failed. Please try again.';
+        } finally {
+            loadBtn.disabled = false;
+        }
+    });
+
+    loadTests();
+});
+</script>
+{% endblock %}

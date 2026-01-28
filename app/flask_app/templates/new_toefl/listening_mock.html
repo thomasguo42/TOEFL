@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}New TOEFL Listening Mock{% endblock %}
+{% block title %}New TOEFL Listening Practice{% endblock %}
 
 {% block extra_css %}
 <style>
@@ -34,18 +34,18 @@
     <div class="col-lg-10 col-xl-8">
         <div class="d-flex align-items-center justify-content-between flex-wrap gap-3 mb-4">
             <div>
-                <h1 class="mb-2"><i class="fas fa-headphones me-2"></i>Listening Mock Exam</h1>
-                <p class="text-muted mb-0">Generate a full new TOEFL listening mock with response selection and talk questions.</p>
+                <h1 class="mb-2"><i class="fas fa-headphones me-2"></i>Listening Practice</h1>
+                <p class="text-muted mb-0">Generate new TOEFL listening practice with response selection and talk questions.</p>
             </div>
-            <a href="{{ url_for('new_toefl_dashboard') }}" class="btn btn-outline-secondary">
-                <i class="fas fa-arrow-left me-2"></i>Back to Mock Hub
+            <a href="{{ url_for('new_toefl_practice_hub') }}" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left me-2"></i>Back to Practice Hub
             </a>
         </div>
 
         <div class="mock-panel">
-            <h4 class="mb-3">Mock Format</h4>
+            <h4 class="mb-3">Practice Format</h4>
             <p class="text-muted">
-                DeepSeek will generate listening prompts using the existing listening generators and TTS pipeline.
+                Gemini will generate listening prompts using the existing listening generators and TTS pipeline.
                 Scoring will mirror current listening practice evaluation.
             </p>
 
@@ -57,7 +57,7 @@
 
             <div class="mt-4">
                 <button class="btn btn-warning" id="generateListening">
-                    <i class="fas fa-wand-magic-sparkles me-2"></i>Generate Listening Mock (DeepSeek)
+                    <i class="fas fa-wand-magic-sparkles me-2"></i>Generate Listening Practice
                 </button>
                 <button class="btn btn-outline-secondary ms-2" id="submitListening" disabled>
                     <i class="fas fa-check me-2"></i>Submit Answers
@@ -115,9 +115,15 @@ document.addEventListener('DOMContentLoaded', () => {
         </div>
     `).join('');
 
-    const renderConversation = (conversation) => {
+    const normalizeGroup = (group) => {
+        if (!group) return [];
+        return Array.isArray(group) ? group : [group];
+    };
+
+    const renderConversation = (conversation, idx = 0) => {
         if (!conversation) return '';
-        const questionsHtml = (conversation.questions || []).map((q, idx) => renderQuestion(`conversation-${idx}`, q, idx)).join('');
+        const convId = conversation.id || `conversation-${idx}`;
+        const questionsHtml = (conversation.questions || []).map((q, qIdx) => renderQuestion(`conversation-${convId}-${qIdx}`, q, qIdx)).join('');
         return `
             <div class="card mb-3">
                 <div class="card-body">
@@ -129,9 +135,10 @@ document.addEventListener('DOMContentLoaded', () => {
         `;
     };
 
-    const renderTalk = (talk) => {
+    const renderTalk = (talk, idx = 0) => {
         if (!talk) return '';
-        const questionsHtml = (talk.questions || []).map((q, idx) => renderQuestion(`talk-${idx}`, q, idx)).join('');
+        const talkId = talk.id || `talk-${idx}`;
+        const questionsHtml = (talk.questions || []).map((q, qIdx) => renderQuestion(`talk-${talkId}-${qIdx}`, q, qIdx)).join('');
         return `
             <div class="card mb-3">
                 <div class="card-body">
@@ -149,13 +156,21 @@ document.addEventListener('DOMContentLoaded', () => {
             const selected = document.querySelector(`input[name="response-${idx}"]:checked`);
             answers.responses[idx] = selected ? selected.value : '';
         });
-        (currentMock?.conversation?.questions || []).forEach((_, idx) => {
-            const selected = document.querySelector(`input[name="conversation-${idx}"]:checked`);
-            answers.conversation[idx] = selected ? selected.value : '';
+        normalizeGroup(currentMock?.conversation).forEach((conv, idx) => {
+            const convId = conv.id || `conversation-${idx}`;
+            answers.conversation[convId] = {};
+            (conv.questions || []).forEach((_, qIdx) => {
+                const selected = document.querySelector(`input[name="conversation-${convId}-${qIdx}"]:checked`);
+                answers.conversation[convId][qIdx] = selected ? selected.value : '';
+            });
         });
-        (currentMock?.talk?.questions || []).forEach((_, idx) => {
-            const selected = document.querySelector(`input[name="talk-${idx}"]:checked`);
-            answers.talk[idx] = selected ? selected.value : '';
+        normalizeGroup(currentMock?.talk).forEach((talk, idx) => {
+            const talkId = talk.id || `talk-${idx}`;
+            answers.talk[talkId] = {};
+            (talk.questions || []).forEach((_, qIdx) => {
+                const selected = document.querySelector(`input[name="talk-${talkId}-${qIdx}"]:checked`);
+                answers.talk[talkId][qIdx] = selected ? selected.value : '';
+            });
         });
         return answers;
     };
@@ -242,8 +257,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 currentMock = data.mock;
                 contentEl.innerHTML = [
                     renderResponses(currentMock.responses),
-                    renderConversation(currentMock.conversation),
-                    renderTalk(currentMock.talk),
+                    normalizeGroup(currentMock.conversation).map((conv, idx) => renderConversation(conv, idx)).join(''),
+                    normalizeGroup(currentMock.talk).map((talk, idx) => renderTalk(talk, idx)).join(''),
                 ].join('');
                 statusEl.textContent = data.cached ? 'Loaded cached mock. Complete the questions.' : 'Mock generated. Complete the questions.';
                 submitBtn.disabled = false;
@@ -274,8 +289,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     currentMock = pollData.mock;
                     contentEl.innerHTML = [
                         renderResponses(currentMock.responses),
-                        renderConversation(currentMock.conversation),
-                        renderTalk(currentMock.talk),
+                        normalizeGroup(currentMock.conversation).map((conv, idx) => renderConversation(conv, idx)).join(''),
+                        normalizeGroup(currentMock.talk).map((talk, idx) => renderTalk(talk, idx)).join(''),
                     ].join('');
                     statusEl.textContent = 'Mock generated. Complete the questions.';
                     submitBtn.disabled = false;

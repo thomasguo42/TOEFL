@@ -1,0 +1,79 @@
+5
+SCORE DESCRIPTION
+The response exactly repeats the prompt.   
+A typical response exhibits the following:  
+• The response is fully intelligible and is an exact repetition of the prompt.
+4
+2
+1
+0The response captures the meaning expressed in the prompt, but it is not an exact repetition.  
+A typical response exhibits the following:  
+• Minor changes in words or grammar are present that do not substantially change the meaning of the prompt. 
+For example: 
+• one or two function words may be missing or changed,  
+• a content word may be missing (in longer stimuli) or replaced with a related word, 
+• markers of tense/aspect/number may be missing or incorrect, or 
+• two words may be transposed.
+• One or two content words may be ambiguous because of imprecise pronunciation. The speaker may self-correct, but 
+successfully completes the response. 
+The response is missing a significant part of the prompt and/or is highly inaccurate.  
+A typical response exhibits the following:  
+• A large portion of the prompt is missing, and important original meaning is left out. 
+• The speaker may repeat the first part of the sentence. Then the speaker may stop or fill with inaccurate content and/or 
+include the last few words. 
+• The response is not a self-standing sentence; meaning is fragmentary.  
+• Intelligibility is low; the response would be difficult to understand for a listener unfamiliar with the prompt.
+The response captures very little of the prompt or is largely unintelligible.  
+A typical response exhibits the following:  
+• A minimal response of a few words is made; most of the prompt is missing.
+• The response is recognizable as an attempt to repeat the prompt, but it is mostly unintelligible.
+No response OR the response is entirely unintelligible OR there is no English in the response OR the content is entirely 
+unconnected to the prompt (or consists only of phrases such as “I don’t know”). 3The response is essentially full, but it does not accurately capture the original meaning.  
+A typical response exhibits the following:  
+• The response contains a majority of the content words or ideas in the prompt. 
+• Multiple function words may be changed or missing; one or more content words may be missing or substantively changed.
+• The response is a full sentence.
+• In some cases, intelligibility issues cause occasional difficulty in understanding meaning. The speaker may struggle over a word 
+or phrase or run words together, reducing intelligibility.Speaking Scoring Guide 
+Listen and Repeat 
+5SCORE DESCRIPTION
+A fully successful response 
+The response fully addresses the question, and it is clear and fluent.
+A typical response exhibits the following: 
+• The response is on topic and well elaborated.  
+• Good conversational speaking pace is maintained with appropriate and natural use of pauses. 
+• Pronunciation is easily intelligible; rhythm and intonation effectively convey meaning.  
+• A range of accurate grammar and vocabulary allows clear expression of precise meanings.
+4A generally successful response  
+The response addresses the question, and it is reasonably clear.
+A typical response exhibits the following:  
+• The response is on topic and elaborated, but it may lack effective sentence-level connectors.  
+• Good speaking pace is generally maintained, with some pausing that may minimally affect flow. 
+• Intelligibility and meaning are not impeded by pronunciation, rhythm and intonation, although occasional words/phrases may 
+require minor effort to understand. 
+• Grammar and vocabulary are adequate to express general meanings most of the time.
+2
+1
+0A mostly unsuccessful response  
+The response reflects an attempt to address the question, but it is not supported in a meaningful and/or intelligible way.  
+A typical response exhibits the following:   
+• The response is minimally connected to the interviewer’s question, but it has little or no relevant elaboration or consists mainly 
+of language from the question. 
+• Intelligibility is limited; the speaker’s intended meaning is often difficult to discern.  
+• The response shows a very limited range of grammar and vocabulary.
+An unsuccessful response  
+The response minimally addresses the question, and it may demonstrate very limited control of language.  
+A typical response exhibits the following:  
+• The response is only vaguely connected to language in the interviewer’s question.  
+• The response is mostly unintelligible.  
+• The response consists mainly of isolated words or phrases
+No response OR the response is entirely unintelligible OR there is no English in the response OR the content is entirely 
+unconnected to the prompt (or consists only of phrases such as “I don’t know”). 3A partially successful response  
+The response addresses the question but with limited elaboration and/or clarity.    
+A typical response exhibits the following:    
+• The response is generally on topic, but elaboration may be relatively limited.
+• Frequent or lengthy pauses result in a choppy pace; filler words are frequent.  
+• Intelligibility is sometimes affected by inaccuracies in word-level pronunciation or stress/rhythm.  
+• Limited range and accuracy of grammar and vocabulary noticeably restrict the precision and clarity of meanings.
+T ake an Interview 
+Copyright© 2025 by ETS. TOEFL and TOEFL IBT are registered trademarks of ETS in the United States and other countries. The Eight-Point logo is a trademark of ETS.Speaking Scoring Guide

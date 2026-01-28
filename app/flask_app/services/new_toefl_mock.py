@@ -1,9 +1,11 @@
 """DeepSeek-powered content generation for the New TOEFL mock exams."""
 from __future__ import annotations
 
+import json
 import math
 import random
 import re
+from pathlib import Path
 from typing import Any, Dict, List, Optional
 from uuid import uuid4
 
@@ -21,6 +23,48 @@ READING_CLOZE_TOPICS = [
     "public health",
     "archaeology",
     "renewable energy",
+]
+
+READING_DAILY_TOPICS = [
+    "campus services",
+    "student housing",
+    "library resources",
+    "club activities",
+    "class registration",
+    "career center",
+    "health center",
+    "volunteer program",
+]
+
+READING_ACADEMIC_TOPICS = [
+    "climate adaptation",
+    "renewable energy",
+    "marine biology",
+    "cognitive psychology",
+    "behavioral economics",
+    "digital heritage",
+    "public health",
+    "urban planning",
+]
+
+LISTENING_CONVERSATION_TOPICS = [
+    "office hours",
+    "research assistantship",
+    "lab schedule",
+    "course project",
+    "registration issue",
+    "library fine dispute",
+]
+
+LISTENING_TALK_TOPICS = [
+    "astronomy",
+    "geology",
+    "ecology",
+    "art history",
+    "psychology",
+    "economics",
+    "anthropology",
+    "public health",
 ]
 
 READING_SYSTEM_PROMPT = (
@@ -45,6 +89,8 @@ WRITING_SYSTEM_PROMPT = (
     "You are DeepSeek creating New TOEFL writing mock tasks. "
     "Return strict JSON matching the requested schema. Avoid markdown or extra text."
 )
+
+INTERVIEW_SETS_PATH = Path(__file__).resolve().parents[3] / "data" / "seeds" / "new_toefl_interview_sets.json"
 
 
 def _safe_text(value: Any) -> str:
@@ -223,12 +269,14 @@ def _generate_cloze_paragraph(
     return built
 
 
-def _generate_daily_life_set(client: GeminiClient) -> Optional[Dict[str, Any]]:
+def _generate_daily_life_set(client: GeminiClient, topic: Optional[str] = None) -> Optional[Dict[str, Any]]:
     if not client or not client.is_configured:
         return None
 
+    focus_topic = topic or random.choice(READING_DAILY_TOPICS)
     prompt = (
         "Create ONE New TOEFL reading task using daily-life materials (email/notice/announcement).\n\n"
+        f"Topic focus: {focus_topic}\n\n"
         "QUESTION STYLE RULES:\n"
         "- Focus on reading strategies: main idea, purpose, inference, vocabulary-in-context, or NOT/EXCEPT.\n"
         "- Avoid price/location/time-detail questions (no schedules, fees, addresses, dates as the focus).\n"
@@ -237,15 +285,16 @@ def _generate_daily_life_set(client: GeminiClient) -> Optional[Dict[str, Any]]:
         "1. Return a JSON object with keys: id, source_text, source_type, questions.\n"
         "2. source_text is 90-130 words. source_type is one of: email, notice, memo, advertisement.\n"
         "3. questions is an array with exactly 2 objects.\n"
-        "4. Each question has: question, options (array of 4), answer, rationales.\n"
+        "4. Each question has: question, options (array of 4), answer, rationales, evidence_quote.\n"
         "5. answer must exactly match one option.\n"
         "6. rationales is an object mapping each option to a concise English explanation (<= 18 words).\n"
-        "7. UNAMBIGUITY: Only ONE option may be correct for each question. Make distractors plausible but decisively wrong.\n"
+        "7. evidence_quote MUST be an exact short quote (<= 120 chars) copied verbatim from source_text that supports the correct answer.\n"
+        "8. UNAMBIGUITY: Only ONE option may be correct for each question. Make distractors plausible but decisively wrong.\n"
         "   - Avoid near-duplicates (synonyms that both fit).\n"
         "   - Avoid two general statements that both match the text.\n"
         "   - Before returning, mentally verify the 3 wrong options are wrong.\n"
-        "8. Keep language clear and realistic for real-life reading.\n"
-        "9. Return strict JSON only."
+        "9. Keep language clear and realistic for real-life reading.\n"
+        "10. Return strict JSON only."
     )
 
     for _ in range(3):
@@ -273,12 +322,14 @@ def _generate_daily_life_set(client: GeminiClient) -> Optional[Dict[str, Any]]:
     return None
 
 
-def _generate_academic_passage_set(client: GeminiClient) -> Optional[Dict[str, Any]]:
+def _generate_academic_passage_set(client: GeminiClient, topic: Optional[str] = None) -> Optional[Dict[str, Any]]:
     if not client or not client.is_configured:
         return None
 
+    focus_topic = topic or random.choice(READING_ACADEMIC_TOPICS)
     prompt = (
         "Create ONE New TOEFL academic reading passage with multiple-choice questions.\n\n"
+        f"Topic focus: {focus_topic}\n\n"
         "QUESTION STYLE RULES:\n"
         "- Use TOEFL-style questions: vocabulary-in-context, rhetorical purpose (\"Why does the author mention...\"),\n"
         "  inference, main idea/theme, or NOT/EXCEPT.\n"
@@ -288,13 +339,14 @@ def _generate_academic_passage_set(client: GeminiClient) -> Optional[Dict[str, A
         "1. Return a JSON object with keys: id, passage, questions.\n"
         "2. passage is 190-230 words, academic tone, cohesive.\n"
         "3. questions is an array with exactly 4 objects.\n"
-        "4. Each question has: question, options (array of 4), answer, rationales.\n"
+        "4. Each question has: question, options (array of 4), answer, rationales, evidence_quote.\n"
         "5. answer must exactly match one option.\n"
         "6. rationales is an object mapping each option to a concise English explanation (<= 20 words).\n"
-        "7. UNAMBIGUITY: Only ONE option may be correct per question. Distractors must be clearly wrong given the passage.\n"
+        "7. evidence_quote MUST be an exact short quote (<= 120 chars) copied verbatim from passage that supports the correct answer.\n"
+        "8. UNAMBIGUITY: Only ONE option may be correct per question. Distractors must be clearly wrong given the passage.\n"
         "   - Avoid two options that are both supported by the passage.\n"
         "   - If two could be correct, rewrite distractors until only one remains.\n"
-        "8. Return strict JSON only."
+        "9. Return strict JSON only."
     )
 
     for _ in range(3):
@@ -337,12 +389,17 @@ def generate_reading_mock(client: Optional[GeminiClient] = None) -> Optional[Dic
         if item:
             cloze_tasks.append(item)
 
-    for _ in range(2):
-        item = _generate_daily_life_set(client)
+    daily_topics = random.sample(READING_DAILY_TOPICS, k=min(2, len(READING_DAILY_TOPICS)))
+    while len(daily_topics) < 2:
+        daily_topics.append(random.choice(READING_DAILY_TOPICS))
+
+    for topic in daily_topics:
+        item = _generate_daily_life_set(client, topic=topic)
         if item:
             daily_life_tasks.append(item)
 
-    academic = _generate_academic_passage_set(client)
+    academic_topic = random.choice([t for t in READING_ACADEMIC_TOPICS if t not in set(cloze_topics + daily_topics)] or READING_ACADEMIC_TOPICS)
+    academic = _generate_academic_passage_set(client, topic=academic_topic)
 
     # Ensure we have cloze tasks even if paragraph generation fails, by building from other text.
     if len(cloze_tasks) < 2:
@@ -379,8 +436,27 @@ def _generate_listen_response_items(client: GeminiClient, count: int = 6) -> Opt
     if not client or not client.is_configured:
         return None
 
+    scenarios = [
+        "campus dining",
+        "library help desk",
+        "classroom clarification",
+        "student housing",
+        "career center",
+        "health center",
+        "club meeting",
+        "group project",
+    ]
+    scenario_assignments = random.sample(scenarios, k=min(count, len(scenarios)))
+    while len(scenario_assignments) < count:
+        scenario_assignments.append(random.choice(scenarios))
+    scenarios_block = "\n".join([f"{idx + 1}. {name}" for idx, name in enumerate(scenario_assignments)])
+
     prompt = (
         "Create New TOEFL listen-and-choose-response items.\n\n"
+        "DIVERSITY RULES:\n"
+        "- Each item must use a DIFFERENT scenario from the list below (in order).\n"
+        "Scenario assignments (item order matters):\n"
+        f"{scenarios_block}\n\n"
         "OUTPUT RULES:\n"
         "1. Return JSON with key: items (array).\n"
         f"2. items must contain exactly {count} objects.\n"
@@ -418,8 +494,10 @@ def _generate_conversation_set(client: GeminiClient) -> Optional[Dict[str, Any]]
     if not client or not client.is_configured:
         return None
 
+    focus_topic = random.choice(LISTENING_CONVERSATION_TOPICS)
     prompt = (
         "Create ONE New TOEFL conversation listening task.\n\n"
+        f"Topic focus: {focus_topic}\n\n"
         "OUTPUT RULES:\n"
         "1. Return JSON with keys: id, segments, questions.\n"
         "2. segments is an array of 8-10 objects with speaker and text. Speakers: Woman, Man.\n"
@@ -459,8 +537,10 @@ def _generate_talk_set(client: GeminiClient) -> Optional[Dict[str, Any]]:
     if not client or not client.is_configured:
         return None
 
+    focus_topic = random.choice(LISTENING_TALK_TOPICS)
     prompt = (
         "Create ONE New TOEFL academic talk listening task.\n\n"
+        f"Topic focus: {focus_topic}\n\n"
         "OUTPUT RULES:\n"
         "1. Return JSON with keys: id, talk, questions.\n"
         "2. talk is 180-220 words, academic mini-lecture.\n"
@@ -547,38 +627,90 @@ def generate_listening_mock(
 # ---------------------------------------------------------------------------
 
 
-def _generate_repeat_prompts(client: GeminiClient, count: int = 7) -> Optional[List[Dict[str, Any]]]:
-    if not client or not client.is_configured:
+def _load_interview_sets() -> List[Dict[str, Any]]:
+    if not INTERVIEW_SETS_PATH.exists():
+        current_app.logger.warning("Interview sets file not found: %s", INTERVIEW_SETS_PATH)
+        return []
+
+    try:
+        payload = json.loads(INTERVIEW_SETS_PATH.read_text(encoding="utf-8"))
+    except Exception as exc:
+        current_app.logger.warning("Failed to parse interview sets: %s", exc)
+        return []
+
+    sets = payload.get("sets") if isinstance(payload, dict) else None
+    if not isinstance(sets, list):
+        return []
+
+    cleaned: List[Dict[str, Any]] = []
+    for entry in sets:
+        if not isinstance(entry, dict):
+            continue
+        items = entry.get("items")
+        repeat_items = entry.get("repeat_items") or []
+        if not isinstance(items, list) or not items:
+            continue
+        cleaned_repeat = []
+        if isinstance(repeat_items, list):
+            for item in repeat_items:
+                if not isinstance(item, dict):
+                    continue
+                prompt = _safe_text(item.get("prompt"))
+                if not prompt:
+                    continue
+                cleaned_repeat.append({
+                    "prompt": prompt,
+                    "response_time_seconds": item.get("response_time_seconds", 10),
+                })
+        cleaned_items = []
+        for item in items:
+            if not isinstance(item, dict):
+                continue
+            prompt = _safe_text(item.get("prompt"))
+            if not prompt:
+                continue
+            cleaned_items.append({
+                "prompt": prompt,
+                "response_time_seconds": item.get("response_time_seconds", 45),
+                "focus_points": item.get("focus_points") or [],
+            })
+        if cleaned_items:
+            cleaned.append({
+                "id": entry.get("id") or f"set_{len(cleaned) + 1}",
+                "title": entry.get("title") or "",
+                "repeat_items": cleaned_repeat,
+                "items": cleaned_items,
+            })
+    return cleaned
+
+
+def get_interview_sets() -> List[Dict[str, Any]]:
+    """Return available interview sets for UI selection."""
+    return _load_interview_sets()
+
+
+def _choose_speaking_set(interview_set_id: Optional[str]) -> Optional[Dict[str, Any]]:
+    sets = _load_interview_sets()
+    if not sets:
         return None
-
-    prompt = (
-        "Create New TOEFL listen-and-repeat prompts.\n\n"
-        "OUTPUT RULES:\n"
-        "1. Return JSON with key: items (array).\n"
-        f"2. items must contain exactly {count} objects.\n"
-        "3. Each item has: prompt, response_time_seconds.\n"
-        "4. prompt is a single sentence of 12-18 words, clear and academic.\n"
-        "5. response_time_seconds should be 8-12 depending on sentence length.\n"
-        "6. Return strict JSON only."
-    )
-
-    payload = client.generate_json(
-        prompt,
-        temperature=0.3,
-        system_instruction=SPEAKING_SYSTEM_PROMPT,
-        max_output_tokens=1200,
-    )
-    if not isinstance(payload, dict):
-        return None
-
-    items = payload.get("items")
-    if not isinstance(items, list) or len(items) != count:
-        return None
-
-    return items
+    if interview_set_id:
+        for item in sets:
+            if item.get("id") == interview_set_id:
+                return item
+    return random.choice(sets)
 
 
-def _generate_interview_prompts(client: GeminiClient, count: int = 4) -> Optional[List[Dict[str, Any]]]:
+def _generate_interview_prompts(
+    client: GeminiClient,
+    count: int = 4,
+    speaking_set: Optional[Dict[str, Any]] = None,
+) -> Optional[List[Dict[str, Any]]]:
+    if speaking_set:
+        items = speaking_set.get("items", [])
+        if len(items) >= count:
+            return items[:count]
+        return items
+
     if not client or not client.is_configured:
         return None
 
@@ -610,9 +742,54 @@ def _generate_interview_prompts(client: GeminiClient, count: int = 4) -> Optiona
     return items
 
 
+def _generate_repeat_prompts(
+    client: GeminiClient,
+    count: int = 7,
+    speaking_set: Optional[Dict[str, Any]] = None,
+) -> Optional[List[Dict[str, Any]]]:
+    if speaking_set:
+        items = speaking_set.get("repeat_items", [])
+        if items:
+            return items[:count] if len(items) >= count else items
+
+    return _generate_repeat_prompts_ai(client, count=count)
+
+
+def _generate_repeat_prompts_ai(client: GeminiClient, count: int = 7) -> Optional[List[Dict[str, Any]]]:
+    if not client or not client.is_configured:
+        return None
+
+    prompt = (
+        "Create New TOEFL listen-and-repeat prompts.\n\n"
+        "OUTPUT RULES:\n"
+        "1. Return JSON with key: items (array).\n"
+        f"2. items must contain exactly {count} objects.\n"
+        "3. Each item has: prompt, response_time_seconds.\n"
+        "4. prompt is a single sentence of 12-18 words, clear and academic.\n"
+        "5. response_time_seconds should be 8-12 depending on sentence length.\n"
+        "6. Return strict JSON only."
+    )
+
+    payload = client.generate_json(
+        prompt,
+        temperature=0.3,
+        system_instruction=SPEAKING_SYSTEM_PROMPT,
+        max_output_tokens=1200,
+    )
+    if not isinstance(payload, dict):
+        return None
+
+    items = payload.get("items")
+    if not isinstance(items, list) or len(items) != count:
+        return None
+
+    return items
+
+
 def generate_speaking_mock(
     client: Optional[GeminiClient] = None,
     tts: Optional[TTSService] = None,
+    interview_set_id: Optional[str] = None,
 ) -> Optional[Dict[str, Any]]:
     client = client or get_gemini_client()
     if not client or not client.is_configured:
@@ -620,7 +797,8 @@ def generate_speaking_mock(
 
     tts = tts or TTSService()
 
-    repeat_items = _generate_repeat_prompts(client) or []
+    speaking_set = _choose_speaking_set(interview_set_id)
+    repeat_items = _generate_repeat_prompts(client, speaking_set=speaking_set) or []
     for item in repeat_items:
         prompt_text = _safe_text(item.get("prompt"))
         if not prompt_text:
@@ -629,7 +807,7 @@ def generate_speaking_mock(
         if audio:
             item["audio_url"] = f"/static/{audio.audio_path}"
 
-    interview_items = _generate_interview_prompts(client) or []
+    interview_items = _generate_interview_prompts(client, speaking_set=speaking_set) or []
     for item in interview_items:
         prompt_text = _safe_text(item.get("prompt"))
         if not prompt_text:

@@ -1,0 +1,334 @@
+{% extends "base.html" %}
+
+{% block title %}New TOEFL Listening Mock{% endblock %}
+
+{% block extra_css %}
+<style>
+    .mock-panel {
+        background: #ffffff;
+        border: 1px solid var(--toefl-border);
+        border-radius: 1.25rem;
+        padding: 2rem;
+    }
+
+    .mock-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1rem;
+        margin-top: 1.5rem;
+    }
+
+    .meta-chip {
+        background: var(--toefl-gray-bg);
+        border: 1px solid var(--toefl-border-light);
+        border-radius: 999px;
+        padding: 0.35rem 0.9rem;
+        font-size: 0.85rem;
+        color: var(--toefl-text-light);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-10 col-xl-8">
+        <div class="d-flex align-items-center justify-content-between flex-wrap gap-3 mb-4">
+            <div>
+                <h1 class="mb-2"><i class="fas fa-headphones me-2"></i>Listening Mock Exam</h1>
+                <p class="text-muted mb-0">Select a full-length practice test and complete every listening question.</p>
+            </div>
+            <a href="{{ url_for('new_toefl_mock_hub') }}" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left me-2"></i>Back to Mock Hub
+            </a>
+        </div>
+
+        <div class="mock-panel">
+            <h4 class="mb-3">Mock Format</h4>
+            <p class="text-muted">
+                Questions are pulled directly from the full-length practice tests. Audio is generated for every prompt.
+            </p>
+
+            <div class="mock-meta">
+                <span class="meta-chip">Full test questions</span>
+                <span class="meta-chip">Responses + conversations + talks</span>
+            </div>
+
+            <div class="mt-4">
+                <label class="form-label fw-semibold">Select Practice Test</label>
+                <select class="form-select mb-3" id="listeningTest"></select>
+                <button class="btn btn-warning" id="loadListening">
+                    <i class="fas fa-play me-2"></i>Load Listening Mock
+                </button>
+                <button class="btn btn-outline-secondary ms-2" id="submitListening" disabled>
+                    <i class="fas fa-check me-2"></i>Submit Answers
+                </button>
+                <span class="text-muted ms-2" id="listeningStatus">Select a test to begin.</span>
+            </div>
+        </div>
+
+        <div class="mt-4" id="listeningContent"></div>
+        <div class="mt-4" id="listeningResults"></div>
+    </div>
+</div>
+{% endblock %}
+
+{% block head %}
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const loadBtn = document.getElementById('loadListening');
+    const submitBtn = document.getElementById('submitListening');
+    const statusEl = document.getElementById('listeningStatus');
+    const contentEl = document.getElementById('listeningContent');
+    const resultsEl = document.getElementById('listeningResults');
+    const testSelect = document.getElementById('listeningTest');
+    let currentMock = null;
+
+    const escapeHtml = (text) => (text || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/\"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+
+    const normalizeGroup = (group) => {
+        if (!group) return [];
+        return Array.isArray(group) ? group : [group];
+    };
+
+    const renderQuestion = (groupName, question, idx) => {
+        const stem = question.question || question.prompt || '';
+        const options = (question.options || []).map((opt, optIdx) => `
+            <div class="form-check">
+                <input class="form-check-input" type="radio" name="${groupName}" value="${escapeHtml(opt)}" id="${groupName}-${optIdx}">
+                <label class="form-check-label" for="${groupName}-${optIdx}">${escapeHtml(opt)}</label>
+            </div>
+        `).join('');
+        return `
+            <div class="mb-3">
+                <div class="fw-semibold mb-2">${idx + 1}. ${escapeHtml(stem)}</div>
+                ${options}
+            </div>
+        `;
+    };
+
+    const renderResponses = (items) => (items || []).map((item, idx) => `
+        <div class="card mb-3">
+            <div class="card-body">
+                <h5 class="card-title">Listen and Choose a Response</h5>
+                ${item.audio_url ? `<audio controls class="w-100 mb-3"><source src="${item.audio_url}" type="audio/mpeg"></audio>` : ''}
+                ${renderQuestion(`response-${idx}`, item, idx)}
+            </div>
+        </div>
+    `).join('');
+
+    const renderConversation = (conversation, idx = 0) => {
+        if (!conversation) return '';
+        const convId = conversation.id || `conversation-${idx}`;
+        const questionsHtml = (conversation.questions || []).map((q, qIdx) => renderQuestion(`conversation-${convId}-${qIdx}`, q, qIdx)).join('');
+        return `
+            <div class="card mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">Conversation</h5>
+                    ${conversation.audio_url ? `<audio controls class="w-100 mb-3"><source src="${conversation.audio_url}" type="audio/mpeg"></audio>` : ''}
+                    ${questionsHtml}
+                </div>
+            </div>
+        `;
+    };
+
+    const renderTalk = (talk, idx = 0) => {
+        if (!talk) return '';
+        const talkId = talk.id || `talk-${idx}`;
+        const questionsHtml = (talk.questions || []).map((q, qIdx) => renderQuestion(`talk-${talkId}-${qIdx}`, q, qIdx)).join('');
+        return `
+            <div class="card mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">Announcement / Academic Talk</h5>
+                    ${talk.audio_url ? `<audio controls class="w-100 mb-3"><source src="${talk.audio_url}" type="audio/mpeg"></audio>` : ''}
+                    ${questionsHtml}
+                </div>
+            </div>
+        `;
+    };
+
+    const collectAnswers = () => {
+        const answers = { responses: {}, conversation: {}, talk: {} };
+        (currentMock?.responses || []).forEach((_, idx) => {
+            const selected = document.querySelector(`input[name="response-${idx}"]:checked`);
+            answers.responses[idx] = selected ? selected.value : '';
+        });
+        normalizeGroup(currentMock?.conversation).forEach((conv, idx) => {
+            const convId = conv.id || `conversation-${idx}`;
+            answers.conversation[convId] = {};
+            (conv.questions || []).forEach((_, qIdx) => {
+                const selected = document.querySelector(`input[name="conversation-${convId}-${qIdx}"]:checked`);
+                answers.conversation[convId][qIdx] = selected ? selected.value : '';
+            });
+        });
+        normalizeGroup(currentMock?.talk).forEach((talk, idx) => {
+            const talkId = talk.id || `talk-${idx}`;
+            answers.talk[talkId] = {};
+            (talk.questions || []).forEach((_, qIdx) => {
+                const selected = document.querySelector(`input[name="talk-${talkId}-${qIdx}"]:checked`);
+                answers.talk[talkId][qIdx] = selected ? selected.value : '';
+            });
+        });
+        return answers;
+    };
+
+    const renderRow = (label, item, idx) => {
+        const statusClass = item.correct ? 'text-success' : 'text-danger';
+        const questionText = escapeHtml(item.question || item.prompt || '');
+        const expected = escapeHtml(item.expected || '');
+        const selected = escapeHtml(item.selected || '');
+        const rationales = item.rationales || {};
+        const optionKeys = Array.isArray(item.options) && item.options.length ? item.options : Object.keys(rationales || {});
+        const rationaleHtml = optionKeys.map((opt) => {
+            const rationale = escapeHtml(rationales[opt] || '');
+            const correct = opt === item.expected;
+            return `<div class="small ${correct ? 'text-success' : 'text-muted'}"><strong>${escapeHtml(opt)}:</strong> ${rationale}</div>`;
+        }).join('');
+        return `
+            <div class="d-flex align-items-start gap-3 py-2 border-bottom">
+                <div class="${statusClass} fw-semibold">${label} ${idx + 1}</div>
+                <div class="flex-grow-1">
+                    <div class="fw-semibold">${questionText}</div>
+                    <div class="small text-muted"><strong>Your answer:</strong> ${selected || '<em>blank</em>'}</div>
+                    <div class="small text-muted"><strong>Expected:</strong> ${expected}</div>
+                    ${rationaleHtml}
+                </div>
+            </div>
+        `;
+    };
+
+    const renderResults = (payload) => {
+        if (!payload) return;
+        const summary = `
+            <div class="alert alert-info">
+                Score: ${payload.score}% (${payload.correct}/${payload.total})
+            </div>
+        `;
+
+        const responseRows = (payload.results?.responses || []).map((item, idx) => renderRow('Response', item, idx)).join('');
+        const conversationRows = (payload.results?.conversation || []).map((item, idx) => renderRow('Conversation Q', item, idx)).join('');
+        const talkRows = (payload.results?.talk || []).map((item, idx) => renderRow('Talk Q', item, idx)).join('');
+
+        const details = `
+            <div class="card mt-3">
+                <div class="card-body">
+                    <h5 class="card-title">Detailed Feedback</h5>
+                    ${responseRows ? `<h6 class="mt-3">Responses</h6>${responseRows}` : ''}
+                    ${conversationRows ? `<h6 class="mt-3">Conversation</h6>${conversationRows}` : ''}
+                    ${talkRows ? `<h6 class="mt-3">Announcement / Academic Talk</h6>${talkRows}` : ''}
+                </div>
+            </div>
+        `;
+
+        resultsEl.innerHTML = summary + details;
+    };
+
+    const loadTests = async () => {
+        try {
+            const res = await fetch('{{ url_for("new_toefl_mock_tests") }}');
+            const data = await res.json();
+            const options = (data.tests || []).map((test) => `<option value="${test.id}">${escapeHtml(test.title)}</option>`).join('');
+            testSelect.innerHTML = options || '<option value="">No tests available</option>';
+        } catch (err) {
+            testSelect.innerHTML = '<option value="">No tests available</option>';
+        }
+    };
+
+    loadBtn.addEventListener('click', async () => {
+        const testId = testSelect.value;
+        if (!testId) return;
+        statusEl.textContent = 'Generating listening mock (this can take a few minutes)...';
+        loadBtn.disabled = true;
+        submitBtn.disabled = true;
+        resultsEl.innerHTML = '';
+        contentEl.innerHTML = '';
+
+        try {
+            const res = await fetch(`/new-toefl/api/mock/listening/generate/${testId}`, { method: 'POST' });
+            const data = await res.json();
+            if (!data.success) {
+                statusEl.textContent = data.message || 'Generation failed.';
+                loadBtn.disabled = false;
+                return;
+            }
+            const jobId = data.job_id;
+            if (!jobId) {
+                statusEl.textContent = data.message || 'Generation failed.';
+                loadBtn.disabled = false;
+                return;
+            }
+
+            const poll = async () => {
+                const pollRes = await fetch(`{{ url_for("new_toefl_mock_listening_job", job_id="JOB_ID") }}`.replace('JOB_ID', jobId));
+                const pollData = await pollRes.json();
+                if (!pollData.success) {
+                    statusEl.textContent = pollData.message || pollData.error || 'Generation failed.';
+                    return false;
+                }
+                if (pollData.status === 'failed') {
+                    statusEl.textContent = pollData.error || 'Generation failed.';
+                    return false;
+                }
+                if (pollData.status === 'done') {
+                    currentMock = pollData.mock;
+                    contentEl.innerHTML = [
+                        renderResponses(currentMock.responses),
+                        normalizeGroup(currentMock.conversation).map((conv, idx) => renderConversation(conv, idx)).join(''),
+                        normalizeGroup(currentMock.talk).map((talk, idx) => renderTalk(talk, idx)).join(''),
+                    ].join('');
+                    statusEl.textContent = 'Mock generated. Complete the questions.';
+                    submitBtn.disabled = false;
+                    return true;
+                }
+                return null;
+            };
+
+            let attempts = 0;
+            const maxAttempts = 180;
+            while (attempts < maxAttempts) {
+                attempts += 1;
+                const outcome = await poll();
+                if (outcome === true || outcome === false) break;
+                await new Promise((resolve) => setTimeout(resolve, 2000));
+            }
+        } catch (err) {
+            statusEl.textContent = 'Generation failed. Please try again.';
+        } finally {
+            loadBtn.disabled = false;
+        }
+    });
+
+    submitBtn.addEventListener('click', async () => {
+        const answers = collectAnswers();
+        submitBtn.disabled = true;
+        statusEl.textContent = 'Submitting answers...';
+
+        try {
+            const res = await fetch('{{ url_for("new_toefl_listening_submit") }}', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ answers }),
+            });
+            const data = await res.json();
+            if (!data.success) {
+                statusEl.textContent = data.message || 'Submit failed.';
+                submitBtn.disabled = false;
+                return;
+            }
+            renderResults(data);
+            statusEl.textContent = 'Results ready.';
+        } catch (err) {
+            statusEl.textContent = 'Submit failed. Please try again.';
+        } finally {
+            submitBtn.disabled = false;
+        }
+    });
+
+    loadTests();
+});
+</script>
+{% endblock %}

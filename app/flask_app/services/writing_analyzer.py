@@ -63,7 +63,7 @@ class WritingAnalyzer:
         if not feedback:
             current_app.logger.warning("DeepSeek feedback normalization failed; returning empty feedback object.")
             return self._empty_feedback()
-        return feedback
+        return self._postprocess_feedback_for_display(essay_text=essay_text, feedback=feedback, task_type=task_type)
 
     def generate_paraphrases(self, sentence: str, count: int = 3) -> List[str]:
         """
@@ -190,6 +190,17 @@ CONTENT VALIDATION:
 - Flag fabricated or imprecise examples in "example_accuracy".
 - Note any stylistic drift (casual tone, repetitive phrasing, vague language) in "organization_notes" or "content_suggestions".
 """
+        elif task_type == 'email':
+            task_specific = """
+Write an Email Rubric (0-5 overall):
+5: Fully successful, effective, clear, supports communicative purpose; strong syntax/word choice; appropriate social conventions; almost no errors.
+4: Generally successful, mostly effective; adequate elaboration; some syntactic variety; mostly appropriate social conventions; few errors.
+3: Partially successful; message generally accomplished but limited by language; moderate range of syntax/vocab; noticeable errors.
+2: Mostly unsuccessful; limited/irrelevant elaboration; limited syntax/vocab; accumulation of errors.
+1: Unsuccessful; very little elaboration; telegraphic language; serious/frequent errors; minimal original language.
+0: Blank/off-topic/not English/entirely copied or gibberish.
+Use this rubric to set overall_score_5 and align all feedback to it.
+"""
         elif task_type == 'discussion':
             task_specific = """
 For Academic Discussion Task, VERIFY RELEVANCE AND INTERACTION:
@@ -206,6 +217,15 @@ Additional Fields (STRICT JSON):
 - "new_contribution": What fresh idea/evidence does the writer add? (1-2 sentences, <=220 chars)
 - "tone_style": Academic tone & register feedback (<=200 chars)
 - "evidence_precision": Comment on specificity/accuracy of support (<=220 chars)
+
+Academic Discussion Rubric (0-5 overall):
+5: Highly relevant, clearly expressed, well elaborated; strong syntax variety and precise word choice; almost no errors.
+4: Relevant and clear; adequate elaboration; variety of syntax and appropriate word choice; few errors.
+3: Mostly relevant/understandable; limited elaboration; some variety in syntax/vocab; noticeable errors.
+2: Mostly unsuccessful; ideas hard to follow or only partially relevant; limited syntax/vocab; accumulation of errors.
+1: Unsuccessful; few coherent ideas; very limited syntax/vocab; serious/frequent errors; minimal original language.
+0: Blank/off-topic/not English/entirely copied or gibberish.
+Use this rubric to set overall_score_5 and align all feedback to it.
 """
 
         strict_requirements = """
@@ -220,6 +240,7 @@ STRICTNESS EXPECTATIONS:
 - Improvements: 4-5 precise actions tied to TOEFL rubric.
 - Grammar/Vocabulary: give concrete corrections/substitutions.
 - Organization/Content suggestions: focus on structure, logical flow, evidence accuracy, and alignment with sources.
+- Provide score rationales: explain WHY each subscore was earned (Content/Organization/Vocabulary/Grammar).
 - Ensure scores align with qualitative feedback; if coach_summary calls performance weak, overall_score_5 must be ≤3.
 """
 
@@ -250,6 +271,10 @@ Provide detailed analysis with:
 
 3. DETAILED FEEDBACK CATEGORIES (BE CONCISE):
    - coach_summary: 2-3 sentences of overall feedback
+   - content_rationale: 1-2 sentences explaining the Content score (<=260 chars)
+   - organization_rationale: 1-2 sentences explaining the Organization score (<=260 chars)
+   - vocabulary_rationale: 1-2 sentences explaining the Vocabulary score (<=260 chars)
+   - grammar_rationale: 1-2 sentences explaining the Grammar score (<=260 chars)
    - strengths: Array of 3-4 specific strengths (each under 120 chars)
    - improvements: Array of 4-5 actionable improvements (each under 120 chars)
    - grammar_issues: Array of 2-3 grammar problems with corrections (each under 100 chars)
@@ -286,6 +311,186 @@ Return STRICT JSON with ALL fields. Be CONCISE - respect character limits. Use c
 
         return None
 
+    def _postprocess_feedback_for_display(self, essay_text: str, feedback: Dict[str, Any], task_type: str) -> Dict[str, Any]:
+        """Harden feedback for UI: fix annotation anchoring and guarantee summary fields."""
+        if not isinstance(feedback, dict):
+            return self._empty_feedback()
+
+        essay_text = str(essay_text or "")
+
+        feedback = dict(feedback)
+        feedback["annotations"] = self._reanchor_annotations_to_text(essay_text, feedback.get("annotations") or [])
+
+        coach_summary = (feedback.get("coach_summary") or "").strip()
+        if len(coach_summary) < 10:
+            feedback["coach_summary"] = self._build_fallback_summary(feedback, task_type=task_type)
+
+        for field, label, fallback_source in (
+            ("content_rationale", "Content", ("content_suggestions", "improvements")),
+            ("organization_rationale", "Organization", ("organization_notes", "improvements")),
+            ("vocabulary_rationale", "Vocabulary", ("vocabulary_suggestions", "improvements")),
+            ("grammar_rationale", "Grammar", ("grammar_issues", "improvements")),
+        ):
+            existing = (feedback.get(field) or "").strip()
+            if len(existing) >= 12:
+                continue
+            suggestions: List[str] = []
+            for src in fallback_source:
+                for entry in feedback.get(src) or []:
+                    if isinstance(entry, str) and entry.strip():
+                        suggestions.append(entry.strip())
+                    if len(suggestions) >= 2:
+                        break
+                if len(suggestions) >= 2:
+                    break
+            score_key = {
+                "content_rationale": "content_development_score",
+                "organization_rationale": "organization_structure_score",
+                "vocabulary_rationale": "vocabulary_language_score",
+                "grammar_rationale": "grammar_mechanics_score",
+            }[field]
+            score = feedback.get(score_key)
+            score_part = f"{label} score: {score}/5. " if isinstance(score, (int, float)) else ""
+            hint = f"Focus on: {suggestions[0]}." if suggestions else "Focus on improving clarity and specificity."
+            feedback[field] = f"{score_part}{hint}"
+
+        feedback["score_explanation"] = self._build_score_explanation(feedback, task_type=task_type)
+        return feedback
+
+    @staticmethod
+    def _find_all(haystack: str, needle: str) -> List[int]:
+        """Return all (non-overlapping) occurrences of needle in haystack."""
+        if not needle:
+            return []
+        starts: List[int] = []
+        idx = 0
+        while True:
+            pos = haystack.find(needle, idx)
+            if pos == -1:
+                break
+            starts.append(pos)
+            idx = pos + max(1, len(needle))
+        return starts
+
+    def _reanchor_annotations_to_text(self, essay_text: str, annotations: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+        """
+        Make sure each annotation's (start_index,end_index,text) refer to the same span in essay_text.
+
+        Deep LLMs sometimes return mismatched indices; the UI highlights by indices, so we re-anchor
+        by searching for `text` and then replace `text` with the exact essay substring.
+        """
+        if not essay_text or not isinstance(annotations, list):
+            return []
+
+        text_len = len(essay_text)
+        anchored: List[Dict[str, Any]] = []
+
+        for raw in annotations:
+            if not isinstance(raw, dict):
+                continue
+
+            issue_type = (raw.get("type") or "task").__str__().lower()[:20]
+            comment = (raw.get("comment") or "").__str__().strip()[:100]
+            phrase = (raw.get("text") or "").__str__().strip()[:200]
+            start = self._safe_int(raw.get("start_index"))
+            end = self._safe_int(raw.get("end_index"))
+
+            if not comment:
+                continue
+            if start is None or end is None:
+                continue
+
+            start = max(0, min(start, text_len))
+            end = max(0, min(end, text_len))
+            if end <= start:
+                continue
+
+            substring = essay_text[start:end]
+
+            # If the phrase is short/common, indices are more reliable than string search.
+            if phrase and len(phrase) >= 4 and substring != phrase:
+                candidates = self._find_all(essay_text, phrase)
+                if not candidates:
+                    lower_candidates = self._find_all(essay_text.lower(), phrase.lower())
+                    candidates = lower_candidates
+                if candidates:
+                    best_start = min(candidates, key=lambda pos: abs(pos - start))
+                    best_end = min(text_len, best_start + len(phrase))
+                    start, end = best_start, best_end
+                    substring = essay_text[start:end]
+                    phrase = substring
+                else:
+                    # Last resort: keep indices but align display text with the highlighted span.
+                    phrase = substring
+            else:
+                phrase = substring or phrase
+
+            if not phrase:
+                continue
+
+            anchored.append(
+                {
+                    "type": issue_type,
+                    "text": phrase,
+                    "comment": comment,
+                    "start_index": start,
+                    "end_index": end,
+                }
+            )
+
+        anchored.sort(key=lambda a: (a["start_index"], a["end_index"]))
+        non_overlapping: List[Dict[str, Any]] = []
+        last_end = -1
+        for ann in anchored:
+            if ann["start_index"] < last_end:
+                continue
+            non_overlapping.append(ann)
+            last_end = ann["end_index"]
+
+        return non_overlapping[:8]
+
+    @staticmethod
+    def _build_fallback_summary(feedback: Dict[str, Any], task_type: str) -> str:
+        overall = feedback.get("overall_score")
+        strengths = feedback.get("strengths") or []
+        improvements = feedback.get("improvements") or []
+
+        best = strengths[0] if strengths else None
+        next_step = improvements[0] if improvements else None
+
+        parts: List[str] = []
+        if overall is not None:
+            parts.append(f"Estimated overall score: {overall}/30.")
+        if best:
+            parts.append(f"Strength to keep: {best}.")
+        if next_step:
+            parts.append(f"Most important fix: {next_step}.")
+
+        summary = " ".join(parts).strip()
+        return summary or f"Overall feedback for this {task_type} response is unavailable; please retry."
+
+    @staticmethod
+    def _build_score_explanation(feedback: Dict[str, Any], task_type: str) -> str:
+        overall_30 = feedback.get("overall_score")
+        subs = [
+            ("Content", feedback.get("content_development_score")),
+            ("Organization", feedback.get("organization_structure_score")),
+            ("Vocabulary", feedback.get("vocabulary_language_score")),
+            ("Grammar", feedback.get("grammar_mechanics_score")),
+        ]
+        subs_clean = [(label, val) for label, val in subs if isinstance(val, (int, float))]
+        lowest = min(subs_clean, key=lambda kv: kv[1]) if subs_clean else None
+
+        base = (
+            "Scores use TOEFL-style subscores (0–5) for Content, Organization, Vocabulary, and Grammar. "
+            "The overall writing score is reported on a 0–30 scale (0–5 overall × 6). "
+            "Subscores guide the overall but are not averaged mechanically."
+        )
+        if overall_30 is None or lowest is None:
+            return base
+
+        return f"{base} Lowest area: {lowest[0]} ({lowest[1]}/5)."
+
     def _normalize_feedback(self, raw_feedback: Dict[str, Any], task_type: str) -> Optional[Dict[str, Any]]:
         """Normalize DeepSeek feedback into DB-safe structures with strict typing."""
         if not isinstance(raw_feedback, dict):
@@ -301,6 +506,10 @@ Return STRICT JSON with ALL fields. Be CONCISE - respect character limits. Use c
             'grammar_mechanics_score': self._safe_float(data.get('grammar', 0.0)),
             'annotations': self._normalize_annotations(data.get('annotations')),
             'coach_summary': self._normalize_text_field(data.get('coach_summary')) or '',
+            'content_rationale': self._normalize_text_field(data.get('content_rationale')) or '',
+            'organization_rationale': self._normalize_text_field(data.get('organization_rationale')) or '',
+            'vocabulary_rationale': self._normalize_text_field(data.get('vocabulary_rationale')) or '',
+            'grammar_rationale': self._normalize_text_field(data.get('grammar_rationale')) or '',
             'strengths': self._normalize_list_field(self._pick_field(data, ('strengths', 'positives', 'positive_points')), limit=4, max_len=120),
             'improvements': self._normalize_list_field(self._pick_field(data, ('improvements', 'areas_for_improvement', 'improvement_points')), limit=5, max_len=120),
             'grammar_issues': self._normalize_list_field(self._pick_field(data, ('grammar_issues', 'grammar_notes')), limit=3, max_len=100),
@@ -687,6 +896,11 @@ Return STRICT JSON with ALL fields. Be CONCISE - respect character limits. Use c
             'grammar_mechanics_score': 0.0,
             'annotations': [],
             'coach_summary': 'No essay text provided.',
+            'content_rationale': '',
+            'organization_rationale': '',
+            'vocabulary_rationale': '',
+            'grammar_rationale': '',
+            'score_explanation': '',
             'strengths': [],
             'improvements': [],
             'grammar_issues': [],

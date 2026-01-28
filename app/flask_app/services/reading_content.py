@@ -263,12 +263,13 @@ def _generate_passage(topic: Optional[str], client: GeminiClient, max_retries: i
         "3. tools is an object with boolean flags: sentenceAnalyzerEnabled, paragraphSummariesEnabled, vocabLookupEnabled.\n"
         "4. paragraphs is an array (3 items). Each needs index, text (60-80 words), summary (≤45 Simplified Chinese characters).\n"
         "5. questions is an array of 3 comprehension items. Each object must include: "
-        "   id, type (detail, inference, function, vocabulary), prompt, options (4 strings), answer, explanation, distractors.\n"
+        "   id, type (detail, inference, function, vocabulary), prompt, options (4 strings), answer, explanation, distractors, evidence_quote.\n"
         "6. explanation should be ≤60 Simplified Chinese characters referencing evidence.\n"
         "7. distractors must be an array of objects with keys choice, category, analysis. "
         f"Category must be one of: {', '.join(DISTRACTOR_CATEGORIES)}.\n"
         "8. analysis should be ≤50 Simplified Chinese characters describing why the distractor is wrong.\n"
         "9. Ensure answer matches one of the options exactly. Provide at least one vocabulary-focused question.\n"
+        "10. evidence_quote MUST be an exact short quote (<=120 chars) copied verbatim from the paragraphs that supports the correct answer.\n"
         "10. Avoid markdown fencing; return strict JSON."
     )
 
@@ -626,6 +627,9 @@ def _coerce_passage(payload: Any, topic: str) -> Optional[Dict[str, Any]]:
         if not isinstance(item, dict):
             continue
         options = [opt for opt in item.get("options", []) if isinstance(opt, str)]
+        evidence_quote = item.get("evidence_quote") or item.get("evidenceQuote") or ""
+        if not isinstance(evidence_quote, str):
+            evidence_quote = ""
         distractors = []
         for distractor in item.get("distractors", []):
             if not isinstance(distractor, dict):
@@ -649,6 +653,7 @@ def _coerce_passage(payload: Any, topic: str) -> Optional[Dict[str, Any]]:
                 "answer": item.get("answer", options[0] if options else ""),
                 "explanation": item.get("explanation") or item.get("explanation_cn") or "",
                 "distractors": distractors,
+                "evidence_quote": evidence_quote.strip(),
             }
         )
 

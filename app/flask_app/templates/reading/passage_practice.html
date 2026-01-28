@@ -5,8 +5,33 @@
 {% block extra_css %}
 <style>
     .practice-container {
-        max-width: 1000px;
+        max-width: 1200px;
         margin: 0 auto;
+    }
+
+    .split-layout {
+        display: grid;
+        grid-template-columns: 1.25fr 1fr;
+        gap: 1.5rem;
+        align-items: start;
+    }
+
+    @media (max-width: 992px) {
+        .split-layout { grid-template-columns: 1fr; }
+        .passage-sticky { position: static; top: auto; max-height: none; }
+    }
+
+    .passage-sticky {
+        position: sticky;
+        top: 1rem;
+        max-height: calc(100vh - 2rem);
+        overflow: auto;
+    }
+
+    .evidence-highlight {
+        background: rgba(250, 204, 21, 0.35);
+        padding: 0 0.15rem;
+        border-radius: 0.2rem;
     }
 
     .navigation-bar {
@@ -58,7 +83,7 @@
     }
 
     .questions-section {
-        margin-top: 3rem;
+        margin-top: 0;
     }
 
     .question-card {
@@ -119,6 +144,19 @@
 
     .explanation.show {
         display: block;
+    }
+
+    .feedback-panel {
+        background: white;
+        border: 1px solid var(--toefl-border);
+        border-radius: 0.75rem;
+        padding: 1rem 1.25rem;
+        margin-bottom: 1rem;
+    }
+
+    .feedback-title {
+        font-weight: 700;
+        margin-bottom: 0.5rem;
     }
 
     .distractor-analysis {
@@ -188,75 +226,87 @@
     </h2>
 
     {% if item %}
-    <!-- Passage Card -->
-    <div class="passage-card">
-        <div class="mb-3">
-            <span class="badge bg-info me-2">
-                <i class="fas fa-clock me-1"></i>{{ item.readingTimeMinutes }} min
-            </span>
-            <span class="badge bg-secondary">{{ item.topic }}</span>
-        </div>
+    <div class="split-layout">
+        <!-- LEFT: Passage (sticky) -->
+        <div class="passage-sticky">
+            <div class="passage-card" id="passageCard">
+                <div class="mb-3">
+                    <span class="badge bg-info me-2">
+                        <i class="fas fa-clock me-1"></i>{{ item.readingTimeMinutes }} min
+                    </span>
+                    <span class="badge bg-secondary">{{ item.topic }}</span>
+                </div>
 
-        {% for para in item.paragraphs %}
-        <div class="passage-paragraph">
-            {{ para.text }}
-            {% if para.summary %}
-            <div class="paragraph-summary">
-                <i class="fas fa-lightbulb me-1"></i>{{ para.summary }}
-            </div>
-            {% endif %}
-        </div>
-        {% endfor %}
-    </div>
-
-    <!-- Questions Section -->
-    <div class="questions-section">
-        <h3 class="mb-4">
-            <i class="fas fa-question-circle me-2" style="color: var(--amber-400);"></i>
-            Comprehension Questions
-        </h3>
-
-        {% for question in item.questions %}
-        <div class="question-card" data-question-id="{{ question.id }}" data-answer="{{ question.answer }}">
-            <div class="question-prompt">
-                <span class="badge bg-secondary me-2">Q{{ loop.index }}</span>
-                {{ question.prompt }}
-            </div>
-
-            <div class="options-container">
-                {% for option in question.options %}
-                <div class="option-item" data-option="{{ option }}">
-                    <i class="fas fa-circle me-2" style="font-size: 0.5rem;"></i>
-                    {{ option }}
+                {% for para in item.paragraphs %}
+                <div class="passage-paragraph" data-paragraph-index="{{ para.index }}">
+                    <div class="passage-text" data-original="{{ para.text|e }}">{{ para.text }}</div>
+                    {% if para.summary %}
+                    <div class="paragraph-summary">
+                        <i class="fas fa-lightbulb me-1"></i>{{ para.summary }}
+                    </div>
+                    {% endif %}
                 </div>
                 {% endfor %}
             </div>
+        </div>
 
-            <button class="btn btn-sm btn-teal check-btn">
-                <i class="fas fa-check me-1"></i>Check Answer
-            </button>
+        <!-- RIGHT: Questions + Feedback -->
+        <div class="questions-section">
+            <div class="feedback-panel" id="globalFeedback" style="display:none;">
+                <div class="feedback-title" id="globalFeedbackTitle">Feedback</div>
+                <div class="text-muted" id="globalFeedbackBody"></div>
+            </div>
 
-            <div class="explanation">
-                <div class="mb-2">
-                    <strong><i class="fas fa-lightbulb me-2" style="color: var(--emerald-400);"></i>Explanation:</strong>
+            <h3 class="mb-3">
+                <i class="fas fa-question-circle me-2" style="color: var(--amber-400);"></i>
+                Comprehension Questions
+            </h3>
+
+            {% for question in item.questions %}
+            <div class="question-card"
+                 data-question-id="{{ question.id }}"
+                 data-answer="{{ question.answer }}"
+                 data-evidence="{{ question.evidence_quote|default('')|e }}">
+                <div class="question-prompt">
+                    <span class="badge bg-secondary me-2">Q{{ loop.index }}</span>
+                    {{ question.prompt }}
                 </div>
-                <p class="mb-0">{{ question.explanation }}</p>
 
-                {% if question.distractors %}
-                <div class="distractor-analysis">
-                    <strong class="d-block mb-2">Distractor Analysis (干扰项分析):</strong>
-                    {% for distractor in question.distractors %}
-                    <div class="distractor-item">
-                        <strong>{{ distractor.choice }}:</strong>
-                        <span class="badge bg-secondary ms-1">{{ distractor.category }}</span>
-                        <span class="ms-2">{{ distractor.analysis }}</span>
+                <div class="options-container">
+                    {% for option in question.options %}
+                    <div class="option-item" data-option="{{ option }}">
+                        <i class="fas fa-circle me-2" style="font-size: 0.5rem;"></i>
+                        {{ option }}
                     </div>
                     {% endfor %}
                 </div>
-                {% endif %}
+
+                <button class="btn btn-sm btn-teal check-btn">
+                    <i class="fas fa-check me-1"></i>Check Answer
+                </button>
+
+                <div class="explanation">
+                    <div class="mb-2">
+                        <strong><i class="fas fa-lightbulb me-2" style="color: var(--emerald-400);"></i>Explanation:</strong>
+                    </div>
+                    <p class="mb-0">{{ question.explanation }}</p>
+
+                    {% if question.distractors %}
+                    <div class="distractor-analysis">
+                        <strong class="d-block mb-2">Option Notes:</strong>
+                        {% for distractor in question.distractors %}
+                        <div class="distractor-item">
+                            <strong>{{ distractor.choice }}:</strong>
+                            <span class="badge bg-secondary ms-1">{{ distractor.category }}</span>
+                            <span class="ms-2">{{ distractor.analysis }}</span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
             </div>
+            {% endfor %}
         </div>
-        {% endfor %}
     </div>
     {% else %}
     <div class="alert alert-warning">
@@ -299,21 +349,61 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
+    function resetPassageHighlights() {
+        document.querySelectorAll('.passage-text').forEach((node) => {
+            const original = node.getAttribute('data-original') || node.textContent || '';
+            node.innerHTML = original;
+        });
+    }
+
+    function highlightEvidence(quote) {
+        const trimmed = (quote || '').trim();
+        if (!trimmed) return false;
+        const safe = trimmed.replace(/[.*+?^${}()|[\\]\\\\]/g, '\\\\$&');
+        const re = new RegExp(safe);
+        const blocks = [...document.querySelectorAll('.passage-text')];
+        for (const block of blocks) {
+            const original = block.getAttribute('data-original') || block.textContent || '';
+            if (re.test(original)) {
+                block.innerHTML = original.replace(re, (m) => `<mark class="evidence-highlight">${m}</mark>`);
+                block.closest('.passage-paragraph')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                return true;
+            }
+        }
+        return false;
+    }
+
+    function updateGlobalFeedback({ title, message }) {
+        const panel = document.getElementById('globalFeedback');
+        const header = document.getElementById('globalFeedbackTitle');
+        const body = document.getElementById('globalFeedbackBody');
+        if (!panel || !header || !body) return;
+        panel.style.display = 'block';
+        header.textContent = title || 'Feedback';
+        body.textContent = message || '';
+    }
+
     // Question interaction
     document.querySelectorAll('.question-card').forEach(card => {
         const options = card.querySelectorAll('.option-item');
         const checkBtn = card.querySelector('.check-btn');
         const explanation = card.querySelector('.explanation');
         const correctAnswer = card.dataset.answer;
+        const evidenceQuote = card.dataset.evidence || '';
         let selectedOption = null;
 
         options.forEach(option => {
             option.addEventListener('click', function() {
-                // Deselect all
                 options.forEach(opt => opt.classList.remove('selected'));
-                // Select this one
                 this.classList.add('selected');
                 selectedOption = this.dataset.option;
+
+                resetPassageHighlights();
+                const found = highlightEvidence(evidenceQuote);
+                updateGlobalFeedback({
+                    title: 'Evidence',
+                    message: found ? `Highlighted evidence for this question.` : `No evidence highlight available for this question.`,
+                });
             });
         });
 
@@ -323,7 +413,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 return;
             }
 
-            // Show correct/incorrect feedback
+            resetPassageHighlights();
+            const found = highlightEvidence(evidenceQuote);
+
             options.forEach(option => {
                 const optionText = option.dataset.option;
                 if (optionText === correctAnswer) {
@@ -334,9 +426,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 option.style.pointerEvents = 'none';
             });
 
-            // Show explanation
             explanation.classList.add('show');
             this.disabled = true;
+
+            const isCorrect = selectedOption === correctAnswer;
+            updateGlobalFeedback({
+                title: isCorrect ? 'Correct' : 'Review',
+                message: found ? `Evidence highlighted in the passage.` : `Evidence highlight not provided for this question.`,
+            });
         });
     });
 

@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}New TOEFL Mock Exams{% endblock %}
+{% block title %}New TOEFL Hub{% endblock %}
 
 {% block extra_css %}
 <style>
@@ -53,10 +53,8 @@
     <div class="col-lg-11 col-xl-10">
         <div class="d-flex align-items-center justify-content-between flex-wrap gap-3 mb-4">
             <div>
-                <h1 class="mb-2"><i class="fas fa-bolt me-2"></i>New TOEFL Mock Exams</h1>
-                <p class="text-muted mb-0">
-                    DeepSeek-generated mock sections with section-level timing and evaluation.
-                </p>
+                <h1 class="mb-2"><i class="fas fa-bolt me-2"></i>New TOEFL Hub</h1>
+                <p class="text-muted mb-0">Choose between full-length mock tests and AI practice.</p>
             </div>
             <a href="{{ url_for('main_dashboard') }}" class="btn btn-outline-secondary">
                 <i class="fas fa-arrow-left me-2"></i>Back to Study Center
@@ -64,36 +62,20 @@
         </div>
 
         <div class="row g-4">
-            <div class="col-md-6 col-lg-3">
-                <a class="mock-card" href="{{ url_for('new_toefl_reading_mock') }}">
-                    <div class="mock-icon"><i class="fas fa-glasses"></i></div>
-                    <div class="mock-title">Reading</div>
-                    <p class="mock-description">Cloze, daily-life, and academic passage tasks.</p>
-                    <div class="mock-meta">Mock Exam</div>
+            <div class="col-md-6">
+                <a class="mock-card" href="{{ url_for('new_toefl_mock_hub') }}">
+                    <div class="mock-icon"><i class="fas fa-clipboard-check"></i></div>
+                    <div class="mock-title">Full-Length Mock Tests</div>
+                    <p class="mock-description">Two complete practice tests pulled directly from the PDFs.</p>
+                    <div class="mock-meta">Mock</div>
                 </a>
             </div>
-            <div class="col-md-6 col-lg-3">
-                <a class="mock-card" href="{{ url_for('new_toefl_listening_mock') }}">
-                    <div class="mock-icon"><i class="fas fa-headphones"></i></div>
-                    <div class="mock-title">Listening</div>
-                    <p class="mock-description">Listen & choose response, conversations, and talks.</p>
-                    <div class="mock-meta">Mock Exam</div>
-                </a>
-            </div>
-            <div class="col-md-6 col-lg-3">
-                <a class="mock-card" href="{{ url_for('new_toefl_speaking_mock') }}">
-                    <div class="mock-icon"><i class="fas fa-microphone"></i></div>
-                    <div class="mock-title">Speaking</div>
-                    <p class="mock-description">Listen-and-repeat plus interview prompts.</p>
-                    <div class="mock-meta">Mock Exam</div>
-                </a>
-            </div>
-            <div class="col-md-6 col-lg-3">
-                <a class="mock-card" href="{{ url_for('new_toefl_writing_mock') }}">
-                    <div class="mock-icon"><i class="fas fa-pen-nib"></i></div>
-                    <div class="mock-title">Writing</div>
-                    <p class="mock-description">Sentence building, email, and discussion tasks.</p>
-                    <div class="mock-meta">Mock Exam</div>
+            <div class="col-md-6">
+                <a class="mock-card" href="{{ url_for('new_toefl_practice_hub') }}">
+                    <div class="mock-icon"><i class="fas fa-wand-magic-sparkles"></i></div>
+                    <div class="mock-title">Section Practice (AI)</div>
+                    <p class="mock-description">Generate fresh practice for reading, listening, speaking, and writing.</p>
+                    <div class="mock-meta">Practice</div>
                 </a>
             </div>
         </div>

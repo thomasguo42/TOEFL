@@ -160,10 +160,11 @@ class SpeakingFeedbackEngine:
         transcript: str,
         reading_text: Optional[str] = None,
         listening_summary: Optional[str] = None,
+        task_type: Optional[str] = None,
     ) -> TopicDevelopmentResult:
         tokens = self._tokenize(transcript)
         base_score = 55.0 if len(tokens) >= 80 else len(tokens) / 80 * 55.0
-        llm_payload = self._call_llm_for_topic(task_prompt, transcript, reading_text, listening_summary)
+        llm_payload = self._call_llm_for_topic(task_prompt, transcript, reading_text, listening_summary, task_type)
 
         strengths: List[str] = []
         improvements: List[str] = []
@@ -253,6 +254,7 @@ Transcript:
         transcript: str,
         reading_text: Optional[str],
         listening_summary: Optional[str],
+        task_type: Optional[str],
     ) -> Optional[Dict]:
         client = self.client
         if not client or not client.is_configured or not transcript.strip():
@@ -265,6 +267,18 @@ Transcript:
             context_parts.append(f"Listening transcript: {listening_summary.strip()[:900]}")
         context_str = "\n\n".join(context_parts)
 
+        rubric_block = ""
+        if task_type and "interview" in task_type:
+            rubric_block = """
+Take an Interview Rubric (0-5 overall, map to 40-100 in this score):
+5: Fully addresses the question, clear and fluent; well elaborated; good pace and intelligibility; accurate grammar/vocabulary.
+4: Addresses the question, reasonably clear; some elaboration; generally good pace; adequate grammar/vocabulary.
+3: Addresses the question but limited elaboration/clarity; choppy pace or noticeable pronunciation issues.
+2: Mostly unsuccessful; minimal support or relevance; limited intelligibility; very limited language range.
+1: Unsuccessful; largely unintelligible or only isolated words/phrases.
+0: No response or entirely unrelated/non-English response.
+"""
+
         prompt = f"""
 You are an expert TOEFL Speaking rater. Perform a HOLISTIC evaluation of how well the student's response addresses the task.
 
@@ -274,6 +288,8 @@ TOEFL Speaking Content Evaluation Criteria:
 3. Clarity & Coherence: Is the response well-organized with clear progression of ideas?
 4. Relevance: Are all points relevant to the task?
 5. Use of Source Material (for integrated tasks): Are key points from reading/listening accurately incorporated?
+
+{rubric_block}
 
 Provide a comprehensive evaluation. Return STRICT JSON:
 {{

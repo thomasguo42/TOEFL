@@ -1,0 +1,520 @@
+{% extends "base.html" %}
+
+{% block title %}New TOEFL Writing Mock{% endblock %}
+
+{% block extra_css %}
+<style>
+    .mock-panel {
+        background: #ffffff;
+        border: 1px solid var(--toefl-border);
+        border-radius: 1.25rem;
+        padding: 2rem;
+    }
+
+    .mock-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1rem;
+        margin-top: 1.5rem;
+    }
+
+    .meta-chip {
+        background: var(--toefl-gray-bg);
+        border: 1px solid var(--toefl-border-light);
+        border-radius: 999px;
+        padding: 0.35rem 0.9rem;
+        font-size: 0.85rem;
+        color: var(--toefl-text-light);
+    }
+
+    .results-split {
+        display: grid;
+        grid-template-columns: 1.2fr 1fr;
+        gap: 1.25rem;
+        align-items: start;
+    }
+
+    @media (max-width: 992px) {
+        .results-split { grid-template-columns: 1fr; }
+        .results-sticky { position: static; max-height: none; }
+    }
+
+    .results-sticky {
+        position: sticky;
+        top: 1rem;
+        max-height: calc(100vh - 2rem);
+        overflow: auto;
+    }
+
+    .ann-span {
+        padding: 0 0.15rem;
+        border-radius: 0.2rem;
+        cursor: help;
+    }
+
+    .ann-grammar { background: rgba(248, 113, 113, 0.25); }
+    .ann-lexical { background: rgba(251, 191, 36, 0.25); }
+    .ann-cohesion { background: rgba(96, 165, 250, 0.25); }
+    .ann-vague { background: rgba(167, 139, 250, 0.25); }
+    .ann-task { background: rgba(45, 212, 191, 0.25); }
+    .ann-content { background: rgba(34, 197, 94, 0.20); }
+    .ann-content-suggestion { background: rgba(34, 197, 94, 0.20); }
+    .ann-content_suggestion { background: rgba(34, 197, 94, 0.20); }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-10 col-xl-8">
+        <div class="d-flex align-items-center justify-content-between flex-wrap gap-3 mb-4">
+            <div>
+                <h1 class="mb-2"><i class="fas fa-pen-nib me-2"></i>Writing Mock Exam</h1>
+                <p class="text-muted mb-0">Select a full-length practice test and complete every writing task.</p>
+            </div>
+            <a href="{{ url_for('new_toefl_mock_hub') }}" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left me-2"></i>Back to Mock Hub
+            </a>
+        </div>
+
+        <div class="mock-panel">
+            <h4 class="mb-3">Mock Format</h4>
+            <p class="text-muted">Tasks are pulled directly from the full-length practice tests and graded with the updated rubrics.</p>
+
+            <div class="mock-meta">
+                <span class="meta-chip">Full test questions</span>
+                <span class="meta-chip">Sentence build + email</span>
+                <span class="meta-chip">Academic discussion</span>
+            </div>
+
+            <div class="mt-4">
+                <label class="form-label fw-semibold">Select Practice Test</label>
+                <select class="form-select mb-3" id="writingTest"></select>
+                <button class="btn btn-warning" id="loadWriting">
+                    <i class="fas fa-play me-2"></i>Load Writing Mock
+                </button>
+                <button class="btn btn-outline-secondary ms-2" id="submitWriting" disabled>
+                    <i class="fas fa-check me-2"></i>Submit Answers
+                </button>
+                <span class="text-muted ms-2" id="writingStatus">Select a test to begin.</span>
+            </div>
+        </div>
+
+        <div class="mt-4" id="writingContent"></div>
+        <div class="mt-4" id="writingResults"></div>
+    </div>
+</div>
+{% endblock %}
+
+{% block head %}
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const loadBtn = document.getElementById('loadWriting');
+    const submitBtn = document.getElementById('submitWriting');
+    const statusEl = document.getElementById('writingStatus');
+    const contentEl = document.getElementById('writingContent');
+    const resultsEl = document.getElementById('writingResults');
+    const testSelect = document.getElementById('writingTest');
+    let currentMock = null;
+
+    const escapeHtml = (text) => (text || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/\"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+
+    const renderSentenceBuild = (items) => {
+        if (!items || !items.length) return '';
+        const rows = items.map((item, idx) => `
+            <div class="card mb-3">
+                <div class="card-body">
+                    <div class="fw-semibold mb-2">Sentence ${idx + 1}: ${escapeHtml(item.prompt || '')}</div>
+                    <div class="mb-2 text-muted small">${(item.tokens || []).map(escapeHtml).join(' | ')}</div>
+                    <input class="form-control" data-sentence-index="${idx}" placeholder="Type the correct sentence">
+                </div>
+            </div>
+        `).join('');
+        return `<div class="mb-4"><h5>Build a Sentence</h5>${rows}</div>`;
+    };
+
+    const renderEmail = (task) => {
+        if (!task) return '';
+        const instructions = (task.instructions || []).map((line) => `<li>${escapeHtml(line)}</li>`).join('');
+        return `
+            <div class="card mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">Write an Email</h5>
+                    <p class="card-text">${escapeHtml(task.scenario || '')}</p>
+                    <ul>${instructions}</ul>
+                    <div class="mb-2 text-muted small">To: ${escapeHtml(task.to_name || '')} | Subject: ${escapeHtml(task.subject || '')}</div>
+                    <textarea class="form-control" rows="6" id="emailText" placeholder="Write your email response"></textarea>
+                </div>
+            </div>
+        `;
+    };
+
+    const renderDiscussion = (task) => {
+        if (!task) return '';
+        const posts = (task.student_posts || []).map((post) => `
+            <div class="border rounded p-2 mb-2">
+                <div class="fw-semibold">${escapeHtml(post.name || 'Student')}</div>
+                <div class="text-muted small">${escapeHtml(post.stance || '')}</div>
+                <div>${escapeHtml(post.message || '')}</div>
+            </div>
+        `).join('');
+        return `
+            <div class="card mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">Academic Discussion</h5>
+                    <p class="card-text">${escapeHtml(task.professor_prompt || '')}</p>
+                    ${posts}
+                    <textarea class="form-control" rows="6" id="discussionText" placeholder="Write your discussion post"></textarea>
+                </div>
+            </div>
+        `;
+    };
+
+    const collectAnswers = () => {
+        const sentenceBuild = {};
+        document.querySelectorAll('[data-sentence-index]').forEach((input) => {
+            sentenceBuild[input.dataset.sentenceIndex] = input.value || '';
+        });
+        return {
+            sentence_build: sentenceBuild,
+            email_text: document.getElementById('emailText')?.value || '',
+            discussion_text: document.getElementById('discussionText')?.value || '',
+        };
+    };
+
+    const renderResults = (payload) => {
+        if (!payload) return;
+        const sentenceSummary = `
+            <div class="alert alert-info">
+                Sentence Build Score: ${payload.sentence_score}% (${payload.sentence_correct}/${payload.sentence_total})
+            </div>
+        `;
+
+        const sentenceRows = (payload.sentence_results || []).map((item, idx) => {
+            const statusClass = item.correct ? 'text-success' : 'text-danger';
+            const prompt = escapeHtml(item.prompt || '');
+            const tokens = Array.isArray(item.tokens) ? item.tokens.map(escapeHtml).join(' | ') : '';
+            const expected = escapeHtml(item.expected || '');
+            const user = escapeHtml(item.user || '');
+            return `
+                <div class="d-flex align-items-start gap-3 py-2 border-bottom">
+                    <div class="${statusClass} fw-semibold">${item.correct ? 'Correct' : 'Wrong'}</div>
+                    <div class="flex-grow-1">
+                        <div><strong>Sentence ${idx + 1}</strong></div>
+                        ${prompt ? `<div class="text-muted">${prompt}</div>` : ''}
+                        ${tokens ? `<div class="small text-muted">${tokens}</div>` : ''}
+                        <div><strong>Your answer:</strong> ${user || '<em>blank</em>'}</div>
+                        <div><strong>Expected:</strong> ${expected}</div>
+                    </div>
+                </div>
+            `;
+        }).join('');
+
+        const renderBullets = (items) => {
+            const list = Array.isArray(items) ? items.filter(Boolean) : [];
+            if (!list.length) return '';
+            return `<ul class="mb-0">${list.map((t) => `<li>${escapeHtml(t)}</li>`).join('')}</ul>`;
+        };
+
+        const normalizeAnnotations = (essayText, annotations) => {
+            const text = (essayText || '').toString();
+            const ann = Array.isArray(annotations) ? annotations : [];
+            if (!text || !ann.length) return [];
+
+            const normalized = ann.map((a, idx) => ({
+                idx,
+                type: (a?.type || 'note').toString(),
+                typeClass: (a?.type || 'note').toString().toLowerCase().replace(/[^a-z0-9_-]+/g, '-'),
+                comment: (a?.comment || '').toString(),
+                start: Number(a?.start_index),
+                end: Number(a?.end_index),
+                text: (a?.text || '').toString(),
+            })).filter((a) => Number.isFinite(a.start) && Number.isFinite(a.end) && a.start >= 0 && a.end > a.start && a.end <= text.length);
+
+            normalized.sort((a, b) => a.start - b.start || a.end - b.end);
+            const nonOverlapping = [];
+            let lastEnd = -1;
+            for (const a of normalized) {
+                if (a.start < lastEnd) continue;
+                nonOverlapping.push({ ...a, key: `${a.start}-${a.end}-${a.type}` });
+                lastEnd = a.end;
+            }
+            return nonOverlapping;
+        };
+
+        const highlightEssay = (essayText, annotations) => {
+            const text = (essayText || '').toString();
+            if (!text) return '<em class="text-muted">No response.</em>';
+            const nonOverlapping = normalizeAnnotations(text, annotations);
+            if (!nonOverlapping.length) return `<div style="white-space:pre-wrap;">${escapeHtml(text)}</div>`;
+
+            let out = '';
+            let cursor = 0;
+            for (const a of nonOverlapping) {
+                const before = text.slice(cursor, a.start);
+                const spanText = text.slice(a.start, a.end);
+                const cls = `ann-span ann-${escapeHtml(a.typeClass || 'note')}`;
+                out += escapeHtml(before);
+                out += `<span class="${cls}" title="${escapeHtml(a.comment)}" data-ann-key="${escapeHtml(a.key)}">${escapeHtml(spanText)}</span>`;
+                cursor = a.end;
+            }
+            out += escapeHtml(text.slice(cursor));
+            return `<div style="white-space:pre-wrap;">${out}</div>`;
+        };
+
+        const renderSubscores = (feedback) => {
+            if (!feedback) return '';
+            const rows = [
+                ['Overall (0-30)', feedback.overall_score],
+                ['Content (0-5)', feedback.content_development_score],
+                ['Organization (0-5)', feedback.organization_structure_score],
+                ['Vocabulary (0-5)', feedback.vocabulary_language_score],
+                ['Grammar (0-5)', feedback.grammar_mechanics_score],
+            ].filter(([, val]) => val !== undefined && val !== null);
+            return `
+                <div class="small text-muted">
+                    ${rows.map(([label, val]) => `<span class="me-3"><strong>${escapeHtml(label)}:</strong> ${escapeHtml(String(val))}</span>`).join('')}
+                </div>
+            `;
+        };
+
+        const renderTaskFeedback = (title, feedback, essayText, extraFields = []) => {
+            if (!feedback) {
+                return `
+                    <div class="card mb-3">
+                        <div class="card-body">
+                            <h5 class="mb-0">${escapeHtml(title)}</h5>
+                            <div class="text-muted">No feedback returned.</div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            const coachSummary = escapeHtml(feedback.coach_summary || '');
+            const scoreExplanation = escapeHtml(feedback.score_explanation || '');
+            const annotations = normalizeAnnotations((essayText || '').toString(), feedback.annotations);
+            const annotationsHtml = annotations.length ? `
+                <div class="mt-3">
+                    <h6 class="mb-2">In-line Notes</h6>
+                    <div class="small">
+                        ${annotations.slice(0, 8).map((ann) => {
+                            const text = escapeHtml(ann?.text || '');
+                            const comment = escapeHtml(ann?.comment || '');
+                            const type = escapeHtml(ann?.type || '');
+                            const key = escapeHtml(ann?.key || '');
+                            if (!text && !comment) return '';
+                            return `<div class="border rounded p-2 mb-2 js-ann-card" role="button" tabindex="0" data-ann-key="${key}"><div class="text-muted">${type}</div><div><strong style="white-space:pre-wrap;">${text}</strong></div><div>${comment}</div></div>`;
+                        }).join('')}
+                    </div>
+                </div>
+            ` : '';
+            const extras = extraFields.map(({ key, label }) => {
+                const value = feedback[key];
+                if (value === undefined || value === null) return '';
+                if (Array.isArray(value)) {
+                    return value.length ? `<div class="mt-3"><h6 class="mb-2">${escapeHtml(label)}</h6>${renderBullets(value)}</div>` : '';
+                }
+                const text = escapeHtml(String(value));
+                return text ? `<div class="mt-3"><h6 class="mb-2">${escapeHtml(label)}</h6><div class="text-muted">${text}</div></div>` : '';
+            }).join('');
+
+            return `
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <h5 class="mb-2">${escapeHtml(title)} (Score: ${escapeHtml(String(feedback.overall_score ?? 'N/A'))})</h5>
+                        ${renderSubscores(feedback)}
+                        ${coachSummary ? `<p class="mt-3 mb-0">${coachSummary}</p>` : '<p class="mt-3 mb-0 text-muted">No summary returned.</p>'}
+                        ${scoreExplanation ? `<p class="mt-2 mb-0 small text-muted">${scoreExplanation}</p>` : ''}
+                        ${feedback.content_rationale ? `<div class="mt-3"><h6 class="mb-2">Why these scores</h6><div class="small text-muted"><div><strong>Content:</strong> ${escapeHtml(feedback.content_rationale)}</div><div class="mt-1"><strong>Organization:</strong> ${escapeHtml(feedback.organization_rationale || '')}</div><div class="mt-1"><strong>Vocabulary:</strong> ${escapeHtml(feedback.vocabulary_rationale || '')}</div><div class="mt-1"><strong>Grammar:</strong> ${escapeHtml(feedback.grammar_rationale || '')}</div></div></div>` : ''}
+
+                        ${feedback.strengths?.length ? `<div class="mt-3"><h6 class="mb-2">Strengths</h6>${renderBullets(feedback.strengths)}</div>` : ''}
+                        ${feedback.improvements?.length ? `<div class="mt-3"><h6 class="mb-2">Improvements</h6>${renderBullets(feedback.improvements)}</div>` : ''}
+                        ${feedback.grammar_issues?.length ? `<div class="mt-3"><h6 class="mb-2">Grammar</h6>${renderBullets(feedback.grammar_issues)}</div>` : ''}
+                        ${feedback.vocabulary_suggestions?.length ? `<div class="mt-3"><h6 class="mb-2">Vocabulary</h6>${renderBullets(feedback.vocabulary_suggestions)}</div>` : ''}
+                        ${feedback.organization_notes?.length ? `<div class="mt-3"><h6 class="mb-2">Organization</h6>${renderBullets(feedback.organization_notes)}</div>` : ''}
+                        ${feedback.content_suggestions?.length ? `<div class="mt-3"><h6 class="mb-2">Content</h6>${renderBullets(feedback.content_suggestions)}</div>` : ''}
+                        ${extras}
+                        ${annotationsHtml}
+                    </div>
+                </div>
+            `;
+        };
+
+        const renderPromptCard = (title, body) => `
+            <div class="border rounded p-3 bg-light mb-3">
+                <div class="fw-semibold mb-2">${escapeHtml(title)}</div>
+                ${body}
+            </div>
+        `;
+
+        const renderEmailSplit = () => {
+            const task = currentMock?.email || {};
+            const instructions = Array.isArray(task.instructions) ? task.instructions.map((line) => `<li>${escapeHtml(line)}</li>`).join('') : '';
+            const left = `
+                ${renderPromptCard('Email Scenario', `<div class="text-muted">${escapeHtml(task.scenario || '')}</div>`)}
+                ${renderPromptCard('Instructions', `<ul class="mb-0">${instructions}</ul>`)}
+                ${renderPromptCard('Your Email (highlighted)', highlightEssay(payload.email_text, payload.email_feedback?.annotations))}
+            `;
+            const right = renderTaskFeedback('Email Feedback', payload.email_feedback, payload.email_text);
+            return `
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <h5 class="card-title">Email Task</h5>
+                        <div class="results-split">
+                            <div class="results-sticky">${left}</div>
+                            <div>${right}</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        };
+
+        const renderDiscussionSplit = () => {
+            const task = currentMock?.discussion || {};
+            const prof = escapeHtml(task.professor_prompt || '');
+            const posts = Array.isArray(task.student_posts) ? task.student_posts.map((p) => `
+                <div class="border rounded p-2 mb-2">
+                    <div class="fw-semibold">${escapeHtml(p?.name || 'Student')}</div>
+                    <div class="text-muted small">${escapeHtml(p?.stance || '')}</div>
+                    <div class="text-muted">${escapeHtml(p?.message || '')}</div>
+                </div>
+            `).join('') : '';
+
+            const left = `
+                ${renderPromptCard('Discussion Prompt', `<div class="text-muted">${prof}</div>`)}
+                ${renderPromptCard('Classmate Posts', posts || '<div class="text-muted">No posts.</div>')}
+                ${renderPromptCard('Your Discussion Post (highlighted)', highlightEssay(payload.discussion_text, payload.discussion_feedback?.annotations))}
+            `;
+
+            const right = renderTaskFeedback(
+                'Discussion Feedback',
+                payload.discussion_feedback,
+                payload.discussion_text,
+                [
+                    { key: 'content_accuracy', label: 'Thread Alignment' },
+                    { key: 'point_coverage', label: 'Classmate References' },
+                    { key: 'example_accuracy', label: 'New Contribution' },
+                    { key: 'paraphrase_quality', label: 'Tone & Style' },
+                    { key: 'source_integration', label: 'Evidence Precision' },
+                ],
+            );
+
+            return `
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <h5 class="card-title">Discussion Task</h5>
+                        <div class="results-split">
+                            <div class="results-sticky">${left}</div>
+                            <div>${right}</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        };
+
+        resultsEl.innerHTML = sentenceSummary + `
+            <div class="card mt-3">
+                <div class="card-body">
+                    <h5 class="card-title">Sentence Build Details</h5>
+                    ${sentenceRows}
+                </div>
+            </div>
+        ` + renderEmailSplit() + renderDiscussionSplit();
+
+        resultsEl.querySelectorAll('.js-ann-card').forEach((node) => {
+            const key = node.getAttribute('data-ann-key');
+            if (!key) return;
+            const activate = () => {
+                const target = resultsEl.querySelector(`[data-ann-key="${CSS.escape(key)}"]`);
+                if (!target) return;
+                target.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' });
+                target.classList.add('border', 'border-dark');
+                setTimeout(() => target.classList.remove('border', 'border-dark'), 700);
+            };
+            node.addEventListener('click', activate);
+            node.addEventListener('keydown', (evt) => {
+                if (evt.key === 'Enter' || evt.key === ' ') {
+                    evt.preventDefault();
+                    activate();
+                }
+            });
+        });
+    };
+
+    const loadTests = async () => {
+        try {
+            const res = await fetch('{{ url_for("new_toefl_mock_tests") }}');
+            const data = await res.json();
+            const options = (data.tests || []).map((test) => `<option value="${test.id}">${escapeHtml(test.title)}</option>`).join('');
+            testSelect.innerHTML = options || '<option value="">No tests available</option>';
+        } catch (err) {
+            testSelect.innerHTML = '<option value="">No tests available</option>';
+        }
+    };
+
+    loadBtn.addEventListener('click', async () => {
+        const testId = testSelect.value;
+        if (!testId) return;
+        statusEl.textContent = 'Loading writing mock...';
+        loadBtn.disabled = true;
+        submitBtn.disabled = true;
+        resultsEl.innerHTML = '';
+        contentEl.innerHTML = '';
+
+        try {
+            const res = await fetch(`/new-toefl/api/mock/writing/load/${testId}`);
+            const data = await res.json();
+            if (!data.success) {
+                statusEl.textContent = data.message || 'Load failed.';
+                loadBtn.disabled = false;
+                return;
+            }
+            currentMock = data.mock;
+            contentEl.innerHTML = [
+                renderSentenceBuild(currentMock.sentence_build),
+                renderEmail(currentMock.email),
+                renderDiscussion(currentMock.discussion),
+            ].join('');
+            statusEl.textContent = 'Mock loaded. Complete the tasks.';
+            submitBtn.disabled = false;
+        } catch (err) {
+            statusEl.textContent = 'Load failed. Please try again.';
+        } finally {
+            loadBtn.disabled = false;
+        }
+    });
+
+    submitBtn.addEventListener('click', async () => {
+        const answers = collectAnswers();
+        submitBtn.disabled = true;
+        statusEl.textContent = 'Submitting answers...';
+
+        try {
+            const res = await fetch('{{ url_for("new_toefl_writing_submit") }}', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ answers }),
+            });
+            const data = await res.json();
+            if (!data.success) {
+                statusEl.textContent = data.message || 'Submit failed.';
+                submitBtn.disabled = false;
+                return;
+            }
+            renderResults(data);
+            statusEl.textContent = 'Results ready.';
+        } catch (err) {
+            statusEl.textContent = 'Submit failed. Please try again.';
+        } finally {
+            submitBtn.disabled = false;
+        }
+    });
+
+    loadTests();
+});
+</script>
+{% endblock %}

@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}New TOEFL Reading Mock{% endblock %}
+{% block title %}New TOEFL Reading Practice{% endblock %}
 
 {% block extra_css %}
 <style>
@@ -56,6 +56,31 @@
         color: var(--toefl-text);
         line-height: 1.2em;
     }
+
+    .results-split {
+        display: grid;
+        grid-template-columns: 1.2fr 1fr;
+        gap: 1.25rem;
+        align-items: start;
+    }
+
+    @media (max-width: 992px) {
+        .results-split { grid-template-columns: 1fr; }
+        .results-sticky { position: static; max-height: none; }
+    }
+
+    .results-sticky {
+        position: sticky;
+        top: 1rem;
+        max-height: calc(100vh - 2rem);
+        overflow: auto;
+    }
+
+    .evidence-highlight {
+        background: rgba(250, 204, 21, 0.35);
+        padding: 0 0.15rem;
+        border-radius: 0.2rem;
+    }
 </style>
 {% endblock %}
 
@@ -64,18 +89,18 @@
     <div class="col-lg-10 col-xl-8">
         <div class="d-flex align-items-center justify-content-between flex-wrap gap-3 mb-4">
             <div>
-                <h1 class="mb-2"><i class="fas fa-glasses me-2"></i>Reading Mock Exam</h1>
-                <p class="text-muted mb-0">Generate a full new TOEFL reading mock with cloze, daily-life, and academic tasks.</p>
+                <h1 class="mb-2"><i class="fas fa-glasses me-2"></i>Reading Practice</h1>
+                <p class="text-muted mb-0">Generate new TOEFL reading practice with cloze, daily-life, and academic tasks.</p>
             </div>
-            <a href="{{ url_for('new_toefl_dashboard') }}" class="btn btn-outline-secondary">
-                <i class="fas fa-arrow-left me-2"></i>Back to Mock Hub
+            <a href="{{ url_for('new_toefl_practice_hub') }}" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left me-2"></i>Back to Practice Hub
             </a>
         </div>
 
         <div class="mock-panel">
-            <h4 class="mb-3">Mock Format</h4>
+            <h4 class="mb-3">Practice Format</h4>
             <p class="text-muted">
-                DeepSeek will generate section content using the same pipeline as existing reading exercises. Evaluation will
+                Gemini will generate section content using the same pipeline as existing reading exercises. Evaluation will
                 reuse the current reading checking logic for accuracy + explanation.
             </p>
 
@@ -87,7 +112,7 @@
 
             <div class="mt-4">
                 <button class="btn btn-warning" id="generateReading">
-                    <i class="fas fa-wand-magic-sparkles me-2"></i>Generate Reading Mock (DeepSeek)
+                    <i class="fas fa-wand-magic-sparkles me-2"></i>Generate Reading Practice
                 </button>
                 <button class="btn btn-outline-secondary ms-2" id="submitReading" disabled>
                     <i class="fas fa-check me-2"></i>Submit Answers
@@ -123,28 +148,34 @@ document.addEventListener('DOMContentLoaded', () => {
         const paragraph = escapeHtml(item.paragraph || '');
         let replaced = paragraph;
         const blanks = Array.isArray(item.blanks) ? item.blanks : [];
-        blanks.forEach((blank) => {
-            const token = escapeHtml(blank.token || '');
-            if (!token) return;
-            const leadingMatch = token.match(/^[A-Za-z]+/);
-            const prefix = leadingMatch ? leadingMatch[0] : token.replace(/_+$/, '');
-            const rawAnswer = (blank.answer || '').toString();
-            let missingCount = token.length - prefix.length;
-            if (rawAnswer) {
-                const startsWithPrefix = rawAnswer.toLowerCase().startsWith(prefix.toLowerCase());
-                if (startsWithPrefix) {
-                    missingCount = Math.max(1, rawAnswer.length - prefix.length);
-                } else {
-                    missingCount = Math.max(1, rawAnswer.length);
+        if (blanks.length) {
+            const replacements = new Map();
+            blanks.forEach((blank) => {
+                const token = escapeHtml(blank.token || '');
+                if (!token) return;
+                const leadingMatch = token.match(/^[A-Za-z]+/);
+                const prefix = leadingMatch ? leadingMatch[0] : token.replace(/_+$/, '');
+                const rawAnswer = (blank.answer || '').toString();
+                let missingCount = token.length - prefix.length;
+                if (rawAnswer) {
+                    const startsWithPrefix = rawAnswer.toLowerCase().startsWith(prefix.toLowerCase());
+                    if (startsWithPrefix) {
+                        missingCount = Math.max(1, rawAnswer.length - prefix.length);
+                    } else {
+                        missingCount = Math.max(1, rawAnswer.length);
+                    }
                 }
+                const blanksHint = '_'.repeat(missingCount);
+                const wrap = `<span class="cloze-wrap" style="width:${missingCount}ch"><span class="cloze-underscores">${blanksHint}</span><input class="cloze-input" data-cloze-id="${item.id}" data-token="${token}" data-prefix="${escapeHtml(prefix)}" data-expected-len="${missingCount}" maxlength="${missingCount}" size="${missingCount}"></span>`;
+                const input = `${prefix}${wrap}`;
+                replacements.set(token, input);
+            });
+            if (replacements.size) {
+                const tokens = Array.from(replacements.keys()).sort((a, b) => b.length - a.length);
+                const tokenRegex = new RegExp(tokens.map((t) => t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|'), 'g');
+                replaced = replaced.replace(tokenRegex, (match) => replacements.get(match) || match);
             }
-            const blanksHint = '_'.repeat(missingCount);
-            const wrap = `<span class="cloze-wrap" style="width:${missingCount}ch"><span class="cloze-underscores">${blanksHint}</span><input class="cloze-input" data-cloze-id="${item.id}" data-token="${token}" data-prefix="${escapeHtml(prefix)}" data-expected-len="${missingCount}" maxlength="${missingCount}" size="${missingCount}"></span>`;
-            const input = `${prefix}${wrap}`;
-            if (replaced.includes(token)) {
-                replaced = replaced.split(token).join(input);
-            }
-        });
+        }
 
         if (!blanks.length) {
             replaced = replaced.replace(/([A-Za-z]+)(_{2,})/g, (match, head, blanksRun) => {
@@ -181,27 +212,85 @@ document.addEventListener('DOMContentLoaded', () => {
         `;
     };
 
+    const renderSourceBlock = (item) => {
+        const caption = escapeHtml(item.caption || 'Read in Daily Life');
+        const format = item.format || 'notice';
+        const title = escapeHtml(item.title || '');
+        const author = escapeHtml(item.author || '');
+        const bodyLines = Array.isArray(item.body_lines) && item.body_lines.length
+            ? item.body_lines
+            : (Array.isArray(item.source_lines) ? item.source_lines : []);
+        const footerLines = Array.isArray(item.footer_lines) ? item.footer_lines : [];
+        const body = bodyLines.map((line) => `<div>${escapeHtml(line)}</div>`).join('');
+        const footer = footerLines.length ? `<div class="text-muted small mt-2">${footerLines.map((line) => escapeHtml(line)).join(' ')}</div>` : '';
+        const titleHtml = title && format !== 'social' ? `<div class="fw-semibold mt-2 mb-2">${title}</div>` : '';
+        const authorHtml = author && format === 'social' ? `<div class="fw-semibold mt-2 mb-2">${author}</div>` : '';
+        if (format === 'email') {
+            const headers = item.headers || {};
+            const headerRows = ['to', 'from', 'date', 'subject']
+                .filter((key) => headers[key])
+                .map((key) => `<div><strong>${key.toUpperCase()}:</strong> ${escapeHtml(headers[key])}</div>`)
+                .join('');
+            return `
+                <div class="source-block">
+                    <div class="text-uppercase small text-muted">${caption}</div>
+                    <div class="email-headers small mt-2">${headerRows}</div>
+                    <div class="source-body mt-2">${body}</div>
+                </div>
+            `;
+        }
+        if (format === 'social') {
+            return `
+                <div class="source-block">
+                    <div class="text-uppercase small text-muted">${caption}</div>
+                    ${authorHtml}
+                    <div class="source-body">${body}</div>
+                    ${footer}
+                </div>
+            `;
+        }
+        return `
+            <div class="source-block">
+                <div class="text-uppercase small text-muted">${caption}</div>
+                ${titleHtml}
+                <div class="source-body">${body}</div>
+            </div>
+        `;
+    };
+
     const renderDaily = (item) => {
         const questionsHtml = (item.questions || []).map((q, idx) => renderQuestion(`daily-${item.id}-${idx}`, q, idx)).join('');
         return `
             <div class="card mb-3">
                 <div class="card-body">
                     <h5 class="card-title">Read in Daily Life</h5>
-                    <p class="card-text">${escapeHtml(item.source_text || '')}</p>
+                    ${renderSourceBlock(item)}
                     ${questionsHtml}
                 </div>
             </div>
         `;
     };
 
-    const renderAcademic = (item) => {
+    const normalizeAcademic = (academic) => {
+        if (!academic) return [];
+        return Array.isArray(academic) ? academic : [academic];
+    };
+
+    const renderAcademic = (item, index = 0) => {
         if (!item) return '';
-        const questionsHtml = (item.questions || []).map((q, idx) => renderQuestion(`academic-${idx}`, q, idx)).join('');
+        const academicId = item.id || `academic-${index}`;
+        const questionsHtml = (item.questions || []).map((q, idx) => renderQuestion(`academic-${academicId}-${idx}`, q, idx)).join('');
+        const title = escapeHtml(item.title || '');
+        const lines = Array.isArray(item.passage_lines) && item.passage_lines.length
+            ? item.passage_lines
+            : (item.passage ? item.passage.split(/\n+/) : []);
+        const body = lines.map((line) => `<div>${escapeHtml(line)}</div>`).join('');
         return `
             <div class="card mb-3">
                 <div class="card-body">
                     <h5 class="card-title">Academic Passage</h5>
-                    <p class="card-text">${escapeHtml(item.passage || '')}</p>
+                    ${title ? `<div class="fw-semibold mt-2 mb-2">${title}</div>` : ''}
+                    <div class="source-body">${body}</div>
                     ${questionsHtml}
                 </div>
             </div>
@@ -229,9 +318,14 @@ document.addEventListener('DOMContentLoaded', () => {
             answers.daily_life[item.id] = groupAnswers;
         });
 
-        (currentMock?.academic?.questions || []).forEach((_, idx) => {
-            const selected = document.querySelector(`input[name="academic-${idx}"]:checked`);
-            answers.academic[idx] = selected ? selected.value : '';
+        const academicSets = normalizeAcademic(currentMock?.academic);
+        academicSets.forEach((item, itemIdx) => {
+            const academicId = item.id || `academic-${itemIdx}`;
+            answers.academic[academicId] = {};
+            (item.questions || []).forEach((_, idx) => {
+                const selected = document.querySelector(`input[name="academic-${academicId}-${idx}"]:checked`);
+                answers.academic[academicId][idx] = selected ? selected.value : '';
+            });
         });
 
         return answers;
@@ -285,56 +379,152 @@ document.addEventListener('DOMContentLoaded', () => {
             `;
         }).join('');
 
-        const dailyRows = (results.daily_life || []).map((item, idx) => {
-            const statusClass = item.correct ? 'text-success' : 'text-danger';
-            const expected = escapeHtml(item.expected || '');
-            const selected = escapeHtml(item.selected || '');
-            const questionText = escapeHtml(item.question || '');
-            return `
-                <div class="d-flex align-items-start gap-3 py-2 border-bottom">
-                    <div class="${statusClass} fw-semibold">${item.correct ? 'Correct' : 'Wrong'}</div>
-                    <div>
-                        <div><strong>Daily Q${idx + 1}</strong></div>
-                        ${questionText ? `<div class="text-muted">${questionText}</div>` : ''}
-                        <div><strong>Your answer:</strong> ${selected || '<em>blank</em>'}</div>
-                        <div><strong>Expected:</strong> ${expected}</div>
-                        ${renderOptionRationales(item)}
-                    </div>
-                </div>
-            `;
-        }).join('');
+        const highlightEvidence = (container, quote) => {
+            if (!container) return false;
+            const trimmed = (quote || '').trim();
+            const original = container.getAttribute('data-original') || container.textContent || '';
+            if (!trimmed) {
+                container.innerHTML = escapeHtml(original);
+                return false;
+            }
+            const safe = trimmed.replace(/[.*+?^${}()|[\\]\\\\]/g, '\\\\$&');
+            const re = new RegExp(safe);
+            if (!re.test(original)) {
+                container.innerHTML = escapeHtml(original);
+                return false;
+            }
+            container.innerHTML = escapeHtml(original).replace(re, (m) => `<mark class="evidence-highlight">${m}</mark>`);
+            return true;
+        };
 
-        const academicRows = (results.academic || []).map((item, idx) => {
-            const statusClass = item.correct ? 'text-success' : 'text-danger';
-            const expected = escapeHtml(item.expected || '');
-            const selected = escapeHtml(item.selected || '');
-            const questionText = escapeHtml(item.question || '');
-            return `
-                <div class="d-flex align-items-start gap-3 py-2 border-bottom">
-                    <div class="${statusClass} fw-semibold">${item.correct ? 'Correct' : 'Wrong'}</div>
-                    <div>
-                        <div><strong>Academic Q${idx + 1}</strong></div>
-                        ${questionText ? `<div class="text-muted">${questionText}</div>` : ''}
-                        <div><strong>Your answer:</strong> ${selected || '<em>blank</em>'}</div>
-                        <div><strong>Expected:</strong> ${expected}</div>
-                        ${renderOptionRationales(item)}
+        const renderDailySplit = () => {
+            const groups = {};
+            (results.daily_life || []).forEach((row) => {
+                const key = row.id || 'daily';
+                if (!groups[key]) groups[key] = [];
+                groups[key].push(row);
+            });
+
+            const dailyItems = Array.isArray(currentMock?.daily_life) ? currentMock.daily_life : [];
+            return Object.keys(groups).map((groupId, gIdx) => {
+                const sourceItem = dailyItems.find((it) => String(it.id) === String(groupId)) || {};
+                const source = sourceItem.source_text || (sourceItem.source_lines || []).join(' ');
+                const rows = groups[groupId] || [];
+                const passageId = `daily-source-${gIdx}`;
+                const right = rows.map((item) => {
+                    const statusClass = item.correct ? 'text-success' : 'text-danger';
+                    const expected = escapeHtml(item.expected || '');
+                    const selected = escapeHtml(item.selected || '');
+                    const questionText = escapeHtml(item.question || '');
+                    const evidence = escapeHtml(item.evidence_quote || '');
+                    return `
+                        <div class="question-card mb-3" data-evidence="${evidence}">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div class="fw-semibold">${questionText || 'Question'}</div>
+                                <div class="${statusClass} fw-semibold">${item.correct ? 'Correct' : 'Wrong'}</div>
+                            </div>
+                            <div class="small text-muted mt-1"><strong>Your answer:</strong> ${selected || '<em>blank</em>'}</div>
+                            <div class="small text-muted"><strong>Expected:</strong> ${expected}</div>
+                            ${renderOptionRationales(item)}
+                            ${item.evidence_quote ? `<div class="small text-muted mt-2"><strong>Evidence:</strong> ${escapeHtml(item.evidence_quote)}</div>` : ''}
+                            <button class="btn btn-outline-secondary btn-sm mt-2" type="button" data-highlight-target="${passageId}">Highlight evidence</button>
+                        </div>
+                    `;
+                }).join('');
+
+                return `
+                    <div class="card mt-3">
+                        <div class="card-body">
+                            <h6 class="mb-3">Daily Life Set ${gIdx + 1}</h6>
+                            <div class="results-split">
+                                <div class="results-sticky">
+                                    <div class="border rounded p-3 bg-light">
+                                        <div class="fw-semibold mb-2">Source Text</div>
+                                        <div id="${passageId}" data-original="${escapeHtml(source)}">${renderSourceBlock(sourceItem)}</div>
+                                    </div>
+                                </div>
+                                <div>${right || '<div class="text-muted">No questions.</div>'}</div>
+                            </div>
+                        </div>
                     </div>
-                </div>
-            `;
-        }).join('');
+                `;
+            }).join('');
+        };
+
+        const renderAcademicSplit = () => {
+            const academicSets = normalizeAcademic(currentMock?.academic);
+            return academicSets.map((item, itemIdx) => {
+                const academicId = item.id || `academic-${itemIdx}`;
+                const passage = item.passage || (item.passage_lines || []).join(' ');
+                const passageId = `academic-passage-${academicId}`;
+                const rows = (results.academic || [])
+                    .filter((row) => row.id === academicId)
+                    .map((row, idx) => {
+                        const statusClass = row.correct ? 'text-success' : 'text-danger';
+                        const expected = escapeHtml(row.expected || '');
+                        const selected = escapeHtml(row.selected || '');
+                        const questionText = escapeHtml(row.question || '');
+                        const evidence = escapeHtml(row.evidence_quote || '');
+                        return `
+                            <div class="question-card mb-3" data-evidence="${evidence}">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div class="fw-semibold">Q${idx + 1}. ${questionText}</div>
+                                    <div class="${statusClass} fw-semibold">${row.correct ? 'Correct' : 'Wrong'}</div>
+                                </div>
+                                <div class="small text-muted mt-1"><strong>Your answer:</strong> ${selected || '<em>blank</em>'}</div>
+                                <div class="small text-muted"><strong>Expected:</strong> ${expected}</div>
+                                ${renderOptionRationales(row)}
+                                ${row.evidence_quote ? `<div class="small text-muted mt-2"><strong>Evidence:</strong> ${escapeHtml(row.evidence_quote)}</div>` : ''}
+                                <button class="btn btn-outline-secondary btn-sm mt-2" type="button" data-highlight-target="${passageId}">Highlight evidence</button>
+                            </div>
+                        `;
+                    }).join('');
+
+                return `
+                    <div class="card mt-3">
+                        <div class="card-body">
+                            <h6 class="mb-3">Academic Passage Feedback</h6>
+                            <div class="results-split">
+                                <div class="results-sticky">
+                                    <div class="border rounded p-3 bg-light">
+                                        <div class="fw-semibold mb-2">Passage</div>
+                                        <div id="${passageId}" data-original="${escapeHtml(passage)}">
+                                            ${item.title ? `<div class="fw-semibold mt-2 mb-2">${escapeHtml(item.title)}</div>` : ''}
+                                            <div class="source-body">${(Array.isArray(item.passage_lines) && item.passage_lines.length ? item.passage_lines : (item.passage ? item.passage.split(/\\n+/) : [])).map((line) => `<div>${escapeHtml(line)}</div>`).join('')}</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div>${rows || '<div class="text-muted">No questions.</div>'}</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        };
 
         const details = `
             <div class="card mt-3">
                 <div class="card-body">
                     <h5 class="card-title">Detailed Feedback</h5>
                     ${clozeRows ? `<h6 class="mt-3">Cloze</h6>${clozeRows}` : ''}
-                    ${dailyRows ? `<h6 class="mt-3">Daily Life</h6>${dailyRows}` : ''}
-                    ${academicRows ? `<h6 class="mt-3">Academic</h6>${academicRows}` : ''}
+                    ${results.daily_life?.length ? renderDailySplit() : ''}
+                    ${results.academic?.length ? renderAcademicSplit() : ''}
                 </div>
             </div>
         `;
 
         resultsEl.innerHTML = summary + details;
+
+        // Wire highlight buttons
+        resultsEl.querySelectorAll('[data-highlight-target]').forEach((button) => {
+            button.addEventListener('click', () => {
+                const card = button.closest('.question-card');
+                const quote = card ? (card.getAttribute('data-evidence') || '') : '';
+                const targetId = button.getAttribute('data-highlight-target');
+                const container = targetId ? document.getElementById(targetId) : null;
+                highlightEvidence(container, quote);
+            });
+        });
     };
 
     const validateClozeLengths = () => {
@@ -367,7 +557,7 @@ document.addEventListener('DOMContentLoaded', () => {
             currentMock = data.mock;
             const clozeHtml = (currentMock.cloze || []).map(renderCloze).join('');
             const dailyHtml = (currentMock.daily_life || []).map(renderDaily).join('');
-            const academicHtml = renderAcademic(currentMock.academic);
+            const academicHtml = normalizeAcademic(currentMock.academic).map((item, idx) => renderAcademic(item, idx)).join('');
             contentEl.innerHTML = clozeHtml + dailyHtml + academicHtml;
             statusEl.textContent = 'Mock generated. Complete the questions.';
             submitBtn.disabled = false;
