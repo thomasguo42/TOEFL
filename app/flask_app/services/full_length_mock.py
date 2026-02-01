@@ -1,14 +1,46 @@
 """Parse full-length practice tests into New TOEFL mock payloads."""
 from __future__ import annotations
 
+import json
+import os
 import re
+from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
 from flask import current_app
 
+import hashlib
+
 from .gemini_client import get_gemini_client, GeminiClient
 from .tts_service import TTSService
 from .full_length_tests import get_reading_section, get_listening_section, get_writing_section
+
+_PREBUILT_DIR = Path(__file__).resolve().parents[3] / "data" / "prebuilt" / "full_length_mocks"
+_PREBUILT_ONLY = os.getenv("TOEFL_PREBUILT_ONLY", "false").lower() in {"1", "true", "yes"}
+
+
+def _prebuilt_path(section: str, test_id: str) -> Path:
+    return _PREBUILT_DIR / f"{section}_{test_id}.json"
+
+
+def _load_prebuilt(section: str, test_id: str) -> Optional[Dict[str, Any]]:
+    path = _prebuilt_path(section, test_id)
+    if not path.exists():
+        return None
+    try:
+        return json.loads(path.read_text(encoding="utf-8"))
+    except Exception:
+        current_app.logger.exception("Failed to read prebuilt mock %s", path)
+        return None
+
+
+def _save_prebuilt(section: str, test_id: str, payload: Dict[str, Any]) -> None:
+    try:
+        _PREBUILT_DIR.mkdir(parents=True, exist_ok=True)
+        path = _prebuilt_path(section, test_id)
+        path.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
+    except Exception:
+        current_app.logger.exception("Failed to save prebuilt mock %s/%s", section, test_id)
 
 
 _QUESTION_RE = re.compile(r"^(\d+)\.\s*(.*)")
@@ -17,11 +49,12 @@ _OCR_STOP_WORDS = {
     "a", "an", "the", "to", "of", "in", "on", "for", "or", "and", "is", "it", "as", "at", "by",
     "he", "she", "we", "they", "i", "you", "us", "our", "their", "this", "that", "these", "those",
     "be", "are", "was", "were", "but", "if", "so", "do", "did", "does", "not", "no", "yes",
+    "up", "go", "am",
 }
 _OCR_SUFFIXES = {
     "tion", "tions", "sion", "sions", "ing", "ings", "ed", "er", "ers", "est", "able", "ible",
     "al", "ally", "ly", "ment", "ments", "ness", "ity", "ities", "ive", "ives", "ous", "ogy",
-    "ogies", "gies", "egies", "tion", "tions", "e", "y", "t", "s", "d", "r", "n",
+    "ogies", "gies", "egies", "tion", "tions",
 }
 _OCR_PHRASE_FIXES = {
     "strat egies": "strategies",
@@ -30,6 +63,7 @@ _OCR_PHRASE_FIXES = {
     "passag e": "passage",
     "anxiet y": "anxiety",
     "t o ": "to ",
+    "t omorrow": "tomorrow",
     "o f ": "of ",
     "me thodology": "methodology",
     "psy chology": "psychology",
@@ -43,8 +77,9 @@ _OCR_PHRASE_FIXES = {
     "andproduce": "and produce",
     "candisrupt": "can disrupt",
     "canlead": "can lead",
-    "issueslike": "issues like",
+    "issueslike": "issues like ",
     "problemsandweakened": "problems and weakened",
+    "r emind": "remind",
     "mentalhealth": "mental health",
     "Hum an": "Human",
     "h uman": "human",
@@ -67,6 +102,7 @@ _OCR_PHRASE_FIXES = {
     "issu es": "issues",
     "lik e": "like",
     "proble ms": "problems",
+    "p roble ms": "problems",
     "menta lhealth": "mental health",
     "depres sion": "depression",
     "anxie ty": "anxiety",
@@ -86,6 +122,9 @@ _OCR_PHRASE_FIXES = {
     "team -building": "team-building",
     "mic robi ome": "microbiome",
     "viruse s": "viruses",
+    "beable": "be able",
+    "inwarm": "in warm",
+    "upyesterday": "up yesterday",
     "die t": "diet",
     "b y": "by",
     "whil e": "while",
@@ -104,7 +143,17 @@ _OCR_PHRASE_FIXES = {
     "di seases": "diseases",
     "a nd medi cation": "and medication",
     "o f the": "of the",
+    "you r": "your",
+    "one’sown": "one’s own",
+    "one'sown": "one's own",
+    "Earth’sphysical": "Earth’s physical",
+    "Earth'sphysical": "Earth's physical",
 }
+
+_BAD_CONTRACTION_RE = re.compile(r"[A-Za-z]+(?:'|’)(?:re|ve|d|ll|m|t|s)[A-Za-z]+")
+_BAD_SPACED_CONTRACTION_RE = re.compile(r"\b[A-Za-z]+\s+[’'](?:re|ve|d|ll|m|t)\b", re.IGNORECASE)
+_BAD_PRONOUN_RE = re.compile(r"\b(my|your|our|their|his|her|its|you)([A-Za-z]{3,})\b", re.IGNORECASE)
+_INLINE_OPTION_RE = re.compile(r"^\s*(\(?[A-D]\)?[).])\s+(.+)")
 
 
 def _clean_lines(text: str) -> List[str]:
@@ -124,14 +173,13 @@ def _clean_lines(text: str) -> List[str]:
 def _fix_ocr_spacing(text: str) -> str:
     if not text:
         return ""
+    text = re.sub(r"\b([A-Za-z]+)\s+([’'])(re|ve|d|ll|m|t)\b", r"\1\2\3", text, flags=re.IGNORECASE)
     cleaned = re.sub(r"\s+", " ", text).strip()
 
     def _should_merge(left: str, right: str) -> bool:
         left_lower = left.lower()
         right_lower = right.lower()
         if right_lower in _OCR_SUFFIXES and len(left) >= 2:
-            return True
-        if len(left) <= 2 and left_lower not in _OCR_STOP_WORDS:
             return True
         return False
 
@@ -158,6 +206,26 @@ def _fix_ocr_spacing(text: str) -> str:
     for bad, good in _OCR_PHRASE_FIXES.items():
         cleaned = re.sub(re.escape(bad), good, cleaned, flags=re.IGNORECASE)
     cleaned = re.sub(r"[’']s(?=[A-Za-z])", lambda m: f"{m.group(0)} ", cleaned)
+    cleaned = re.sub(r"('m)([A-Za-z])", r"\1 \2", cleaned)
+    cleaned = re.sub(r"([’']ll)([A-Za-z])", r"\1 \2", cleaned)
+    cleaned = re.sub(r"([’']re)([A-Za-z])", r"\1 \2", cleaned, flags=re.IGNORECASE)
+    cleaned = re.sub(r"([’']ve)([A-Za-z])", r"\1 \2", cleaned, flags=re.IGNORECASE)
+    cleaned = re.sub(r"([’']d)([A-Za-z])", r"\1 \2", cleaned, flags=re.IGNORECASE)
+    cleaned = re.sub(r"([nN][’']t)([A-Za-z])", r"\1 \2", cleaned)
+    cleaned = re.sub(r"([’']m)([A-Za-z])", r"\1 \2", cleaned, flags=re.IGNORECASE)
+    cleaned = re.sub(r"\b([A-Za-z]+)\s+([’'])(re|ve|d|ll|m|t)\b", r"\1\2\3", cleaned, flags=re.IGNORECASE)
+    for contraction in ("re", "ve", "d", "ll", "m", "t"):
+        cleaned = re.sub(rf"\s+([’']{contraction})\b", r"\1", cleaned, flags=re.IGNORECASE)
+    for contraction in ("'re", "’re", "'ve", "’ve", "'d", "’d", "'ll", "’ll", "'m", "’m", "'t", "’t"):
+        cleaned = cleaned.replace(f" {contraction}", contraction)
+    cleaned = re.sub(r"\s+([’'][A-Za-z]{1,2})\b", r"\1", cleaned)
+    if "@" not in cleaned:
+        def _split_pronoun(match: re.Match[str]) -> str:
+            suffix = match.group(2)
+            if suffix.lower().startswith("self"):
+                return match.group(0)
+            return f"{match.group(1)} {suffix}"
+        cleaned = re.sub(r"\b(my|your|our|their|his|her|its|you)([A-Za-z’']{3,})\b", _split_pronoun, cleaned, flags=re.IGNORECASE)
     cleaned = re.sub(r"\s+([.,;:!?])", r"\1", cleaned)
     cleaned = re.sub(r"\s*-\s*", "-", cleaned)
     return cleaned
@@ -173,19 +241,243 @@ def _repair_line_breaks(lines: List[str]) -> List[str]:
             if line and next_line:
                 last_word = line.split()[-1]
                 if len(last_word) <= 2 and next_line[:1].islower():
-                    line = f"{line}{next_line}"
+                    if last_word.lower() in _OCR_STOP_WORDS:
+                        line = f"{line} {next_line}"
+                    else:
+                        line = f"{line}{next_line}"
                     idx += 1
         merged.append(line)
         idx += 1
     return merged
 
 
+def _has_pronoun_merge(text: str) -> bool:
+    for match in _BAD_PRONOUN_RE.finditer(text):
+        if not match.group(2).lower().startswith("self"):
+            return True
+    return False
+
+
+def _payload_has_spacing_issues(payload: Dict[str, Any]) -> bool:
+    if not payload:
+        return False
+    blob = json.dumps(payload, ensure_ascii=False)
+    if _BAD_CONTRACTION_RE.search(blob):
+        return True
+    if _BAD_SPACED_CONTRACTION_RE.search(blob):
+        return True
+    if _has_pronoun_merge(blob):
+        return True
+    lower_blob = blob.lower()
+    for bad in _OCR_PHRASE_FIXES:
+        if bad.lower() in lower_blob:
+            return True
+    return False
+
+
+def _questions_have_inline_options(payload: Dict[str, Any]) -> bool:
+    if not payload:
+        return False
+    for daily in payload.get("daily_life", []) or []:
+        for q in daily.get("questions", []) or []:
+            if _INLINE_OPTION_RE.search(q.get("question", "")):
+                return True
+    for acad in payload.get("academic", []) or []:
+        for q in acad.get("questions", []) or []:
+            if _INLINE_OPTION_RE.search(q.get("question", "")):
+                return True
+    for item in payload.get("responses", []) or []:
+        for q in item.get("questions", []) or []:
+            if _INLINE_OPTION_RE.search(q.get("question", "")):
+                return True
+    for group in payload.get("conversation", []) or []:
+        for q in group.get("questions", []) or []:
+            if _INLINE_OPTION_RE.search(q.get("question", "")):
+                return True
+    for group in payload.get("talk", []) or []:
+        for q in group.get("questions", []) or []:
+            if _INLINE_OPTION_RE.search(q.get("question", "")):
+                return True
+    return False
+
+
+def _reading_answers_missing(payload: Dict[str, Any]) -> bool:
+    if not payload:
+        return False
+    for daily in payload.get("daily_life", []) or []:
+        for q in daily.get("questions", []) or []:
+            if q.get("options") and not q.get("answer"):
+                return True
+    for acad in payload.get("academic", []) or []:
+        for q in acad.get("questions", []) or []:
+            if q.get("options") and not q.get("answer"):
+                return True
+    return False
+
+
+def _reading_options_invalid(payload: Dict[str, Any]) -> bool:
+    if not payload:
+        return False
+    for daily in payload.get("daily_life", []) or []:
+        for q in daily.get("questions", []) or []:
+            opts = q.get("options") or []
+            if opts and len(opts) != 4:
+                return True
+    for acad in payload.get("academic", []) or []:
+        for q in acad.get("questions", []) or []:
+            opts = q.get("options") or []
+            if opts and len(opts) != 4:
+                return True
+    return False
+
+
+def _listening_answers_missing(payload: Dict[str, Any]) -> bool:
+    if not payload:
+        return False
+    for item in payload.get("responses", []) or []:
+        if item.get("options") and not item.get("answer"):
+            return True
+    for group in payload.get("conversation", []) or []:
+        for q in group.get("questions", []) or []:
+            if q.get("options") and not q.get("answer"):
+                return True
+    for group in payload.get("talk", []) or []:
+        for q in group.get("questions", []) or []:
+            if q.get("options") and not q.get("answer"):
+                return True
+    return False
+
+
+def _writing_answers_missing(payload: Dict[str, Any]) -> bool:
+    if not payload:
+        return False
+    for item in payload.get("sentence_build", []) or []:
+        if isinstance(item, dict) and not item.get("answer"):
+            return True
+    return False
+
+
+def _normalize_text_spacing(text: str) -> str:
+    if not text:
+        return ""
+    cleaned = text
+    cleaned = re.sub(r"\b([A-Za-z]+)\s+([’'])(re|ve|d|ll|m|t)\b", r"\1\2\3", cleaned, flags=re.IGNORECASE)
+    for contraction in ("'re", "’re", "'ve", "’ve", "'d", "’d", "'ll", "’ll", "'m", "’m", "'t", "’t"):
+        cleaned = cleaned.replace(f" {contraction}", contraction)
+    return cleaned
+
+
+def _normalize_payload_text(payload: Any) -> Any:
+    if isinstance(payload, dict):
+        return {key: _normalize_payload_text(value) for key, value in payload.items()}
+    if isinstance(payload, list):
+        return [_normalize_payload_text(item) for item in payload]
+    if isinstance(payload, str):
+        return _normalize_text_spacing(payload)
+    return payload
+
+
+def _audio_file_exists(audio_url: Optional[str]) -> bool:
+    if not audio_url:
+        return False
+    prefix = "/static/"
+    if audio_url.startswith(prefix):
+        rel_path = audio_url[len(prefix):]
+    else:
+        rel_path = audio_url.lstrip("/")
+    audio_path = Path(current_app.root_path) / "static" / rel_path
+    return audio_path.exists()
+
+
+def _listening_audio_missing(payload: Dict[str, Any]) -> bool:
+    if not payload:
+        return False
+    for item in payload.get("responses", []) or []:
+        prompt = (item.get("prompt") or "").strip()
+        if prompt and not _audio_file_exists(item.get("audio_url")):
+            return True
+    for group in payload.get("conversation", []) or []:
+        segments = group.get("segments") or []
+        if segments and not _audio_file_exists(group.get("audio_url")):
+            return True
+    for group in payload.get("talk", []) or []:
+        segments = group.get("segments") or []
+        talk_text = (group.get("talk") or "").strip()
+        if (segments or talk_text) and not _audio_file_exists(group.get("audio_url")):
+            return True
+    return False
+
+
 def _parse_answer_key(answer_text: str) -> Dict[int, str]:
     answers: Dict[int, str] = {}
-    for line in _clean_lines(answer_text):
-        match = re.match(r"^(\d+)\s+(.+)$", line)
-        if match:
-            answers[int(match.group(1))] = match.group(2).strip()
+    lines = [line.strip() for line in _clean_lines(answer_text) if line.strip()]
+    idx = 0
+    headers = {"question", "number", "answer", "question number"}
+    stop_prefixes = ("reading section", "listening section", "writing section", "speaking section", "answer key")
+    while idx < len(lines):
+        line = lines[idx].strip()
+        lower = line.lower()
+        if lower in headers:
+            idx += 1
+            continue
+        if lower.startswith(stop_prefixes):
+            idx += 1
+            continue
+        inline_match = re.match(r"^(\d+)\s+(.+)$", line)
+        if inline_match:
+            answers[int(inline_match.group(1))] = inline_match.group(2).strip()
+            idx += 1
+            continue
+        if re.match(r"^\d+$", line):
+            num = int(line)
+            idx += 1
+            while idx < len(lines) and lines[idx].strip().lower() in headers:
+                idx += 1
+            answer_parts = []
+            while idx < len(lines):
+                candidate = lines[idx].strip()
+                if not candidate:
+                    idx += 1
+                    continue
+                lower_candidate = candidate.lower()
+                if lower_candidate.startswith(stop_prefixes):
+                    break
+                if re.match(r"^\d+$", candidate):
+                    break
+                if lower_candidate in headers:
+                    idx += 1
+                    continue
+                answer_parts.append(candidate)
+                idx += 1
+            if answer_parts:
+                answers[num] = " ".join(answer_parts).strip()
+            continue
+        idx += 1
+
+    if len(answers) <= 1:
+        tokens = []
+        for line in lines:
+            lower = line.lower()
+            if lower in headers or lower.startswith(stop_prefixes):
+                continue
+            tokens.append(line)
+        numbers = [int(tok) for tok in tokens if re.match(r"^\d+$", tok)]
+        non_numbers = [tok for tok in tokens if not re.match(r"^\d+$", tok)]
+        if numbers and non_numbers:
+            seq: List[int] = []
+            started = False
+            for num in numbers:
+                if not started:
+                    if num == 1:
+                        seq.append(num)
+                        started = True
+                    continue
+                if num == seq[-1] + 1:
+                    seq.append(num)
+                else:
+                    break
+            if seq and len(non_numbers) >= len(seq):
+                answers = {seq[idx]: non_numbers[idx] for idx in range(len(seq))}
     return answers
 
 
@@ -210,6 +502,8 @@ def _merge_wrapped_lines(lines: List[str]) -> List[str]:
 
 def _normalize_cloze_paragraph(text: str) -> str:
     cleaned = text.replace("\n", " ")
+    cleaned = re.sub(r"\((\d+)\s+blank lines?\)", lambda m: "_" * int(m.group(1)), cleaned, flags=re.IGNORECASE)
+    cleaned = _fix_ocr_spacing(cleaned)
     cleaned = re.sub(r"[–—-]", "_", cleaned)
     cleaned = re.sub(r"\s+", " ", cleaned)
     cleaned = re.sub(r"\b([A-Za-z]+)\s+(_+)\s*([A-Za-z])", r"\1\2 \3", cleaned)
@@ -224,6 +518,11 @@ def _normalize_cloze_paragraph(text: str) -> str:
     while re.search(r"_\s+_", cleaned):
         cleaned = re.sub(r"_\s+_", "__", cleaned)
     cleaned = re.sub(r"(_{2,})([A-Za-z])", r"\1 \2", cleaned)
+    cleaned = re.sub(r"one’sown", "one’s own", cleaned, flags=re.IGNORECASE)
+    cleaned = re.sub(r"one'sown", "one's own", cleaned, flags=re.IGNORECASE)
+    cleaned = re.sub(r"\bandable\b", "and able", cleaned, flags=re.IGNORECASE)
+    cleaned = re.sub(r"Earth’sphysical", "Earth’s physical", cleaned, flags=re.IGNORECASE)
+    cleaned = re.sub(r"Earth'sphysical", "Earth's physical", cleaned, flags=re.IGNORECASE)
     return cleaned.strip()
 
 
@@ -300,11 +599,18 @@ def _parse_questions(
             idx += 1
             continue
         q_num = int(q_match.group(1))
+        if max_question is not None and q_num < 11 and max_question <= 15:
+            idx += 1
+            continue
         if stop_numbers and q_num in stop_numbers:
             break
         question_text = _fix_ocr_spacing(q_match.group(2).strip())
         idx += 1
         options: List[str] = []
+        inline_match = _INLINE_OPTION_RE.search(question_text)
+        if inline_match:
+            question_text = question_text[:inline_match.start()].strip()
+            options.append(_fix_ocr_spacing(inline_match.group(2).strip()))
         stop_reached = False
         while idx < len(lines):
             line = lines[idx]
@@ -456,6 +762,19 @@ Return strict JSON:
 
 
 def build_full_length_reading_mock(test_id: str, client: Optional[GeminiClient] = None) -> Optional[Dict[str, Any]]:
+    prebuilt = _load_prebuilt("reading", test_id)
+    if (
+        prebuilt
+        and not _payload_has_spacing_issues(prebuilt)
+        and not _questions_have_inline_options(prebuilt)
+        and not _reading_answers_missing(prebuilt)
+        and not _reading_options_invalid(prebuilt)
+    ):
+        return prebuilt
+    if _PREBUILT_ONLY:
+        current_app.logger.warning("Prebuilt reading mock missing for %s (TOEFL_PREBUILT_ONLY enabled).", test_id)
+        return None
+
     section = get_reading_section(test_id)
     if not section:
         return None
@@ -486,6 +805,14 @@ def build_full_length_reading_mock(test_id: str, client: Optional[GeminiClient] 
                 content_lines: List[str] = []
                 while idx < len(lines) and not _QUESTION_RE.match(lines[idx]):
                     if lines[idx].lower().startswith(("read a ", "read an ")):
+                        break
+                    content_lines.append(lines[idx])
+                    idx += 1
+                # If the daily content includes numbered rules (e.g., 1. 2. 3.), keep them as content
+                while idx < len(lines) and _QUESTION_RE.match(lines[idx]):
+                    q_match = _QUESTION_RE.match(lines[idx])
+                    q_num = int(q_match.group(1)) if q_match else None
+                    if q_num is not None and q_num >= 11:
                         break
                     content_lines.append(lines[idx])
                     idx += 1
@@ -566,11 +893,14 @@ def build_full_length_reading_mock(test_id: str, client: Optional[GeminiClient] 
                 "questions": questions,
             })
 
-    return {
+    payload = {
         "cloze": cloze,
         "daily_life": daily,
         "academic": academics,
     }
+    payload = _normalize_payload_text(payload)
+    _save_prebuilt("reading", test_id, payload)
+    return payload
 
 
 def build_full_length_listening_mock(
@@ -578,6 +908,19 @@ def build_full_length_listening_mock(
     client: Optional[GeminiClient] = None,
     tts: Optional[TTSService] = None,
 ) -> Optional[Dict[str, Any]]:
+    prebuilt = _load_prebuilt("listening", test_id)
+    if (
+        prebuilt
+        and not _payload_has_spacing_issues(prebuilt)
+        and not _questions_have_inline_options(prebuilt)
+        and not _listening_audio_missing(prebuilt)
+        and not _listening_answers_missing(prebuilt)
+    ):
+        return prebuilt
+    if _PREBUILT_ONLY:
+        current_app.logger.warning("Prebuilt listening mock missing for %s (TOEFL_PREBUILT_ONLY enabled).", test_id)
+        return None
+
     section = get_listening_section(test_id)
     if not section:
         return None
@@ -589,14 +932,47 @@ def build_full_length_listening_mock(
     conversations: List[Dict[str, Any]] = []
     talks: List[Dict[str, Any]] = []
 
+    def _strip_speaker_prefix(text: str) -> str:
+        if not text:
+            return ""
+        match = re.match(r"^\s*(?:Man|Woman|Professor|Podcast Host|Host|Interviewer|Speaker|Trainer):\s*(.+)$", text, re.IGNORECASE)
+        if match:
+            return match.group(1).strip()
+        return text.strip()
+
+    def _cache_key(text: str) -> str:
+        return hashlib.sha1(text.encode("utf-8")).hexdigest()[:12]
+
+    def _collect_speaker_segments(lines: List[str], start_idx: int) -> Tuple[List[Dict[str, str]], int]:
+        segments: List[Dict[str, str]] = []
+        idx = start_idx
+        while idx < len(lines):
+            line = lines[idx].strip()
+            lower = line.lower()
+            if _QUESTION_RE.match(line) or lower.startswith("listen to"):
+                break
+            if ":" in line:
+                speaker, text = line.split(":", 1)
+                segments.append({"speaker": speaker.strip(), "text": _fix_ocr_spacing(text.strip())})
+            else:
+                if segments:
+                    segments[-1]["text"] = _fix_ocr_spacing(f"{segments[-1]['text']} {line}".strip())
+            idx += 1
+        return segments, idx
+
     for module_idx, module_key in enumerate(("module1", "module2"), start=1):
         module_text = section.get(module_key, "")
         answer_text = section.get(f"answer_key_module{module_idx}", "")
         answers = _parse_answer_key(answer_text)
-        lines = _merge_wrapped_lines(_clean_lines(module_text))
+        lines = _clean_lines(module_text)
 
         # Responses (1-8)
-        resp_questions, idx = _parse_questions(lines, 0)
+        resp_questions, idx = _parse_questions(
+            lines,
+            0,
+            stop_prefixes=["listen to a conversation", "listen to an announcement", "listen to a talk"],
+            max_question=8,
+        )
         for q in resp_questions:
             if q.get("number") and q.get("number") <= 8:
                 letter = answers.get(q["number"])
@@ -607,7 +983,7 @@ def build_full_length_listening_mock(
                         rationale = _generate_rationales(client, q, q.get("question") or "", include_evidence=False)
                         q["rationales"] = rationale["rationales"]
                 responses.append({
-                    "prompt": q.get("question"),
+                    "prompt": _strip_speaker_prefix(q.get("question") or ""),
                     "options": q.get("options"),
                     "answer": q.get("answer"),
                     "rationales": q.get("rationales") or {},
@@ -618,42 +994,33 @@ def build_full_length_listening_mock(
             line = lines[idx].lower()
             if line.startswith("listen to a conversation"):
                 idx += 1
-                segment_lines: List[str] = []
-                while idx < len(lines) and not _QUESTION_RE.match(lines[idx]):
-                    if lines[idx].lower().startswith("listen to"):
-                        break
-                    segment_lines.append(lines[idx])
-                    idx += 1
-                segments = []
-                for seg in segment_lines:
-                    if ":" in seg:
-                        speaker, text = seg.split(":", 1)
-                        segments.append({"speaker": speaker.strip(), "text": text.strip()})
-                questions, idx = _parse_questions(lines, idx)
+                segments, idx = _collect_speaker_segments(lines, idx)
+                segment_text = " ".join([seg.get("text", "") for seg in segments]).strip()
+                questions, idx = _parse_questions(lines, idx, stop_prefixes=["listen to"], max_question=None)
                 for q in questions:
                     letter = answers.get(q.get("number"))
                     if letter:
                         opt_idx = ord(letter.upper()) - ord("A")
                         if 0 <= opt_idx < len(q["options"]):
                             q["answer"] = q["options"][opt_idx]
-                            rationale = _generate_rationales(client, q, " ".join(segment_lines), include_evidence=False)
+                            rationale = _generate_rationales(client, q, segment_text, include_evidence=False)
                             q["rationales"] = rationale["rationales"]
                 conv = {"id": f"conv_{module_idx}_{len(conversations)}", "segments": segments, "questions": questions}
-                audio = tts.generate_multi_speaker_audio(segments, filename_prefix="new_toefl_conversation")
+                segment_text = " ".join([f"{seg.get('speaker', '')}:{seg.get('text', '')}" for seg in segments]).strip()
+                audio = tts.generate_multi_speaker_audio_cached(
+                    segments,
+                    filename_prefix="new_toefl_conversation",
+                    cache_key=_cache_key(segment_text),
+                )
                 if audio:
                     conv["audio_url"] = f"/static/{audio.audio_path}"
                 conversations.append(conv)
                 continue
             if line.startswith("listen to an announcement") or line.startswith("listen to a talk"):
                 idx += 1
-                talk_lines: List[str] = []
-                while idx < len(lines) and not _QUESTION_RE.match(lines[idx]):
-                    if lines[idx].lower().startswith("listen to"):
-                        break
-                    talk_lines.append(lines[idx])
-                    idx += 1
-                talk_text = " ".join([seg.split(":", 1)[-1].strip() for seg in talk_lines]).strip()
-                questions, idx = _parse_questions(lines, idx)
+                segments, idx = _collect_speaker_segments(lines, idx)
+                talk_text = " ".join([seg.get("text", "") for seg in segments]).strip()
+                questions, idx = _parse_questions(lines, idx, stop_prefixes=["listen to"], max_question=None)
                 for q in questions:
                     letter = answers.get(q.get("number"))
                     if letter:
@@ -663,7 +1030,11 @@ def build_full_length_listening_mock(
                             rationale = _generate_rationales(client, q, talk_text, include_evidence=False)
                             q["rationales"] = rationale["rationales"]
                 talk = {"id": f"talk_{module_idx}_{len(talks)}", "talk": talk_text, "questions": questions}
-                audio = tts.generate_audio(talk_text, filename_prefix="new_toefl_talk")
+                audio = tts.generate_audio_cached(
+                    talk_text,
+                    filename_prefix="new_toefl_talk",
+                    cache_key=_cache_key(talk_text),
+                )
                 if audio:
                     talk["audio_url"] = f"/static/{audio.audio_path}"
                 talks.append(talk)
@@ -675,18 +1046,35 @@ def build_full_length_listening_mock(
         prompt_text = str(item.get("prompt") or "")
         if not prompt_text:
             continue
-        audio = tts.generate_audio(prompt_text, filename_prefix="new_toefl_response")
+        audio = tts.generate_audio_cached(
+            prompt_text,
+            filename_prefix="new_toefl_response",
+            cache_key=_cache_key(prompt_text),
+        )
         if audio:
             item["audio_url"] = f"/static/{audio.audio_path}"
 
-    return {
+    payload = {
         "responses": responses,
         "conversation": conversations,
         "talk": talks,
     }
+    payload = _normalize_payload_text(payload)
+    _save_prebuilt("listening", test_id, payload)
+    return payload
 
 
 def build_full_length_writing_mock(test_id: str) -> Optional[Dict[str, Any]]:
+    prebuilt = _load_prebuilt("writing", test_id)
+    if prebuilt:
+        sentence_build = prebuilt.get("sentence_build", [])
+        missing_context = any(isinstance(item, dict) and not item.get("context") for item in sentence_build)
+        if not missing_context and not _payload_has_spacing_issues(prebuilt) and not _writing_answers_missing(prebuilt):
+            return prebuilt
+    if _PREBUILT_ONLY:
+        current_app.logger.warning("Prebuilt writing mock missing for %s (TOEFL_PREBUILT_ONLY enabled).", test_id)
+        return None
+
     section = get_writing_section(test_id)
     if not section:
         return None
@@ -694,30 +1082,71 @@ def build_full_length_writing_mock(test_id: str) -> Optional[Dict[str, Any]]:
     content = section.get("content", "")
     answer_key = section.get("answer_key", "")
     answer_map = _parse_answer_key(answer_key)
-    lines = _merge_wrapped_lines(_clean_lines(content))
+    lines = _clean_lines(content)
+    lines = _repair_line_breaks(lines)
+    lines = [_fix_ocr_spacing(line) for line in lines if line]
 
     sentence_build: List[Dict[str, Any]] = []
+    blank_re = re.compile(r"_{2,}")
     idx = 0
     while idx < len(lines):
         match = _QUESTION_RE.match(lines[idx])
         if match and int(match.group(1)) <= 10:
-            prompt = match.group(2).strip()
+            prompt = _fix_ocr_spacing(match.group(2).strip())
             idx += 1
             tokens = []
-            scan_limit = min(idx + 3, len(lines))
-            while idx < scan_limit:
-                if "/" in lines[idx]:
-                    tokens = [t.strip() for t in lines[idx].split("/") if t.strip()]
+            context_line = ""
+            if idx < len(lines):
+                candidate = lines[idx]
+                if blank_re.search(candidate) and "/" in candidate and "?" in candidate:
+                    context_part, token_part = candidate.split("?", 1)
+                    if blank_re.search(context_part):
+                        context_line = _fix_ocr_spacing(context_part.strip())
+                    tokens = [_fix_ocr_spacing(t.strip()) for t in token_part.split("/") if t.strip()]
                     idx += 1
-                    break
+                elif blank_re.search(candidate) and "/" not in candidate:
+                    context_line = _fix_ocr_spacing(candidate.strip())
+                    idx += 1
+            if not tokens and idx < len(lines) and "/" in lines[idx]:
+                token_line = lines[idx]
+                if "?" in token_line:
+                    before, after = token_line.split("?", 1)
+                    if not context_line and blank_re.search(before):
+                        context_line = _fix_ocr_spacing(before.strip())
+                    token_line = after
+                tokens = [_fix_ocr_spacing(t.strip()) for t in token_line.split("/") if t.strip()]
                 idx += 1
+            elif not tokens:
+                scan_limit = min(idx + 4, len(lines))
+                while idx < scan_limit:
+                    if "/" in lines[idx]:
+                        token_line = lines[idx]
+                        if "?" in token_line:
+                            before, after = token_line.split("?", 1)
+                            if not context_line and blank_re.search(before):
+                                context_line = _fix_ocr_spacing(before.strip())
+                            token_line = after
+                        tokens = [_fix_ocr_spacing(t.strip()) for t in token_line.split("/") if t.strip()]
+                        idx += 1
+                        break
+                    idx += 1
+            if tokens and not context_line:
+                first = tokens[0]
+                if "_" in first:
+                    split_match = re.match(r"^(.*[.!?])\s*([A-Za-z']+)$", first)
+                    if split_match and blank_re.search(split_match.group(1)):
+                        context_line = _fix_ocr_spacing(split_match.group(1).strip())
+                        tokens[0] = _fix_ocr_spacing(split_match.group(2).strip())
             answer = answer_map.get(int(match.group(1)), "")
-            sentence_build.append({"prompt": prompt, "tokens": tokens, "answer": answer})
+            item = {"prompt": prompt, "tokens": tokens, "answer": answer}
+            if context_line:
+                item["context"] = context_line
+            sentence_build.append(item)
             continue
         idx += 1
 
-    email_idx = next((i for i, line in enumerate(lines) if line.lower().startswith("write an email")), None)
-    discussion_idx = next((i for i, line in enumerate(lines) if line.lower().startswith("write for an academic discussion")), None)
+    email_idx = next((i for i, line in enumerate(lines) if line.strip().lower() == "write an email"), None)
+    discussion_idx = next((i for i, line in enumerate(lines) if line.strip().lower() == "write for an academic discussion"), None)
     email_task = None
     discussion_task = None
 
@@ -735,6 +1164,12 @@ def build_full_length_writing_mock(test_id: str) -> Optional[Dict[str, Any]]:
                 to_name = line.split(":", 1)[-1].strip()
             elif line.lower().startswith("subject:"):
                 subject = line.split(":", 1)[-1].strip()
+            elif line.lower().startswith("write an email"):
+                continue
+            elif line.lower().startswith("you will"):
+                continue
+            elif line.lower().startswith("write as much"):
+                continue
             elif "Your Response" in line:
                 continue
             else:
@@ -752,19 +1187,55 @@ def build_full_length_writing_mock(test_id: str) -> Optional[Dict[str, Any]]:
         professor_lines = []
         student_posts: List[Dict[str, str]] = []
         for line in discussion_block:
-            if line.lower().startswith("yes,") or line.lower().startswith("i don"):
+            lower = line.lower()
+            if lower.startswith("yes,") or lower.startswith("i don") or lower.startswith("i think") or lower.startswith("i believe"):
                 break
+            if lower.startswith("a professor has posted"):
+                continue
+            if lower.startswith("you will"):
+                continue
+            if lower.startswith("your professor"):
+                continue
+            if lower.startswith("an effective response"):
+                continue
+            if "make a contribution" in lower:
+                continue
+            if line.startswith("•"):
+                continue
             professor_lines.append(line)
         remaining = discussion_block[len(professor_lines):]
-        for idx, line in enumerate(remaining):
+        idx = 0
+        while idx < len(remaining):
+            line = remaining[idx]
             if not line:
+                idx += 1
                 continue
-            if line.lower().startswith("yes"):
-                student_posts.append({"name": "Student A", "stance": "Agree", "message": line})
-            elif line.lower().startswith("i don"):
-                student_posts.append({"name": "Student B", "stance": "Disagree", "message": line})
-            if len(student_posts) >= 2:
-                break
+            lower = line.lower()
+            if lower.startswith("yes") or lower.startswith("i don") or lower.startswith("i think") or lower.startswith("i believe"):
+                message_lines = [line]
+                idx += 1
+                while idx < len(remaining):
+                    next_line = remaining[idx]
+                    next_lower = next_line.lower()
+                    if not next_line:
+                        idx += 1
+                        continue
+                    if next_lower.startswith(("yes", "i don", "i think", "i believe")):
+                        break
+                    if next_lower.startswith(("a professor has posted", "you will", "your professor", "an effective response")):
+                        idx += 1
+                        continue
+                    message_lines.append(next_line)
+                    idx += 1
+                message = " ".join(message_lines).strip()
+                if lower.startswith("yes") or lower.startswith("i think"):
+                    student_posts.append({"name": "Student A", "stance": "Agree", "message": message})
+                else:
+                    student_posts.append({"name": "Student B", "stance": "Disagree", "message": message})
+                if len(student_posts) >= 2:
+                    break
+            else:
+                idx += 1
 
         discussion_task = {
             "id": f"discussion_{test_id}",
@@ -772,8 +1243,11 @@ def build_full_length_writing_mock(test_id: str) -> Optional[Dict[str, Any]]:
             "student_posts": student_posts,
         }
 
-    return {
+    payload = {
         "sentence_build": sentence_build,
         "email": email_task,
         "discussion": discussion_task,
     }
+    payload = _normalize_payload_text(payload)
+    _save_prebuilt("writing", test_id, payload)
+    return payload

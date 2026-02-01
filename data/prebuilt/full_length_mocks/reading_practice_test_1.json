@@ -1,0 +1,620 @@
+{
+  "cloze": [
+    {
+      "id": "cloze_full_54877",
+      "paragraph": "We know from drawings that have been preserved in caves for over 10,000 years that early humans performed dances as a group activity. We mi___ think th__ prehistoric peo___ concentrated on__ on ba___ survival. How____, it i_ clear fr__ the rec___ that dan____ was important to them. They recorded more drawings of dances than of any other group activity. Dances served various purposes, including ritualistic communication with the divine, storytelling, and social cohesion.",
+      "blanks": [
+        {
+          "token": "mi___",
+          "answer": "might",
+          "part_of_speech": "unknown",
+          "hint": "Complete the word using context."
+        },
+        {
+          "token": "th__",
+          "answer": "that",
+          "part_of_speech": "unknown",
+          "hint": "Complete the word using context."
+        },
+        {
+          "token": "peo___",
+          "answer": "people",
+          "part_of_speech": "unknown",
+          "hint": "Complete the word using context."
+        },
+        {
+          "token": "on__",
+          "answer": "only",
+          "part_of_speech": "unknown",
+          "hint": "Complete the word using context."
+        },
+        {
+          "token": "ba___",
+          "answer": "basic",
+          "part_of_speech": "unknown",
+          "hint": "Complete the word using context."
+        },
+        {
+          "token": "How____",
+          "answer": "However",
+          "part_of_speech": "unknown",
+          "hint": "Complete the word using context."
+        },
+        {
+          "token": "i_",
+          "answer": "is",
+          "part_of_speech": "unknown",
+          "hint": "Complete the word using context."
+        },
+        {
+          "token": "fr__",
+          "answer": "from",
+          "part_of_speech": "unknown",
+          "hint": "Complete the word using context."
+        },
+        {
+          "token": "rec___",
+          "answer": "record",
+          "part_of_speech": "unknown",
+          "hint": "Complete the word using context."
+        },
+        {
+          "token": "dan____",
+          "answer": "dancing",
+          "part_of_speech": "unknown",
+          "hint": "Complete the word using context."
+        }
+      ]
+    },
+    {
+      "id": "cloze_full_29232",
+      "paragraph": "The human brain is a complex organ responsible for controlling all bodily functions and enabling thought, emot ion, and memory. It i_ divided in__ several reg____, each wi__ specific ro___. The cerebrum, i__ largest pa__, is invo____ in cogn_____ functions su__ as reasoning, planning, and language. The cerebellum coordinates mo vement and balance, while the brainstem controls vital bodily functions like breathing and heart rate. Together, they enable the brain to perform its various tasks.",
+      "blanks": [
+        {
+          "token": "i_",
+          "answer": "is",
+          "part_of_speech": "unknown",
+          "hint": "Complete the word using context."
+        },
+        {
+          "token": "in__",
+          "answer": "into",
+          "part_of_speech": "unknown",
+          "hint": "Complete the word using context."
+        },
+        {
+          "token": "reg____",
+          "answer": "regions",
+          "part_of_speech": "unknown",
+          "hint": "Complete the word using context."
+        },
+        {
+          "token": "wi__",
+          "answer": "with",
+          "part_of_speech": "unknown",
+          "hint": "Complete the word using context."
+        },
+        {
+          "token": "ro___",
+          "answer": "roles",
+          "part_of_speech": "unknown",
+          "hint": "Complete the word using context."
+        },
+        {
+          "token": "i__",
+          "answer": "its",
+          "part_of_speech": "unknown",
+          "hint": "Complete the word using context."
+        },
+        {
+          "token": "pa__",
+          "answer": "part",
+          "part_of_speech": "unknown",
+          "hint": "Complete the word using context."
+        },
+        {
+          "token": "invo____",
+          "answer": "involved",
+          "part_of_speech": "unknown",
+          "hint": "Complete the word using context."
+        },
+        {
+          "token": "cogn_____",
+          "answer": "cognitive",
+          "part_of_speech": "unknown",
+          "hint": "Complete the word using context."
+        },
+        {
+          "token": "su__",
+          "answer": "such",
+          "part_of_speech": "unknown",
+          "hint": "Complete the word using context."
+        }
+      ]
+    }
+  ],
+  "daily_life": [
+    {
+      "id": "daily_1_0",
+      "caption": "Read a notice.",
+      "format": "notice",
+      "title": "Municipal Charter",
+      "author": "",
+      "headers": {},
+      "body_lines": [
+        "Sign up for paperless billing statements today.",
+        "Safe, convenient, easy. Enroll in paperless billing to receive",
+        "monthly savings account statements in an electronic PDF",
+        "document. Access your Municipal Charter account through",
+        "the mobile app and select account preferences in the upper",
+        "right-hand corner to enroll."
+      ],
+      "footer_lines": [],
+      "source_lines": [
+        "Municipal Charter",
+        "Sign up for paperless billing statements today.",
+        "Safe, convenient, easy. Enroll in paperless billing to receive",
+        "monthly savings account statements in an electronic PDF",
+        "document. Access your Municipal Charter account through",
+        "the mobile app and select account preferences in the upper",
+        "right-hand corner to enroll."
+      ],
+      "source_text": "Municipal Charter Sign up for paperless billing statements today. Safe, convenient, easy. Enroll in paperless billing to receive monthly savings account statements in an electronic PDF document. Access your Municipal Charter account through the mobile app and select account preferences in the upper right-hand corner to enroll.",
+      "source_type": "a notice",
+      "questions": [
+        {
+          "number": 11,
+          "question": "What type of business issued the notice?",
+          "options": [
+            "An Internet provider",
+            "A computer company",
+            "A paper company",
+            "A bank"
+          ],
+          "answer": "A bank",
+          "rationales": {},
+          "evidence_quote": null
+        },
+        {
+          "number": 12,
+          "question": "How can customers enroll in paperless billing?",
+          "options": [
+            "By visiting a Municipal Charter office",
+            "By accessing the Municipal Charter website",
+            "By using the Municipal Charter app",
+            "By calling a Municipal Charter customer service representative"
+          ],
+          "answer": "By using the Municipal Charter app",
+          "rationales": {},
+          "evidence_quote": null
+        }
+      ]
+    },
+    {
+      "id": "daily_1_1",
+      "caption": "Read a social media post.",
+      "format": "social",
+      "title": "Sofia Baker",
+      "author": "Sofia Baker",
+      "headers": {},
+      "body_lines": [
+        "Every Saturday, our local farmer's market is the place to be!",
+        "Fresh fruits, veggies, homemade goodies, and unique crafts",
+        "await you. The Thompson family's organic produce is a must-try,",
+        "known for its quality and cordial service. Their stall is always",
+        "bustling with customers eager to buy fresh, pesticide-free",
+        "vegetables from the welcoming staff.",
+        "Don't miss the bakery stall-get there early for the best bread",
+        "and pastries, including gluten-free and vegan options. The smell",
+        "of freshly baked goods fills the air, and these treats sell out fast!",
+        "In addition to food, the market sells handmade crafts like jewelry,",
+        "pottery, and textiles. These unique items make perfect gifts and",
+        "support local artisans. Plus, enjoy live music while you shop.",
+        "Talented local musicians help create a vibrant atmosphere, and",
+        "the community spirit makes it a delightful experience for all. See",
+        "you there!"
+      ],
+      "footer_lines": [
+        "Like Comment"
+      ],
+      "source_lines": [
+        "Sofia Baker",
+        "Every Saturday, our local farmer's market is the place to be!",
+        "Fresh fruits, veggies, homemade goodies, and unique crafts",
+        "await you. The Thompson family's organic produce is a must-try,",
+        "known for its quality and cordial service. Their stall is always",
+        "bustling with customers eager to buy fresh, pesticide-free",
+        "vegetables from the welcoming staff.",
+        "Don't miss the bakery stall-get there early for the best bread",
+        "and pastries, including gluten-free and vegan options. The smell",
+        "of freshly baked goods fills the air, and these treats sell out fast!",
+        "In addition to food, the market sells handmade crafts like jewelry,",
+        "pottery, and textiles. These unique items make perfect gifts and",
+        "support local artisans. Plus, enjoy live music while you shop.",
+        "Talented local musicians help create a vibrant atmosphere, and",
+        "the community spirit makes it a delightful experience for all. See",
+        "you there!",
+        "Like Comment"
+      ],
+      "source_text": "Sofia Baker Every Saturday, our local farmer's market is the place to be! Fresh fruits, veggies, homemade goodies, and unique crafts await you. The Thompson family's organic produce is a must-try, known for its quality and cordial service. Their stall is always bustling with customers eager to buy fresh, pesticide-free vegetables from the welcoming staff. Don't miss the bakery stall-get there early for the best bread and pastries, including gluten-free and vegan options. The smell of freshly baked goods fills the air, and these treats sell out fast! In addition to food, the market sells handmade crafts like jewelry, pottery, and textiles. These unique items make perfect gifts and support local artisans. Plus, enjoy live music while you shop. Talented local musicians help create a vibrant atmosphere, and the community spirit makes it a delightful experience for all. See you there! Like Comment",
+      "source_type": "a social media post",
+      "questions": [
+        {
+          "number": 13,
+          "question": "What is the main purpose of the post?",
+          "options": [
+            "To explain the benefits of organic farming",
+            "To describe the variety of products available at the farmer’s market",
+            "To compare different farmer's markets in the area",
+            "To offer advice on starting a stall at the farmer's market"
+          ],
+          "answer": "To describe the variety of products available at the farmer’s market",
+          "rationales": {},
+          "evidence_quote": null
+        },
+        {
+          "number": 14,
+          "question": "What reason is given for the popularity of the Thompson family's stall?",
+          "options": [
+            "They offer cooking tips and recipes.",
+            "They offer the lowest prices at the market.",
+            "They provide friendly service and excellent products.",
+            "They have a beautiful and well-decorated stall."
+          ],
+          "answer": "They provide friendly service and excellent products.",
+          "rationales": {},
+          "evidence_quote": null
+        },
+        {
+          "number": 15,
+          "question": "Why do customers go to the bakery stall early?",
+          "options": [
+            "To get the free samples given in mornings",
+            "To get freshly baked bread and pastries before they are gone",
+            "To meet the famous baker",
+            "To take advantage of early morning discounts"
+          ],
+          "answer": "To get freshly baked bread and pastries before they are gone",
+          "rationales": {},
+          "evidence_quote": null
+        }
+      ]
+    },
+    {
+      "id": "daily_2_2",
+      "caption": "Read an email.",
+      "format": "email",
+      "title": "Art Workshop Reservation Confirmation",
+      "author": "",
+      "headers": {
+        "to": "edward56L@dmail.com",
+        "from": "artforeveryone@dmail.com",
+        "date": "10/09/2025",
+        "subject": "Art Workshop Reservation Confirmation"
+      },
+      "body_lines": [
+        "Dear Ms. Edwards,",
+        "The reservation for the art workshop that you made",
+        "on September 10th has been confirmed. The",
+        "workshop will take place on September 20th at 3:00",
+        "PM. All necessary arts supplies will be provided, but",
+        "please bring your own apron or smock.",
+        "Best regards,",
+        "Laura Bennett"
+      ],
+      "footer_lines": [],
+      "source_lines": [
+        "To: edward56L@dmail.com",
+        "From: artforeveryone@dmail.com",
+        "Date: 10/09/2025",
+        "Subject: Art Workshop Reservation Confirmation",
+        "Dear Ms. Edwards,",
+        "The reservation for the art workshop that you made",
+        "on September 10th has been confirmed. The",
+        "workshop will take place on September 20th at 3:00",
+        "PM. All necessary arts supplies will be provided, but",
+        "please bring your own apron or smock.",
+        "Best regards,",
+        "Laura Bennett"
+      ],
+      "source_text": "To: edward56L@dmail.com From: artforeveryone@dmail.com Date: 10/09/2025 Subject: Art Workshop Reservation Confirmation Dear Ms. Edwards, The reservation for the art workshop that you made on September 10th has been confirmed. The workshop will take place on September 20th at 3:00 PM. All necessary arts supplies will be provided, but please bring your own apron or smock. Best regards, Laura Bennett",
+      "source_type": "an email",
+      "questions": [
+        {
+          "number": 11,
+          "question": "When is the date of the art workshop?",
+          "options": [
+            "September 10th",
+            "September 12th",
+            "September 20th",
+            "September 30th"
+          ],
+          "answer": "September 20th",
+          "rationales": {},
+          "evidence_quote": null
+        },
+        {
+          "number": 12,
+          "question": "What should Ms. Edwards bring to the workshop?",
+          "options": [
+            "A payment method",
+            "Extra paint",
+            "A protective garment",
+            "Proof of reservation"
+          ],
+          "answer": "A protective garment",
+          "rationales": {},
+          "evidence_quote": null
+        }
+      ]
+    },
+    {
+      "id": "daily_2_3",
+      "caption": "Read an email.",
+      "format": "email",
+      "title": "You're Invited-Bring Friends & Family to Our Grand Opening!",
+      "author": "",
+      "headers": {
+        "to": "nguyenbooklover@dmail.com",
+        "from": "part.gymworkers@dmail.com",
+        "subject": "You're Invited-Bring Friends & Family to Our Grand Opening!"
+      },
+      "body_lines": [
+        "Dear Ms. Nguyen,",
+        "We're excited to invite you-and your friends and family-to the grand",
+        "opening of our new branch at 25 Orchid Street, happening next Monday.",
+        "This event is a great opportunity to explore our state-of-the-art facility,",
+        "featuring top-tier equipment, energizing group classes, and expert",
+        "personal training.",
+        "This celebration, exclusively for our valued members and their guests,",
+        "will include guided tours, live fitness demonstrations, and complimentary",
+        "refreshments. It's the perfect chance to experience our",
+        "community-focused approach to wellness and introduce others to a space designed for all fitness levels.",
+        "Bring your friends and family! We're offering a special one-day-only",
+        "discount on memberships for all attendees.",
+        "For questions or to RSVP, contact our customer service team at",
+        "555-1234.",
+        "Warm regards,",
+        "John Parker"
+      ],
+      "footer_lines": [],
+      "source_lines": [
+        "To: nguyenbooklover@dmail.com",
+        "From: part.gymworkers@dmail.com",
+        "Subject: You're Invited-Bring Friends & Family to Our Grand Opening!",
+        "Dear Ms. Nguyen,",
+        "We're excited to invite you-and your friends and family-to the grand",
+        "opening of our new branch at 25 Orchid Street, happening next Monday.",
+        "This event is a great opportunity to explore our state-of-the-art facility,",
+        "featuring top-tier equipment, energizing group classes, and expert",
+        "personal training.",
+        "This celebration, exclusively for our valued members and their guests,",
+        "will include guided tours, live fitness demonstrations, and complimentary",
+        "refreshments. It's the perfect chance to experience our",
+        "community-focused approach to wellness and introduce others to a space designed for all fitness levels.",
+        "Bring your friends and family! We're offering a special one-day-only",
+        "discount on memberships for all attendees.",
+        "For questions or to RSVP, contact our customer service team at",
+        "555-1234.",
+        "Warm regards,",
+        "John Parker"
+      ],
+      "source_text": "To: nguyenbooklover@dmail.com From: part.gymworkers@dmail.com Subject: You're Invited-Bring Friends & Family to Our Grand Opening! Dear Ms. Nguyen, We're excited to invite you-and your friends and family-to the grand opening of our new branch at 25 Orchid Street, happening next Monday. This event is a great opportunity to explore our state-of-the-art facility, featuring top-tier equipment, energizing group classes, and expert personal training. This celebration, exclusively for our valued members and their guests, will include guided tours, live fitness demonstrations, and complimentary refreshments. It's the perfect chance to experience our community-focused approach to wellness and introduce others to a space designed for all fitness levels. Bring your friends and family! We're offering a special one-day-only discount on memberships for all attendees. For questions or to RSVP, contact our customer service team at 555-1234. Warm regards, John Parker",
+      "source_type": "an email",
+      "questions": [
+        {
+          "number": 13,
+          "question": "What is the main purpose of the email?",
+          "options": [
+            "To attract customers to a new fitness center",
+            "To provide Ms. Nguyen with an opportunity to provide expert personal training",
+            "To celebrate Ms. Nguyen's achievements in wellness",
+            "To announce a discount available to fitness-center members"
+          ],
+          "answer": "To attract customers to a new fitness center",
+          "rationales": {},
+          "evidence_quote": null
+        },
+        {
+          "number": 14,
+          "question": "What can be inferred about Ms. Nguyen's relationship with the fitness center?",
+          "options": [
+            "She helps the fitness center to organize activities.",
+            "She has already explored the new facility.",
+            "She is a member at one of the fitness center's other locations.",
+            "She is new to using fitness centers and exercise equipment."
+          ],
+          "answer": "She is a member at one of the fitness center's other locations.",
+          "rationales": {},
+          "evidence_quote": null
+        },
+        {
+          "number": 15,
+          "question": "The new fitness center is intended for use by which of the following groups of people?",
+          "options": [
+            "Expert personal trainers",
+            "Top-tier athletes",
+            "Existing fitness-center members",
+            "Community members of all fitness levels 9"
+          ],
+          "answer": "Community members of all fitness levels 9",
+          "rationales": {},
+          "evidence_quote": null
+        }
+      ]
+    }
+  ],
+  "academic": [
+    {
+      "id": "academic_1",
+      "title": "The Mirror Test",
+      "passage_lines": [
+        "Very young children cannot recognize themselves in a mirror; they usually achieve this milestone",
+        "around 18 months of age. The ability to recognize oneself in the mirror is considered to be a key",
+        "component of self-awareness and consciousness for humans. But what about animals?",
+        "For many years, scientists have known that members of the great ape family could recognize themselves in mirrors. They measured this by the “mirror test,” which involved putting a colored mark",
+        "on an ape’s body, and then showing the ape its reflection in a mirror. If the ape tried to remove the mark on its own body, the scientists knew that the ape was recognizing its reflection.",
+        "Apes are close relatives of humans, but in recent years, scientists have discovered that other animals also pass the “mirror test.” Elephants and dolphins have shown signs of self-recognition. These, like",
+        "apes, are highly intelligent animals. But in a more recent experiment, a type of fish called the cleaner fish tried to scrape a mark off its body when it saw its elf in the mirror. This suggests that even less intelligent",
+        "animals may possess more self-awareness than previously suspected."
+      ],
+      "passage": "The Mirror Test Very young children cannot recognize themselves in a mirror; they usually achieve this milestone around 18 months of age. The ability to recognize oneself in the mirror is considered to be a key component of self-awareness and consciousness for humans. But what about animals? For many years, scientists have known that members of the great ape family could recognize themselves in mirrors. They measured this by the “mirror test,” which involved putting a colored mark on an ape’s body, and then showing the ape its reflection in a mirror. If the ape tried to remove the mark on its own body, the scientists knew that the ape was recognizing its reflection. Apes are close relatives of humans, but in recent years, scientists have discovered that other animals also pass the “mirror test.” Elephants and dolphins have shown signs of self-recognition. These, like apes, are highly intelligent animals. But in a more recent experiment, a type of fish called the cleaner fish tried to scrape a mark off its body when it saw its elf in the mirror. This suggests that even less intelligent animals may possess more self-awareness than previously suspected.",
+      "questions": [
+        {
+          "number": 16,
+          "question": "What is the passage mainly about?",
+          "options": [
+            "Stages of early childhood development",
+            "Research on animal cognition",
+            "Differences between apes, elephants, and dolphins",
+            "Recent experiments on fish"
+          ],
+          "answer": "Research on animal cognition",
+          "rationales": {},
+          "evidence_quote": null
+        },
+        {
+          "number": 17,
+          "question": "The word “milestone” in the first sentence is closest in meaning to",
+          "options": [
+            "accomplishment",
+            "distance",
+            "weight",
+            "discovery"
+          ],
+          "answer": "accomplishment",
+          "rationales": {},
+          "evidence_quote": null
+        },
+        {
+          "number": 18,
+          "question": "Why did scientists put colored marks on animals’ bodies?",
+          "options": [
+            "It made it possible to track the animals’ movements.",
+            "It helped them determine whether the animals recognized themselves.",
+            "It made it easier to tell the animals apart.",
+            "It showed whether some animals can detect color differences."
+          ],
+          "answer": "It helped them determine whether the animals recognized themselves.",
+          "rationales": {},
+          "evidence_quote": null
+        },
+        {
+          "number": 19,
+          "question": "According to the passage, all of the following are true about elephants EXCEPT:",
+          "options": [
+            "They can recognize themselves in mirrors.",
+            "They are highly intelligent animals.",
+            "They possess qualities in common with apes.",
+            "They understand certain signs from other animals."
+          ],
+          "answer": "They understand certain signs from other animals.",
+          "rationales": {},
+          "evidence_quote": null
+        },
+        {
+          "number": 20,
+          "question": "Why does the author mention cleaner fish?",
+          "options": [
+            "To suggest that a wide range of animals may possess self-awareness",
+            "To imply that ocean animals are highly intelligent",
+            "To demonstrate a flaw in a recent experiment",
+            "To provide an example of an animal that does not recognize its elf"
+          ],
+          "answer": "To suggest that a wide range of animals may possess self-awareness",
+          "rationales": {},
+          "evidence_quote": null
+        }
+      ]
+    },
+    {
+      "id": "academic_2",
+      "title": "The Paradox of Choice",
+      "passage_lines": [
+        "The paradox of choice, a concept popularized by psychologist Barry Schwartz, suggests that more",
+        "options can lead to less satisfaction. While the freedom to choose is fundamental to consumer culture,",
+        "an overabundance of choices—from groceries to electronics—can overwhelm individuals, causing",
+        "anxiety and decision fatigue. This paradox implies that the vast array of possibilities available today",
+        "might actually diminish consumer contentment, as the fear of making the wrong choice looms large.",
+        "Research supports this notion. In an experiment, psychologist Sheena Iyengar found that shoppers were",
+        "more likely to purchase jam when offered 6 varieties instead of 24. The limited selection eased the",
+        "decision process, reducing the pressure to find the 'perfect' option and making the experience more",
+        "enjoyable. This phenomenon reveals that fewer choices can sometimes make consumers happier, which",
+        "is a valuable insight for marketers and retailers aiming to boost satisfaction by curating their offerings.",
+        "The paradox also has broader implications. In individualistic cultures, where personal choice is highly",
+        "valued, the burden of decision-making can be significant. Conversely, collectivist cultures, which often",
+        "provide fewer choices, report higher levels of contentment. This dynamic suggests that understanding",
+        "cultural differences in consumer psychology can help businesses optimize their product strategies and",
+        "enhance overall well-being."
+      ],
+      "passage": "The Paradox of Choice The paradox of choice, a concept popularized by psychologist Barry Schwartz, suggests that more options can lead to less satisfaction. While the freedom to choose is fundamental to consumer culture, an overabundance of choices—from groceries to electronics—can overwhelm individuals, causing anxiety and decision fatigue. This paradox implies that the vast array of possibilities available today might actually diminish consumer contentment, as the fear of making the wrong choice looms large. Research supports this notion. In an experiment, psychologist Sheena Iyengar found that shoppers were more likely to purchase jam when offered 6 varieties instead of 24. The limited selection eased the decision process, reducing the pressure to find the 'perfect' option and making the experience more enjoyable. This phenomenon reveals that fewer choices can sometimes make consumers happier, which is a valuable insight for marketers and retailers aiming to boost satisfaction by curating their offerings. The paradox also has broader implications. In individualistic cultures, where personal choice is highly valued, the burden of decision-making can be significant. Conversely, collectivist cultures, which often provide fewer choices, report higher levels of contentment. This dynamic suggests that understanding cultural differences in consumer psychology can help businesses optimize their product strategies and enhance overall well-being.",
+      "questions": [
+        {
+          "number": 16,
+          "question": "Which of the following best states a main idea of the passage?",
+          "options": [
+            "Effective marketing strategies focus on increasing product options.",
+            "Modern consumer culture is driven by a demand for fewer products.",
+            "Individualism enhances consumer contentment.",
+            "Limiting consumer choices can lead to higher satisfaction."
+          ],
+          "answer": "Limiting consumer choices can lead to higher satisfaction.",
+          "rationales": {},
+          "evidence_quote": null
+        },
+        {
+          "number": 17,
+          "question": "What is one effectof decision fatigue as mentioned in the passage?",
+          "options": [
+            "Desire to make the same choices as other consumers",
+            "anxiety about making the wrong choice",
+            "Preference for consumer cultures",
+            "Enhanced freedom to choose"
+          ],
+          "answer": "anxiety about making the wrong choice",
+          "rationales": {},
+          "evidence_quote": null
+        },
+        {
+          "number": 18,
+          "question": "Why does the author mention Sheena Iyengar’s experiment?",
+          "options": [
+            "to highligh t the effectiveness of marketing strategies",
+            "to e xplain the methodology used in consumer psychology",
+            "to provide evidence supporting the paradox of choice",
+            "to criticize the abundance of products in modern markets"
+          ],
+          "answer": "to provide evidence supporting the paradox of choice",
+          "rationales": {},
+          "evidence_quote": null
+        },
+        {
+          "number": 19,
+          "question": "The word “curating” in the passage is closest in meaning to",
+          "options": [
+            "eliminating",
+            "organizing",
+            "increasing",
+            "changing"
+          ],
+          "answer": "organizing",
+          "rationales": {},
+          "evidence_quote": null
+        },
+        {
+          "number": 20,
+          "question": "What can be inferred about consumers in collectivist cultures?",
+          "options": [
+            "They tend to report lower levels of satisfaction.",
+            "They are more affected by the paradox of choice.",
+            "They generally have fewer choices available.",
+            "They prefer individual decision-making."
+          ],
+          "answer": "They generally have fewer choices available.",
+          "rationales": {},
+          "evidence_quote": null
+        }
+      ]
+    }
+  ]
+}

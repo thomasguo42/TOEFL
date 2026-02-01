@@ -1,8 +1,30 @@
 {% extends "base.html" %}
 
 {% block title %}Speaking Task {{ task.task_number }} - TOEFL{% endblock %}
+{% set is_new_toefl = task.task_type in ['new_toefl_repeat', 'new_toefl_interview'] %}
 
 {% block extra_css %}
+{% if is_new_toefl %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/new_toefl_mock.css') }}">
+<style>
+    .practice-container {
+        max-width: 100%;
+        padding: 0;
+    }
+
+    .new-toefl-speaking .record-button {
+        width: 120px;
+        height: 120px;
+        font-size: 2rem;
+        background: var(--kmf-green);
+        box-shadow: 0 10px 20px rgba(79, 126, 119, 0.25);
+    }
+
+    .new-toefl-speaking .status-message {
+        color: var(--kmf-ink);
+    }
+</style>
+{% endif %}
 <style>
     .practice-container {
         max-width: 900px;
@@ -121,9 +143,115 @@
         font-weight: 600;
     }
 </style>
+{% if is_new_toefl %}
+</style>
+{% endif %}
 {% endblock %}
 
 {% block content %}
+{% if is_new_toefl %}
+<div class="kmf-shell new-toefl-speaking">
+    <header class="kmf-topbar">
+        <div class="kmf-brand">
+            <div class="kmf-logo">学</div>
+            <div>
+                <div class="kmf-brand-title">学而思国际 <span class="kmf-brand-tag">托福</span></div>
+                <div class="kmf-brand-sub">高分有方法 | 提能有保障</div>
+            </div>
+        </div>
+        <div class="kmf-toolbar">
+            <button class="kmf-pill" type="button"><i class="fas fa-volume-up"></i>Volume</button>
+            <button class="kmf-pill" type="button"><i class="fas fa-circle-question"></i>Help</button>
+        </div>
+    </header>
+    <div class="kmf-sectionbar">
+        <div class="kmf-section-left">
+            <span>Speaking</span>
+            <span class="kmf-section-sep">|</span>
+            <span>Question {{ task.task_number }}</span>
+        </div>
+        <div class="kmf-section-right">
+            <span id="kmfTimer">00:00:00</span>
+            <button class="kmf-hide-time" type="button" id="kmfToggleTime"><i class="fas fa-eye-slash"></i>Hide Time</button>
+        </div>
+    </div>
+    <div class="kmf-canvas">
+        <div class="kmf-content">
+            <div class="kmf-card kmf-section">
+                <div class="kmf-heading">
+                    {% if task.task_type == 'new_toefl_repeat' %}
+                        Listen and repeat only once.
+                    {% else %}
+                        Please answer the interviewer's question.
+                    {% endif %}
+                </div>
+                <div class="kmf-illustration">
+                    <div class="kmf-placeholder">
+                        <i class="fas {% if task.task_type == 'new_toefl_repeat' %}fa-headphones{% else %}fa-user-tie{% endif %}"></i>
+                    </div>
+                </div>
+            </div>
+
+            {% if task.listening_audio_url %}
+            <div class="kmf-card kmf-section">
+                <audio controls class="kmf-audio" id="listeningAudio">
+                    <source src="{{ task.listening_audio_url }}" type="audio/mpeg">
+                    Your browser does not support the audio element.
+                </audio>
+            </div>
+            {% endif %}
+
+            <div class="kmf-card kmf-section">
+                <div class="kmf-prep-card" id="timer">
+                    <div class="kmf-prep-title">PREPARATION TIME</div>
+                    <div class="kmf-prep-body">
+                        <i class="fas fa-microphone kmf-prep-icon"></i>
+                        <span id="timer-value">--:--</span>
+                    </div>
+                    <div style="text-align:center; padding: 8px 0;" id="timer-label">Ready to Start</div>
+                </div>
+
+                <button id="startButton" class="record-button ready mt-4" type="button" aria-label="Start preparation">
+                    <i class="fas fa-play"></i>
+                    <span class="label">Start Prep</span>
+                </button>
+                <div class="status-message" id="statusMessage">Click to start preparation</div>
+                <div id="debugInfo" style="display: none;"></div>
+
+                <div id="recordingControls" class="mt-4" style="display: none;">
+                    <div class="record-indicator" id="recordIndicator" style="display: none;">
+                        <span class="dot"></span> Recording
+                    </div>
+                    <button id="stopRecording" class="btn btn-danger btn-lg" type="button" disabled>
+                        <i class="fas fa-stop me-2"></i>Stop Recording
+                    </button>
+                </div>
+
+                <div id="uploadFallback" class="mt-4" style="display: none;">
+                    <div class="alert alert-warning">
+                        Your browser does not support recording. Upload an audio file instead.
+                    </div>
+                    <input type="file" class="form-control" id="audioUpload" accept="audio/*,.m4a,.mp3,.wav,.webm,.ogg">
+                    <button id="submitUpload" class="btn btn-primary btn-lg mt-3" disabled>
+                        <i class="fas fa-upload me-2"></i>Submit Recording
+                    </button>
+                </div>
+
+                <div class="mt-4">
+                    <audio id="sampleAudio" class="w-100" controls preload="none">
+                        <source src="" type="audio/mpeg">
+                    </audio>
+                </div>
+            </div>
+
+            <a href="{{ mock_back_url or url_for('speaking_dashboard') }}" class="btn btn-outline-secondary mt-4">
+                <i class="fas fa-arrow-left me-2"></i>
+                {% if mock_back_url %}Back to New TOEFL Mock{% else %}Back to Speaking Dashboard{% endif %}
+            </a>
+        </div>
+    </div>
+</div>
+{% else %}
 <div class="practice-container">
     <div class="mb-3 d-flex justify-content-between align-items-center">
         <a href="{{ mock_back_url or url_for('speaking_dashboard') }}" class="btn btn-outline-secondary btn-sm">
@@ -152,6 +280,8 @@
     </div>
     {% endif %}
 
+    {% set hide_listening_text = task.task_type in ['new_toefl_repeat', 'new_toefl_interview'] %}
+
     <!-- Listening Section (if applicable) -->
     {% if task.listening_audio_url %}
     <div class="content-section">
@@ -167,7 +297,7 @@
             </p>
 
             <!-- Listening Transcript (Collapsible) -->
-            {% if task.listening_transcript %}
+            {% if task.listening_transcript and not hide_listening_text %}
             <details class="mt-3">
                 <summary style="cursor: pointer; font-weight: 600;">
                     <i class="fas fa-file-text me-2"></i>View Listening Transcript
@@ -234,7 +364,7 @@ Connection between points:</pre>
             {% endif %}
         </div>
     </div>
-    {% elif task.listening_transcript %}
+    {% elif task.listening_transcript and not hide_listening_text %}
     <div class="content-section">
         <h3><i class="fas fa-headphones me-2"></i>Listening</h3>
         <div id="listening-content">
@@ -252,7 +382,11 @@ Connection between points:</pre>
     <!-- Speaking Prompt -->
     <div class="content-section">
         <h3><i class="fas fa-question-circle me-2"></i>Your Task</h3>
+        {% if hide_listening_text %}
+        <p class="lead">Listen to the audio and respond when the timer starts.</p>
+        {% else %}
         <p class="lead">{{ task.prompt }}</p>
+        {% endif %}
         <div class="alert alert-warning">
             <strong>Time:</strong> {{ task.preparation_time }} seconds to prepare, {{ task.response_time }} seconds to respond
         </div>
@@ -340,6 +474,8 @@ Connection between points:</pre>
     {% endif %}
 </div>
 
+{% endif %}
+
 <form id="submitForm" action="{{ url_for('speaking_submit_response', task_id=task.id) }}" method="POST" enctype="multipart/form-data" style="display: none;">
     <input type="file" name="audio" id="audioFile">
 </form>
@@ -373,6 +509,7 @@ const debugInfo = document.getElementById('debugInfo');
 const uploadFallback = document.getElementById('uploadFallback');
 const audioUpload = document.getElementById('audioUpload');
 const submitUpload = document.getElementById('submitUpload');
+const recordIdParam = new URLSearchParams(window.location.search).get('record_id') || '';
 
 function updateDebug(message) {
     const timestamp = new Date().toLocaleTimeString();
@@ -447,6 +584,9 @@ if (!browserRecordingAvailable) {
 
         const formData = new FormData();
         formData.append('audio', file);
+        if (recordIdParam) {
+            formData.append('record_id', recordIdParam);
+        }
 
         fetch('{{ url_for("speaking_submit_response", task_id=task.id) }}', {
             method: 'POST',
@@ -687,6 +827,9 @@ function handleRecordingStop() {
 
     const formData = new FormData();
     formData.append('audio', audioBlob, 'recording.webm');
+    if (recordIdParam) {
+        formData.append('record_id', recordIdParam);
+    }
 
     statusMessage.textContent = 'Uploading and analyzing your response...';
     timerLabel.textContent = 'Please wait';

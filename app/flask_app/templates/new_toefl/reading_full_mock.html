@@ -3,53 +3,8 @@
 {% block title %}New TOEFL Reading Mock{% endblock %}
 
 {% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/new_toefl_mock.css') }}">
 <style>
-    .mock-panel {
-        background: #ffffff;
-        border: 1px solid var(--toefl-border);
-        border-radius: 1.25rem;
-        padding: 2rem;
-    }
-
-    .mock-meta {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 1rem;
-        margin-top: 1.5rem;
-    }
-
-    .meta-chip {
-        background: var(--toefl-gray-bg);
-        border: 1px solid var(--toefl-border-light);
-        border-radius: 999px;
-        padding: 0.35rem 0.9rem;
-        font-size: 0.85rem;
-        color: var(--toefl-text-light);
-    }
-
-    .cloze-wrap {
-        display: inline-flex;
-        align-items: center;
-        position: relative;
-        margin: 0 0.15rem;
-    }
-
-    .cloze-underscores {
-        color: #9ca3af;
-        letter-spacing: 0.08em;
-    }
-
-    .cloze-input {
-        position: absolute;
-        inset: 0;
-        background: transparent;
-        border: none;
-        outline: none;
-        font-weight: 600;
-        font-size: 0.98rem;
-        text-transform: lowercase;
-    }
-
     .results-split {
         display: grid;
         grid-template-columns: 1.2fr 1fr;
@@ -78,45 +33,87 @@
 {% endblock %}
 
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-lg-10 col-xl-8">
-        <div class="d-flex align-items-center justify-content-between flex-wrap gap-3 mb-4">
+<div class="kmf-shell">
+    <header class="kmf-topbar">
+        <div class="kmf-brand">
+            <div class="kmf-logo">学</div>
             <div>
-                <h1 class="mb-2"><i class="fas fa-glasses me-2"></i>Reading Mock Exam</h1>
-                <p class="text-muted mb-0">Select a full-length practice test and complete every question.</p>
-            </div>
-            <a href="{{ url_for('new_toefl_mock_hub') }}" class="btn btn-outline-secondary">
-                <i class="fas fa-arrow-left me-2"></i>Back to Mock Hub
-            </a>
-        </div>
-
-        <div class="mock-panel">
-            <h4 class="mb-3">Mock Format</h4>
-            <p class="text-muted">
-                Questions are pulled directly from the full-length practice tests. Answers are scored with the official key,
-                and explanations are generated for each choice.
-            </p>
-
-            <div class="mock-meta">
-                <span class="meta-chip">Full test questions</span>
-                <span class="meta-chip">Cloze + daily-life + academic</span>
-            </div>
-
-            <div class="mt-4">
-                <label class="form-label fw-semibold">Select Practice Test</label>
-                <select class="form-select mb-3" id="readingTest"></select>
-                <button class="btn btn-warning" id="loadReading">
-                    <i class="fas fa-play me-2"></i>Load Reading Mock
-                </button>
-                <button class="btn btn-outline-secondary ms-2" id="submitReading" disabled>
-                    <i class="fas fa-check me-2"></i>Submit Answers
-                </button>
-                <span class="text-muted ms-2" id="readingStatus">Select a test to begin.</span>
+                <div class="kmf-brand-title">学而思国际 <span class="kmf-brand-tag">托福</span></div>
+                <div class="kmf-brand-sub">高分有方法 | 提能有保障</div>
             </div>
         </div>
+        <div class="kmf-toolbar">
+            <button class="kmf-pill" type="button"><i class="fas fa-volume-up"></i>Volume</button>
+            <button class="kmf-pill" type="button"><i class="fas fa-circle-question"></i>Help</button>
+            <button class="kmf-pill" type="button"><i class="fas fa-bookmark"></i>Review</button>
+            <button class="kmf-pill kmf-pill--light" type="button" id="kmfBackBtn"><i class="fas fa-chevron-left"></i>Back</button>
+            <button class="kmf-pill" type="button" id="kmfAnswerBtn"><i class="fas fa-eye"></i>View Answer</button>
+            <button class="kmf-pill kmf-pill--light" type="button" id="kmfNextBtn">Next <i class="fas fa-chevron-right"></i></button>
+        </div>
+    </header>
+    <div class="kmf-sectionbar">
+        <div class="kmf-section-left">
+            <span id="kmfSectionName">Reading</span>
+            <span class="kmf-section-sep">|</span>
+            <span id="kmfQuestionMeta">Question 1 of 1</span>
+        </div>
+        <div class="kmf-section-right">
+            <span id="kmfTimer">00:00:00</span>
+            <button class="kmf-hide-time" type="button" id="kmfToggleTime"><i class="fas fa-eye-slash"></i>Hide Time</button>
+        </div>
+    </div>
+    <div class="kmf-canvas">
+        <div class="kmf-content">
+            <div class="kmf-card kmf-admin-card">
+                <div class="fw-semibold mb-2">Reading Mock Exam</div>
+                <p class="text-muted mb-3">Select a full-length practice test and complete every question.</p>
+                <div class="kmf-admin-actions">
+                    <label class="form-label fw-semibold mb-0">Select Practice Test</label>
+                    <select class="form-select" id="readingTest">
+                        <option value="practice_test_1">Full-Length Practice Test 1</option>
+                        <option value="practice_test_2">Full-Length Practice Test 2</option>
+                    </select>
+                    <label class="form-label fw-semibold mb-0">Saved Attempts</label>
+                    <div class="d-flex flex-wrap gap-2 align-items-center">
+                        <select class="form-select" id="readingRecordSelect" style="min-width: 220px;">
+                            <option value="">No saved attempts</option>
+                        </select>
+                        <button class="btn btn-outline-secondary" id="loadReadingRecord" type="button">
+                            <i class="fas fa-folder-open me-2"></i>Load Saved
+                        </button>
+                    </div>
+                    <button class="btn btn-warning" id="loadReading">
+                        <i class="fas fa-play me-2"></i>New Attempt
+                    </button>
+                    <button class="btn btn-outline-secondary" id="submitReading" disabled>
+                        <i class="fas fa-check me-2"></i>Submit Answers
+                    </button>
+                    <span class="text-muted" id="readingStatus">Select a test to begin.</span>
+                    <a href="{{ url_for('new_toefl_mock_hub') }}" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left me-2"></i>Back to Mock Hub
+                    </a>
+                </div>
+            </div>
 
-        <div class="mt-4" id="readingContent"></div>
-        <div class="mt-4" id="readingResults"></div>
+            <div id="readingContent"></div>
+            <div class="mt-4" id="readingResults"></div>
+        </div>
+    </div>
+</div>
+<button class="kmf-chat-toggle" id="kmfChatToggle" type="button">
+    <i class="fas fa-comments"></i>Chat
+</button>
+<div class="kmf-chat-panel hidden" id="kmfChatPanel" role="dialog" aria-label="Mock chat assistant">
+    <div class="kmf-chat-header">
+        <span>Mock Assistant</span>
+        <button class="btn btn-sm btn-light" id="kmfChatClose" type="button">Close</button>
+    </div>
+    <div class="kmf-chat-body" id="kmfChatBody">
+        <div class="kmf-chat-hint">Ask about the current question or your answers.</div>
+    </div>
+    <div class="kmf-chat-footer">
+        <input class="kmf-chat-input" id="kmfChatInput" placeholder="Type your question..." />
+        <button class="kmf-chat-send" id="kmfChatSend" type="button">Send</button>
     </div>
 </div>
 {% endblock %}
@@ -130,7 +127,27 @@ document.addEventListener('DOMContentLoaded', () => {
     const contentEl = document.getElementById('readingContent');
     const resultsEl = document.getElementById('readingResults');
     const testSelect = document.getElementById('readingTest');
+    const recordSelect = document.getElementById('readingRecordSelect');
+    const loadRecordBtn = document.getElementById('loadReadingRecord');
+    const sectionNameEl = document.getElementById('kmfSectionName');
+    const questionMetaEl = document.getElementById('kmfQuestionMeta');
+    const timerEl = document.getElementById('kmfTimer');
+    const toggleTimeBtn = document.getElementById('kmfToggleTime');
+    const backBtn = document.getElementById('kmfBackBtn');
+    const nextBtn = document.getElementById('kmfNextBtn');
+    const answerBtn = document.getElementById('kmfAnswerBtn');
+    const exitUrl = '{{ url_for("new_toefl_mock_hub") }}';
     let currentMock = null;
+    let steps = [];
+    let currentStepIndex = 0;
+    let answerVisible = false;
+    const answersState = { cloze: {}, daily_life: {}, academic: {} };
+    let timeHidden = false;
+    if (submitBtn) submitBtn.style.display = 'none';
+    const queryTestId = new URLSearchParams(window.location.search).get('test_id') || '';
+    let recordId = null;
+    let saveTimer = null;
+    let isLoadingRecord = false;
 
     const escapeHtml = (text) => (text || '')
         .replace(/&/g, '&amp;')
@@ -142,6 +159,15 @@ document.addEventListener('DOMContentLoaded', () => {
     const normalizeAcademic = (academic) => {
         if (!academic) return [];
         return Array.isArray(academic) ? academic : [academic];
+    };
+
+    const selectTestById = (testId) => {
+        if (!testId) return;
+        const options = Array.from(testSelect.options);
+        const match = options.find((opt) => opt.value === testId);
+        if (match) {
+            testSelect.value = testId;
+        }
     };
 
     const renderCloze = (item) => {
@@ -165,8 +191,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         missingCount = Math.max(1, rawAnswer.length);
                     }
                 }
-                const blanksHint = '_'.repeat(missingCount);
-                const wrap = `<span class="cloze-wrap" style="width:${missingCount}ch"><span class="cloze-underscores">${blanksHint}</span><input class="cloze-input" data-cloze-id="${item.id}" data-token="${token}" data-prefix="${escapeHtml(prefix)}" data-expected-len="${missingCount}" maxlength="${missingCount}" size="${missingCount}"></span>`;
+                const wrap = `<span class="kmf-cloze-wrap" style="min-width:${missingCount}ch"><input class="kmf-cloze-input" data-cloze-id="${item.id}" data-token="${token}" data-prefix="${escapeHtml(prefix)}" data-expected-len="${missingCount}" maxlength="${missingCount}" size="${missingCount}"></span>`;
                 const input = `${prefix}${wrap}`;
                 replacements.set(token, input);
             });
@@ -181,45 +206,46 @@ document.addEventListener('DOMContentLoaded', () => {
             replaced = replaced.replace(/([A-Za-z]+)(_{2,})/g, (match, head, blanksRun) => {
                 const token = `${head}${blanksRun}`;
                 const missingCount = blanksRun.length;
-                const blanksHint = '_'.repeat(missingCount);
-                const wrap = `<span class="cloze-wrap" style="width:${missingCount}ch"><span class="cloze-underscores">${blanksHint}</span><input class="cloze-input" data-cloze-id="${item.id}" data-token="${token}" data-prefix="${escapeHtml(head)}" data-expected-len="${missingCount}" maxlength="${missingCount}" size="${missingCount}"></span>`;
+                const wrap = `<span class="kmf-cloze-wrap" style="min-width:${missingCount}ch"><input class="kmf-cloze-input" data-cloze-id="${item.id}" data-token="${token}" data-prefix="${escapeHtml(head)}" data-expected-len="${missingCount}" maxlength="${missingCount}" size="${missingCount}"></span>`;
                 return `${head}${wrap}`;
             });
         }
 
         return `
-            <div class="card mb-3">
-                <div class="card-body">
-                    <h5 class="card-title">Complete the Words</h5>
-                    <p class="card-text">${replaced}</p>
-                </div>
+            <div class="kmf-card kmf-section">
+                <div class="kmf-heading">Fill in the missing letters in the paragraph</div>
+                <div class="kmf-cloze-text">${replaced}</div>
             </div>
         `;
     };
 
-    const renderQuestion = (groupName, question, idx) => {
-        const options = (question.options || []).map((opt, optIdx) => `
-            <div class="form-check">
-                <input class="form-check-input" type="radio" name="${groupName}" value="${escapeHtml(opt)}" id="${groupName}-${optIdx}">
-                <label class="form-check-label" for="${groupName}-${optIdx}">${escapeHtml(opt)}</label>
-            </div>
-        `).join('');
+    const renderOptions = (groupName, options) => (options || []).map((opt, optIdx) => {
+        const optionId = `${groupName}-${optIdx}`;
         return `
-            <div class="mb-3">
-                <div class="fw-semibold mb-2">${idx + 1}. ${escapeHtml(question.question || '')}</div>
-                ${options}
-            </div>
+            <label class="kmf-option" for="${optionId}">
+                <input type="radio" name="${groupName}" value="${escapeHtml(opt)}" id="${optionId}">
+                <span>${escapeHtml(opt)}</span>
+            </label>
         `;
-    };
+    }).join('');
+
+    const renderQuestion = (groupName, question, idx) => `
+        <div class="mb-3">
+            <div class="fw-semibold mb-2">${idx + 1}. ${escapeHtml(question.question || '')}</div>
+            <div class="kmf-options">${renderOptions(groupName, question.options || [])}</div>
+        </div>
+    `;
 
     const renderSourceBlock = (item) => {
-        const caption = escapeHtml(item.caption || 'Read in Daily Life');
-        const format = item.format || 'notice';
+        const format = item.format || item.source_type || 'notice';
+        const caption = escapeHtml(item.caption || (format === 'email' ? 'Read an Email' : 'Read in Daily Life'));
         const title = escapeHtml(item.title || '');
         const author = escapeHtml(item.author || '');
+        const rawSource = item.source_text || '';
+        const sourceLines = rawSource ? rawSource.split(/\n+/).map((line) => line.trim()).filter(Boolean) : [];
         const bodyLines = Array.isArray(item.body_lines) && item.body_lines.length
             ? item.body_lines
-            : (Array.isArray(item.source_lines) ? item.source_lines : []);
+            : (Array.isArray(item.source_lines) && item.source_lines.length ? item.source_lines : sourceLines);
         const footerLines = Array.isArray(item.footer_lines) ? item.footer_lines : [];
         const body = bodyLines.map((line) => `<div>${escapeHtml(line)}</div>`).join('');
         const footer = footerLines.length ? `<div class="text-muted small mt-2">${footerLines.map((line) => escapeHtml(line)).join(' ')}</div>` : '';
@@ -229,100 +255,316 @@ document.addEventListener('DOMContentLoaded', () => {
             const headers = item.headers || {};
             const headerRows = ['to', 'from', 'date', 'subject']
                 .filter((key) => headers[key])
-                .map((key) => `<div><strong>${key.toUpperCase()}:</strong> ${escapeHtml(headers[key])}</div>`)
+                .map((key) => `<div class="kmf-email-row"><strong>${key.toUpperCase()}:</strong><span>${escapeHtml(headers[key])}</span></div>`)
                 .join('');
+            const inferred = headerRows ? null : sourceLines.reduce((acc, line) => {
+                const match = line.match(/^(To|From|Date|Subject):\\s*(.*)$/i);
+                if (match) {
+                    acc.headers.push({ key: match[1].toUpperCase(), value: match[2] });
+                } else {
+                    acc.body.push(line);
+                }
+                return acc;
+            }, { headers: [], body: [] });
+            const inferredHeaders = inferred?.headers?.length
+                ? inferred.headers.map((row) => `<div class="kmf-email-row"><strong>${escapeHtml(row.key)}:</strong><span>${escapeHtml(row.value)}</span></div>`).join('')
+                : '';
+            const emailBody = inferred?.body?.length
+                ? inferred.body.map((line) => `<div>${escapeHtml(line)}</div>`).join('')
+                : body;
             return `
-                <div class="source-block">
-                    <div class="text-uppercase small text-muted">${caption}</div>
-                    <div class="email-headers small mt-2">${headerRows}</div>
-                    <div class="source-body mt-2">${body}</div>
+                <div class="kmf-email-card">
+                    <div class="fw-semibold mb-2">${caption}</div>
+                    <div class="small">${headerRows || inferredHeaders}</div>
+                    <div class="kmf-email-body mt-2">${emailBody}</div>
                 </div>
             `;
         }
         if (format === 'social') {
             return `
-                <div class="source-block">
+                <div>
                     <div class="text-uppercase small text-muted">${caption}</div>
                     ${authorHtml}
-                    <div class="source-body">${body}</div>
+                    <div class="kmf-passage-body">${body}</div>
                     ${footer}
                 </div>
             `;
         }
         return `
-            <div class="source-block">
+            <div>
                 <div class="text-uppercase small text-muted">${caption}</div>
                 ${titleHtml}
-                <div class="source-body">${body}</div>
+                <div class="kmf-passage-body">${body}</div>
             </div>
         `;
     };
 
-    const renderDaily = (item) => {
-        const questionsHtml = (item.questions || []).map((q, idx) => renderQuestion(`daily-${item.id}-${idx}`, q, idx)).join('');
+    const renderDailyStep = (item, qIdx) => {
+        const question = (item.questions || [])[qIdx];
+        const questionsHtml = question ? renderQuestion(`daily-${item.id}-${qIdx}`, question, qIdx) : '';
+        const title = item.format === 'email' ? 'Read an Email' : 'Read in Daily Life';
         return `
-            <div class="card mb-3">
-                <div class="card-body">
-                    <h5 class="card-title">Read in Daily Life</h5>
-                    ${renderSourceBlock(item)}
-                    ${questionsHtml}
+            <div class="kmf-card kmf-section">
+                <div class="kmf-heading">${title}</div>
+                <div class="kmf-reading-split">
+                    <div>${renderSourceBlock(item)}</div>
+                    <div>${questionsHtml}</div>
                 </div>
             </div>
         `;
     };
 
-    const renderAcademic = (item, index = 0) => {
+    const renderAcademicStep = (item, index = 0, qIdx = 0) => {
         if (!item) return '';
         const academicId = item.id || `academic-${index}`;
-        const questionsHtml = (item.questions || []).map((q, idx) => renderQuestion(`academic-${academicId}-${idx}`, q, idx)).join('');
+        const question = (item.questions || [])[qIdx];
+        const questionsHtml = question ? renderQuestion(`academic-${academicId}-${qIdx}`, question, qIdx) : '';
         const title = escapeHtml(item.title || '');
         const lines = Array.isArray(item.passage_lines) && item.passage_lines.length
             ? item.passage_lines
             : (item.passage ? item.passage.split(/\n+/) : []);
         const body = lines.map((line) => `<div>${escapeHtml(line)}</div>`).join('');
         return `
-            <div class="card mb-3">
-                <div class="card-body">
-                    <h5 class="card-title">Academic Passage</h5>
-                    ${title ? `<div class="fw-semibold mt-2 mb-2">${title}</div>` : ''}
-                    <div class="source-body">${body}</div>
-                    ${questionsHtml}
+            <div class="kmf-card kmf-section">
+                <div class="kmf-heading">${title || 'Academic Passage'}</div>
+                <div class="kmf-reading-split">
+                    <div>
+                        ${title ? `<div class="kmf-passage-title">${title}</div>` : ''}
+                        <div class="kmf-passage-body">${body}</div>
+                    </div>
+                    <div>${questionsHtml}</div>
                 </div>
             </div>
         `;
     };
 
-    const collectAnswers = () => {
-        const answers = { cloze: {}, daily_life: {}, academic: {} };
-        document.querySelectorAll('[data-cloze-id][data-token]').forEach((input) => {
+    const updateQuestionMeta = () => {
+        const total = steps.length || 1;
+        if (questionMetaEl) {
+            questionMetaEl.textContent = `Question ${Math.min(currentStepIndex + 1, total)} of ${total}`;
+        }
+        if (sectionNameEl) {
+            sectionNameEl.textContent = 'Reading';
+        }
+    };
+
+    const buildSteps = (mock) => {
+        const nextSteps = [];
+        (mock?.cloze || []).forEach((item, idx) => {
+            nextSteps.push({ type: 'cloze', item, idx });
+        });
+        (mock?.daily_life || []).forEach((item) => {
+            (item.questions || []).forEach((question, qIdx) => {
+                nextSteps.push({ type: 'daily', item, question, qIdx });
+            });
+        });
+        normalizeAcademic(mock?.academic).forEach((item, idx) => {
+            (item.questions || []).forEach((question, qIdx) => {
+                nextSteps.push({ type: 'academic', item, idx, question, qIdx });
+            });
+        });
+        steps = nextSteps;
+        currentStepIndex = 0;
+    };
+
+    const renderAnswerPanel = () => '<div class="kmf-answer-panel hidden" id="kmfAnswerPanel"></div>';
+
+    const renderRationales = (question) => {
+        const rationales = question?.rationales || {};
+        const options = Array.isArray(question?.options) ? question.options : Object.keys(rationales || {});
+        if (!options.length) return '';
+        const answer = question?.answer || '';
+        const rows = options.map((opt) => {
+            const rationale = escapeHtml(rationales[opt] || '');
+            const isCorrect = String(opt) === String(answer);
+            return `
+                <div class="mt-2">
+                    <span class="badge ${isCorrect ? 'bg-success' : 'bg-secondary'}">${isCorrect ? 'Correct' : 'Wrong'}</span>
+                    <span class="ms-2">${escapeHtml(String(opt))}</span>
+                    ${rationale ? `<div class="text-muted small ms-1">${rationale}</div>` : ''}
+                </div>
+            `;
+        }).join('');
+        return `<div class="mt-3"><div class="fw-semibold">Analysis</div>${rows}</div>`;
+    };
+
+    const getAnswerContent = (step) => {
+        if (!step) return '';
+        if (step.type === 'cloze') {
+            const blanks = step.item?.blanks || [];
+            if (!blanks.length) return '';
+            return blanks.map((blank) => `<div><strong>${escapeHtml(blank.token || '')}</strong>: ${escapeHtml(blank.answer || '')}</div>`).join('');
+        }
+        if (step.type === 'daily' || step.type === 'academic') {
+            const answer = step.question?.answer || '';
+            const evidence = step.question?.evidence_quote ? `<div class="mt-2"><strong>Evidence:</strong> ${escapeHtml(step.question.evidence_quote)}</div>` : '';
+            const analysis = renderRationales(step.question);
+            return answer ? `<div><strong>Correct answer:</strong> ${escapeHtml(answer)}</div>${evidence}${analysis}` : '';
+        }
+        return '';
+    };
+
+    const bindClozeInputs = () => {
+        const inputs = document.querySelectorAll('.kmf-cloze-input');
+        inputs.forEach((input) => {
             const clozeId = input.dataset.clozeId;
             const token = input.dataset.token;
-            const prefix = input.dataset.prefix || '';
-            if (!answers.cloze[clozeId]) {
-                answers.cloze[clozeId] = {};
+            if (!answersState.cloze[clozeId]) answersState.cloze[clozeId] = {};
+            if (answersState.cloze[clozeId][token]) {
+                input.value = answersState.cloze[clozeId][token];
             }
-            answers.cloze[clozeId][token] = `${prefix}${input.value || ''}`;
-        });
-
-        (currentMock?.daily_life || []).forEach((item) => {
-            const groupAnswers = {};
-            (item.questions || []).forEach((_, idx) => {
-                const selected = document.querySelector(`input[name="daily-${item.id}-${idx}"]:checked`);
-                groupAnswers[idx] = selected ? selected.value : '';
+            input.addEventListener('input', () => {
+                const expected = Number(input.getAttribute('data-expected-len') || 0);
+                if (expected && input.value.length > expected) {
+                    input.value = input.value.slice(0, expected);
+                }
+                answersState.cloze[clozeId][token] = input.value || '';
+                scheduleSave();
             });
+        });
+    };
+
+    const bindSingleChoice = (groupName, onSelect) => {
+        const radios = document.querySelectorAll(`input[name="${groupName}"]`);
+        radios.forEach((radio) => {
+            radio.addEventListener('change', () => {
+                if (radio.checked) onSelect(radio.value);
+            });
+        });
+    };
+
+    const renderStep = () => {
+        const step = steps[currentStepIndex];
+        if (!step) {
+            contentEl.innerHTML = '';
+            updateQuestionMeta();
+            return;
+        }
+        answerVisible = false;
+        let html = '';
+        if (step.type === 'cloze') {
+            html = renderCloze(step.item) + renderAnswerPanel();
+            contentEl.innerHTML = html;
+            bindClozeInputs();
+        } else if (step.type === 'daily') {
+            html = renderDailyStep(step.item, step.qIdx) + renderAnswerPanel();
+            contentEl.innerHTML = html;
+            const groupName = `daily-${step.item.id}-${step.qIdx}`;
+            const stored = answersState.daily_life?.[step.item.id]?.[step.qIdx];
+            if (stored) {
+                const selected = document.querySelector(`input[name="${groupName}"][value="${CSS.escape(stored)}"]`);
+                if (selected) selected.checked = true;
+            }
+            bindSingleChoice(groupName, (value) => {
+                if (!answersState.daily_life[step.item.id]) answersState.daily_life[step.item.id] = {};
+                answersState.daily_life[step.item.id][step.qIdx] = value;
+                scheduleSave();
+            });
+        } else if (step.type === 'academic') {
+            html = renderAcademicStep(step.item, step.idx, step.qIdx) + renderAnswerPanel();
+            contentEl.innerHTML = html;
+            const academicId = step.item.id || `academic-${step.idx}`;
+            const groupName = `academic-${academicId}-${step.qIdx}`;
+            const stored = answersState.academic?.[academicId]?.[step.qIdx];
+            if (stored) {
+                const selected = document.querySelector(`input[name="${groupName}"][value="${CSS.escape(stored)}"]`);
+                if (selected) selected.checked = true;
+            }
+            bindSingleChoice(groupName, (value) => {
+                if (!answersState.academic[academicId]) answersState.academic[academicId] = {};
+                answersState.academic[academicId][step.qIdx] = value;
+                scheduleSave();
+            });
+        }
+
+        updateQuestionMeta();
+        const answerPanel = document.getElementById('kmfAnswerPanel');
+        if (answerPanel) {
+            const content = getAnswerContent(step);
+            answerPanel.innerHTML = content;
+            answerPanel.classList.add('hidden');
+            if (answerBtn) {
+                answerBtn.disabled = !content;
+            }
+        }
+
+        const isFirst = currentStepIndex === 0;
+        const isLast = currentStepIndex === steps.length - 1;
+        if (backBtn) backBtn.disabled = isFirst;
+        if (nextBtn) nextBtn.disabled = isLast;
+        if (submitBtn) {
+            submitBtn.disabled = !isLast;
+            submitBtn.style.display = isLast ? 'inline-block' : 'none';
+        }
+    };
+
+    if (toggleTimeBtn && timerEl) {
+        toggleTimeBtn.addEventListener('click', () => {
+            timeHidden = !timeHidden;
+            timerEl.style.visibility = timeHidden ? 'hidden' : 'visible';
+            toggleTimeBtn.innerHTML = timeHidden
+                ? '<i class="fas fa-eye"></i>Show Time'
+                : '<i class="fas fa-eye-slash"></i>Hide Time';
+        });
+    }
+
+    if (backBtn) {
+        backBtn.addEventListener('click', () => {
+            if (!currentMock || !steps.length) {
+                window.location.href = exitUrl;
+                return;
+            }
+            if (currentStepIndex > 0) {
+                currentStepIndex -= 1;
+                renderStep();
+                scheduleSave();
+            }
+        });
+    }
+
+    if (nextBtn) {
+        nextBtn.addEventListener('click', () => {
+            if (currentStepIndex < steps.length - 1) {
+                currentStepIndex += 1;
+                renderStep();
+                scheduleSave();
+            }
+        });
+    }
+
+    if (answerBtn) {
+        answerBtn.addEventListener('click', () => {
+            const panel = document.getElementById('kmfAnswerPanel');
+            if (!panel) return;
+            answerVisible = !answerVisible;
+            panel.classList.toggle('hidden', !answerVisible);
+            answerBtn.innerHTML = answerVisible
+                ? '<i class="fas fa-eye-slash"></i>Hide Answer'
+                : '<i class="fas fa-eye"></i>View Answer';
+        });
+    }
+
+    const collectAnswers = () => {
+        const answers = { cloze: {}, daily_life: {}, academic: {} };
+        (currentMock?.cloze || []).forEach((item) => {
+            const clozeId = item.id;
+            answers.cloze[clozeId] = {};
+            (item.blanks || []).forEach((blank) => {
+                const token = blank.token || '';
+                const prefix = token.match(/^[A-Za-z]+/)?.[0] || token.replace(/_+$/, '');
+                const value = answersState.cloze?.[clozeId]?.[token] || '';
+                answers.cloze[clozeId][token] = `${prefix}${value}`;
+            });
+        });
+        (currentMock?.daily_life || []).forEach((item) => {
+            const groupAnswers = answersState.daily_life?.[item.id] || {};
             answers.daily_life[item.id] = groupAnswers;
         });
-
         const academicSets = normalizeAcademic(currentMock?.academic);
-        academicSets.forEach((item, itemIdx) => {
-            const academicId = item.id || `academic-${itemIdx}`;
-            answers.academic[academicId] = {};
-            (item.questions || []).forEach((_, idx) => {
-                const selected = document.querySelector(`input[name="academic-${academicId}-${idx}"]:checked`);
-                answers.academic[academicId][idx] = selected ? selected.value : '';
-            });
+        academicSets.forEach((item, idx) => {
+            const academicId = item.id || `academic-${idx}`;
+            answers.academic[academicId] = answersState.academic?.[academicId] || {};
         });
-
         return answers;
     };
 
@@ -514,30 +756,76 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const validateClozeLengths = () => {
-        const inputs = document.querySelectorAll('.cloze-input');
-        for (const input of inputs) {
-            const expected = Number(input.getAttribute('data-expected-len') || 0);
-            const value = (input.value || '').trim();
-            if (expected && value.length !== expected) {
-                return false;
+        const clozeItems = currentMock?.cloze || [];
+        for (const item of clozeItems) {
+            const clozeId = item.id;
+            const blanks = item.blanks || [];
+            for (const blank of blanks) {
+                const token = blank.token || '';
+                const prefix = token.match(/^[A-Za-z]+/)?.[0] || token.replace(/_+$/, '');
+                const expected = Math.max(1, token.length - prefix.length);
+                const value = (answersState.cloze?.[clozeId]?.[token] || '').trim();
+                if (expected && value.length !== expected) {
+                    return false;
+                }
             }
         }
         return true;
     };
 
-    const loadTests = async () => {
+    const loadRecords = async () => {
+        if (!recordSelect) return;
+        const testId = testSelect.value;
         try {
-            const res = await fetch('{{ url_for("new_toefl_mock_tests") }}');
+            const res = await fetch(`/new-toefl/api/mock/records?section=reading&test_id=${encodeURIComponent(testId)}`);
             const data = await res.json();
-            const options = (data.tests || []).map((test) => `<option value="${test.id}">${escapeHtml(test.title)}</option>`).join('');
-            testSelect.innerHTML = options || '<option value="">No tests available</option>';
+            const records = data.records || [];
+            if (!records.length) {
+                recordSelect.innerHTML = '<option value="">No saved attempts</option>';
+                return;
+            }
+            recordSelect.innerHTML = records.map((record) => {
+                const label = `${record.test_id} • ${record.status.replace('_', ' ')} • ${new Date(record.updated_at).toLocaleString()}`;
+                return `<option value="${record.id}">${escapeHtml(label)}</option>`;
+            }).join('');
         } catch (err) {
-            testSelect.innerHTML = '<option value="">No tests available</option>';
+            recordSelect.innerHTML = '<option value="">No saved attempts</option>';
         }
     };
 
-    loadBtn.addEventListener('click', async () => {
-        const testId = testSelect.value;
+    const saveRecord = async (status = 'in_progress') => {
+        if (!testSelect.value) return;
+        const payload = {
+            section: 'reading',
+            test_id: testSelect.value,
+            status,
+            answers: answersState,
+            meta: { current_step: currentStepIndex },
+        };
+        if (recordId) payload.record_id = recordId;
+        try {
+            const res = await fetch('/new-toefl/api/mock/records/save', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload),
+            });
+            const data = await res.json();
+            if (data.success && data.record_id) {
+                recordId = data.record_id;
+                loadRecords();
+            }
+        } catch (err) {
+            // Silent save failure.
+        }
+    };
+
+    const scheduleSave = (status = 'in_progress') => {
+        if (isLoadingRecord) return;
+        if (saveTimer) clearTimeout(saveTimer);
+        saveTimer = setTimeout(() => saveRecord(status), 600);
+    };
+
+    const loadReadingMock = async (testId, { skipSave = false, createRecord = false } = {}) => {
         if (!testId) return;
         statusEl.textContent = 'Loading reading mock...';
         loadBtn.disabled = true;
@@ -554,22 +842,51 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
             currentMock = data.mock;
-            const clozeHtml = (currentMock.cloze || []).map(renderCloze).join('');
-            const dailyHtml = (currentMock.daily_life || []).map(renderDaily).join('');
-            const academicHtml = normalizeAcademic(currentMock.academic).map((item, idx) => renderAcademic(item, idx)).join('');
-            contentEl.innerHTML = clozeHtml + dailyHtml + academicHtml;
+            buildSteps(currentMock);
+            renderStep();
             statusEl.textContent = 'Mock loaded. Complete the questions.';
             submitBtn.disabled = false;
+            if (!skipSave && createRecord) {
+                await saveRecord('in_progress');
+            }
         } catch (err) {
             statusEl.textContent = 'Load failed. Please try again.';
         } finally {
             loadBtn.disabled = false;
         }
+    };
+
+    const loadTests = async () => {
+        try {
+            const res = await fetch('{{ url_for("new_toefl_mock_tests") }}');
+            const data = await res.json();
+            const options = (data.tests || []).map(
+                (test) => `<option value="${test.id}">${escapeHtml(test.title || test.id)}</option>`
+            ).join('');
+            testSelect.innerHTML = options || '<option value="">No tests available</option>';
+        } catch (err) {
+            testSelect.innerHTML = '<option value="">No tests available</option>';
+        } finally {
+            selectTestById(queryTestId);
+            loadRecords();
+        }
+    };
+
+    loadBtn.addEventListener('click', async () => {
+        recordId = null;
+        answersState.cloze = {};
+        answersState.daily_life = {};
+        answersState.academic = {};
+        currentStepIndex = 0;
+        currentMock = null;
+        steps = [];
+        await loadReadingMock(testSelect.value, { createRecord: true });
     });
 
     submitBtn.addEventListener('click', async () => {
         if (!validateClozeLengths()) {
             statusEl.textContent = 'Please complete every cloze blank with the exact number of letters.';
+            statusEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
             return;
         }
         const answers = collectAnswers();
@@ -590,6 +907,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             renderResults(data);
             statusEl.textContent = 'Results ready.';
+            await saveRecord('completed');
         } catch (err) {
             statusEl.textContent = 'Submit failed. Please try again.';
         } finally {
@@ -597,7 +915,169 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    if (loadRecordBtn) {
+        loadRecordBtn.addEventListener('click', async () => {
+            const selected = recordSelect?.value;
+            if (!selected) return;
+            isLoadingRecord = true;
+            try {
+                const res = await fetch(`/new-toefl/api/mock/records/${selected}`);
+                const data = await res.json();
+                if (!data.success) {
+                    statusEl.textContent = 'Failed to load record.';
+                    return;
+                }
+                const record = data.record || {};
+                recordId = record.id || null;
+                if (record.test_id && record.test_id !== testSelect.value) {
+                    testSelect.value = record.test_id;
+                }
+                answersState.cloze = record.answers?.cloze || {};
+                answersState.daily_life = record.answers?.daily_life || {};
+                answersState.academic = record.answers?.academic || {};
+                currentStepIndex = record.meta?.current_step || 0;
+                await loadReadingMock(testSelect.value, { skipSave: true });
+                if (currentStepIndex > 0 && currentStepIndex < steps.length) {
+                    renderStep();
+                }
+                statusEl.textContent = 'Loaded saved attempt.';
+            } catch (err) {
+                statusEl.textContent = 'Failed to load record.';
+            } finally {
+                isLoadingRecord = false;
+            }
+        });
+    }
+
+    if (testSelect) {
+        testSelect.addEventListener('change', () => {
+            loadRecords();
+        });
+    }
+
     loadTests();
+
+    const chatToggle = document.getElementById('kmfChatToggle');
+    const chatPanel = document.getElementById('kmfChatPanel');
+    const chatClose = document.getElementById('kmfChatClose');
+    const chatBody = document.getElementById('kmfChatBody');
+    const chatInput = document.getElementById('kmfChatInput');
+    const chatSend = document.getElementById('kmfChatSend');
+    const chatState = { history: [] };
+
+    const appendChatMessage = (role, text) => {
+        if (!chatBody) return;
+        const wrapper = document.createElement('div');
+        wrapper.className = `kmf-chat-message ${role}`;
+        const bubble = document.createElement('div');
+        bubble.className = 'kmf-chat-bubble';
+        bubble.textContent = text;
+        wrapper.appendChild(bubble);
+        chatBody.appendChild(wrapper);
+        chatBody.scrollTop = chatBody.scrollHeight;
+    };
+
+    const truncate = (text, limit = 800) => {
+        const safe = (text || '').toString();
+        return safe.length > limit ? `${safe.slice(0, limit)}...` : safe;
+    };
+
+    const buildChatContext = () => {
+        const step = steps[currentStepIndex];
+        const context = {
+            section: 'reading',
+            test_id: testSelect.value,
+            step_index: currentStepIndex,
+            total_steps: steps.length,
+            step_type: step?.type || '',
+            answers: answersState,
+        };
+        if (!step) return context;
+        if (step.type === 'cloze') {
+            context.current = {
+                type: 'cloze',
+                paragraph: truncate(step.item?.paragraph || ''),
+                blanks: step.item?.blanks || [],
+                user: answersState.cloze?.[step.item?.id] || {},
+            };
+        } else if (step.type === 'daily') {
+            context.current = {
+                type: 'daily_life',
+                caption: step.item?.caption || '',
+                source: truncate(step.item?.source_text || ''),
+                question: step.question?.question || '',
+                options: step.question?.options || [],
+                selected: answersState.daily_life?.[step.item?.id]?.[step.qIdx] || '',
+            };
+        } else if (step.type === 'academic') {
+            const academicId = step.item?.id || `academic-${step.idx}`;
+            context.current = {
+                type: 'academic',
+                title: step.item?.title || '',
+                passage: truncate(step.item?.passage || ''),
+                question: step.question?.question || '',
+                options: step.question?.options || [],
+                selected: answersState.academic?.[academicId]?.[step.qIdx] || '',
+            };
+        }
+        return context;
+    };
+
+    const sendChatMessage = async () => {
+        const text = (chatInput?.value || '').trim();
+        if (!text) return;
+        appendChatMessage('user', text);
+        chatState.history.push({ role: 'user', content: text });
+        chatInput.value = '';
+        appendChatMessage('assistant', 'Thinking...');
+        const placeholder = chatBody?.lastElementChild;
+
+        try {
+            const res = await fetch('/new-toefl/api/mock/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    message: text,
+                    context: buildChatContext(),
+                    history: chatState.history.slice(-8),
+                }),
+            });
+            const data = await res.json();
+            const reply = data.reply || data.message || 'Unable to respond right now.';
+            if (placeholder) {
+                placeholder.querySelector('.kmf-chat-bubble').textContent = reply;
+            } else {
+                appendChatMessage('assistant', reply);
+            }
+            chatState.history.push({ role: 'assistant', content: reply });
+        } catch (err) {
+            if (placeholder) {
+                placeholder.querySelector('.kmf-chat-bubble').textContent = 'Chat service unavailable.';
+            }
+        }
+    };
+
+    if (chatToggle && chatPanel) {
+        chatToggle.addEventListener('click', () => {
+            chatPanel.classList.toggle('hidden');
+        });
+    }
+    if (chatClose && chatPanel) {
+        chatClose.addEventListener('click', () => {
+            chatPanel.classList.add('hidden');
+        });
+    }
+    if (chatSend) {
+        chatSend.addEventListener('click', sendChatMessage);
+    }
+    if (chatInput) {
+        chatInput.addEventListener('keydown', (evt) => {
+            if (evt.key === 'Enter') {
+                evt.preventDefault();
+                sendChatMessage();
+            }
+        });
+    }
 });
 </script>
 {% endblock %}

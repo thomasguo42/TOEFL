@@ -1,0 +1,378 @@
+{
+  "cloze": [
+    {
+      "id": "cloze_full_24784",
+      "paragraph": "Modern biochemistry focuses on the chemical processes within and related to living organisms. It i_ a laboratory_based sci____ that comb____ biology a__ chemistry. Biochemists inves______ how cells func____ and commu______, exploring t__ fundamental mecha_____ that sus____ life. The field has advanced our understanding of how diseases occur and how they can be treated or prevented. Techniques such as molecular cloning and protein analysis are central to biochemistry, leading to innovations in medicine and biotechnology.",
+      "blanks": [
+        {
+          "token": "i_",
+          "answer": "is",
+          "part_of_speech": "unknown",
+          "hint": "Complete the word using context."
+        },
+        {
+          "token": "sci____",
+          "answer": "science",
+          "part_of_speech": "unknown",
+          "hint": "Complete the word using context."
+        },
+        {
+          "token": "comb____",
+          "answer": "combines",
+          "part_of_speech": "unknown",
+          "hint": "Complete the word using context."
+        },
+        {
+          "token": "a__",
+          "answer": "and",
+          "part_of_speech": "unknown",
+          "hint": "Complete the word using context."
+        },
+        {
+          "token": "inves______",
+          "answer": "investigate",
+          "part_of_speech": "unknown",
+          "hint": "Complete the word using context."
+        },
+        {
+          "token": "func____",
+          "answer": "function",
+          "part_of_speech": "unknown",
+          "hint": "Complete the word using context."
+        },
+        {
+          "token": "commu______",
+          "answer": "communicate",
+          "part_of_speech": "unknown",
+          "hint": "Complete the word using context."
+        },
+        {
+          "token": "t__",
+          "answer": "the",
+          "part_of_speech": "unknown",
+          "hint": "Complete the word using context."
+        },
+        {
+          "token": "mecha_____",
+          "answer": "mechanisms",
+          "part_of_speech": "unknown",
+          "hint": "Complete the word using context."
+        },
+        {
+          "token": "sus____",
+          "answer": "sustain",
+          "part_of_speech": "unknown",
+          "hint": "Complete the word using context."
+        }
+      ]
+    },
+    {
+      "id": "cloze_full_10411",
+      "paragraph": "Cognitive science and the study of consciousness delve into how humans and animals perceive the world, process information, and experience awareness. Cognition encom______ mental activ_____ like mem___, learning, a__ decision_making, whe____ consciousness invo____ the subje_____ experience o_ being aw___. Researchers u__ tools such as brain imaging to explore these complex processes. Findings in this field have far_reaching implications, from improving mental health care to advancing artificial intelligence and educational practices.",
+      "blanks": [
+        {
+          "token": "encom______",
+          "answer": "encompasses",
+          "part_of_speech": "unknown",
+          "hint": "Complete the word using context."
+        },
+        {
+          "token": "activ_____",
+          "answer": "activities",
+          "part_of_speech": "unknown",
+          "hint": "Complete the word using context."
+        },
+        {
+          "token": "mem___",
+          "answer": "memory",
+          "part_of_speech": "unknown",
+          "hint": "Complete the word using context."
+        },
+        {
+          "token": "a__",
+          "answer": "and",
+          "part_of_speech": "unknown",
+          "hint": "Complete the word using context."
+        },
+        {
+          "token": "whe____",
+          "answer": "whereas",
+          "part_of_speech": "unknown",
+          "hint": "Complete the word using context."
+        },
+        {
+          "token": "invo____",
+          "answer": "involves",
+          "part_of_speech": "unknown",
+          "hint": "Complete the word using context."
+        },
+        {
+          "token": "subje_____",
+          "answer": "subjective",
+          "part_of_speech": "unknown",
+          "hint": "Complete the word using context."
+        },
+        {
+          "token": "o_",
+          "answer": "of",
+          "part_of_speech": "unknown",
+          "hint": "Complete the word using context."
+        },
+        {
+          "token": "aw___",
+          "answer": "aware",
+          "part_of_speech": "unknown",
+          "hint": "Complete the word using context."
+        },
+        {
+          "token": "u__",
+          "answer": "use",
+          "part_of_speech": "unknown",
+          "hint": "Complete the word using context."
+        }
+      ]
+    }
+  ],
+  "daily_life": [
+    {
+      "id": "daily_1_0",
+      "caption": "Read an email.",
+      "format": "email",
+      "title": "Bella Italia reservation",
+      "author": "",
+      "headers": {
+        "subject": "Bella Italia reservation"
+      },
+      "body_lines": [
+        "Dear Ms. Green,",
+        "This concerns your table reservation for 4 at Bella Italia Restaurant for December 5 at",
+        "7:00 P.M. Since you made your reservation more than two weeks ago, the $10.00 charge",
+        "at the door for the night’s live musical entertainment is waived.",
+        "Thank you,",
+        "Anthony Russos"
+      ],
+      "footer_lines": [],
+      "source_lines": [
+        "Subject: Bella Italia reservation",
+        "Dear Ms. Green,",
+        "This concerns your table reservation for 4 at Bella Italia Restaurant for December 5 at",
+        "7:00 P.M. Since you made your reservation more than two weeks ago, the $10.00 charge",
+        "at the door for the night’s live musical entertainment is waived.",
+        "Thank you,",
+        "Anthony Russos"
+      ],
+      "source_text": "Subject: Bella Italia reservation Dear Ms. Green, This concerns your table reservation for 4 at Bella Italia Restaurant for December 5 at 7:00 P.M. Since you made your reservation more than two weeks ago, the $10.00 charge at the door for the night’s live musical entertainment is waived. Thank you, Anthony Russos",
+      "source_type": "an email",
+      "questions": [
+        {
+          "number": 11,
+          "question": "How many people will dine with Ms. Green?",
+          "options": [
+            "2",
+            "3",
+            "4",
+            "5"
+          ],
+          "answer": "3",
+          "rationales": {},
+          "evidence_quote": null
+        },
+        {
+          "number": 12,
+          "question": "What will Ms. Green not be charged for?",
+          "options": [
+            "Canceling the reservation",
+            "Rescheduling the reservation",
+            "Listening to live music",
+            "Inviting additional guests 3"
+          ],
+          "answer": "Listening to live music",
+          "rationales": {},
+          "evidence_quote": null
+        }
+      ]
+    },
+    {
+      "id": "daily_2_1",
+      "caption": "Read an email.",
+      "format": "email",
+      "title": "Photography class",
+      "author": "",
+      "headers": {
+        "subject": "Photography class"
+      },
+      "body_lines": [
+        "Dear Mr. Clark,",
+        "Unfortunately, the photography class your egistered for on October 20 has been",
+        "rescheduled. It will now meet on October 28 at 6:00 P.M. instead of October 26 at",
+        "5:00 P.M. Your registration fee will be refunded if you have a scheduling conflict.",
+        "Regards,",
+        "Emily Rodriguez"
+      ],
+      "footer_lines": [],
+      "source_lines": [
+        "Subject: Photography class",
+        "Dear Mr. Clark,",
+        "Unfortunately, the photography class your egistered for on October 20 has been",
+        "rescheduled. It will now meet on October 28 at 6:00 P.M. instead of October 26 at",
+        "5:00 P.M. Your registration fee will be refunded if you have a scheduling conflict.",
+        "Regards,",
+        "Emily Rodriguez"
+      ],
+      "source_text": "Subject: Photography class Dear Mr. Clark, Unfortunately, the photography class your egistered for on October 20 has been rescheduled. It will now meet on October 28 at 6:00 P.M. instead of October 26 at 5:00 P.M. Your registration fee will be refunded if you have a scheduling conflict. Regards, Emily Rodriguez",
+      "source_type": "an email",
+      "questions": [
+        {
+          "number": 11,
+          "question": "When did Mr. Clark register for the class?",
+          "options": [
+            "On October 20",
+            "On October 25",
+            "On October 26",
+            "On October 29"
+          ],
+          "answer": "On October 20",
+          "rationales": {},
+          "evidence_quote": null
+        },
+        {
+          "number": 12,
+          "question": "Why may Mr. Clark receive a refund?",
+          "options": [
+            "If he registered for the wrong class",
+            "If he could not attend the class",
+            "If he was dissatisfied with the class",
+            "If he rescheduled the class 8"
+          ],
+          "answer": "If he could not attend the class",
+          "rationales": {},
+          "evidence_quote": null
+        }
+      ]
+    }
+  ],
+  "academic": [
+    {
+      "id": "academic_1",
+      "title": "Reading Section, Module 1",
+      "passage_lines": [
+        "Read a notice.",
+        "Name:",
+        "Library Card Number:",
+        "Computer Station Preference:",
+        "",
+        "Basic (Internet only) ",
+        "Premium (Full software access)",
+        "Requested Date:",
+        "Time Slot: ",
+        "9-11 A.M. ",
+        "11 A.M.-1 P.M. ",
+        "1-3 P.M. ",
+        "3-5 P.M.",
+        "Maximum reservation time: 2 hours per day. Premium stations require advance",
+        "booking and may be reserved up to one week in advance. Basic stations are",
+        "available on a first-come first-served basis same day only. Late arrival (more than",
+        "15 minutes) results in automatic cancellation. Photo ID required at check-in."
+      ],
+      "passage": "Reading Section, Module 1 Read a notice. Name: Library Card Number: Computer Station Preference:  Basic (Internet only)  Premium (Full software access) Requested Date: Time Slot:  9-11 A.M.  11 A.M.-1 P.M.  1-3 P.M.  3-5 P.M. Maximum reservation time: 2 hours per day. Premium stations require advance booking and may be reserved up to one week in advance. Basic stations are available on a first-come first-served basis same day only. Late arrival (more than 15 minutes) results in automatic cancellation. Photo ID required at check-in.",
+      "questions": [
+        {
+          "number": 13,
+          "question": "What is this form used for?",
+          "options": [
+            "Applying for a new library card",
+            "Reporting problems with library computers",
+            "Booking time to use library computers",
+            "Requesting software installation on computers"
+          ],
+          "answer": "Booking time to use library computers",
+          "rationales": {},
+          "evidence_quote": null
+        },
+        {
+          "number": 14,
+          "question": "How far in advance can someone reserve a Premium station?",
+          "options": [
+            "The same day only",
+            "Up to one week ahead",
+            "Up to one month ahead",
+            "Up to two weeks in advance"
+          ],
+          "answer": "Up to one week ahead",
+          "rationales": {},
+          "evidence_quote": null
+        },
+        {
+          "number": 15,
+          "question": "What happens if someone arrives 20 minutes late for their reservation?",
+          "options": [
+            "They can still use the computer for the remaining time.",
+            "They must pay an additional fee.",
+            "Their reservation is automatically canceled.",
+            "They are moved to a Basic station instead."
+          ],
+          "answer": "Their reservation is automatically canceled.",
+          "rationales": {},
+          "evidence_quote": null
+        }
+      ]
+    },
+    {
+      "id": "academic_2",
+      "title": "Reading Section, Module 2",
+      "passage_lines": [
+        "Read an advertisement.",
+        "A one-day intensive workshop for managers and team leaders. Learn practical strategies",
+        "for conducting productive meetings, providing constructive feedback, and resolving",
+        "workplace conflicts. Experienced facilitators will guide participants through interactive",
+        "exercises and real-world scenarios. Workshop includes comprehensive workbook and",
+        "light refreshments.",
+        "Early bird registration (before April 1): $195. Regular price: $245.",
+        "Limited to 25 participants to ensure personalized attention.",
+        "Certificate of completion provided for continuing education requirements."
+      ],
+      "passage": "Reading Section, Module 2 Read an advertisement. A one-day intensive workshop for managers and team leaders. Learn practical strategies for conducting productive meetings, providing constructive feedback, and resolving workplace conflicts. Experienced facilitators will guide participants through interactive exercises and real-world scenarios. Workshop includes comprehensive workbook and light refreshments. Early bird registration (before April 1): $195. Regular price: $245. Limited to 25 participants to ensure personalized attention. Certificate of completion provided for continuing education requirements.",
+      "questions": [
+        {
+          "number": 13,
+          "question": "What is this advertisement promoting?",
+          "options": [
+            "A job training program for new employees",
+            "A professional workshop on workplace communication",
+            "A management certification course",
+            "A conflict-resolution consulting service"
+          ],
+          "answer": "A professional workshop on workplace communication",
+          "rationales": {},
+          "evidence_quote": null
+        },
+        {
+          "number": 14,
+          "question": "What does someone gain by registering early?",
+          "options": [
+            "A reduction in cost",
+            "A special certificate",
+            "Guaranteed seating in the front row",
+            "A one-on-one session with a facilitator"
+          ],
+          "answer": "A reduction in cost",
+          "rationales": {},
+          "evidence_quote": null
+        },
+        {
+          "number": 15,
+          "question": "Why is participation limited to 25 people?",
+          "options": [
+            "To keep costs affordable for participants",
+            "To meet continuing education requirements",
+            "To provide personalized attention to participants",
+            "To ensure everyone receives a workbook"
+          ],
+          "answer": "To provide personalized attention to participants",
+          "rationales": {},
+          "evidence_quote": null
+        }
+      ]
+    }
+  ]
+}

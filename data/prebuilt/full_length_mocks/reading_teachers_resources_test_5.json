@@ -1,0 +1,357 @@
+{
+  "cloze": [
+    {
+      "id": "cloze_full_50851",
+      "paragraph": "Film and television play a powerful role in shaping cultural norms and public opinion. T__ industry encom______ a wide ra___ of arti____ and tech_____ processes, fr__ scriptwriting a__ directing t_ post_production. Techno_______ innovations_su__ as digital effects and streaming platforms_have significantly altered both how content is produced and how audiences engage with it. Studying film offers insights into narrative structure, visual storytelling, and the broader social impact of media. It also involves examining genres, audience responses, and the economic forces behind production.",
+      "blanks": [
+        {
+          "token": "T__",
+          "answer": "The",
+          "part_of_speech": "unknown",
+          "hint": "Complete the word using context."
+        },
+        {
+          "token": "encom______",
+          "answer": "encompasses",
+          "part_of_speech": "unknown",
+          "hint": "Complete the word using context."
+        },
+        {
+          "token": "ra___",
+          "answer": "range",
+          "part_of_speech": "unknown",
+          "hint": "Complete the word using context."
+        },
+        {
+          "token": "arti____",
+          "answer": "artistic",
+          "part_of_speech": "unknown",
+          "hint": "Complete the word using context."
+        },
+        {
+          "token": "tech_____",
+          "answer": "technical",
+          "part_of_speech": "unknown",
+          "hint": "Complete the word using context."
+        },
+        {
+          "token": "fr__",
+          "answer": "from",
+          "part_of_speech": "unknown",
+          "hint": "Complete the word using context."
+        },
+        {
+          "token": "a__",
+          "answer": "and",
+          "part_of_speech": "unknown",
+          "hint": "Complete the word using context."
+        },
+        {
+          "token": "t_",
+          "answer": "to",
+          "part_of_speech": "unknown",
+          "hint": "Complete the word using context."
+        },
+        {
+          "token": "Techno_______",
+          "answer": "Technological",
+          "part_of_speech": "unknown",
+          "hint": "Complete the word using context."
+        }
+      ]
+    },
+    {
+      "id": "cloze_full_8318",
+      "paragraph": "Geology is the scientific study of Earth’s physical makeup and the dynamic forces that shape its surface. Geologies inves______ the compo______ and form_____ of ro___ and mine____ to unc____ the proc_____ that ha__ influenced t__ planet ov__ time. This field helps explain natural events such as earthquakes and volcanic eruptions and provides essential knowledge for managing natural resources and mitigating environmental risks. Understanding geological systems is also key to addressing sustainability challenges in a rapidly changing world.",
+      "blanks": [
+        {
+          "token": "inves______",
+          "answer": "investigate",
+          "part_of_speech": "unknown",
+          "hint": "Complete the word using context."
+        },
+        {
+          "token": "compo______",
+          "answer": "composition",
+          "part_of_speech": "unknown",
+          "hint": "Complete the word using context."
+        },
+        {
+          "token": "form_____",
+          "answer": "formation",
+          "part_of_speech": "unknown",
+          "hint": "Complete the word using context."
+        },
+        {
+          "token": "ro___",
+          "answer": "rocks",
+          "part_of_speech": "unknown",
+          "hint": "Complete the word using context."
+        },
+        {
+          "token": "mine____",
+          "answer": "minerals",
+          "part_of_speech": "unknown",
+          "hint": "Complete the word using context."
+        },
+        {
+          "token": "unc____",
+          "answer": "uncover",
+          "part_of_speech": "unknown",
+          "hint": "Complete the word using context."
+        },
+        {
+          "token": "proc_____",
+          "answer": "processes",
+          "part_of_speech": "unknown",
+          "hint": "Complete the word using context."
+        },
+        {
+          "token": "ha__",
+          "answer": "have",
+          "part_of_speech": "unknown",
+          "hint": "Complete the word using context."
+        },
+        {
+          "token": "t__",
+          "answer": "the",
+          "part_of_speech": "unknown",
+          "hint": "Complete the word using context."
+        },
+        {
+          "token": "ov__",
+          "answer": "over",
+          "part_of_speech": "unknown",
+          "hint": "Complete the word using context."
+        }
+      ]
+    }
+  ],
+  "daily_life": [
+    {
+      "id": "daily_1_0",
+      "caption": "Read an email.",
+      "format": "email",
+      "title": "TechHub shipment",
+      "author": "",
+      "headers": {
+        "subject": "TechHub shipment"
+      },
+      "body_lines": [
+        "Dear Ms. Turner,",
+        "TechHub has shipped the order you placed on Thursday. It should arrive by Monday.",
+        "Please make sure the package contains what you ordered. Returns will only be accepted",
+        "within 3 business days of your package’s arrival. Thank you for your purchase.",
+        "Regards,",
+        "James Lee"
+      ],
+      "footer_lines": [],
+      "source_lines": [
+        "Subject: TechHub shipment",
+        "Dear Ms. Turner,",
+        "TechHub has shipped the order you placed on Thursday. It should arrive by Monday.",
+        "Please make sure the package contains what you ordered. Returns will only be accepted",
+        "within 3 business days of your package’s arrival. Thank you for your purchase.",
+        "Regards,",
+        "James Lee"
+      ],
+      "source_text": "Subject: TechHub shipment Dear Ms. Turner, TechHub has shipped the order you placed on Thursday. It should arrive by Monday. Please make sure the package contains what you ordered. Returns will only be accepted within 3 business days of your package’s arrival. Thank you for your purchase. Regards, James Lee",
+      "source_type": "an email",
+      "questions": [
+        {
+          "number": 11,
+          "question": "When is the latest Ms. Turner will receive her order?",
+          "options": [
+            "By Monday",
+            "By Tuesday",
+            "By Wednesday",
+            "By Thursday"
+          ],
+          "answer": "By Monday",
+          "rationales": {},
+          "evidence_quote": null
+        },
+        {
+          "number": 12,
+          "question": "What is Ms. Turner advised to do?",
+          "options": [
+            "Review the return policy",
+            "Return the completed warranty form",
+            "Send in the final payment",
+            "Check the contents of the package 3"
+          ],
+          "answer": "Check the contents of the package 3",
+          "rationales": {},
+          "evidence_quote": null
+        }
+      ]
+    },
+    {
+      "id": "daily_2_1",
+      "caption": "Read an email.",
+      "format": "email",
+      "title": "Workshop registration",
+      "author": "",
+      "headers": {
+        "subject": "Workshop registration"
+      },
+      "body_lines": [
+        "Dear Ms. Thompson,",
+        "This is to confirm your registration for the online coding workshop on November 3. We recommend that you check your video and audio settings before joining the class.",
+        "Login details will be sent to this email address on November 2.",
+        "Regards,",
+        "Alex Kim"
+      ],
+      "footer_lines": [],
+      "source_lines": [
+        "Subject: Workshop registration",
+        "Dear Ms. Thompson,",
+        "This is to confirm your registration for the online coding workshop on November 3. We recommend that you check your video and audio settings before joining the class.",
+        "Login details will be sent to this email address on November 2.",
+        "Regards,",
+        "Alex Kim"
+      ],
+      "source_text": "Subject: Workshop registration Dear Ms. Thompson, This is to confirm your registration for the online coding workshop on November 3. We recommend that you check your video and audio settings before joining the class. Login details will be sent to this email address on November 2. Regards, Alex Kim",
+      "source_type": "an email",
+      "questions": [
+        {
+          "number": 11,
+          "question": "What is the main purpose of the email?",
+          "options": [
+            "To confirm registration for a workshop",
+            "To cancel registration for a workshop",
+            "To request payment for a workshop",
+            "To provide technical support for a workshop"
+          ],
+          "answer": "To confirm registration for a workshop",
+          "rationales": {},
+          "evidence_quote": null
+        },
+        {
+          "number": 12,
+          "question": "What information should Ms. Thompson look for in her email?",
+          "options": [
+            "A workshop schedule",
+            "A payment receipt",
+            "Login details",
+            "Equipment requirements 8"
+          ],
+          "answer": "Login details",
+          "rationales": {},
+          "evidence_quote": null
+        }
+      ]
+    }
+  ],
+  "academic": [
+    {
+      "id": "academic_1",
+      "title": "Reading Section, Module 1",
+      "passage_lines": [
+        "Read a notice.",
+        "Enjoy author signings, book readings, and literary workshops. This event is perfect for",
+        "book lovers of all ages, with a special area dedicated to young readers.",
+        "A variety of food and beverages will be available for purchase from local food trucks",
+        "and vendors.",
+        "Free parking is available at the Town Square parking lot and nearby streets."
+      ],
+      "passage": "Reading Section, Module 1 Read a notice. Enjoy author signings, book readings, and literary workshops. This event is perfect for book lovers of all ages, with a special area dedicated to young readers. A variety of food and beverages will be available for purchase from local food trucks and vendors. Free parking is available at the Town Square parking lot and nearby streets.",
+      "questions": [
+        {
+          "number": 13,
+          "question": "What is the main purpose of the notice?",
+          "options": [
+            "To advertise a used-book sales event",
+            "To announce an event for people who like reading",
+            "To promote an event celebrating the publication of a new book",
+            "To advertise prices for a series of writing workshops"
+          ],
+          "answer": "To announce an event for people who like reading",
+          "rationales": {},
+          "evidence_quote": null
+        },
+        {
+          "number": 14,
+          "question": "Where will the event take place?",
+          "options": [
+            "At a local bookstore",
+            "At the library",
+            "At the town square",
+            "At the community center"
+          ],
+          "answer": "At the town square",
+          "rationales": {},
+          "evidence_quote": null
+        },
+        {
+          "number": 15,
+          "question": "What can be concluded about the Summer Book Festival?",
+          "options": [
+            "It is suitable for children.",
+            "It has a registration fee.",
+            "It will last all day.",
+            "It requires tickets. Admission is free. Come join us at the Summer Book Festival! Date: July 18 Time: 10:00 A.M. – 4:00 P.M."
+          ],
+          "answer": "It is suitable for children.",
+          "rationales": {},
+          "evidence_quote": null
+        }
+      ]
+    },
+    {
+      "id": "academic_2",
+      "title": "Reading Section, Module 2",
+      "passage_lines": [
+        "Read an article.",
+        "Downtown Books, a family-owned bookstore operating for 15 years, recently added a café area and expanded its evening hours to accommodate working customers.",
+        "Owner Janet Miller explains, “We noticed many people wanted to browse books after",
+        "work but couldn’t make it during our traditional hours.”",
+        "The store now stays open until 9 P.M. on weekdays and offers coffee, pastries, and light",
+        "meals alongside its selection of books, magazines, and gifts. The café area includes",
+        "comfortable seating and free Wi-Fi for customers who want to read or work."
+      ],
+      "passage": "Reading Section, Module 2 Read an article. Downtown Books, a family-owned bookstore operating for 15 years, recently added a café area and expanded its evening hours to accommodate working customers. Owner Janet Miller explains, “We noticed many people wanted to browse books after work but couldn’t make it during our traditional hours.” The store now stays open until 9 P.M. on weekdays and offers coffee, pastries, and light meals alongside its selection of books, magazines, and gifts. The café area includes comfortable seating and free Wi-Fi for customers who want to read or work.",
+      "questions": [
+        {
+          "number": 13,
+          "question": "What is this article mainly about?",
+          "options": [
+            "The his tory of a family-owned bookstore",
+            "How a small bookstore is competing with online retailers",
+            "The growing popularity of bookstore cafés",
+            "Changes that a local bookstore has made"
+          ],
+          "answer": "Changes that a local bookstore has made",
+          "rationales": {},
+          "evidence_quote": null
+        },
+        {
+          "number": 14,
+          "question": "Why does the bookstore close at 9 p.m. on weekdays?",
+          "options": [
+            "To compete with other bookstores in the area",
+            "To serve customers who work during traditional business hours",
+            "To provide a place for people to use free Wi-Fi",
+            "To increase sales of coffee and pastries"
+          ],
+          "answer": "To serve customers who work during traditional business hours",
+          "rationales": {},
+          "evidence_quote": null
+        },
+        {
+          "number": 15,
+          "question": "What new service is the bookstore offering?",
+          "options": [
+            "Online ordering and home delivery",
+            "Book club meetings and author readings",
+            "A café area with food, drinks, and Wi-Fi",
+            "Gift wrapping and special ordering"
+          ],
+          "answer": "A café area with food, drinks, and Wi-Fi",
+          "rationales": {},
+          "evidence_quote": null
+        }
+      ]
+    }
+  ]
+}

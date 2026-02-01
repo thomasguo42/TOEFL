@@ -61,9 +61,20 @@
             </a>
         </div>
 
+        <div class="border rounded-4 p-4 bg-white mb-4">
+            <div class="fw-semibold mb-2">Choose a practice test</div>
+            <div class="text-muted small mb-3">This selection applies to every section below.</div>
+            <div class="d-flex flex-wrap align-items-center gap-3">
+                <select class="form-select" id="mockTestSelect" style="max-width: 320px;">
+                    <option value="">Loading tests...</option>
+                </select>
+                <span class="text-muted small" id="mockTestStatus">Choose a test to continue.</span>
+            </div>
+        </div>
+
         <div class="row g-4">
             <div class="col-md-6 col-lg-3">
-                <a class="mock-card" href="{{ url_for('new_toefl_reading_mock') }}">
+                <a class="mock-card" data-mock-link data-base-href="{{ url_for('new_toefl_reading_mock') }}" href="{{ url_for('new_toefl_reading_mock') }}">
                     <div class="mock-icon"><i class="fas fa-glasses"></i></div>
                     <div class="mock-title">Reading</div>
                     <p class="mock-description">Complete the Words, Daily Life, and Academic passages.</p>
@@ -71,7 +82,7 @@
                 </a>
             </div>
             <div class="col-md-6 col-lg-3">
-                <a class="mock-card" href="{{ url_for('new_toefl_listening_mock') }}">
+                <a class="mock-card" data-mock-link data-base-href="{{ url_for('new_toefl_listening_mock') }}" href="{{ url_for('new_toefl_listening_mock') }}">
                     <div class="mock-icon"><i class="fas fa-headphones"></i></div>
                     <div class="mock-title">Listening</div>
                     <p class="mock-description">Responses, conversations, announcements, and talks.</p>
@@ -79,7 +90,7 @@
                 </a>
             </div>
             <div class="col-md-6 col-lg-3">
-                <a class="mock-card" href="{{ url_for('new_toefl_speaking_mock') }}">
+                <a class="mock-card" data-mock-link data-base-href="{{ url_for('new_toefl_speaking_mock') }}" href="{{ url_for('new_toefl_speaking_mock') }}">
                     <div class="mock-icon"><i class="fas fa-microphone"></i></div>
                     <div class="mock-title">Speaking</div>
                     <p class="mock-description">Listen-and-repeat plus interview prompts.</p>
@@ -87,7 +98,7 @@
                 </a>
             </div>
             <div class="col-md-6 col-lg-3">
-                <a class="mock-card" href="{{ url_for('new_toefl_writing_mock') }}">
+                <a class="mock-card" data-mock-link data-base-href="{{ url_for('new_toefl_writing_mock') }}" href="{{ url_for('new_toefl_writing_mock') }}">
                     <div class="mock-icon"><i class="fas fa-pen-nib"></i></div>
                     <div class="mock-title">Writing</div>
                     <p class="mock-description">Sentence build, email, and academic discussion.</p>
@@ -97,4 +108,74 @@
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block head %}
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const selectEl = document.getElementById('mockTestSelect');
+    const statusEl = document.getElementById('mockTestStatus');
+    const links = Array.from(document.querySelectorAll('[data-mock-link]'));
+    const urlParams = new URLSearchParams(window.location.search);
+    const preselectedId = urlParams.get('test_id') || '';
+
+    const updateLinks = (testId) => {
+        links.forEach((link) => {
+            const base = link.getAttribute('data-base-href');
+            if (!base) return;
+            const href = testId ? `${base}?test_id=${encodeURIComponent(testId)}` : base;
+            link.setAttribute('href', href);
+        });
+    };
+
+    const setSelected = (testId) => {
+        const options = Array.from(selectEl.options);
+        const match = options.find((opt) => opt.value === testId);
+        if (match) {
+            selectEl.value = testId;
+        }
+    };
+
+    const syncUrl = (testId) => {
+        const nextParams = new URLSearchParams(window.location.search);
+        if (testId) {
+            nextParams.set('test_id', testId);
+        } else {
+            nextParams.delete('test_id');
+        }
+        const nextUrl = `${window.location.pathname}${nextParams.toString() ? `?${nextParams.toString()}` : ''}`;
+        window.history.replaceState({}, '', nextUrl);
+    };
+
+    const loadTests = async () => {
+        try {
+            const res = await fetch('{{ url_for("new_toefl_mock_tests") }}');
+            const data = await res.json();
+            const tests = data.tests || [];
+            const options = tests.map((test) => `<option value="${test.id}">${test.title || test.id}</option>`).join('');
+            selectEl.innerHTML = options || '<option value="">No tests available</option>';
+            if (preselectedId) {
+                setSelected(preselectedId);
+            }
+            const currentValue = selectEl.value;
+            updateLinks(currentValue);
+            syncUrl(currentValue);
+            statusEl.textContent = currentValue ? 'Test selected.' : 'Choose a test to continue.';
+        } catch (err) {
+            selectEl.innerHTML = '<option value="">No tests available</option>';
+            updateLinks('');
+            statusEl.textContent = 'Tests are unavailable right now.';
+        }
+    };
+
+    selectEl.addEventListener('change', () => {
+        const testId = selectEl.value;
+        updateLinks(testId);
+        syncUrl(testId);
+        statusEl.textContent = testId ? 'Test selected.' : 'Choose a test to continue.';
+    });
+
+    loadTests();
+});
+</script>
 {% endblock %}

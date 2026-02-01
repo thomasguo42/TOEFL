@@ -1,0 +1,524 @@
+{
+  "responses": [
+    {
+      "prompt": "Does the building have a parking garage?",
+      "options": [
+        "No, I haven't received it yet.",
+        "Yes, it’s just around the corner.",
+        "Let's walk to the park.",
+        "Several times a month."
+      ],
+      "answer": "Yes, it’s just around the corner.",
+      "rationales": {},
+      "audio_url": "/static/listening_audio/new_toefl_response_3bd7a318316e.mp3"
+    },
+    {
+      "prompt": "Didn't you book a trip to Australia?",
+      "options": [
+        "No, the airport is on the right.",
+        "Yes, I loved that book!",
+        "I'd be happy to sell tickets for the fundraiser.",
+        "I'm going to New Zealand instead."
+      ],
+      "answer": "I'm going to New Zealand instead.",
+      "rationales": {},
+      "audio_url": "/static/listening_audio/new_toefl_response_98b59712711e.mp3"
+    },
+    {
+      "prompt": "Who's conducting the safety training?",
+      "options": [
+        "Elizabeth would be the person to ask.",
+        "We'll be gathering in the main conference room.",
+        "Did Robert place the food order?",
+        "The train station closes at midnight."
+      ],
+      "answer": "Elizabeth would be the person to ask.",
+      "rationales": {},
+      "audio_url": "/static/listening_audio/new_toefl_response_0f994ff67b27.mp3"
+    },
+    {
+      "prompt": "Can I purchase this shirt in a different size?",
+      "options": [
+        "Are you looking for the same color?",
+        "Yes, we stock a variety of styles of pants.",
+        "All of our stores are open on Sundays.",
+        "The store will be remodeled this summer."
+      ],
+      "answer": "Are you looking for the same color?",
+      "rationales": {},
+      "audio_url": "/static/listening_audio/new_toefl_response_087a2130f52b.mp3"
+    },
+    {
+      "prompt": "Why did Sharon relocate to Belfast?",
+      "options": [
+        "The suitcases can be stored overhead.",
+        "Because I have a doctor's appointment.",
+        "I know you have some vacation time coming up.",
+        "She was offered a new role."
+      ],
+      "answer": "She was offered a new role.",
+      "rationales": {},
+      "audio_url": "/static/listening_audio/new_toefl_response_0173ad169a60.mp3"
+    },
+    {
+      "prompt": "How much do these watches cost?",
+      "options": [
+        "Did you watch the game yesterday?",
+        "They start at a hundred dollars.",
+        "These models feature a new display.",
+        "The admission fee has gone up by twenty dollars."
+      ],
+      "answer": "They start at a hundred dollars.",
+      "rationales": {},
+      "audio_url": "/static/listening_audio/new_toefl_response_b4ed97465127.mp3"
+    },
+    {
+      "prompt": "Where can I buy a charger for my phone?",
+      "options": [
+        "Battery recycling is available on Saturdays.",
+        "The cost of those phones just went up.",
+        "There's a shopping center a few minutes from here.",
+        "The cashier charged me too much. 16"
+      ],
+      "answer": "There's a shopping center a few minutes from here.",
+      "rationales": {},
+      "audio_url": "/static/listening_audio/new_toefl_response_a3189d5ae953.mp3"
+    },
+    {
+      "prompt": "What streaming services do you like to watch shows on?",
+      "options": [
+        "I don't have a cleaning service.",
+        "I'm too busy to watch anything right now.",
+        "The stream runs behind the house.",
+        "The magazine subscription is expensive."
+      ],
+      "answer": "I'm too busy to watch anything right now.",
+      "rationales": {},
+      "audio_url": "/static/listening_audio/new_toefl_response_116d1db59c59.mp3"
+    },
+    {
+      "prompt": "Don't you have class right now?",
+      "options": [
+        "My professor is out this week.",
+        "The syllabus was just posted.",
+        "Yes, it's in my backpack.",
+        "I don't think I received one."
+      ],
+      "answer": "My professor is out this week.",
+      "rationales": {},
+      "audio_url": "/static/listening_audio/new_toefl_response_2d31553f4fce.mp3"
+    },
+    {
+      "prompt": "Have you met our new neighbor?",
+      "options": [
+        "It's a quiet neighborhood.",
+        "I haven’t yet.",
+        "Yes, I'll drop it off tomorrow.",
+        "Not usually at this time of day."
+      ],
+      "answer": "I haven’t yet.",
+      "rationales": {},
+      "audio_url": "/static/listening_audio/new_toefl_response_5c6011da71ce.mp3"
+    },
+    {
+      "prompt": "Why does my computer keep shutting down?",
+      "options": [
+        "Sure, you can borrow my charging cord.",
+        "The door should remain shut and locked.",
+        "Because the schedule was changed at the last minute.",
+        "Sounds like it needs to be repaired."
+      ],
+      "answer": "Sounds like it needs to be repaired.",
+      "rationales": {},
+      "audio_url": "/static/listening_audio/new_toefl_response_0c5e93019cf1.mp3"
+    },
+    {
+      "prompt": "Why didn't Andy come to the business dinner?",
+      "options": [
+        "I just met his assistant.",
+        "The cafeteria closes at 2 o'clock.",
+        "He’s working late tonight.",
+        "Because I lost mine."
+      ],
+      "answer": "He’s working late tonight.",
+      "rationales": {},
+      "audio_url": "/static/listening_audio/new_toefl_response_d0070f0e9309.mp3"
+    },
+    {
+      "prompt": "Should we repaint the classrooms in that building?",
+      "options": [
+        "They usually study together.",
+        "The library is past the cafeteria.",
+        "I think it’s time to do it.",
+        "Some new classroom equipment."
+      ],
+      "answer": "I think it’s time to do it.",
+      "rationales": {},
+      "audio_url": "/static/listening_audio/new_toefl_response_2bc228739af0.mp3"
+    },
+    {
+      "prompt": "Would you mind making copies of the syllabus for me?",
+      "options": [
+        "I'll put them on your desk.",
+        "Yes, I'll pass along the message.",
+        "I like that new coffee maker.",
+        "No, the other textbook."
+      ],
+      "answer": "I'll put them on your desk.",
+      "rationales": {},
+      "audio_url": "/static/listening_audio/new_toefl_response_f026c029bce6.mp3"
+    },
+    {
+      "prompt": "You managed to get to the concert, didn't you?",
+      "options": [
+        "I was able to make it to the trade show.",
+        "I do not play any instruments.",
+        "My manager agreed to the new schedule.",
+        "It was a very long drive. 21"
+      ],
+      "answer": "It was a very long drive. 21",
+      "rationales": {},
+      "audio_url": "/static/listening_audio/new_toefl_response_161434f018ad.mp3"
+    },
+    {
+      "prompt": "Does the restaurant use organic vegetables?",
+      "options": [
+        "The menu features two fish entrées.",
+        "It depends on the season.",
+        "The cost of broccoli has increased.",
+        "Yes, the natural lighting is lovely."
+      ],
+      "answer": "It depends on the season.",
+      "rationales": {},
+      "audio_url": "/static/listening_audio/new_toefl_response_652ccc01ec41.mp3"
+    }
+  ],
+  "conversation": [
+    {
+      "id": "conv_1_0",
+      "segments": [
+        {
+          "speaker": "Woman",
+          "text": "Have you decided which gym to join?"
+        },
+        {
+          "speaker": "Man",
+          "text": "I'm torn between the Nano Fitness Gym near my house and the Downtown Trainers gym near my work."
+        },
+        {
+          "speaker": "Woman",
+          "text": "The second one might suit you. You'll enjoy working up some sweat right after sitting at your desk in front of the computer all day, five days a week."
+        },
+        {
+          "speaker": "Man",
+          "text": "True. And Downtown Trainers has the better instructors and nicer equipment, too. But weekends is actually when I do most of my working out, and it’d be easier to do it near home than drive downtown."
+        }
+      ],
+      "questions": [
+        {
+          "number": 9,
+          "question": "What kind of job does the man most likely have?",
+          "options": [
+            "Fitness instructor",
+            "Driver",
+            "Office worker",
+            "Equipment manufacturer"
+          ],
+          "answer": "Office worker",
+          "rationales": {}
+        },
+        {
+          "number": 10,
+          "question": "What does the man indicate about weekends?",
+          "options": [
+            "He sometimes needs to go to work on weekends.",
+            "He sometimes repairs equipment in his house on weekends.",
+            "He likes to exercise outdoors on weekends.",
+            "He exercises more on weekends than on other days. 17"
+          ],
+          "answer": "He exercises more on weekends than on other days. 17",
+          "rationales": {}
+        }
+      ],
+      "audio_url": "/static/listening_audio/new_toefl_conversation_ab36e8c9b1bf.mp3"
+    },
+    {
+      "id": "conv_1_1",
+      "segments": [
+        {
+          "speaker": "Man",
+          "text": "Did you manage to fix your computer?"
+        },
+        {
+          "speaker": "Woman",
+          "text": "No, it's still acting up. I think I need professional help."
+        },
+        {
+          "speaker": "Man",
+          "text": "I know a great repair shop downtown. They fixed mine really quickly last month."
+        },
+        {
+          "speaker": "Woman",
+          "text": "Could you send me their contact information?"
+        },
+        {
+          "speaker": "Man",
+          "text": "Sure, I'll email it to your ight after this meeting."
+        }
+      ],
+      "questions": [
+        {
+          "number": 11,
+          "question": "Why does the woman need professional help?",
+          "options": [
+            "Her computer is not working properly.",
+            "She needs to choose a new computer.",
+            "She needs new software on her computer.",
+            "She has lost access to her email."
+          ],
+          "answer": "Her computer is not working properly.",
+          "rationales": {}
+        },
+        {
+          "number": 12,
+          "question": "What will the man do after the meeting?",
+          "options": [
+            "Offer the woman some advice",
+            "Call a downtown shop",
+            "Get his computer fixed",
+            "Share some contact information"
+          ],
+          "answer": "Share some contact information",
+          "rationales": {}
+        }
+      ],
+      "audio_url": "/static/listening_audio/new_toefl_conversation_15588776e330.mp3"
+    },
+    {
+      "id": "conv_2_2",
+      "segments": [
+        {
+          "speaker": "Woman",
+          "text": "Did you finish setting up the new online store?"
+        },
+        {
+          "speaker": "Man",
+          "text": "Almost. There's just a few more product descriptions to write."
+        },
+        {
+          "speaker": "Woman",
+          "text": "Do you need any help with that? I know the stuff we sell pretty intimately."
+        },
+        {
+          "speaker": "Man",
+          "text": "Thank you! I'd love to collaborate with you on this. Would you like to meet in my office after lunch?"
+        },
+        {
+          "speaker": "Woman",
+          "text": "Later in the afternoon would be safer. I have a lunch-time meeting with our newest client today, and I don't know how long that's gonna last."
+        }
+      ],
+      "questions": [
+        {
+          "number": 9,
+          "question": "What does the woman offer to help with?",
+          "options": [
+            "Deciding which products to sell",
+            "Finding new clients",
+            "Producing goods",
+            "Describing items for sale"
+          ],
+          "answer": "Describing items for sale",
+          "rationales": {}
+        },
+        {
+          "number": 10,
+          "question": "Why does the woman mention a client?",
+          "options": [
+            "To emphasize the need for an online store",
+            "To propose a strategy for increasing sales",
+            "To illustrate the importance of collaboration",
+            "To explain why she prefers not to plan a meeting after lunch"
+          ],
+          "answer": "To explain why she prefers not to plan a meeting after lunch",
+          "rationales": {}
+        }
+      ],
+      "audio_url": "/static/listening_audio/new_toefl_conversation_82842859917f.mp3"
+    }
+  ],
+  "talk": [
+    {
+      "id": "talk_1_0",
+      "talk": "Hello everyone. We are excited to invite you to the annual science fair next Friday at 3 P.M. in the university gym. There will be exhibits from various departments showcasing innovative projects in the fields of biology, physics, and chemistry. In addition, there will be lectures on scientific topics aimed at a general audience. Don’t miss it!",
+      "questions": [
+        {
+          "number": 13,
+          "question": "Who is the intended audience of the lectures?",
+          "options": [
+            "Science students",
+            "University professors",
+            "Everyone at the science fair",
+            "A panel of judges"
+          ],
+          "answer": "Everyone at the science fair",
+          "rationales": {}
+        },
+        {
+          "number": 14,
+          "question": "What does the speaker hope the listeners will do?",
+          "options": [
+            "Attend an event",
+            "Submit a science project",
+            "Join the university gym",
+            "Volunteer for an event 18"
+          ],
+          "answer": "Attend an event",
+          "rationales": {}
+        }
+      ],
+      "audio_url": "/static/listening_audio/new_toefl_talk_5001d30efa64.mp3"
+    },
+    {
+      "id": "talk_1_1",
+      "talk": "The potlatch is a ceremonial event among Indigenous peoples of the Pacific Northwest coast of North America. A potlatch involves the host giving away their possessions, including food, blankets, and even money, to guests. This practice serves multiple social functions, like redistributing wealth, reinforcing social bonds, and asserting status. Potlatches are often held to mark significant occasions, like weddings and such, and they involve feasting, dancing, and storytelling. The lavishness of a potlatch can elevate the host’s status by demonstrating wealth and generosity. One fascinating aspect of the potlatch is its role in the social and economic structures of the communities that practice it. By redistributing wealth, potlatches ensure that resources circulate within the community, preventing the concentration of wealth in the hands of a few individuals. This practice strengthens community ties and fosters mutual support. For people who don't understand the function of potlatches, they may appear to be a waste of resources. Potlatches were even prohibited by the Canadian government in the late-nineteenth century because of this perceived wastefulness. The ban was lifted in the mid-twentieth century, and today, potlatches continue to be an important cultural practice. Let's now examine how Indigenous communities have revived this practice.",
+      "questions": [
+        {
+          "number": 15,
+          "question": "What aspect of the Indigenous peoples of the Northwest coast of North America is the talk mainly about?",
+          "options": [
+            "Their economic structures",
+            "A traditional event that they participate in",
+            "Their relationship with the Canadian government",
+            "The role of dancing and storytelling in their social functions"
+          ],
+          "answer": "A traditional event that they participate in",
+          "rationales": {}
+        },
+        {
+          "number": 16,
+          "question": "What can a host gain from a potlatch?",
+          "options": [
+            "Food",
+            "Money",
+            "Items like blankets",
+            "Social status"
+          ],
+          "answer": "Social status",
+          "rationales": {}
+        },
+        {
+          "number": 17,
+          "question": "What does the speaker imply about the Canadian government of the late-nineteenth century?",
+          "options": [
+            "It was not aware of the social function of potlatches.",
+            "It wanted Indigenous people to include other Canadians in potlatches.",
+            "Its policies contributed to economic growth.",
+            "It was extremely wasteful."
+          ],
+          "answer": "It was not aware of the social function of potlatches.",
+          "rationales": {}
+        },
+        {
+          "number": 18,
+          "question": "What aspect of potlatches will the speaker discuss next?",
+          "options": [
+            "The ways in which communities brought them back",
+            "The countries that ban them",
+            "Their effect on wealth distribution",
+            "Their possible future 19"
+          ],
+          "answer": "The ways in which communities brought them back",
+          "rationales": {}
+        }
+      ],
+      "audio_url": "/static/listening_audio/new_toefl_talk_7c9300ef5b69.mp3"
+    },
+    {
+      "id": "talk_2_2",
+      "talk": "Attention everyone. Several students have added this class in recent weeks, and as you can see, it is a bit crowded in here. So starting next week, our class will meet in Room 204 instead of Room 105. Room 204 is in the same building, but one floor up in the east wing. Please remember the change and arrive on time.",
+      "questions": [
+        {
+          "number": 11,
+          "question": "What is the reason for the change described in the announcement?",
+          "options": [
+            "Repairs to a classroom",
+            "Increased class enrollment",
+            "A change in meeting time",
+            "An additional assignment 22"
+          ],
+          "answer": "Increased class enrollment",
+          "rationales": {}
+        },
+        {
+          "number": 12,
+          "question": "Why does the speaker mention the east wing?",
+          "options": [
+            "To announce the location of an event",
+            "To notify students of upcoming repairs",
+            "To direct students to the professor’s office",
+            "To help students find a classroom"
+          ],
+          "answer": "To help students find a classroom",
+          "rationales": {}
+        }
+      ],
+      "audio_url": "/static/listening_audio/new_toefl_talk_35b923883db9.mp3"
+    },
+    {
+      "id": "talk_2_3",
+      "talk": "Today, we are going to talk about the concept of the gig economy. The gig economy is a labor market characterized by short-term contracts or freelance work, as opposed to permanent jobs. It has gained significant traction in recent years because of technological advancements and the rise of digital platforms like ride-sharing apps and freelance websites. In a gig economy, workers typically take on multiple short-term jobs or projects, and they often do so through online platforms that connect them directly with clients. This can offer greater flexibility compared to traditional employment, as workers can choose when and where they wanna work. Companies benefit from the gig economy by reducing overhead costs associated with full-time employees, like for office space. This allows them to vary their workforce according to demand, which can be particularly useful during peak seasons or for specific projects. On the other hand, gig workers may face difficulties in securing consistent work and may have to juggle multiple the implications of the gig economy on traditional labor markets.",
+      "questions": [
+        {
+          "number": 13,
+          "question": "What is the main topic of the talk?",
+          "options": [
+            "The advantages of traditional employment",
+            "The benefits of using apps instead of websites",
+            "A new type of work tied to advances in technology",
+            "A plan to restructure contract work"
+          ],
+          "answer": "A new type of work tied to advances in technology",
+          "rationales": {}
+        },
+        {
+          "number": 14,
+          "question": "Why does the speaker mention ride-sharing apps and freelance websites?",
+          "options": [
+            "To give examples of digital platforms in the gig economy",
+            "To explain a problem with overhead costs",
+            "To discuss how work conditions for gig workers have improved",
+            "To illustrate technologies used both by companies and by their customers"
+          ],
+          "answer": "To give examples of digital platforms in the gig economy",
+          "rationales": {}
+        },
+        {
+          "number": 15,
+          "question": "According to the speaker, what is a challenge for gig workers?",
+          "options": [
+            "High overhead costs",
+            "Limited flexibility",
+            "Lack of a stable income",
+            "Little office space"
+          ],
+          "answer": "Lack of a stable income",
+          "rationales": {}
+        },
+        {
+          "number": 16,
+          "question": "What will the speaker discuss next?",
+          "options": [
+            "The challenges of digital platforms for gig workers",
+            "The efforts of regulators to protect gig workers",
+            "The types of labor markets with many gig workers",
+            "The advantages of flexible working hours for gig workers 23"
+          ],
+          "answer": "The efforts of regulators to protect gig workers",
+          "rationales": {}
+        }
+      ],
+      "audio_url": "/static/listening_audio/new_toefl_talk_835d3d85a771.mp3"
+    }
+  ]
+}

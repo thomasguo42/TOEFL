@@ -1,0 +1,215 @@
+{% extends "base.html" %}
+
+{% block title %}New TOEFL Speaking Feedback{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/new_toefl_mock.css') }}">
+<style>
+    .nt-feedback-shell {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 32px 20px 64px;
+    }
+
+    .nt-score-card {
+        background: #0f766e;
+        color: #ffffff;
+        border-radius: 18px;
+        padding: 28px;
+        margin-bottom: 24px;
+    }
+
+    .nt-score-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 16px;
+    }
+
+    .nt-score-box {
+        background: #ffffff;
+        border: 1px solid #e2e6e6;
+        border-radius: 14px;
+        padding: 16px;
+    }
+
+    .nt-score-box h5 {
+        margin-bottom: 6px;
+        font-weight: 700;
+        color: #0f766e;
+    }
+
+    .nt-score-value {
+        font-size: 2.4rem;
+        font-weight: 700;
+        color: #0f766e;
+    }
+
+    .nt-section {
+        background: #ffffff;
+        border: 1px solid #e2e6e6;
+        border-radius: 18px;
+        padding: 20px;
+        margin-bottom: 20px;
+    }
+
+    .nt-tag {
+        display: inline-flex;
+        align-items: center;
+        padding: 4px 10px;
+        border-radius: 999px;
+        background: #e6f4f1;
+        color: #0f766e;
+        font-weight: 600;
+        font-size: 12px;
+    }
+
+    .nt-rubric {
+        white-space: pre-wrap;
+        background: #f8fafc;
+        border-radius: 12px;
+        padding: 14px;
+        border: 1px solid #e2e6e6;
+        max-height: 260px;
+        overflow: auto;
+        font-size: 0.9rem;
+        color: #334155;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="nt-feedback-shell">
+    <div class="d-flex justify-content-between flex-wrap gap-2 align-items-center mb-3">
+        <div>
+            <h2 class="mb-1">New TOEFL Speaking Assessment</h2>
+            <div class="text-muted">Task: {{ task.topic }} · {{ task.task_type.replace('_', ' ').title() }}</div>
+        </div>
+        <a href="{{ mock_back_url }}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-2"></i>Back to New TOEFL Mock
+        </a>
+    </div>
+
+    <div class="nt-score-card">
+        <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+            <div>
+                <div class="text-uppercase small">Overall Band (0-5)</div>
+                <div class="display-5 fw-bold">{{ repeat_band }}</div>
+            </div>
+            <div>
+                <div class="text-uppercase small">Overall (0-100)</div>
+                <div class="display-6 fw-bold">{{ feedback.overall_score|round|int }}</div>
+            </div>
+            <div class="nt-tag">{{ 'Listen & Repeat' if is_repeat else 'Interview' }}</div>
+        </div>
+    </div>
+
+    <div class="nt-score-grid mb-4">
+        <div class="nt-score-box">
+            <h5>Fluency</h5>
+            <div class="nt-score-value">{{ feedback.fluency_score|round|int if feedback.fluency_score is not none else '-' }}</div>
+            <div class="text-muted small">Pace, pauses, and smoothness.</div>
+        </div>
+        <div class="nt-score-box">
+            <h5>Pronunciation</h5>
+            <div class="nt-score-value">{{ feedback.pronunciation_score|round|int if feedback.pronunciation_score is not none else '-' }}</div>
+            <div class="text-muted small">Clarity and intelligibility.</div>
+        </div>
+        {% if not is_repeat %}
+        <div class="nt-score-box">
+            <h5>Content</h5>
+            <div class="nt-score-value">{{ feedback.topic_development_score|round|int if feedback.topic_development_score is not none else '-' }}</div>
+            <div class="text-muted small">Addressing the prompt with support.</div>
+        </div>
+        <div class="nt-score-box">
+            <h5>Grammar &amp; Word Choice</h5>
+            <div class="nt-score-value">{{ feedback.language_use_score|round|int if feedback.language_use_score is not none else '-' }}</div>
+            <div class="text-muted small">Accuracy and range.</div>
+        </div>
+        {% else %}
+        <div class="nt-score-box">
+            <h5>Repeat Accuracy</h5>
+            <div class="nt-score-value">{{ (feedback.speech_metrics.get('repeat_similarity') * 100)|round|int if feedback.speech_metrics and feedback.speech_metrics.get('repeat_similarity') is not none else '-' }}</div>
+            <div class="text-muted small">Similarity to the original sentence.</div>
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="nt-section">
+        <h4 class="mb-2">Your Recording</h4>
+        <audio class="w-100 mb-3" controls preload="none">
+            <source src="{{ response.audio_url }}" type="audio/webm">
+            Your browser does not support audio playback.
+        </audio>
+        {% set total_words = feedback.speech_metrics.get('total_words') if feedback.speech_metrics else None %}
+        <div class="text-muted small">Attempt {{ response.attempt_number }} • {{ total_words if total_words is not none else '-' }} words</div>
+        {% if response.transcription %}
+        <details class="mt-3">
+            <summary style="cursor: pointer; font-weight: 600;">
+                <i class="fas fa-file-text me-2"></i>View Your Transcript
+            </summary>
+            <div class="mt-3 p-3 bg-light rounded" style="white-space: pre-wrap;">
+                {{ response.transcription }}
+            </div>
+        </details>
+        {% endif %}
+    </div>
+
+    <div class="nt-section">
+        <h4 class="mb-2">Coach Summary</h4>
+        <div class="text-muted">{{ feedback.task_fulfillment or feedback.clarity_coherence or 'No summary available.' }}</div>
+        {% if feedback.strengths %}
+            <div class="mt-3">
+                <div class="fw-semibold mb-1">Strengths</div>
+                <ul>
+                    {% for item in feedback.strengths %}
+                    <li>{{ item }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        {% endif %}
+        {% if feedback.areas_for_improvement %}
+            <div class="mt-3">
+                <div class="fw-semibold mb-1">Improvements</div>
+                <ul>
+                    {% for item in feedback.areas_for_improvement %}
+                    <li>{{ item }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        {% endif %}
+    </div>
+
+    {% if not is_repeat and (feedback.grammar_errors or feedback.vocabulary_suggestions) %}
+    <div class="nt-section">
+        <h4 class="mb-2">Language Notes</h4>
+        {% if feedback.grammar_errors %}
+            <div class="fw-semibold">Grammar</div>
+            <ul>
+                {% for item in feedback.grammar_errors %}
+                <li>{{ item }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+        {% if feedback.vocabulary_suggestions %}
+            <div class="fw-semibold">Word Choice</div>
+            <ul>
+                {% for item in feedback.vocabulary_suggestions %}
+                <li>{{ item }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    <div class="nt-section">
+        <h4 class="mb-2">Official Rubric Reference</h4>
+        {% if is_repeat %}
+            <div class="text-muted small mb-2">From TOEFL iBT® Teacher Resources – Speaking Scoring Guide (Listen and Repeat).</div>
+            <div class="nt-rubric">{{ rubric_text.repeat }}</div>
+        {% else %}
+            <div class="text-muted small mb-2">From TOEFL iBT® Teacher Resources – Speaking Scoring Guide (Take an Interview).</div>
+            <div class="nt-rubric">{{ rubric_text.interview }}</div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

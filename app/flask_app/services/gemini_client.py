@@ -225,6 +225,167 @@ class GeminiClient:
             )
         return parsed
 
+    def generate_text(
+        self,
+        prompt: str,
+        temperature: float = 0.7,
+        system_instruction: Optional[str] = None,
+        max_output_tokens: Optional[int] = None,
+        model_override: Optional[str] = None,
+        disable_retries: bool = False,
+    ) -> Optional[str]:
+        """Send a prompt and return raw text output."""
+        if not self.is_configured:
+            current_app.logger.error("%s API not configured - API key missing", self.provider)
+            return None
+
+        if self.provider == "gemini":
+            return self._generate_text_gemini(
+                prompt=prompt,
+                temperature=temperature,
+                system_instruction=system_instruction,
+                max_output_tokens=max_output_tokens,
+                model_override=model_override,
+                disable_retries=disable_retries,
+            )
+
+        messages = []
+        if system_instruction:
+            messages.append({"role": "system", "content": system_instruction})
+        messages.append({"role": "user", "content": prompt})
+
+        def _request(with_model: Optional[str]) -> Dict[str, Any]:
+            attempt = 0
+            backoff = self.BACKOFF_INITIAL_SECONDS
+            max_attempts = 1 if disable_retries else self.MAX_RETRIES
+
+            while attempt < max_attempts:
+                payload = {
+                    "model": with_model or self.model,
+                    "messages": messages,
+                    "temperature": temperature,
+                }
+                if max_output_tokens is not None:
+                    payload["max_tokens"] = max_output_tokens
+
+                try:
+                    response = requests.post(
+                        self.api_root,
+                        headers={
+                            "Authorization": f"Bearer {self.api_key}",
+                            "Content-Type": "application/json",
+                        },
+                        json=payload,
+                        timeout=self.timeout,
+                    )
+                    response.raise_for_status()
+                    try:
+                        return response.json()
+                    except Exception as exc:
+                        current_app.logger.error("Failed to parse DeepSeek response as JSON: %s", exc)
+                        return {}
+                except requests.exceptions.HTTPError as exc:
+                    status_code = exc.response.status_code if exc.response is not None else None
+                    if status_code in self.RETRY_STATUS_CODES and attempt < max_attempts - 1:
+                        wait = min(backoff, self.BACKOFF_MAX_SECONDS)
+                        current_app.logger.warning(
+                            "DeepSeek HTTP %s for model %s. Retrying in %.1fs (attempt %s/%s).",
+                            status_code,
+                            with_model or self.model,
+                            wait,
+                            attempt + 1,
+                            max_attempts,
+                        )
+                        time.sleep(wait)
+                        attempt += 1
+                        backoff *= 2
+                        continue
+                    current_app.logger.error("DeepSeek HTTP error: %s - %s", status_code, exc)
+                    raise
+                except (requests.exceptions.Timeout, requests.exceptions.ConnectionError) as exc:
+                    if attempt < max_attempts - 1:
+                        wait = min(backoff, self.BACKOFF_MAX_SECONDS)
+                        current_app.logger.warning(
+                            "DeepSeek request timed out/connection error (%s). Retrying in %.1fs (attempt %s/%s).",
+                            exc,
+                            wait,
+                            attempt + 1,
+                            max_attempts,
+                        )
+                        time.sleep(wait)
+                        attempt += 1
+                        backoff *= 2
+                        continue
+                    current_app.logger.error(
+                        "DeepSeek request failed after retries due to timeout/connection issue: %s",
+                        exc,
+                    )
+                    raise
+                except Exception as exc:
+                    if attempt < max_attempts - 1:
+                        wait = min(backoff, self.BACKOFF_MAX_SECONDS)
+                        current_app.logger.warning(
+                            "DeepSeek request unexpected error (%s). Retrying in %.1fs (attempt %s/%s).",
+                            exc,
+                            wait,
+                            attempt + 1,
+                            max_attempts,
+                        )
+                        time.sleep(wait)
+                        attempt += 1
+                        backoff *= 2
+                        continue
+                    current_app.logger.error("DeepSeek request failed with unexpected error: %s", exc)
+                    raise
+
+            return {}
+
+        try:
+            data = _request(model_override)
+        except requests.exceptions.HTTPError as exc:
+            status_code = exc.response.status_code if exc.response is not None else None
+            primary_model = model_override or self.model
+            if status_code in {400, 404} and self.fallback_model and self.fallback_model != primary_model:
+                current_app.logger.warning(
+                    "DeepSeek model %s returned %s; retrying once with fallback model=%s",
+                    primary_model,
+                    status_code,
+                    self.fallback_model,
+                )
+                data = _request(self.fallback_model)
+            elif status_code in {401, 403, 429}:
+                current_app.logger.warning(
+                    "DeepSeek quota/permission error (%s) for model=%s; returning None.",
+                    status_code,
+                    primary_model,
+                )
+                return None
+            else:
+                raise
+
+        text, finish_reason = self._extract_text_and_finish_reason(data)
+        if not text and self.enable_fallback_on_empty:
+            primary_model = model_override or self.model
+            if self.fallback_model and self.fallback_model != primary_model:
+                current_app.logger.warning(
+                    "DeepSeek returned empty content (finish=%s); retrying with fallback model=%s",
+                    finish_reason,
+                    self.fallback_model,
+                )
+                data = _request(self.fallback_model)
+                text, finish_reason = self._extract_text_and_finish_reason(data)
+
+        text = (text or "").strip()
+        if not text:
+            current_app.logger.error(
+                "DeepSeek response contained empty text. Finish reason: %s, Full response: %s",
+                finish_reason,
+                str(data)[:500],
+            )
+            return None
+
+        return text
+
     def _generate_json_gemini(
         self,
         *,
@@ -311,6 +472,84 @@ class GeminiClient:
                 text[:500],
             )
         return parsed
+
+    def _generate_text_gemini(
+        self,
+        *,
+        prompt: str,
+        temperature: float,
+        system_instruction: Optional[str],
+        max_output_tokens: Optional[int],
+        model_override: Optional[str],
+        disable_retries: bool,
+    ) -> Optional[str]:
+        """Gemini SDK path using google.generativeai for plain text."""
+        try:
+            import google.generativeai as genai
+            from google.generativeai import types
+        except Exception as exc:
+            current_app.logger.error("Gemini SDK not available: %s", exc)
+            return None
+
+        genai.configure(api_key=self.api_key)
+
+        def _call(model_name: str) -> Optional[str]:
+            cfg = types.GenerationConfig(
+                temperature=temperature,
+                max_output_tokens=max_output_tokens,
+            )
+            model = genai.GenerativeModel(
+                model_name=model_name,
+                system_instruction=system_instruction,
+                generation_config=cfg,
+            )
+            resp = model.generate_content(prompt)
+            return getattr(resp, "text", None)
+
+        attempt = 0
+        backoff = self.BACKOFF_INITIAL_SECONDS
+        max_attempts = 1 if disable_retries else self.MAX_RETRIES
+        primary_model = model_override or self.model
+
+        last_text: Optional[str] = None
+        while attempt < max_attempts:
+            try:
+                last_text = _call(primary_model)
+                break
+            except Exception as exc:
+                if attempt < max_attempts - 1:
+                    wait = min(backoff, self.BACKOFF_MAX_SECONDS)
+                    current_app.logger.warning(
+                        "Gemini request failed (%s). Retrying in %.1fs (attempt %s/%s).",
+                        str(exc)[:140],
+                        wait,
+                        attempt + 1,
+                        max_attempts,
+                    )
+                    time.sleep(wait)
+                    attempt += 1
+                    backoff *= 2
+                    continue
+                current_app.logger.error("Gemini request failed: %s", exc)
+                return None
+
+        text = (last_text or "").strip()
+        if not text and self.enable_fallback_on_empty and self.fallback_model and self.fallback_model != primary_model:
+            current_app.logger.warning(
+                "Gemini returned empty content; retrying with fallback model=%s",
+                self.fallback_model,
+            )
+            try:
+                text = (_call(self.fallback_model) or "").strip()
+            except Exception as exc:
+                current_app.logger.error("Gemini fallback request failed: %s", exc)
+                return None
+
+        if not text:
+            current_app.logger.error("Gemini response contained empty text.")
+            return None
+
+        return text
 
     @staticmethod
     def _parse_json_response(text: str) -> Optional[Any]:

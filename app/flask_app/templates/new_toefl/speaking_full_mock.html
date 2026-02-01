@@ -3,46 +3,83 @@
 {% block title %}New TOEFL Speaking Mock{% endblock %}
 
 {% block extra_css %}
-<style>
-    .mock-panel {
-        background: #ffffff;
-        border: 1px solid var(--toefl-border);
-        border-radius: 1.25rem;
-        padding: 2rem;
-    }
-</style>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/new_toefl_mock.css') }}">
 {% endblock %}
 
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-lg-10 col-xl-8">
-        <div class="d-flex align-items-center justify-content-between flex-wrap gap-3 mb-4">
+<div class="kmf-shell">
+    <header class="kmf-topbar">
+        <div class="kmf-brand">
+            <div class="kmf-logo">学</div>
             <div>
-                <h1 class="mb-2"><i class="fas fa-microphone me-2"></i>Speaking Mock Exam</h1>
-                <p class="text-muted mb-0">Select a full-length practice test and record every response.</p>
-            </div>
-            <a href="{{ url_for('new_toefl_mock_hub') }}" class="btn btn-outline-secondary">
-                <i class="fas fa-arrow-left me-2"></i>Back to Mock Hub
-            </a>
-        </div>
-
-        <div class="mock-panel">
-            <h4 class="mb-3">Mock Format</h4>
-            <p class="text-muted">
-                Prompts are pulled directly from the full-length practice tests. Audio is generated for each prompt.
-            </p>
-
-            <div class="mt-4">
-                <label class="form-label fw-semibold">Select Practice Test</label>
-                <select class="form-select mb-3" id="speakingTest"></select>
-                <button class="btn btn-warning" id="loadSpeaking">
-                    <i class="fas fa-play me-2"></i>Load Speaking Mock
-                </button>
-                <span class="text-muted ms-2" id="speakingStatus">Select a test to begin.</span>
+                <div class="kmf-brand-title">学而思国际 <span class="kmf-brand-tag">托福</span></div>
+                <div class="kmf-brand-sub">高分有方法 | 提能有保障</div>
             </div>
         </div>
+        <div class="kmf-toolbar">
+            <button class="kmf-pill" type="button"><i class="fas fa-volume-up"></i>Volume</button>
+            <button class="kmf-pill" type="button"><i class="fas fa-circle-question"></i>Help</button>
+            <button class="kmf-pill kmf-pill--light" type="button" id="kmfBackBtn"><i class="fas fa-chevron-left"></i>Back</button>
+            <button class="kmf-pill" type="button" id="kmfAnswerBtn"><i class="fas fa-eye"></i>View Answer</button>
+            <button class="kmf-pill kmf-pill--light" type="button" id="kmfNextBtn">Next <i class="fas fa-chevron-right"></i></button>
+        </div>
+    </header>
+    <div class="kmf-sectionbar">
+        <div class="kmf-section-left">
+            <span id="kmfSectionName">Speaking</span>
+            <span class="kmf-section-sep">|</span>
+            <span id="kmfQuestionMeta">Question 1 of 1</span>
+        </div>
+        <div class="kmf-section-right">
+            <span id="kmfTimer">00:00:00</span>
+            <button class="kmf-hide-time" type="button" id="kmfToggleTime"><i class="fas fa-eye-slash"></i>Hide Time</button>
+        </div>
+    </div>
+    <div class="kmf-canvas">
+        <div class="kmf-content">
+            <div class="kmf-card kmf-admin-card">
+                <div class="fw-semibold mb-2">Speaking Mock Exam</div>
+                <p class="text-muted mb-3">Select a full-length practice test and record every response.</p>
+                <div class="kmf-admin-actions">
+                    <label class="form-label fw-semibold mb-0">Select Practice Test</label>
+                    <select class="form-select" id="speakingTest"></select>
+                    <label class="form-label fw-semibold mb-0">Saved Attempts</label>
+                    <div class="d-flex flex-wrap gap-2 align-items-center">
+                        <select class="form-select" id="speakingRecordSelect" style="min-width: 220px;">
+                            <option value="">No saved attempts</option>
+                        </select>
+                        <button class="btn btn-outline-secondary" id="loadSpeakingRecord" type="button">
+                            <i class="fas fa-folder-open me-2"></i>Load Saved
+                        </button>
+                    </div>
+                    <button class="btn btn-warning" id="loadSpeaking">
+                        <i class="fas fa-play me-2"></i>New Attempt
+                    </button>
+                    <span class="text-muted" id="speakingStatus">Select a test to begin.</span>
+                    <a href="{{ url_for('new_toefl_mock_hub') }}" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left me-2"></i>Back to Mock Hub
+                    </a>
+                </div>
+            </div>
 
-        <div class="mt-4" id="speakingContent"></div>
+            <div id="speakingContent"></div>
+        </div>
+    </div>
+</div>
+<button class="kmf-chat-toggle" id="kmfChatToggle" type="button">
+    <i class="fas fa-comments"></i>Chat
+</button>
+<div class="kmf-chat-panel hidden" id="kmfChatPanel" role="dialog" aria-label="Mock chat assistant">
+    <div class="kmf-chat-header">
+        <span>Mock Assistant</span>
+        <button class="btn btn-sm btn-light" id="kmfChatClose" type="button">Close</button>
+    </div>
+    <div class="kmf-chat-body" id="kmfChatBody">
+        <div class="kmf-chat-hint">Ask about the speaking tasks or strategies.</div>
+    </div>
+    <div class="kmf-chat-footer">
+        <input class="kmf-chat-input" id="kmfChatInput" placeholder="Type your question..." />
+        <button class="kmf-chat-send" id="kmfChatSend" type="button">Send</button>
     </div>
 </div>
 {% endblock %}
@@ -54,6 +91,25 @@ document.addEventListener('DOMContentLoaded', () => {
     const statusEl = document.getElementById('speakingStatus');
     const contentEl = document.getElementById('speakingContent');
     const testSelect = document.getElementById('speakingTest');
+    const timerEl = document.getElementById('kmfTimer');
+    const toggleTimeBtn = document.getElementById('kmfToggleTime');
+    const recordSelect = document.getElementById('speakingRecordSelect');
+    const loadRecordBtn = document.getElementById('loadSpeakingRecord');
+    const questionMetaEl = document.getElementById('kmfQuestionMeta');
+    const backBtn = document.getElementById('kmfBackBtn');
+    const nextBtn = document.getElementById('kmfNextBtn');
+    const answerBtn = document.getElementById('kmfAnswerBtn');
+    const taskUrlBase = '{{ url_for("new_toefl_speaking_task", task_id=0) }}';
+    let steps = [];
+    let currentStepIndex = 0;
+    let answerVisible = false;
+    let timeHidden = false;
+    const answersState = { completed_task_ids: [], responses: {} };
+    const queryTestId = new URLSearchParams(window.location.search).get('test_id') || '';
+    const exitUrl = '{{ url_for("new_toefl_mock_hub") }}';
+    let recordId = null;
+    let saveTimer = null;
+    let isLoadingRecord = false;
 
     const escapeHtml = (text) => (text || '')
         .replace(/&/g, '&amp;')
@@ -62,27 +118,166 @@ document.addEventListener('DOMContentLoaded', () => {
         .replace(/\"/g, '&quot;')
         .replace(/'/g, '&#39;');
 
-    const renderTasks = (tasks) => {
-        if (!tasks || !tasks.length) {
+    const renderAnswerPanel = () => '<div class="kmf-answer-panel hidden" id="kmfAnswerPanel">No model answer available for speaking tasks.</div>';
+
+    const buildTaskUrl = (taskId) => {
+        let url = taskUrlBase.replace('/0', `/${taskId}`);
+        if (recordId) {
+            const joiner = url.includes('?') ? '&' : '?';
+            url = `${url}${joiner}record_id=${encodeURIComponent(recordId)}`;
+        }
+        return url;
+    };
+
+    const selectTestById = (testId) => {
+        if (!testId) return;
+        const options = Array.from(testSelect.options);
+        const match = options.find((opt) => opt.value === testId);
+        if (match) {
+            testSelect.value = testId;
+        }
+    };
+
+    const renderStep = () => {
+        if (!steps.length) {
             contentEl.innerHTML = '<div class="alert alert-warning">No tasks generated.</div>';
             return;
         }
-        const baseUrl = '{{ url_for("new_toefl_speaking_task", task_id=0) }}';
-        const items = tasks.map((task) => {
-            const url = baseUrl.replace('/0', `/${task.id}`);
-            return `
-            <div class="card mb-3">
-                <div class="card-body d-flex justify-content-between align-items-center flex-wrap gap-3">
+        const task = steps[currentStepIndex];
+        const url = buildTaskUrl(task.id);
+        const stored = recordId && answersState.responses ? answersState.responses[String(task.id)] : null;
+        const recordedAt = stored?.created_at ? new Date(stored.created_at).toLocaleString() : '';
+        const feedbackLink = stored?.response_id ? `/new-toefl/speaking/feedback/${stored.response_id}` : '';
+        const statusHtml = stored
+            ? `
+                <div class="text-muted small mt-1">
+                    Recorded${recordedAt ? ` • ${recordedAt}` : ''} ·
+                    <a href="${feedbackLink}" class="link-primary">View feedback</a>
+                </div>
+                ${stored.audio_url ? `
+                <audio class="w-100 mt-2" controls preload="none">
+                    <source src="${stored.audio_url}" type="audio/webm">
+                    Your browser does not support audio playback.
+                </audio>
+                ` : ''}
+            `
+            : `<div class="text-muted small mt-1">Not recorded yet</div>`;
+        const startDisabled = !recordId;
+        const startLabel = startDisabled ? 'Saving attempt...' : 'Start Task';
+        contentEl.innerHTML = `
+            <div class="kmf-card kmf-section">
+                <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
                     <div>
                         <div class="fw-semibold">${escapeHtml(task.label || '')}</div>
                         <div class="text-muted small">Response time: ${task.response_time}s</div>
+                        ${statusHtml}
                     </div>
-                    <a class="btn btn-outline-primary" href="${url}">Start Task</a>
+                    <a class="btn btn-outline-primary ${startDisabled ? 'disabled' : ''}" data-task-id="${task.id}" href="${startDisabled ? '#' : url}" ${startDisabled ? 'aria-disabled="true"' : ''}>${startLabel}</a>
                 </div>
             </div>
-            `;
-        }).join('');
-        contentEl.innerHTML = items;
+            ${renderAnswerPanel()}
+        `;
+
+        answerVisible = false;
+        const panel = document.getElementById('kmfAnswerPanel');
+        if (panel) panel.classList.add('hidden');
+        const startLink = contentEl.querySelector('[data-task-id]');
+        if (startLink) {
+            startLink.addEventListener('click', async (event) => {
+                const taskId = Number(startLink.getAttribute('data-task-id'));
+                if (!Number.isFinite(taskId)) {
+                    event.preventDefault();
+                    return;
+                }
+                if (!recordId) {
+                    event.preventDefault();
+                    statusEl.textContent = 'Saving your attempt. Please wait...';
+                    const saved = await saveRecord('in_progress');
+                    if (!saved || !recordId) {
+                        statusEl.textContent = 'Unable to save your attempt. Please try again.';
+                        return;
+                    }
+                    const targetUrl = buildTaskUrl(taskId);
+                    if (!answersState.completed_task_ids.includes(taskId)) {
+                        answersState.completed_task_ids.push(taskId);
+                        scheduleSave();
+                    }
+                    window.location.href = targetUrl;
+                    return;
+                }
+                if (!answersState.completed_task_ids.includes(taskId)) {
+                    answersState.completed_task_ids.push(taskId);
+                    scheduleSave();
+                }
+            });
+        }
+        const isFirst = currentStepIndex === 0;
+        const isLast = currentStepIndex === steps.length - 1;
+        if (backBtn) backBtn.disabled = isFirst;
+        if (nextBtn) nextBtn.disabled = isLast;
+        if (questionMetaEl) {
+            const total = steps.length || 1;
+            questionMetaEl.textContent = `Question ${Math.min(currentStepIndex + 1, total)} of ${total}`;
+        }
+    };
+
+    const loadRecords = async () => {
+        if (!recordSelect) return;
+        const testId = testSelect.value;
+        try {
+            const res = await fetch(`/new-toefl/api/mock/records?section=speaking&test_id=${encodeURIComponent(testId)}`);
+            const data = await res.json();
+            const records = data.records || [];
+            if (!records.length) {
+                recordSelect.innerHTML = '<option value="">No saved attempts</option>';
+                return;
+            }
+            recordSelect.innerHTML = records.map((record) => {
+                const label = `${record.test_id} • ${record.status.replace('_', ' ')} • ${new Date(record.updated_at).toLocaleString()}`;
+                return `<option value="${record.id}">${escapeHtml(label)}</option>`;
+            }).join('');
+        } catch (err) {
+            recordSelect.innerHTML = '<option value="">No saved attempts</option>';
+        }
+    };
+
+    const saveRecord = async (status = 'in_progress') => {
+        if (!testSelect.value) return false;
+        const payload = {
+            section: 'speaking',
+            test_id: testSelect.value,
+            status,
+            answers: answersState,
+            meta: { current_step: currentStepIndex, tasks: steps },
+        };
+        if (recordId) payload.record_id = recordId;
+        try {
+            const res = await fetch('/new-toefl/api/mock/records/save', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload),
+            });
+            const data = await res.json();
+            if (data.success && data.record_id) {
+                const wasMissing = !recordId;
+                recordId = data.record_id;
+                loadRecords();
+                if (wasMissing && steps.length) {
+                    renderStep();
+                }
+                return true;
+            }
+            return false;
+        } catch (err) {
+            // Silent save failure.
+            return false;
+        }
+    };
+
+    const scheduleSave = (status = 'in_progress') => {
+        if (isLoadingRecord) return;
+        if (saveTimer) clearTimeout(saveTimer);
+        saveTimer = setTimeout(() => saveRecord(status), 600);
     };
 
     const loadTests = async () => {
@@ -91,17 +286,31 @@ document.addEventListener('DOMContentLoaded', () => {
             const data = await res.json();
             const options = (data.sets || []).map((test) => `<option value="${test.id}">${escapeHtml(test.title || test.id)}</option>`).join('');
             testSelect.innerHTML = options || '<option value="">No tests available</option>';
+            selectTestById(queryTestId);
         } catch (err) {
             testSelect.innerHTML = '<option value="">No tests available</option>';
+        } finally {
+            loadRecords();
         }
     };
 
-    loadBtn.addEventListener('click', async () => {
-        const testId = testSelect.value;
+    const loadSpeakingMock = async (testId, { skipSave = false, presetTasks = null, createRecord = false } = {}) => {
         if (!testId) return;
         statusEl.textContent = 'Generating speaking mock...';
         loadBtn.disabled = true;
         contentEl.innerHTML = '';
+
+        if (presetTasks && presetTasks.length) {
+            steps = presetTasks;
+            currentStepIndex = 0;
+            if (!skipSave && createRecord) {
+                await saveRecord('in_progress');
+            }
+            renderStep();
+            statusEl.textContent = 'Mock loaded. Open each task to record.';
+            loadBtn.disabled = false;
+            return;
+        }
 
         try {
             const res = await fetch(`/new-toefl/api/mock/speaking/generate/${testId}`, { method: 'POST' });
@@ -111,16 +320,243 @@ document.addEventListener('DOMContentLoaded', () => {
                 loadBtn.disabled = false;
                 return;
             }
-            renderTasks(data.tasks || []);
+            steps = data.tasks || [];
+            currentStepIndex = 0;
+            if (!skipSave && createRecord) {
+                await saveRecord('in_progress');
+            }
+            renderStep();
             statusEl.textContent = 'Mock generated. Open each task to record.';
         } catch (err) {
             statusEl.textContent = 'Generation failed. Please try again.';
         } finally {
             loadBtn.disabled = false;
         }
+    };
+
+    loadBtn.addEventListener('click', async () => {
+        const testId = testSelect.value;
+        if (!testId) return;
+        recordId = null;
+        answersState.completed_task_ids = [];
+        answersState.responses = {};
+        currentStepIndex = 0;
+        await loadSpeakingMock(testId, { createRecord: true });
     });
 
+    if (backBtn) {
+        backBtn.addEventListener('click', () => {
+            if (!steps.length) {
+                window.location.href = exitUrl;
+                return;
+            }
+            if (currentStepIndex > 0) {
+                currentStepIndex -= 1;
+                renderStep();
+                scheduleSave();
+            }
+        });
+    }
+
+    if (nextBtn) {
+        nextBtn.addEventListener('click', () => {
+            if (currentStepIndex < steps.length - 1) {
+                currentStepIndex += 1;
+                renderStep();
+                scheduleSave();
+            }
+        });
+    }
+
+    if (toggleTimeBtn && timerEl) {
+        toggleTimeBtn.addEventListener('click', () => {
+            timeHidden = !timeHidden;
+            timerEl.style.visibility = timeHidden ? 'hidden' : 'visible';
+            toggleTimeBtn.innerHTML = timeHidden
+                ? '<i class="fas fa-eye"></i>Show Time'
+                : '<i class="fas fa-eye-slash"></i>Hide Time';
+        });
+    }
+
+    if (answerBtn) {
+        answerBtn.addEventListener('click', () => {
+            const panel = document.getElementById('kmfAnswerPanel');
+            if (!panel) return;
+            answerVisible = !answerVisible;
+            panel.classList.toggle('hidden', !answerVisible);
+            answerBtn.innerHTML = answerVisible
+                ? '<i class="fas fa-eye-slash"></i>Hide Answer'
+                : '<i class="fas fa-eye"></i>View Answer';
+        });
+    }
+
+    if (loadRecordBtn) {
+        loadRecordBtn.addEventListener('click', async () => {
+            const selected = recordSelect?.value;
+            if (!selected) return;
+            isLoadingRecord = true;
+            try {
+                const res = await fetch(`/new-toefl/api/mock/records/${selected}`);
+                const data = await res.json();
+                if (!data.success) {
+                    statusEl.textContent = 'Failed to load record.';
+                    return;
+                }
+                const record = data.record || {};
+                recordId = record.id || null;
+                if (record.test_id && record.test_id !== testSelect.value) {
+                    testSelect.value = record.test_id;
+                }
+                answersState.completed_task_ids = record.answers?.completed_task_ids || [];
+                answersState.responses = record.answers?.responses || {};
+                if (record.answers?.responses) {
+                    const responseItems = Object.values(record.answers.responses);
+                    answersState.completed_task_ids = responseItems.map((item) => Number(item?.task_id)).filter((val) => Number.isFinite(val));
+                }
+                currentStepIndex = record.meta?.current_step || 0;
+                const presetTasks = record.meta?.tasks || [];
+                if (presetTasks.length) {
+                    steps = presetTasks;
+                    renderStep();
+                    statusEl.textContent = 'Loaded saved attempt.';
+                } else if (record.answers?.responses && Object.keys(record.answers.responses).length) {
+                    const taskIds = Object.values(record.answers.responses)
+                        .map((item) => Number(item?.task_id))
+                        .filter((val) => Number.isFinite(val));
+                    if (taskIds.length) {
+                        const taskRes = await fetch(`/new-toefl/api/speaking/tasks?ids=${encodeURIComponent(taskIds.join(','))}`);
+                        const taskData = await taskRes.json();
+                        if (taskData.success && Array.isArray(taskData.tasks) && taskData.tasks.length) {
+                            steps = taskData.tasks;
+                            currentStepIndex = 0;
+                            renderStep();
+                            statusEl.textContent = 'Loaded saved recordings.';
+                        } else {
+                            await loadSpeakingMock(testSelect.value, { skipSave: true });
+                            statusEl.textContent = 'Loaded saved attempt.';
+                        }
+                    } else {
+                        await loadSpeakingMock(testSelect.value, { skipSave: true });
+                        statusEl.textContent = 'Loaded saved attempt.';
+                    }
+                } else {
+                    await loadSpeakingMock(testSelect.value, { skipSave: true });
+                    statusEl.textContent = 'Loaded saved attempt.';
+                }
+                if (currentStepIndex > 0 && currentStepIndex < steps.length) {
+                    renderStep();
+                }
+            } catch (err) {
+                statusEl.textContent = 'Failed to load record.';
+            } finally {
+                isLoadingRecord = false;
+            }
+        });
+    }
+
+    if (testSelect) {
+        testSelect.addEventListener('change', () => {
+            recordId = null;
+            answersState.completed_task_ids = [];
+            answersState.responses = {};
+            steps = [];
+            currentStepIndex = 0;
+            contentEl.innerHTML = '';
+            loadRecords();
+        });
+    }
+
     loadTests();
+
+    const chatToggle = document.getElementById('kmfChatToggle');
+    const chatPanel = document.getElementById('kmfChatPanel');
+    const chatClose = document.getElementById('kmfChatClose');
+    const chatBody = document.getElementById('kmfChatBody');
+    const chatInput = document.getElementById('kmfChatInput');
+    const chatSend = document.getElementById('kmfChatSend');
+    const chatState = { history: [] };
+
+    const appendChatMessage = (role, text) => {
+        if (!chatBody) return;
+        const wrapper = document.createElement('div');
+        wrapper.className = `kmf-chat-message ${role}`;
+        const bubble = document.createElement('div');
+        bubble.className = 'kmf-chat-bubble';
+        bubble.textContent = text;
+        wrapper.appendChild(bubble);
+        chatBody.appendChild(wrapper);
+        chatBody.scrollTop = chatBody.scrollHeight;
+    };
+
+    const buildChatContext = () => {
+        const task = steps[currentStepIndex];
+        return {
+            section: 'speaking',
+            test_id: testSelect.value,
+            step_index: currentStepIndex,
+            total_steps: steps.length,
+            current: task
+                ? { label: task.label || '', response_time: task.response_time, task_id: task.id }
+                : null,
+            answers: answersState,
+        };
+    };
+
+    const sendChatMessage = async () => {
+        const text = (chatInput?.value || '').trim();
+        if (!text) return;
+        appendChatMessage('user', text);
+        chatState.history.push({ role: 'user', content: text });
+        chatInput.value = '';
+        appendChatMessage('assistant', 'Thinking...');
+        const placeholder = chatBody?.lastElementChild;
+
+        try {
+            const res = await fetch('/new-toefl/api/mock/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    message: text,
+                    context: buildChatContext(),
+                    history: chatState.history.slice(-8),
+                }),
+            });
+            const data = await res.json();
+            const reply = data.reply || data.message || 'Unable to respond right now.';
+            if (placeholder) {
+                placeholder.querySelector('.kmf-chat-bubble').textContent = reply;
+            } else {
+                appendChatMessage('assistant', reply);
+            }
+            chatState.history.push({ role: 'assistant', content: reply });
+        } catch (err) {
+            if (placeholder) {
+                placeholder.querySelector('.kmf-chat-bubble').textContent = 'Chat service unavailable.';
+            }
+        }
+    };
+
+    if (chatToggle && chatPanel) {
+        chatToggle.addEventListener('click', () => {
+            chatPanel.classList.toggle('hidden');
+        });
+    }
+    if (chatClose && chatPanel) {
+        chatClose.addEventListener('click', () => {
+            chatPanel.classList.add('hidden');
+        });
+    }
+    if (chatSend) {
+        chatSend.addEventListener('click', sendChatMessage);
+    }
+    if (chatInput) {
+        chatInput.addEventListener('keydown', (evt) => {
+            if (evt.key === 'Enter') {
+                evt.preventDefault();
+                sendChatMessage();
+            }
+        });
+    }
 });
 </script>
 {% endblock %}

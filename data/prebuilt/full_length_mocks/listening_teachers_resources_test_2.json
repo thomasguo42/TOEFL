@@ -1,0 +1,532 @@
+{
+  "responses": [
+    {
+      "prompt": "Who's attending the trade show in Dubai?",
+      "options": [
+        "I'm going to the concert with friends.",
+        "Sheila and I traded work shifts yesterday.",
+        "Only the managers are going.",
+        "The location is the same as last year."
+      ],
+      "answer": "Only the managers are going.",
+      "rationales": {},
+      "audio_url": "/static/listening_audio/new_toefl_response_e61f44e99f48.mp3"
+    },
+    {
+      "prompt": "Don't we need to finish the sales report tomorrow?",
+      "options": [
+        "I took vacation time last week.",
+        "Which supervisor does Jack report to?",
+        "Yes, the annual sale begins tomorrow.",
+        "The deadline isn’t until next week."
+      ],
+      "answer": "The deadline isn’t until next week.",
+      "rationales": {},
+      "audio_url": "/static/listening_audio/new_toefl_response_0aa72909c757.mp3"
+    },
+    {
+      "prompt": "When will the house be put up for sale?",
+      "options": [
+        "Tomorrow morning.",
+        "Every Tuesday.",
+        "It arrived yesterday at 5 o'clock.",
+        "She put it up on the shelf."
+      ],
+      "answer": "Tomorrow morning.",
+      "rationales": {},
+      "audio_url": "/static/listening_audio/new_toefl_response_bf5ef695a42a.mp3"
+    },
+    {
+      "prompt": "The online store offers multiple delivery options, doesn't it?",
+      "options": [
+        "I've shopped there many times.",
+        "There is only one free option.",
+        "Warehouse space is limited.",
+        "Inventory is taken every Friday."
+      ],
+      "answer": "There is only one free option.",
+      "rationales": {},
+      "audio_url": "/static/listening_audio/new_toefl_response_c60b3bcbb2a4.mp3"
+    },
+    {
+      "prompt": "When is the budget meeting?",
+      "options": [
+        "He will meet her today.",
+        "We've exceeded the budget.",
+        "In about an hour.",
+        "On the fourth floor."
+      ],
+      "answer": "In about an hour.",
+      "rationales": {},
+      "audio_url": "/static/listening_audio/new_toefl_response_6c98d90823cf.mp3"
+    },
+    {
+      "prompt": "How long before the furniture arrives?",
+      "options": [
+        "The couch is so comfortable.",
+        "The movers were delayed.",
+        "The desk is 1.5 meters long.",
+        "We're remodeling the kitchen."
+      ],
+      "answer": "The movers were delayed.",
+      "rationales": {},
+      "audio_url": "/static/listening_audio/new_toefl_response_306e11a1c33f.mp3"
+    },
+    {
+      "prompt": "Where can I go for a quick lunch?",
+      "options": [
+        "We had eggs for breakfast.",
+        "Not more than twenty minutes",
+        "I love to cook too.",
+        "Anne's on Fourth Street is good. 17"
+      ],
+      "answer": "Anne's on Fourth Street is good. 17",
+      "rationales": {},
+      "audio_url": "/static/listening_audio/new_toefl_response_4737af36bfeb.mp3"
+    },
+    {
+      "prompt": "Where is the fashion show next week?",
+      "options": [
+        "No, the week after!",
+        "Formal wear is expected.",
+        "At the new convention center downtown.",
+        "That play has gotten good reviews."
+      ],
+      "answer": "At the new convention center downtown.",
+      "rationales": {},
+      "audio_url": "/static/listening_audio/new_toefl_response_d5815c9ead9d.mp3"
+    },
+    {
+      "prompt": "Who should present at the research seminar?",
+      "options": [
+        "Other research.",
+        "Dr. Wang can.",
+        "At Jenna's house.",
+        "On Thursday."
+      ],
+      "answer": "Dr. Wang can.",
+      "rationales": {},
+      "audio_url": "/static/listening_audio/new_toefl_response_beed2b901380.mp3"
+    },
+    {
+      "prompt": "Where's the nearest movie theater?",
+      "options": [
+        "An afternoon showing.",
+        "Five large screens.",
+        "I'm not available.",
+        "I'm not familiar with this area."
+      ],
+      "answer": "I'm not familiar with this area.",
+      "rationales": {},
+      "audio_url": "/static/listening_audio/new_toefl_response_d05b72d1b793.mp3"
+    },
+    {
+      "prompt": "Tom told me he likes playing chess.",
+      "options": [
+        "I’ve never seen him play before.",
+        "I just took my turn.",
+        "Some pieces are missing.",
+        "That's tomorrow."
+      ],
+      "answer": "I’ve never seen him play before.",
+      "rationales": {},
+      "audio_url": "/static/listening_audio/new_toefl_response_a0ca21de4175.mp3"
+    },
+    {
+      "prompt": "Would you like to join us for a coffee break?",
+      "options": [
+        "Two sugars, please.",
+        "On the left.",
+        "Sure, that’s great.",
+        "I lost mine."
+      ],
+      "answer": "Sure, that’s great.",
+      "rationales": {},
+      "audio_url": "/static/listening_audio/new_toefl_response_c2e88eabfd39.mp3"
+    },
+    {
+      "prompt": "Would your ather watch TV or read a book?",
+      "options": [
+        "I lost my bookmark.",
+        "At 3 o'clock.",
+        "I prefer watching shows.",
+        "Over on the bookshelf."
+      ],
+      "answer": "I prefer watching shows.",
+      "rationales": {},
+      "audio_url": "/static/listening_audio/new_toefl_response_62ed1a94a487.mp3"
+    },
+    {
+      "prompt": "Where can I find more printer paper?",
+      "options": [
+        "There's some in the cabinet.",
+        "The technician called.",
+        "First thing in the morning.",
+        "I finished reading the paper."
+      ],
+      "answer": "There's some in the cabinet.",
+      "rationales": {},
+      "audio_url": "/static/listening_audio/new_toefl_response_c2879935dca9.mp3"
+    },
+    {
+      "prompt": "Can I call you if I have questions about tomorrow's delivery?",
+      "options": [
+        "Yesterday morning.",
+        "I forget what it's called.",
+        "In the copy room.",
+        "It's better if you text. 22"
+      ],
+      "answer": "It's better if you text. 22",
+      "rationales": {},
+      "audio_url": "/static/listening_audio/new_toefl_response_8c5026d81b6c.mp3"
+    },
+    {
+      "prompt": "I can't figure out how to fix my bicycle.",
+      "options": [
+        "A broken chain.",
+        "Every day.",
+        "Ask Kenny.",
+        "The new trail."
+      ],
+      "answer": "Ask Kenny.",
+      "rationales": {},
+      "audio_url": "/static/listening_audio/new_toefl_response_62cf3c2fdaaf.mp3"
+    }
+  ],
+  "conversation": [
+    {
+      "id": "conv_1_0",
+      "segments": [
+        {
+          "speaker": "Man",
+          "text": "Going to the farmers market on Saturday?"
+        },
+        {
+          "speaker": "Woman",
+          "text": "Yes, I need to pick up some fresh vegetables."
+        },
+        {
+          "speaker": "Man",
+          "text": "Me too. I love the produce there. I wish it were closer to downtown though."
+        },
+        {
+          "speaker": "Woman",
+          "text": "Yeah, changing two bus lines is a bit much."
+        },
+        {
+          "speaker": "Man",
+          "text": "Maybe let's try to recruit Michael and Sarah to come with us. Taking a rideshare wouldn't be so expensive if we split the fare among the four of us."
+        },
+        {
+          "speaker": "Woman",
+          "text": "That's a thought. Though I'm pretty sure the two of them are going to a wedding this Saturday."
+        }
+      ],
+      "questions": [
+        {
+          "number": 9,
+          "question": "What do the speakers dislike about the farmers market?",
+          "options": [
+            "Its location is inconvenient.",
+            "Its supply of vegetables is limited.",
+            "It is often closed on Saturdays.",
+            "It can be expensive."
+          ],
+          "answer": "Its location is inconvenient.",
+          "rationales": {}
+        },
+        {
+          "number": 10,
+          "question": "Why does the woman mention a wedding?",
+          "options": [
+            "To make a point about rideshare prices",
+            "To explain why she needs to buy vegetables",
+            "To invite the man to an event",
+            "To identify a problem with the man's plan 18"
+          ],
+          "answer": "To identify a problem with the man's plan 18",
+          "rationales": {}
+        }
+      ],
+      "audio_url": "/static/listening_audio/new_toefl_conversation_f7a87bc03e6f.mp3"
+    },
+    {
+      "id": "conv_1_1",
+      "segments": [
+        {
+          "speaker": "Man",
+          "text": "Are you going to the book club meeting tonight?"
+        },
+        {
+          "speaker": "Woman",
+          "text": "I haven't finished the book yet."
+        },
+        {
+          "speaker": "Man",
+          "text": "That's OK! And yeah, Jake Homgren's novels can be a slog sometimes. But the philosophical insights in them are fascinating."
+        },
+        {
+          "speaker": "Woman",
+          "text": "Maybe if I hear other club members’ perspectives, it'll help me follow the book better and make the reading go faster."
+        },
+        {
+          "speaker": "Man",
+          "text": "This was exactly my experience when we discussed Chen Wang's poems last week."
+        }
+      ],
+      "questions": [
+        {
+          "number": 11,
+          "question": "What do the speakers imply about the book that will be discussed tonight?",
+          "options": [
+            "It provides diverse perspectives.",
+            "It is less philosophical than its author's other books.",
+            "It is very popular among book club members.",
+            "It is difficult to understand."
+          ],
+          "answer": "It is difficult to understand.",
+          "rationales": {}
+        },
+        {
+          "number": 12,
+          "question": "What does the man say about Chen Wang's poems?",
+          "options": [
+            "They are similar to novels in some ways.",
+            "They lack philosophical insights.",
+            "He could read them more quickly after a book club discussion.",
+            "A book of them took him a week to read."
+          ],
+          "answer": "He could read them more quickly after a book club discussion.",
+          "rationales": {}
+        }
+      ],
+      "audio_url": "/static/listening_audio/new_toefl_conversation_875579eb08c3.mp3"
+    },
+    {
+      "id": "conv_2_2",
+      "segments": [
+        {
+          "speaker": "Woman",
+          "text": "How are preparations for tomorrow’s meeting with the board coming along. Is your marketing presentation all set?"
+        },
+        {
+          "speaker": "Man",
+          "text": "Almost. I’ve finalized the slides, but I still need to print the handouts—and the printer’s acting up."
+        },
+        {
+          "speaker": "Woman",
+          "text": "Again? That’s the third time this week. Do you want me to check it out? The last couple of times I had an issue, I managed to get it working again."
+        },
+        {
+          "speaker": "Man",
+          "text": "That would be great. I’ve already tried fiddling with it, but no luck."
+        },
+        {
+          "speaker": "Woman",
+          "text": "I’ll head down to the copy room right now and see what I can do."
+        }
+      ],
+      "questions": [
+        {
+          "number": 9,
+          "question": "What problem are the speakers discussing?",
+          "options": [
+            "A computer file is not opening.",
+            "A piece of equipment is not working.",
+            "A presentation time has been changed.",
+            "Some slides are not displaying properly."
+          ],
+          "answer": "A piece of equipment is not working.",
+          "rationales": {}
+        },
+        {
+          "number": 10,
+          "question": "What does the woman offer to do?",
+          "options": [
+            "Attempt to repair a printer",
+            "Review the man's handouts",
+            "Help the man practice a presentation",
+            "Make copies of the man's presentation 23"
+          ],
+          "answer": "Attempt to repair a printer",
+          "rationales": {}
+        }
+      ],
+      "audio_url": "/static/listening_audio/new_toefl_conversation_5cf22baef8e1.mp3"
+    }
+  ],
+  "talk": [
+    {
+      "id": "talk_1_0",
+      "talk": "Good afternoon, everyone. Just a reminder that the annual Spring Festival will be held this Saturday to celebrate the coming warm weather and the end of the school year. It will take place on the main campus lawn from 1 to 4 P.M.. There will be food stands, games, and, from 3 to 4 P.M., live music from student bands. We hope you all can join us for a fun-filled day!",
+      "questions": [
+        {
+          "number": 13,
+          "question": "What is the purpose of the event?",
+          "options": [
+            "To support professional musicians",
+            "To raise funds",
+            "To increase awareness of an issue",
+            "To celebrate spring"
+          ],
+          "answer": "To celebrate spring",
+          "rationales": {}
+        },
+        {
+          "number": 14,
+          "question": "What can students do during the last hour of the event?",
+          "options": [
+            "Listen to music",
+            "Attend lectures",
+            "Watch a sports competition",
+            "Purchase arts and crafts 19"
+          ],
+          "answer": "Listen to music",
+          "rationales": {}
+        }
+      ],
+      "audio_url": "/static/listening_audio/new_toefl_talk_502b9215590a.mp3"
+    },
+    {
+      "id": "talk_1_1",
+      "talk": "The bystander effect is a social psychological theory according to which individuals are less likely to offer help to a victim when other people are present. The theory was first proposed by researchers in the 1960s, based on observations. The bystander effect can be explained through two diffusion of responsibility and social influence. Diffusion of responsibility occurs when people believe that someone else will take action, and so they feel less personal responsibility. Social influence involves looking to others for cues on how to behave, especially in ambiguous situations. If others are not helping, individuals may interpret the situation as non-emergency and refrain from intervening. More recent studies, however, have disputed the claim that the presence of more bystanders can decrease the likelihood of assistance. One study from 2019 that analyzed video footage from multiple cities found that in 9 out of 10 incidents, at least one bystander did take action to help. This study found that a bystander was actually more likely to intervene when more bystanders were present. Some factors that may influence bystander behavior include the level of danger and whether bystanders know each other.",
+      "questions": [
+        {
+          "number": 15,
+          "question": "What is the main topic of the talk?",
+          "options": [
+            "How a social psychological theory was developed",
+            "How the presence of others can affect a decision",
+            "How to help people in different emergencies",
+            "How to identify emergency situations"
+          ],
+          "answer": "How the presence of others can affect a decision",
+          "rationales": {}
+        },
+        {
+          "number": 16,
+          "question": "According to the talk, how might social influence affect an individual's behavior?",
+          "options": [
+            "A person may interpret a situation as less urgent if no one around them intervenes.",
+            "A person may be unwilling to be the first to act.",
+            "An individual is more likely to act to impress the others in the group.",
+            "An individual is less likely to act when specifically asked to do so."
+          ],
+          "answer": "A person may interpret a situation as less urgent if no one around them intervenes.",
+          "rationales": {}
+        },
+        {
+          "number": 17,
+          "question": "Why does the speaker discuss a study from 2019?",
+          "options": [
+            "To illustrate how new technologies have improved social psychological research",
+            "To provide evidence that challenges earlier research",
+            "To support the idea that it is dangerous for bystanders to offer help",
+            "To argue that not many bystanders are willing to help"
+          ],
+          "answer": "To provide evidence that challenges earlier research",
+          "rationales": {}
+        },
+        {
+          "number": 18,
+          "question": "What is NOT mentioned as a factor that influences bystander behavior?",
+          "options": [
+            "The number of bystanders",
+            "The degree of danger",
+            "The location of the incident",
+            "The familiarity of bystanders to one another 20"
+          ],
+          "answer": "The location of the incident",
+          "rationales": {}
+        }
+      ],
+      "audio_url": "/static/listening_audio/new_toefl_talk_6885e9a63c5a.mp3"
+    },
+    {
+      "id": "talk_2_2",
+      "talk": "Attention everyone! The student lounge will be closed next week from Monday to Friday for renovations. Please use the library or other study areas during this time. We apologize for any inconvenience.",
+      "questions": [
+        {
+          "number": 11,
+          "question": "What is the main purpose of the announcement?",
+          "options": [
+            "To request help with renovations",
+            "To apologize for the inconvenience",
+            "To announce the availability of new study areas",
+            "To inform students about lounge closure"
+          ],
+          "answer": "To inform students about lounge closure",
+          "rationales": {}
+        },
+        {
+          "number": 12,
+          "question": "What are students advised to do during the lounge closure?",
+          "options": [
+            "Request alternative study spaces",
+            "Schedule meetings elsewhere",
+            "Use the library or other study areas",
+            "Participate in renovation activities"
+          ],
+          "answer": "Use the library or other study areas",
+          "rationales": {}
+        }
+      ],
+      "audio_url": "/static/listening_audio/new_toefl_talk_47ca32fc84f2.mp3"
+    },
+    {
+      "id": "talk_2_3",
+      "talk": "Behavioral economics is a field that combines insights from psychology and economics to understand how people make economic decisions. Unlike traditional economics, which assumes that individuals act rationally, behavioral economics recognizes that people often behave irrationally due to cognitive biases and emotional factors. One key concept in behavioral economics is the idea of heuristics, which are mental shortcuts that people use to make decisions quickly. While heuristics can be helpful, they can also lead to systematic errors in judgment. For example, the availability heuristic causes people to overestimate the likelihood of events that are widely reported, such as plane crashes, while underestimating more common risks like car accidents. Another important concept is loss aversion, which suggests that people experience the pain of loss more intensely than the pleasure of gain. This can lead to risk-averse behavior, where individuals are more likely to avoid losses than to pursue equivalent gains. For instance, investors might hold onto losing stocks for too long, hoping they will rebound, rather than cutting their losses. Understanding these and other behavioral biases can help policymakers design better economic policies and interventions. Next, we will examine how nudges, or subtle changes in the way choices are presented, can help people reach better decisions.",
+      "questions": [
+        {
+          "number": 13,
+          "question": "What is the main topic of the talk?",
+          "options": [
+            "How the field of behavioral economics developed over time",
+            "Why an assumption in traditional economics is not always correct",
+            "Some examples of unusual human behavior",
+            "The role of policymakers in economics 24"
+          ],
+          "answer": "Why an assumption in traditional economics is not always correct",
+          "rationales": {}
+        },
+        {
+          "number": 14,
+          "question": "According to the speaker, what is a problem with using heuristics?",
+          "options": [
+            "They do not allow decisions to be made quickly.",
+            "They can result in mistakes in judgment.",
+            "They ignore the emotional consequences of actions.",
+            "They cause people to focus too much on gains."
+          ],
+          "answer": "They can result in mistakes in judgment.",
+          "rationales": {}
+        },
+        {
+          "number": 15,
+          "question": "Why does the speaker mention stocks?",
+          "options": [
+            "To provide an example of people's desire to avoid losses",
+            "To highlight the pleasure of gains",
+            "To describe the importance of rational decision-making",
+            "To discuss the benefits of heuristics."
+          ],
+          "answer": "To provide an example of people's desire to avoid losses",
+          "rationales": {}
+        },
+        {
+          "number": 16,
+          "question": "What will the speaker most likely discuss next?",
+          "options": [
+            "A popular practice among investors",
+            "A method that economists use to examine human behavior",
+            "An example of an intervention by policymakers",
+            "A way of helping people improve their decision-making 25"
+          ],
+          "answer": "A way of helping people improve their decision-making 25",
+          "rationales": {}
+        }
+      ],
+      "audio_url": "/static/listening_audio/new_toefl_talk_c141e1c1b37f.mp3"
+    }
+  ]
+}

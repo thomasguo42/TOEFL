@@ -501,6 +501,43 @@ class SpeakingFeedback(db.Model):
         }
 
 # ============================================================================
+# NEW TOEFL MOCK RECORDS
+# ============================================================================
+
+class NewToeflMockRecord(db.Model):
+    """Persisted attempt records for New TOEFL full-length mocks."""
+    __tablename__ = 'new_toefl_mock_records'
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id', ondelete='CASCADE'), nullable=False, index=True)
+    section = db.Column(db.String(32), nullable=False, index=True)
+    test_id = db.Column(db.String(64), nullable=False, index=True)
+    status = db.Column(db.String(24), default='in_progress', nullable=False)
+    answers = db.Column(db.JSON, nullable=True)
+    meta = db.Column(db.JSON, nullable=True)
+    created_at = db.Column(db.DateTime(timezone=True), default=utcnow, nullable=False)
+    updated_at = db.Column(db.DateTime(timezone=True), default=utcnow, onupdate=utcnow, nullable=False)
+
+    user = db.relationship('User', backref='new_toefl_mock_records')
+
+    def to_summary(self):
+        return {
+            'id': self.id,
+            'section': self.section,
+            'test_id': self.test_id,
+            'status': self.status,
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+            'updated_at': self.updated_at.isoformat() if self.updated_at else None,
+        }
+
+    def to_dict(self):
+        return {
+            **self.to_summary(),
+            'answers': self.answers or {},
+            'meta': self.meta or {},
+        }
+
+# ============================================================================
 # WRITING MODULE MODELS
 # ============================================================================
 

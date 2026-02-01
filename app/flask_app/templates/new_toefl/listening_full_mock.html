@@ -3,71 +3,90 @@
 {% block title %}New TOEFL Listening Mock{% endblock %}
 
 {% block extra_css %}
-<style>
-    .mock-panel {
-        background: #ffffff;
-        border: 1px solid var(--toefl-border);
-        border-radius: 1.25rem;
-        padding: 2rem;
-    }
-
-    .mock-meta {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 1rem;
-        margin-top: 1.5rem;
-    }
-
-    .meta-chip {
-        background: var(--toefl-gray-bg);
-        border: 1px solid var(--toefl-border-light);
-        border-radius: 999px;
-        padding: 0.35rem 0.9rem;
-        font-size: 0.85rem;
-        color: var(--toefl-text-light);
-    }
-</style>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/new_toefl_mock.css') }}">
 {% endblock %}
 
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-lg-10 col-xl-8">
-        <div class="d-flex align-items-center justify-content-between flex-wrap gap-3 mb-4">
+<div class="kmf-shell">
+    <header class="kmf-topbar">
+        <div class="kmf-brand">
+            <div class="kmf-logo">学</div>
             <div>
-                <h1 class="mb-2"><i class="fas fa-headphones me-2"></i>Listening Mock Exam</h1>
-                <p class="text-muted mb-0">Select a full-length practice test and complete every listening question.</p>
-            </div>
-            <a href="{{ url_for('new_toefl_mock_hub') }}" class="btn btn-outline-secondary">
-                <i class="fas fa-arrow-left me-2"></i>Back to Mock Hub
-            </a>
-        </div>
-
-        <div class="mock-panel">
-            <h4 class="mb-3">Mock Format</h4>
-            <p class="text-muted">
-                Questions are pulled directly from the full-length practice tests. Audio is generated for every prompt.
-            </p>
-
-            <div class="mock-meta">
-                <span class="meta-chip">Full test questions</span>
-                <span class="meta-chip">Responses + conversations + talks</span>
-            </div>
-
-            <div class="mt-4">
-                <label class="form-label fw-semibold">Select Practice Test</label>
-                <select class="form-select mb-3" id="listeningTest"></select>
-                <button class="btn btn-warning" id="loadListening">
-                    <i class="fas fa-play me-2"></i>Load Listening Mock
-                </button>
-                <button class="btn btn-outline-secondary ms-2" id="submitListening" disabled>
-                    <i class="fas fa-check me-2"></i>Submit Answers
-                </button>
-                <span class="text-muted ms-2" id="listeningStatus">Select a test to begin.</span>
+                <div class="kmf-brand-title">学而思国际 <span class="kmf-brand-tag">托福</span></div>
+                <div class="kmf-brand-sub">高分有方法 | 提能有保障</div>
             </div>
         </div>
+        <div class="kmf-toolbar">
+            <button class="kmf-pill" type="button"><i class="fas fa-volume-up"></i>Volume</button>
+            <button class="kmf-pill" type="button"><i class="fas fa-circle-question"></i>Help</button>
+            <button class="kmf-pill kmf-pill--light" type="button" id="kmfBackBtn"><i class="fas fa-chevron-left"></i>Back</button>
+            <button class="kmf-pill" type="button" id="kmfAnswerBtn"><i class="fas fa-eye"></i>View Answer</button>
+            <button class="kmf-pill kmf-pill--light" type="button" id="kmfNextBtn">Next <i class="fas fa-chevron-right"></i></button>
+        </div>
+    </header>
+    <div class="kmf-sectionbar">
+        <div class="kmf-section-left">
+            <span id="kmfSectionName">Listening</span>
+            <span class="kmf-section-sep">|</span>
+            <span id="kmfQuestionMeta">Question 1 of 1</span>
+        </div>
+        <div class="kmf-section-right">
+            <span id="kmfTimer">00:00:00</span>
+            <button class="kmf-hide-time" type="button" id="kmfToggleTime"><i class="fas fa-eye-slash"></i>Hide Time</button>
+        </div>
+    </div>
+    <div class="kmf-canvas">
+        <div class="kmf-content">
+            <div class="kmf-card kmf-admin-card">
+                <div class="fw-semibold mb-2">Listening Mock Exam</div>
+                <p class="text-muted mb-3">Select a full-length practice test and complete every listening question.</p>
+                <div class="kmf-admin-actions">
+                    <label class="form-label fw-semibold mb-0">Select Practice Test</label>
+                    <select class="form-select" id="listeningTest">
+                        <option value="practice_test_1">Full-Length Practice Test 1</option>
+                        <option value="practice_test_2">Full-Length Practice Test 2</option>
+                    </select>
+                    <label class="form-label fw-semibold mb-0">Saved Attempts</label>
+                    <div class="d-flex flex-wrap gap-2 align-items-center">
+                        <select class="form-select" id="listeningRecordSelect" style="min-width: 220px;">
+                            <option value="">No saved attempts</option>
+                        </select>
+                        <button class="btn btn-outline-secondary" id="loadListeningRecord" type="button">
+                            <i class="fas fa-folder-open me-2"></i>Load Saved
+                        </button>
+                    </div>
+                    <button class="btn btn-warning" id="loadListening">
+                        <i class="fas fa-play me-2"></i>New Attempt
+                    </button>
+                    <button class="btn btn-outline-secondary" id="submitListening" disabled>
+                        <i class="fas fa-check me-2"></i>Submit Answers
+                    </button>
+                    <span class="text-muted" id="listeningStatus">Select a test to begin.</span>
+                    <a href="{{ url_for('new_toefl_mock_hub') }}" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left me-2"></i>Back to Mock Hub
+                    </a>
+                </div>
+            </div>
 
-        <div class="mt-4" id="listeningContent"></div>
-        <div class="mt-4" id="listeningResults"></div>
+            <div id="listeningContent"></div>
+            <div class="mt-4" id="listeningResults"></div>
+        </div>
+    </div>
+</div>
+<button class="kmf-chat-toggle" id="kmfChatToggle" type="button">
+    <i class="fas fa-comments"></i>Chat
+</button>
+<div class="kmf-chat-panel hidden" id="kmfChatPanel" role="dialog" aria-label="Mock chat assistant">
+    <div class="kmf-chat-header">
+        <span>Mock Assistant</span>
+        <button class="btn btn-sm btn-light" id="kmfChatClose" type="button">Close</button>
+    </div>
+    <div class="kmf-chat-body" id="kmfChatBody">
+        <div class="kmf-chat-hint">Ask about the current listening question or your answers.</div>
+    </div>
+    <div class="kmf-chat-footer">
+        <input class="kmf-chat-input" id="kmfChatInput" placeholder="Type your question..." />
+        <button class="kmf-chat-send" id="kmfChatSend" type="button">Send</button>
     </div>
 </div>
 {% endblock %}
@@ -81,7 +100,27 @@ document.addEventListener('DOMContentLoaded', () => {
     const contentEl = document.getElementById('listeningContent');
     const resultsEl = document.getElementById('listeningResults');
     const testSelect = document.getElementById('listeningTest');
+    const recordSelect = document.getElementById('listeningRecordSelect');
+    const loadRecordBtn = document.getElementById('loadListeningRecord');
+    const sectionNameEl = document.getElementById('kmfSectionName');
+    const questionMetaEl = document.getElementById('kmfQuestionMeta');
+    const timerEl = document.getElementById('kmfTimer');
+    const toggleTimeBtn = document.getElementById('kmfToggleTime');
+    const backBtn = document.getElementById('kmfBackBtn');
+    const nextBtn = document.getElementById('kmfNextBtn');
+    const answerBtn = document.getElementById('kmfAnswerBtn');
+    const exitUrl = '{{ url_for("new_toefl_mock_hub") }}';
     let currentMock = null;
+    let steps = [];
+    let currentStepIndex = 0;
+    let answerVisible = false;
+    const answersState = { responses: {}, conversation: {}, talk: {} };
+    let timeHidden = false;
+    if (submitBtn) submitBtn.style.display = 'none';
+    const queryTestId = new URLSearchParams(window.location.search).get('test_id') || '';
+    let recordId = null;
+    let saveTimer = null;
+    let isLoadingRecord = false;
 
     const escapeHtml = (text) => (text || '')
         .replace(/&/g, '&amp;')
@@ -95,83 +134,307 @@ document.addEventListener('DOMContentLoaded', () => {
         return Array.isArray(group) ? group : [group];
     };
 
-    const renderQuestion = (groupName, question, idx) => {
-        const stem = question.question || question.prompt || '';
-        const options = (question.options || []).map((opt, optIdx) => `
-            <div class="form-check">
-                <input class="form-check-input" type="radio" name="${groupName}" value="${escapeHtml(opt)}" id="${groupName}-${optIdx}">
-                <label class="form-check-label" for="${groupName}-${optIdx}">${escapeHtml(opt)}</label>
-            </div>
-        `).join('');
-        return `
-            <div class="mb-3">
-                <div class="fw-semibold mb-2">${idx + 1}. ${escapeHtml(stem)}</div>
-                ${options}
-            </div>
-        `;
+    const selectTestById = (testId) => {
+        if (!testId) return;
+        const options = Array.from(testSelect.options);
+        const match = options.find((opt) => opt.value === testId);
+        if (match) {
+            testSelect.value = testId;
+        }
     };
 
-    const renderResponses = (items) => (items || []).map((item, idx) => `
-        <div class="card mb-3">
-            <div class="card-body">
-                <h5 class="card-title">Listen and Choose a Response</h5>
-                ${item.audio_url ? `<audio controls class="w-100 mb-3"><source src="${item.audio_url}" type="audio/mpeg"></audio>` : ''}
-                ${renderQuestion(`response-${idx}`, item, idx)}
+    const renderIllustration = (kind) => {
+        const iconMap = {
+            response: 'fa-user',
+            conversation: 'fa-user-group',
+            talk: 'fa-chalkboard-user',
+        };
+        const icon = iconMap[kind] || 'fa-headphones';
+        return `<div class="kmf-placeholder"><i class="fas ${icon}"></i></div>`;
+    };
+
+    const renderOptions = (groupName, options) => (options || []).map((opt, optIdx) => {
+        const optionId = `${groupName}-${optIdx}`;
+        return `
+            <label class="kmf-option" for="${optionId}">
+                <input type="radio" name="${groupName}" value="${escapeHtml(opt)}" id="${optionId}">
+                <span>${escapeHtml(opt)}</span>
+            </label>
+        `;
+    }).join('');
+
+    const renderQuestionCard = ({ title, prompt, groupName, options, illustration, audioUrl }) => `
+        <div class="kmf-card kmf-section">
+            ${title ? `<div class="kmf-heading">${escapeHtml(title)}</div>` : ''}
+            ${prompt ? `<div class="kmf-heading">${escapeHtml(prompt)}</div>` : ''}
+            ${audioUrl ? `<audio controls class="kmf-audio"><source src="${audioUrl}" type="audio/mpeg"></audio>` : ''}
+            <div class="kmf-question-layout">
+                <div class="kmf-illustration">${renderIllustration(illustration)}</div>
+                <div class="kmf-options">${renderOptions(groupName, options)}</div>
             </div>
         </div>
-    `).join('');
+    `;
 
-    const renderConversation = (conversation, idx = 0) => {
-        if (!conversation) return '';
-        const convId = conversation.id || `conversation-${idx}`;
-        const questionsHtml = (conversation.questions || []).map((q, qIdx) => renderQuestion(`conversation-${convId}-${qIdx}`, q, qIdx)).join('');
-        return `
-            <div class="card mb-3">
-                <div class="card-body">
-                    <h5 class="card-title">Conversation</h5>
-                    ${conversation.audio_url ? `<audio controls class="w-100 mb-3"><source src="${conversation.audio_url}" type="audio/mpeg"></audio>` : ''}
-                    ${questionsHtml}
-                </div>
-            </div>
-        `;
+    const audioPlayed = { conversation: new Set(), talk: new Set() };
+
+    const buildSteps = (mock) => {
+        const nextSteps = [];
+        (mock?.responses || []).forEach((item, idx) => {
+            nextSteps.push({ type: 'response', item, idx });
+        });
+        normalizeGroup(mock?.conversation).forEach((conversation, cIdx) => {
+            const convId = conversation.id || `conversation-${cIdx}`;
+            nextSteps.push({ type: 'conversation_audio', conversation, cIdx, convId });
+            (conversation.questions || []).forEach((question, qIdx) => {
+                nextSteps.push({ type: 'conversation', conversation, cIdx, convId, question, qIdx });
+            });
+        });
+        normalizeGroup(mock?.talk).forEach((talk, tIdx) => {
+            const talkId = talk.id || `talk-${tIdx}`;
+            nextSteps.push({ type: 'talk_audio', talk, tIdx, talkId });
+            (talk.questions || []).forEach((question, qIdx) => {
+                nextSteps.push({ type: 'talk', talk, tIdx, talkId, question, qIdx });
+            });
+        });
+        steps = nextSteps;
+        currentStepIndex = 0;
+        audioPlayed.conversation = new Set();
+        audioPlayed.talk = new Set();
     };
 
-    const renderTalk = (talk, idx = 0) => {
-        if (!talk) return '';
-        const talkId = talk.id || `talk-${idx}`;
-        const questionsHtml = (talk.questions || []).map((q, qIdx) => renderQuestion(`talk-${talkId}-${qIdx}`, q, qIdx)).join('');
-        return `
-            <div class="card mb-3">
-                <div class="card-body">
-                    <h5 class="card-title">Announcement / Academic Talk</h5>
-                    ${talk.audio_url ? `<audio controls class="w-100 mb-3"><source src="${talk.audio_url}" type="audio/mpeg"></audio>` : ''}
-                    ${questionsHtml}
-                </div>
-            </div>
-        `;
+    const updateQuestionMeta = () => {
+        const total = steps.length || 1;
+        if (questionMetaEl) {
+            questionMetaEl.textContent = `Question ${Math.min(currentStepIndex + 1, total)} of ${total}`;
+        }
+        if (sectionNameEl) {
+            sectionNameEl.textContent = 'Listening';
+        }
     };
+
+    const renderAnswerPanel = () => '<div class="kmf-answer-panel hidden" id="kmfAnswerPanel"></div>';
+
+    const renderRationales = (item) => {
+        const rationales = item?.rationales || {};
+        const options = Array.isArray(item?.options) ? item.options : Object.keys(rationales || {});
+        if (!options.length) return '';
+        const answer = item?.answer || '';
+        const rows = options.map((opt) => {
+            const rationale = escapeHtml(rationales[opt] || '');
+            const isCorrect = String(opt) === String(answer);
+            return `
+                <div class="mt-2">
+                    <span class="badge ${isCorrect ? 'bg-success' : 'bg-secondary'}">${isCorrect ? 'Correct' : 'Wrong'}</span>
+                    <span class="ms-2">${escapeHtml(String(opt))}</span>
+                    ${rationale ? `<div class="text-muted small ms-1">${rationale}</div>` : ''}
+                </div>
+            `;
+        }).join('');
+        return `<div class="mt-3"><div class="fw-semibold">Analysis</div>${rows}</div>`;
+    };
+
+    const getAnswerContent = (step) => {
+        if (!step) return '';
+        const item = step.question || step.item;
+        const answer = item?.answer || '';
+        const analysis = renderRationales(item);
+        return answer ? `<div><strong>Correct answer:</strong> ${escapeHtml(answer)}</div>${analysis}` : '';
+    };
+
+    const bindSingleChoice = (groupName, onSelect) => {
+        const radios = document.querySelectorAll(`input[name="${groupName}"]`);
+        radios.forEach((radio) => {
+            radio.addEventListener('change', () => {
+                if (radio.checked) onSelect(radio.value);
+            });
+        });
+    };
+
+    const renderStep = () => {
+        const step = steps[currentStepIndex];
+        if (!step) {
+            contentEl.innerHTML = '';
+            updateQuestionMeta();
+            return;
+        }
+        answerVisible = false;
+        let html = '';
+        if (step.type === 'response') {
+            html = renderQuestionCard({
+                title: 'Choose the best response.',
+                groupName: `response-${step.idx}`,
+                options: step.item.options || [],
+                illustration: 'response',
+                audioUrl: step.item.audio_url,
+            }) + renderAnswerPanel();
+            contentEl.innerHTML = html;
+            const stored = answersState.responses?.[step.idx];
+            if (stored) {
+                const selected = document.querySelector(`input[name="response-${step.idx}"][value="${CSS.escape(stored)}"]`);
+                if (selected) selected.checked = true;
+            }
+            bindSingleChoice(`response-${step.idx}`, (value) => {
+                answersState.responses[step.idx] = value;
+                scheduleSave();
+            });
+        } else if (step.type === 'conversation_audio') {
+            html = `
+                <div class="kmf-card kmf-listen-panel">
+                    <div class="kmf-heading">Listen to a conversation</div>
+                    <div class="kmf-illustration">${renderIllustration('conversation')}</div>
+                    ${step.conversation.audio_url ? `<audio controls class="kmf-audio" id="listenAudio"><source src="${step.conversation.audio_url}" type="audio/mpeg"></audio>` : ''}
+                </div>
+                ${renderAnswerPanel()}
+            `;
+            contentEl.innerHTML = html;
+            const audioEl = document.getElementById('listenAudio');
+            if (audioEl) {
+                audioEl.addEventListener('ended', () => {
+                    audioPlayed.conversation.add(step.convId);
+                    if (nextBtn) nextBtn.disabled = false;
+                });
+            }
+        } else if (step.type === 'conversation') {
+            const convId = step.convId || step.conversation.id || `conversation-${step.cIdx}`;
+            html = renderQuestionCard({
+                prompt: step.question.question || step.question.prompt || '',
+                groupName: `conversation-${convId}-${step.qIdx}`,
+                options: step.question.options || [],
+                illustration: 'conversation',
+            }) + renderAnswerPanel();
+            contentEl.innerHTML = html;
+            const stored = answersState.conversation?.[convId]?.[step.qIdx];
+            if (stored) {
+                const selected = document.querySelector(`input[name="conversation-${convId}-${step.qIdx}"][value="${CSS.escape(stored)}"]`);
+                if (selected) selected.checked = true;
+            }
+            bindSingleChoice(`conversation-${convId}-${step.qIdx}`, (value) => {
+                if (!answersState.conversation[convId]) answersState.conversation[convId] = {};
+                answersState.conversation[convId][step.qIdx] = value;
+                scheduleSave();
+            });
+        } else if (step.type === 'talk_audio') {
+            html = `
+                <div class="kmf-card kmf-listen-panel">
+                    <div class="kmf-heading">Listen to an academic talk</div>
+                    <div class="kmf-illustration">${renderIllustration('talk')}</div>
+                    ${step.talk.audio_url ? `<audio controls class="kmf-audio" id="listenAudio"><source src="${step.talk.audio_url}" type="audio/mpeg"></audio>` : ''}
+                </div>
+                ${renderAnswerPanel()}
+            `;
+            contentEl.innerHTML = html;
+            const audioEl = document.getElementById('listenAudio');
+            if (audioEl) {
+                audioEl.addEventListener('ended', () => {
+                    audioPlayed.talk.add(step.talkId);
+                    if (nextBtn) nextBtn.disabled = false;
+                });
+            }
+        } else if (step.type === 'talk') {
+            const talkId = step.talkId || step.talk.id || `talk-${step.tIdx}`;
+            html = renderQuestionCard({
+                prompt: step.question.question || step.question.prompt || '',
+                groupName: `talk-${talkId}-${step.qIdx}`,
+                options: step.question.options || [],
+                illustration: 'talk',
+            }) + renderAnswerPanel();
+            contentEl.innerHTML = html;
+            const stored = answersState.talk?.[talkId]?.[step.qIdx];
+            if (stored) {
+                const selected = document.querySelector(`input[name="talk-${talkId}-${step.qIdx}"][value="${CSS.escape(stored)}"]`);
+                if (selected) selected.checked = true;
+            }
+            bindSingleChoice(`talk-${talkId}-${step.qIdx}`, (value) => {
+                if (!answersState.talk[talkId]) answersState.talk[talkId] = {};
+                answersState.talk[talkId][step.qIdx] = value;
+                scheduleSave();
+            });
+        }
+
+        updateQuestionMeta();
+        const answerPanel = document.getElementById('kmfAnswerPanel');
+        if (answerPanel) {
+            answerPanel.innerHTML = getAnswerContent(step);
+            answerPanel.classList.add('hidden');
+        }
+
+        const isFirst = currentStepIndex === 0;
+        const isLast = currentStepIndex === steps.length - 1;
+        if (backBtn) backBtn.disabled = isFirst;
+        if (nextBtn) {
+            let shouldDisable = isLast;
+            if (step.type === 'conversation_audio') {
+                shouldDisable = !audioPlayed.conversation.has(step.convId);
+            }
+            if (step.type === 'talk_audio') {
+                shouldDisable = !audioPlayed.talk.has(step.talkId);
+            }
+            nextBtn.disabled = shouldDisable;
+        }
+        if (submitBtn) {
+            submitBtn.disabled = !isLast;
+            submitBtn.style.display = isLast ? 'inline-block' : 'none';
+        }
+    };
+
+    if (toggleTimeBtn && timerEl) {
+        toggleTimeBtn.addEventListener('click', () => {
+            timeHidden = !timeHidden;
+            timerEl.style.visibility = timeHidden ? 'hidden' : 'visible';
+            toggleTimeBtn.innerHTML = timeHidden
+                ? '<i class="fas fa-eye"></i>Show Time'
+                : '<i class="fas fa-eye-slash"></i>Hide Time';
+        });
+    }
+
+    if (backBtn) {
+        backBtn.addEventListener('click', () => {
+            if (!currentMock || !steps.length) {
+                window.location.href = exitUrl;
+                return;
+            }
+            if (currentStepIndex > 0) {
+                currentStepIndex -= 1;
+                renderStep();
+                scheduleSave();
+            }
+        });
+    }
+
+    if (nextBtn) {
+        nextBtn.addEventListener('click', () => {
+            if (currentStepIndex < steps.length - 1) {
+                currentStepIndex += 1;
+                renderStep();
+                scheduleSave();
+            }
+        });
+    }
+
+    if (answerBtn) {
+        answerBtn.addEventListener('click', () => {
+            const panel = document.getElementById('kmfAnswerPanel');
+            if (!panel) return;
+            answerVisible = !answerVisible;
+            panel.classList.toggle('hidden', !answerVisible);
+            answerBtn.innerHTML = answerVisible
+                ? '<i class="fas fa-eye-slash"></i>Hide Answer'
+                : '<i class="fas fa-eye"></i>View Answer';
+        });
+    }
 
     const collectAnswers = () => {
         const answers = { responses: {}, conversation: {}, talk: {} };
         (currentMock?.responses || []).forEach((_, idx) => {
-            const selected = document.querySelector(`input[name="response-${idx}"]:checked`);
-            answers.responses[idx] = selected ? selected.value : '';
+            answers.responses[idx] = answersState.responses?.[idx] || '';
         });
         normalizeGroup(currentMock?.conversation).forEach((conv, idx) => {
             const convId = conv.id || `conversation-${idx}`;
-            answers.conversation[convId] = {};
-            (conv.questions || []).forEach((_, qIdx) => {
-                const selected = document.querySelector(`input[name="conversation-${convId}-${qIdx}"]:checked`);
-                answers.conversation[convId][qIdx] = selected ? selected.value : '';
-            });
+            answers.conversation[convId] = answersState.conversation?.[convId] || {};
         });
         normalizeGroup(currentMock?.talk).forEach((talk, idx) => {
             const talkId = talk.id || `talk-${idx}`;
-            answers.talk[talkId] = {};
-            (talk.questions || []).forEach((_, qIdx) => {
-                const selected = document.querySelector(`input[name="talk-${talkId}-${qIdx}"]:checked`);
-                answers.talk[talkId][qIdx] = selected ? selected.value : '';
-            });
+            answers.talk[talkId] = answersState.talk?.[talkId] || {};
         });
         return answers;
     };
@@ -214,32 +477,70 @@ document.addEventListener('DOMContentLoaded', () => {
         const talkRows = (payload.results?.talk || []).map((item, idx) => renderRow('Talk Q', item, idx)).join('');
 
         const details = `
-            <div class="card mt-3">
-                <div class="card-body">
-                    <h5 class="card-title">Detailed Feedback</h5>
-                    ${responseRows ? `<h6 class="mt-3">Responses</h6>${responseRows}` : ''}
-                    ${conversationRows ? `<h6 class="mt-3">Conversation</h6>${conversationRows}` : ''}
-                    ${talkRows ? `<h6 class="mt-3">Announcement / Academic Talk</h6>${talkRows}` : ''}
-                </div>
+            <div class="kmf-card mt-3">
+                <h5 class="card-title">Detailed Feedback</h5>
+                ${responseRows ? `<h6 class="mt-3">Responses</h6>${responseRows}` : ''}
+                ${conversationRows ? `<h6 class="mt-3">Conversation</h6>${conversationRows}` : ''}
+                ${talkRows ? `<h6 class="mt-3">Announcement / Academic Talk</h6>${talkRows}` : ''}
             </div>
         `;
 
         resultsEl.innerHTML = summary + details;
     };
 
-    const loadTests = async () => {
+    const loadRecords = async () => {
+        if (!recordSelect) return;
+        const testId = testSelect.value;
         try {
-            const res = await fetch('{{ url_for("new_toefl_mock_tests") }}');
+            const res = await fetch(`/new-toefl/api/mock/records?section=listening&test_id=${encodeURIComponent(testId)}`);
             const data = await res.json();
-            const options = (data.tests || []).map((test) => `<option value="${test.id}">${escapeHtml(test.title)}</option>`).join('');
-            testSelect.innerHTML = options || '<option value="">No tests available</option>';
+            const records = data.records || [];
+            if (!records.length) {
+                recordSelect.innerHTML = '<option value="">No saved attempts</option>';
+                return;
+            }
+            recordSelect.innerHTML = records.map((record) => {
+                const label = `${record.test_id} • ${record.status.replace('_', ' ')} • ${new Date(record.updated_at).toLocaleString()}`;
+                return `<option value="${record.id}">${escapeHtml(label)}</option>`;
+            }).join('');
         } catch (err) {
-            testSelect.innerHTML = '<option value="">No tests available</option>';
+            recordSelect.innerHTML = '<option value="">No saved attempts</option>';
         }
     };
 
-    loadBtn.addEventListener('click', async () => {
-        const testId = testSelect.value;
+    const saveRecord = async (status = 'in_progress') => {
+        if (!testSelect.value) return;
+        const payload = {
+            section: 'listening',
+            test_id: testSelect.value,
+            status,
+            answers: answersState,
+            meta: { current_step: currentStepIndex },
+        };
+        if (recordId) payload.record_id = recordId;
+        try {
+            const res = await fetch('/new-toefl/api/mock/records/save', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload),
+            });
+            const data = await res.json();
+            if (data.success && data.record_id) {
+                recordId = data.record_id;
+                loadRecords();
+            }
+        } catch (err) {
+            // Silent save failure.
+        }
+    };
+
+    const scheduleSave = (status = 'in_progress') => {
+        if (isLoadingRecord) return;
+        if (saveTimer) clearTimeout(saveTimer);
+        saveTimer = setTimeout(() => saveRecord(status), 600);
+    };
+
+    const loadListeningMock = async (testId, { skipSave = false, createRecord = false } = {}) => {
         if (!testId) return;
         statusEl.textContent = 'Generating listening mock (this can take a few minutes)...';
         loadBtn.disabled = true;
@@ -255,51 +556,68 @@ document.addEventListener('DOMContentLoaded', () => {
                 loadBtn.disabled = false;
                 return;
             }
-            const jobId = data.job_id;
-            if (!jobId) {
-                statusEl.textContent = data.message || 'Generation failed.';
-                loadBtn.disabled = false;
+            if (data.mock) {
+                currentMock = data.mock;
+                buildSteps(currentMock);
+                renderStep();
+                statusEl.textContent = 'Mock loaded. Complete the questions.';
+                submitBtn.disabled = false;
+                if (!skipSave && createRecord) await saveRecord('in_progress');
                 return;
             }
-
-            const poll = async () => {
-                const pollRes = await fetch(`{{ url_for("new_toefl_mock_listening_job", job_id="JOB_ID") }}`.replace('JOB_ID', jobId));
-                const pollData = await pollRes.json();
-                if (!pollData.success) {
-                    statusEl.textContent = pollData.message || pollData.error || 'Generation failed.';
-                    return false;
-                }
-                if (pollData.status === 'failed') {
-                    statusEl.textContent = pollData.error || 'Generation failed.';
-                    return false;
-                }
-                if (pollData.status === 'done') {
-                    currentMock = pollData.mock;
-                    contentEl.innerHTML = [
-                        renderResponses(currentMock.responses),
-                        normalizeGroup(currentMock.conversation).map((conv, idx) => renderConversation(conv, idx)).join(''),
-                        normalizeGroup(currentMock.talk).map((talk, idx) => renderTalk(talk, idx)).join(''),
-                    ].join('');
-                    statusEl.textContent = 'Mock generated. Complete the questions.';
-                    submitBtn.disabled = false;
-                    return true;
-                }
-                return null;
-            };
-
-            let attempts = 0;
-            const maxAttempts = 180;
-            while (attempts < maxAttempts) {
-                attempts += 1;
-                const outcome = await poll();
-                if (outcome === true || outcome === false) break;
-                await new Promise((resolve) => setTimeout(resolve, 2000));
+            if (data.job_id) {
+                const jobId = data.job_id;
+                const poll = async () => {
+                    const pollRes = await fetch(`{{ url_for("new_toefl_mock_listening_job", job_id="JOB_ID") }}`.replace('JOB_ID', jobId));
+                    const pollData = await pollRes.json();
+                    if (pollData.status === 'done') {
+                        currentMock = pollData.mock;
+                        buildSteps(currentMock);
+                        renderStep();
+                        statusEl.textContent = 'Mock generated. Complete the questions.';
+                        submitBtn.disabled = false;
+                        if (!skipSave && createRecord) await saveRecord('in_progress');
+                    } else if (pollData.status === 'error') {
+                        statusEl.textContent = pollData.message || 'Generation failed.';
+                        loadBtn.disabled = false;
+                    } else {
+                        setTimeout(poll, 3000);
+                    }
+                };
+                setTimeout(poll, 3000);
             }
         } catch (err) {
             statusEl.textContent = 'Generation failed. Please try again.';
         } finally {
             loadBtn.disabled = false;
         }
+    };
+
+    const loadTests = async () => {
+        try {
+            const res = await fetch('{{ url_for("new_toefl_mock_tests") }}');
+            const data = await res.json();
+            const options = (data.tests || []).map(
+                (test) => `<option value="${test.id}">${escapeHtml(test.title || test.id)}</option>`
+            ).join('');
+            testSelect.innerHTML = options || '<option value="">No tests available</option>';
+        } catch (err) {
+            testSelect.innerHTML = '<option value="">No tests available</option>';
+        } finally {
+            selectTestById(queryTestId);
+            loadRecords();
+        }
+    };
+
+    loadBtn.addEventListener('click', async () => {
+        recordId = null;
+        answersState.responses = {};
+        answersState.conversation = {};
+        answersState.talk = {};
+        currentStepIndex = 0;
+        currentMock = null;
+        steps = [];
+        await loadListeningMock(testSelect.value, { createRecord: true });
     });
 
     submitBtn.addEventListener('click', async () => {
@@ -321,6 +639,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             renderResults(data);
             statusEl.textContent = 'Results ready.';
+            await saveRecord('completed');
         } catch (err) {
             statusEl.textContent = 'Submit failed. Please try again.';
         } finally {
@@ -328,7 +647,163 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    if (loadRecordBtn) {
+        loadRecordBtn.addEventListener('click', async () => {
+            const selected = recordSelect?.value;
+            if (!selected) return;
+            isLoadingRecord = true;
+            try {
+                const res = await fetch(`/new-toefl/api/mock/records/${selected}`);
+                const data = await res.json();
+                if (!data.success) {
+                    statusEl.textContent = 'Failed to load record.';
+                    return;
+                }
+                const record = data.record || {};
+                recordId = record.id || null;
+                if (record.test_id && record.test_id !== testSelect.value) {
+                    testSelect.value = record.test_id;
+                }
+                answersState.responses = record.answers?.responses || {};
+                answersState.conversation = record.answers?.conversation || {};
+                answersState.talk = record.answers?.talk || {};
+                currentStepIndex = record.meta?.current_step || 0;
+                await loadListeningMock(testSelect.value, { skipSave: true });
+                if (currentStepIndex > 0 && currentStepIndex < steps.length) {
+                    renderStep();
+                }
+                statusEl.textContent = 'Loaded saved attempt.';
+            } catch (err) {
+                statusEl.textContent = 'Failed to load record.';
+            } finally {
+                isLoadingRecord = false;
+            }
+        });
+    }
+
+    if (testSelect) {
+        testSelect.addEventListener('change', () => {
+            loadRecords();
+        });
+    }
+
     loadTests();
+
+    const chatToggle = document.getElementById('kmfChatToggle');
+    const chatPanel = document.getElementById('kmfChatPanel');
+    const chatClose = document.getElementById('kmfChatClose');
+    const chatBody = document.getElementById('kmfChatBody');
+    const chatInput = document.getElementById('kmfChatInput');
+    const chatSend = document.getElementById('kmfChatSend');
+    const chatState = { history: [] };
+
+    const appendChatMessage = (role, text) => {
+        if (!chatBody) return;
+        const wrapper = document.createElement('div');
+        wrapper.className = `kmf-chat-message ${role}`;
+        const bubble = document.createElement('div');
+        bubble.className = 'kmf-chat-bubble';
+        bubble.textContent = text;
+        wrapper.appendChild(bubble);
+        chatBody.appendChild(wrapper);
+        chatBody.scrollTop = chatBody.scrollHeight;
+    };
+
+    const buildChatContext = () => {
+        const step = steps[currentStepIndex];
+        const context = {
+            section: 'listening',
+            test_id: testSelect.value,
+            step_index: currentStepIndex,
+            total_steps: steps.length,
+            step_type: step?.type || '',
+            answers: answersState,
+        };
+        if (!step) return context;
+        if (step.type === 'response') {
+            context.current = {
+                type: 'response',
+                prompt: step.item?.prompt || '',
+                options: step.item?.options || [],
+                selected: answersState.responses?.[step.idx] || '',
+            };
+        } else if (step.type === 'conversation') {
+            const convId = step.convId || step.conversation?.id || `conversation-${step.cIdx}`;
+            context.current = {
+                type: 'conversation',
+                question: step.question?.question || '',
+                options: step.question?.options || [],
+                selected: answersState.conversation?.[convId]?.[step.qIdx] || '',
+            };
+        } else if (step.type === 'talk') {
+            const talkId = step.talkId || step.talk?.id || `talk-${step.tIdx}`;
+            context.current = {
+                type: 'talk',
+                question: step.question?.question || '',
+                options: step.question?.options || [],
+                selected: answersState.talk?.[talkId]?.[step.qIdx] || '',
+            };
+        } else if (step.type === 'conversation_audio' || step.type === 'talk_audio') {
+            context.current = { type: step.type, note: 'Listening audio step.' };
+        }
+        return context;
+    };
+
+    const sendChatMessage = async () => {
+        const text = (chatInput?.value || '').trim();
+        if (!text) return;
+        appendChatMessage('user', text);
+        chatState.history.push({ role: 'user', content: text });
+        chatInput.value = '';
+        appendChatMessage('assistant', 'Thinking...');
+        const placeholder = chatBody?.lastElementChild;
+
+        try {
+            const res = await fetch('/new-toefl/api/mock/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    message: text,
+                    context: buildChatContext(),
+                    history: chatState.history.slice(-8),
+                }),
+            });
+            const data = await res.json();
+            const reply = data.reply || data.message || 'Unable to respond right now.';
+            if (placeholder) {
+                placeholder.querySelector('.kmf-chat-bubble').textContent = reply;
+            } else {
+                appendChatMessage('assistant', reply);
+            }
+            chatState.history.push({ role: 'assistant', content: reply });
+        } catch (err) {
+            if (placeholder) {
+                placeholder.querySelector('.kmf-chat-bubble').textContent = 'Chat service unavailable.';
+            }
+        }
+    };
+
+    if (chatToggle && chatPanel) {
+        chatToggle.addEventListener('click', () => {
+            chatPanel.classList.toggle('hidden');
+        });
+    }
+    if (chatClose && chatPanel) {
+        chatClose.addEventListener('click', () => {
+            chatPanel.classList.add('hidden');
+        });
+    }
+    if (chatSend) {
+        chatSend.addEventListener('click', sendChatMessage);
+    }
+    if (chatInput) {
+        chatInput.addEventListener('keydown', (evt) => {
+            if (evt.key === 'Enter') {
+                evt.preventDefault();
+                sendChatMessage();
+            }
+        });
+    }
 });
 </script>
 {% endblock %}

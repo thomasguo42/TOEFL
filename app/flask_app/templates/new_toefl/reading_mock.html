@@ -3,60 +3,8 @@
 {% block title %}New TOEFL Reading Practice{% endblock %}
 
 {% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/new_toefl_mock.css') }}">
 <style>
-    .mock-panel {
-        background: #ffffff;
-        border: 1px solid var(--toefl-border);
-        border-radius: 1.25rem;
-        padding: 2rem;
-    }
-
-    .mock-meta {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 1rem;
-        margin-top: 1.5rem;
-    }
-
-    .meta-chip {
-        background: var(--toefl-gray-bg);
-        border: 1px solid var(--toefl-border-light);
-        border-radius: 999px;
-        padding: 0.35rem 0.9rem;
-        font-size: 0.85rem;
-        color: var(--toefl-text-light);
-    }
-
-    .cloze-wrap {
-        display: inline-block;
-        position: relative;
-        vertical-align: baseline;
-    }
-
-    .cloze-underscores {
-        display: inline-block;
-        font-family: "Courier New", Courier, monospace;
-        letter-spacing: 0.08em;
-        color: var(--toefl-text-light);
-        line-height: 1.2em;
-    }
-
-    .cloze-input {
-        position: absolute;
-        left: 0;
-        top: 0;
-        width: 100%;
-        height: 1.2em;
-        background: transparent;
-        border: none;
-        outline: none;
-        padding: 0;
-        font-family: "Courier New", Courier, monospace;
-        letter-spacing: 0.08em;
-        color: var(--toefl-text);
-        line-height: 1.2em;
-    }
-
     .results-split {
         display: grid;
         grid-template-columns: 1.2fr 1fr;
@@ -85,44 +33,57 @@
 {% endblock %}
 
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-lg-10 col-xl-8">
-        <div class="d-flex align-items-center justify-content-between flex-wrap gap-3 mb-4">
+<div class="kmf-shell">
+    <header class="kmf-topbar">
+        <div class="kmf-brand">
+            <div class="kmf-logo">学</div>
             <div>
-                <h1 class="mb-2"><i class="fas fa-glasses me-2"></i>Reading Practice</h1>
-                <p class="text-muted mb-0">Generate new TOEFL reading practice with cloze, daily-life, and academic tasks.</p>
-            </div>
-            <a href="{{ url_for('new_toefl_practice_hub') }}" class="btn btn-outline-secondary">
-                <i class="fas fa-arrow-left me-2"></i>Back to Practice Hub
-            </a>
-        </div>
-
-        <div class="mock-panel">
-            <h4 class="mb-3">Practice Format</h4>
-            <p class="text-muted">
-                Gemini will generate section content using the same pipeline as existing reading exercises. Evaluation will
-                reuse the current reading checking logic for accuracy + explanation.
-            </p>
-
-            <div class="mock-meta">
-                <span class="meta-chip">35-48 questions</span>
-                <span class="meta-chip">Module-based timing</span>
-                <span class="meta-chip">Cloze + daily-life + academic</span>
-            </div>
-
-            <div class="mt-4">
-                <button class="btn btn-warning" id="generateReading">
-                    <i class="fas fa-wand-magic-sparkles me-2"></i>Generate Reading Practice
-                </button>
-                <button class="btn btn-outline-secondary ms-2" id="submitReading" disabled>
-                    <i class="fas fa-check me-2"></i>Submit Answers
-                </button>
-                <span class="text-muted ms-2" id="readingStatus">Ready to generate.</span>
+                <div class="kmf-brand-title">学而思国际 <span class="kmf-brand-tag">托福</span></div>
+                <div class="kmf-brand-sub">高分有方法 | 提能有保障</div>
             </div>
         </div>
+        <div class="kmf-toolbar">
+            <button class="kmf-pill" type="button"><i class="fas fa-volume-up"></i>Volume</button>
+            <button class="kmf-pill" type="button"><i class="fas fa-circle-question"></i>Help</button>
+            <button class="kmf-pill" type="button"><i class="fas fa-bookmark"></i>Review</button>
+            <button class="kmf-pill kmf-pill--light" type="button" id="kmfBackBtn"><i class="fas fa-chevron-left"></i>Back</button>
+            <button class="kmf-pill" type="button" id="kmfAnswerBtn"><i class="fas fa-eye"></i>View Answer</button>
+            <button class="kmf-pill kmf-pill--light" type="button" id="kmfNextBtn">Next <i class="fas fa-chevron-right"></i></button>
+        </div>
+    </header>
+    <div class="kmf-sectionbar">
+        <div class="kmf-section-left">
+            <span id="kmfSectionName">Reading</span>
+            <span class="kmf-section-sep">|</span>
+            <span id="kmfQuestionMeta">Question 1 of 1</span>
+        </div>
+        <div class="kmf-section-right">
+            <span id="kmfTimer">00:00:00</span>
+            <button class="kmf-hide-time" type="button" id="kmfToggleTime"><i class="fas fa-eye-slash"></i>Hide Time</button>
+        </div>
+    </div>
+    <div class="kmf-canvas">
+        <div class="kmf-content">
+            <div class="kmf-card kmf-admin-card">
+                <div class="fw-semibold mb-2">Reading Practice</div>
+                <p class="text-muted mb-3">Generate TOEFL reading practice with cloze, daily-life, and academic tasks.</p>
+                <div class="kmf-admin-actions">
+                    <button class="btn btn-warning" id="generateReading">
+                        <i class="fas fa-wand-magic-sparkles me-2"></i>Generate Reading Practice
+                    </button>
+                    <button class="btn btn-outline-secondary" id="submitReading" disabled>
+                        <i class="fas fa-check me-2"></i>Submit Answers
+                    </button>
+                    <span class="text-muted" id="readingStatus">Ready to generate.</span>
+                    <a href="{{ url_for('new_toefl_practice_hub') }}" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left me-2"></i>Back to Practice Hub
+                    </a>
+                </div>
+            </div>
 
-        <div class="mt-4" id="readingContent"></div>
-        <div class="mt-4" id="readingResults"></div>
+            <div id="readingContent"></div>
+            <div class="mt-4" id="readingResults"></div>
+        </div>
     </div>
 </div>
 {% endblock %}
@@ -135,7 +96,21 @@ document.addEventListener('DOMContentLoaded', () => {
     const statusEl = document.getElementById('readingStatus');
     const contentEl = document.getElementById('readingContent');
     const resultsEl = document.getElementById('readingResults');
+    const sectionNameEl = document.getElementById('kmfSectionName');
+    const questionMetaEl = document.getElementById('kmfQuestionMeta');
+    const timerEl = document.getElementById('kmfTimer');
+    const toggleTimeBtn = document.getElementById('kmfToggleTime');
+    const backBtn = document.getElementById('kmfBackBtn');
+    const nextBtn = document.getElementById('kmfNextBtn');
+    const answerBtn = document.getElementById('kmfAnswerBtn');
     let currentMock = null;
+    let steps = [];
+    let currentStepIndex = 0;
+    let answerVisible = false;
+    const answersState = { cloze: {}, daily_life: {}, academic: {} };
+    let timeHidden = false;
+    if (submitBtn) submitBtn.style.display = 'none';
+    let isLoading = false;
 
     const escapeHtml = (text) => (text || '')
         .replace(/&/g, '&amp;')
@@ -165,8 +140,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         missingCount = Math.max(1, rawAnswer.length);
                     }
                 }
-                const blanksHint = '_'.repeat(missingCount);
-                const wrap = `<span class="cloze-wrap" style="width:${missingCount}ch"><span class="cloze-underscores">${blanksHint}</span><input class="cloze-input" data-cloze-id="${item.id}" data-token="${token}" data-prefix="${escapeHtml(prefix)}" data-expected-len="${missingCount}" maxlength="${missingCount}" size="${missingCount}"></span>`;
+                const wrap = `<span class="kmf-cloze-wrap" style="min-width:${missingCount}ch"><input class="kmf-cloze-input" data-cloze-id="${item.id}" data-token="${token}" data-prefix="${escapeHtml(prefix)}" data-expected-len="${missingCount}" maxlength="${missingCount}" size="${missingCount}"></span>`;
                 const input = `${prefix}${wrap}`;
                 replacements.set(token, input);
             });
@@ -181,45 +155,46 @@ document.addEventListener('DOMContentLoaded', () => {
             replaced = replaced.replace(/([A-Za-z]+)(_{2,})/g, (match, head, blanksRun) => {
                 const token = `${head}${blanksRun}`;
                 const missingCount = blanksRun.length;
-                const blanksHint = '_'.repeat(missingCount);
-                const wrap = `<span class="cloze-wrap" style="width:${missingCount}ch"><span class="cloze-underscores">${blanksHint}</span><input class="cloze-input" data-cloze-id="${item.id}" data-token="${token}" data-prefix="${escapeHtml(head)}" data-expected-len="${missingCount}" maxlength="${missingCount}" size="${missingCount}"></span>`;
+                const wrap = `<span class="kmf-cloze-wrap" style="min-width:${missingCount}ch"><input class="kmf-cloze-input" data-cloze-id="${item.id}" data-token="${token}" data-prefix="${escapeHtml(head)}" data-expected-len="${missingCount}" maxlength="${missingCount}" size="${missingCount}"></span>`;
                 return `${head}${wrap}`;
             });
         }
 
         return `
-            <div class="card mb-3">
-                <div class="card-body">
-                    <h5 class="card-title">Complete the Words</h5>
-                    <p class="card-text">${replaced}</p>
-                </div>
+            <div class="kmf-card kmf-section">
+                <div class="kmf-heading">Fill in the missing letters in the paragraph</div>
+                <div class="kmf-cloze-text">${replaced}</div>
             </div>
         `;
     };
 
-    const renderQuestion = (groupName, question, idx) => {
-        const options = (question.options || []).map((opt, optIdx) => `
-            <div class="form-check">
-                <input class="form-check-input" type="radio" name="${groupName}" value="${escapeHtml(opt)}" id="${groupName}-${optIdx}">
-                <label class="form-check-label" for="${groupName}-${optIdx}">${escapeHtml(opt)}</label>
-            </div>
-        `).join('');
+    const renderOptions = (groupName, options) => (options || []).map((opt, optIdx) => {
+        const optionId = `${groupName}-${optIdx}`;
         return `
-            <div class="mb-3">
-                <div class="fw-semibold mb-2">${idx + 1}. ${escapeHtml(question.question || '')}</div>
-                ${options}
-            </div>
+            <label class="kmf-option" for="${optionId}">
+                <input type="radio" name="${groupName}" value="${escapeHtml(opt)}" id="${optionId}">
+                <span>${escapeHtml(opt)}</span>
+            </label>
         `;
-    };
+    }).join('');
+
+    const renderQuestion = (groupName, question, idx) => `
+        <div class="mb-3">
+            <div class="fw-semibold mb-2">${idx + 1}. ${escapeHtml(question.question || '')}</div>
+            <div class="kmf-options">${renderOptions(groupName, question.options || [])}</div>
+        </div>
+    `;
 
     const renderSourceBlock = (item) => {
-        const caption = escapeHtml(item.caption || 'Read in Daily Life');
-        const format = item.format || 'notice';
+        const format = item.format || item.source_type || 'notice';
+        const caption = escapeHtml(item.caption || (format === 'email' ? 'Read an Email' : 'Read in Daily Life'));
         const title = escapeHtml(item.title || '');
         const author = escapeHtml(item.author || '');
+        const rawSource = item.source_text || '';
+        const sourceLines = rawSource ? rawSource.split(/\n+/).map((line) => line.trim()).filter(Boolean) : [];
         const bodyLines = Array.isArray(item.body_lines) && item.body_lines.length
             ? item.body_lines
-            : (Array.isArray(item.source_lines) ? item.source_lines : []);
+            : (Array.isArray(item.source_lines) && item.source_lines.length ? item.source_lines : sourceLines);
         const footerLines = Array.isArray(item.footer_lines) ? item.footer_lines : [];
         const body = bodyLines.map((line) => `<div>${escapeHtml(line)}</div>`).join('');
         const footer = footerLines.length ? `<div class="text-muted small mt-2">${footerLines.map((line) => escapeHtml(line)).join(' ')}</div>` : '';
@@ -229,43 +204,60 @@ document.addEventListener('DOMContentLoaded', () => {
             const headers = item.headers || {};
             const headerRows = ['to', 'from', 'date', 'subject']
                 .filter((key) => headers[key])
-                .map((key) => `<div><strong>${key.toUpperCase()}:</strong> ${escapeHtml(headers[key])}</div>`)
+                .map((key) => `<div class="kmf-email-row"><strong>${key.toUpperCase()}:</strong><span>${escapeHtml(headers[key])}</span></div>`)
                 .join('');
+            const inferred = headerRows ? null : sourceLines.reduce((acc, line) => {
+                const match = line.match(/^(To|From|Date|Subject):\\s*(.*)$/i);
+                if (match) {
+                    acc.headers.push({ key: match[1].toUpperCase(), value: match[2] });
+                } else {
+                    acc.body.push(line);
+                }
+                return acc;
+            }, { headers: [], body: [] });
+            const inferredHeaders = inferred?.headers?.length
+                ? inferred.headers.map((row) => `<div class="kmf-email-row"><strong>${escapeHtml(row.key)}:</strong><span>${escapeHtml(row.value)}</span></div>`).join('')
+                : '';
+            const emailBody = inferred?.body?.length
+                ? inferred.body.map((line) => `<div>${escapeHtml(line)}</div>`).join('')
+                : body;
             return `
-                <div class="source-block">
-                    <div class="text-uppercase small text-muted">${caption}</div>
-                    <div class="email-headers small mt-2">${headerRows}</div>
-                    <div class="source-body mt-2">${body}</div>
+                <div class="kmf-email-card">
+                    <div class="fw-semibold mb-2">${caption}</div>
+                    <div class="small">${headerRows || inferredHeaders}</div>
+                    <div class="kmf-email-body mt-2">${emailBody}</div>
                 </div>
             `;
         }
         if (format === 'social') {
             return `
-                <div class="source-block">
+                <div>
                     <div class="text-uppercase small text-muted">${caption}</div>
                     ${authorHtml}
-                    <div class="source-body">${body}</div>
+                    <div class="kmf-passage-body">${body}</div>
                     ${footer}
                 </div>
             `;
         }
         return `
-            <div class="source-block">
+            <div>
                 <div class="text-uppercase small text-muted">${caption}</div>
                 ${titleHtml}
-                <div class="source-body">${body}</div>
+                <div class="kmf-passage-body">${body}</div>
             </div>
         `;
     };
 
-    const renderDaily = (item) => {
-        const questionsHtml = (item.questions || []).map((q, idx) => renderQuestion(`daily-${item.id}-${idx}`, q, idx)).join('');
+    const renderDailyStep = (item, qIdx) => {
+        const question = (item.questions || [])[qIdx];
+        const questionsHtml = question ? renderQuestion(`daily-${item.id}-${qIdx}`, question, qIdx) : '';
+        const title = item.format === 'email' ? 'Read an Email' : 'Read in Daily Life';
         return `
-            <div class="card mb-3">
-                <div class="card-body">
-                    <h5 class="card-title">Read in Daily Life</h5>
-                    ${renderSourceBlock(item)}
-                    ${questionsHtml}
+            <div class="kmf-card kmf-section">
+                <div class="kmf-heading">${title}</div>
+                <div class="kmf-reading-split">
+                    <div>${renderSourceBlock(item)}</div>
+                    <div>${questionsHtml}</div>
                 </div>
             </div>
         `;
@@ -276,58 +268,218 @@ document.addEventListener('DOMContentLoaded', () => {
         return Array.isArray(academic) ? academic : [academic];
     };
 
-    const renderAcademic = (item, index = 0) => {
+    const renderAcademicStep = (item, index = 0, qIdx = 0) => {
         if (!item) return '';
         const academicId = item.id || `academic-${index}`;
-        const questionsHtml = (item.questions || []).map((q, idx) => renderQuestion(`academic-${academicId}-${idx}`, q, idx)).join('');
+        const question = (item.questions || [])[qIdx];
+        const questionsHtml = question ? renderQuestion(`academic-${academicId}-${qIdx}`, question, qIdx) : '';
         const title = escapeHtml(item.title || '');
         const lines = Array.isArray(item.passage_lines) && item.passage_lines.length
             ? item.passage_lines
             : (item.passage ? item.passage.split(/\n+/) : []);
         const body = lines.map((line) => `<div>${escapeHtml(line)}</div>`).join('');
         return `
-            <div class="card mb-3">
-                <div class="card-body">
-                    <h5 class="card-title">Academic Passage</h5>
-                    ${title ? `<div class="fw-semibold mt-2 mb-2">${title}</div>` : ''}
-                    <div class="source-body">${body}</div>
-                    ${questionsHtml}
+            <div class="kmf-card kmf-section">
+                <div class="kmf-heading">${title || 'Academic Passage'}</div>
+                <div class="kmf-reading-split">
+                    <div>
+                        ${title ? `<div class="kmf-passage-title">${title}</div>` : ''}
+                        <div class="kmf-passage-body">${body}</div>
+                    </div>
+                    <div>${questionsHtml}</div>
                 </div>
             </div>
         `;
     };
 
-    const collectAnswers = () => {
-        const answers = { cloze: {}, daily_life: {}, academic: {} };
-        document.querySelectorAll('[data-cloze-id][data-token]').forEach((input) => {
+    const updateQuestionMeta = () => {
+        const total = steps.length || 1;
+        if (questionMetaEl) {
+            questionMetaEl.textContent = `Question ${Math.min(currentStepIndex + 1, total)} of ${total}`;
+        }
+        if (sectionNameEl) {
+            sectionNameEl.textContent = 'Reading';
+        }
+    };
+
+    const buildSteps = (mock) => {
+        const nextSteps = [];
+        (mock?.cloze || []).forEach((item, idx) => {
+            nextSteps.push({ type: 'cloze', item, idx });
+        });
+        (mock?.daily_life || []).forEach((item) => {
+            (item.questions || []).forEach((question, qIdx) => {
+                nextSteps.push({ type: 'daily', item, question, qIdx });
+            });
+        });
+        normalizeAcademic(mock?.academic).forEach((item, idx) => {
+            (item.questions || []).forEach((question, qIdx) => {
+                nextSteps.push({ type: 'academic', item, idx, question, qIdx });
+            });
+        });
+        steps = nextSteps;
+        currentStepIndex = 0;
+    };
+
+    const renderAnswerPanel = () => '<div class="kmf-answer-panel hidden" id="kmfAnswerPanel"></div>';
+
+    const renderRationales = (question) => {
+        const rationales = question?.rationales || {};
+        const options = Array.isArray(question?.options) ? question.options : Object.keys(rationales || {});
+        if (!options.length) return '';
+        const answer = question?.answer || '';
+        const rows = options.map((opt) => {
+            const rationale = escapeHtml(rationales[opt] || '');
+            const isCorrect = String(opt) === String(answer);
+            return `
+                <div class="mt-2">
+                    <span class="badge ${isCorrect ? 'bg-success' : 'bg-secondary'}">${isCorrect ? 'Correct' : 'Wrong'}</span>
+                    <span class="ms-2">${escapeHtml(String(opt))}</span>
+                    ${rationale ? `<div class="text-muted small ms-1">${rationale}</div>` : ''}
+                </div>
+            `;
+        }).join('');
+        return `<div class="mt-3"><div class="fw-semibold">Analysis</div>${rows}</div>`;
+    };
+
+    const getAnswerContent = (step) => {
+        if (!step) return '';
+        if (step.type === 'cloze') {
+            const blanks = step.item?.blanks || [];
+            if (!blanks.length) return '';
+            return blanks.map((blank) => `<div><strong>${escapeHtml(blank.token || '')}</strong>: ${escapeHtml(blank.answer || '')}</div>`).join('');
+        }
+        if (step.type === 'daily' || step.type === 'academic') {
+            const answer = step.question?.answer || '';
+            const evidence = step.question?.evidence_quote ? `<div class="mt-2"><strong>Evidence:</strong> ${escapeHtml(step.question.evidence_quote)}</div>` : '';
+            const analysis = renderRationales(step.question);
+            return answer ? `<div><strong>Correct answer:</strong> ${escapeHtml(answer)}</div>${evidence}${analysis}` : '';
+        }
+        return '';
+    };
+
+    const bindClozeInputs = () => {
+        const inputs = document.querySelectorAll('.kmf-cloze-input');
+        inputs.forEach((input) => {
             const clozeId = input.dataset.clozeId;
             const token = input.dataset.token;
-            const prefix = input.dataset.prefix || '';
-            if (!answers.cloze[clozeId]) {
-                answers.cloze[clozeId] = {};
+            if (!answersState.cloze[clozeId]) answersState.cloze[clozeId] = {};
+            if (answersState.cloze[clozeId][token]) {
+                input.value = answersState.cloze[clozeId][token];
             }
-            answers.cloze[clozeId][token] = `${prefix}${input.value || ''}`;
-        });
-
-        (currentMock?.daily_life || []).forEach((item) => {
-            const groupAnswers = {};
-            (item.questions || []).forEach((_, idx) => {
-                const selected = document.querySelector(`input[name="daily-${item.id}-${idx}"]:checked`);
-                groupAnswers[idx] = selected ? selected.value : '';
+            input.addEventListener('input', () => {
+                const expected = Number(input.getAttribute('data-expected-len') || 0);
+                if (expected && input.value.length > expected) {
+                    input.value = input.value.slice(0, expected);
+                }
+                answersState.cloze[clozeId][token] = input.value || '';
             });
+        });
+    };
+
+    const bindSingleChoice = (groupName, onSelect) => {
+        const radios = document.querySelectorAll(`input[name="${groupName}"]`);
+        radios.forEach((radio) => {
+            radio.addEventListener('change', () => {
+                if (radio.checked) onSelect(radio.value);
+            });
+        });
+    };
+
+    const renderStep = () => {
+        const step = steps[currentStepIndex];
+        if (!step) {
+            contentEl.innerHTML = '';
+            updateQuestionMeta();
+            return;
+        }
+        answerVisible = false;
+        let html = '';
+        if (step.type === 'cloze') {
+            html = renderCloze(step.item) + renderAnswerPanel();
+            contentEl.innerHTML = html;
+            bindClozeInputs();
+        } else if (step.type === 'daily') {
+            html = renderDailyStep(step.item, step.qIdx) + renderAnswerPanel();
+            contentEl.innerHTML = html;
+            const groupName = `daily-${step.item.id}-${step.qIdx}`;
+            const stored = answersState.daily_life?.[step.item.id]?.[step.qIdx];
+            if (stored) {
+                const selected = document.querySelector(`input[name="${groupName}"][value="${CSS.escape(stored)}"]`);
+                if (selected) selected.checked = true;
+            }
+            bindSingleChoice(groupName, (value) => {
+                if (!answersState.daily_life[step.item.id]) answersState.daily_life[step.item.id] = {};
+                answersState.daily_life[step.item.id][step.qIdx] = value;
+            });
+        } else if (step.type === 'academic') {
+            html = renderAcademicStep(step.item, step.idx, step.qIdx) + renderAnswerPanel();
+            contentEl.innerHTML = html;
+            const academicId = step.item.id || `academic-${step.idx}`;
+            const groupName = `academic-${academicId}-${step.qIdx}`;
+            const stored = answersState.academic?.[academicId]?.[step.qIdx];
+            if (stored) {
+                const selected = document.querySelector(`input[name="${groupName}"][value="${CSS.escape(stored)}"]`);
+                if (selected) selected.checked = true;
+            }
+            bindSingleChoice(groupName, (value) => {
+                if (!answersState.academic[academicId]) answersState.academic[academicId] = {};
+                answersState.academic[academicId][step.qIdx] = value;
+            });
+        }
+
+        updateQuestionMeta();
+        const answerPanel = document.getElementById('kmfAnswerPanel');
+        if (answerPanel) {
+            const content = getAnswerContent(step);
+            answerPanel.innerHTML = content;
+            answerPanel.classList.add('hidden');
+            if (answerBtn) {
+                answerBtn.disabled = !content;
+            }
+        }
+
+        const isFirst = currentStepIndex === 0;
+        const isLast = currentStepIndex === steps.length - 1;
+        if (backBtn) backBtn.disabled = isFirst;
+        if (nextBtn) nextBtn.disabled = isLast;
+        if (submitBtn) {
+            submitBtn.disabled = !isLast;
+            submitBtn.style.display = isLast ? 'inline-block' : 'none';
+        }
+    };
+
+    if (toggleTimeBtn && timerEl) {
+        toggleTimeBtn.addEventListener('click', () => {
+            timeHidden = !timeHidden;
+            timerEl.style.visibility = timeHidden ? 'hidden' : 'visible';
+            toggleTimeBtn.innerHTML = timeHidden
+                ? '<i class="fas fa-eye"></i>Show Time'
+                : '<i class="fas fa-eye-slash"></i>Hide Time';
+        });
+    }
+
+    const collectAnswers = () => {
+        const answers = { cloze: {}, daily_life: {}, academic: {} };
+        (currentMock?.cloze || []).forEach((item) => {
+            const clozeId = item.id;
+            answers.cloze[clozeId] = {};
+            (item.blanks || []).forEach((blank) => {
+                const token = blank.token || '';
+                const prefix = token.match(/^[A-Za-z]+/)?.[0] || token.replace(/_+$/, '');
+                const value = answersState.cloze?.[clozeId]?.[token] || '';
+                answers.cloze[clozeId][token] = `${prefix}${value}`;
+            });
+        });
+        (currentMock?.daily_life || []).forEach((item) => {
+            const groupAnswers = answersState.daily_life?.[item.id] || {};
             answers.daily_life[item.id] = groupAnswers;
         });
-
         const academicSets = normalizeAcademic(currentMock?.academic);
-        academicSets.forEach((item, itemIdx) => {
-            const academicId = item.id || `academic-${itemIdx}`;
-            answers.academic[academicId] = {};
-            (item.questions || []).forEach((_, idx) => {
-                const selected = document.querySelector(`input[name="academic-${academicId}-${idx}"]:checked`);
-                answers.academic[academicId][idx] = selected ? selected.value : '';
-            });
+        academicSets.forEach((item, idx) => {
+            const academicId = item.id || `academic-${idx}`;
+            answers.academic[academicId] = answersState.academic?.[academicId] || {};
         });
-
         return answers;
     };
 
@@ -528,20 +680,27 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const validateClozeLengths = () => {
-        const inputs = document.querySelectorAll('.cloze-input');
-        for (const input of inputs) {
-            const expected = Number(input.getAttribute('data-expected-len') || 0);
-            const value = (input.value || '').trim();
-            if (expected && value.length !== expected) {
-                return false;
+        const clozeItems = currentMock?.cloze || [];
+        for (const item of clozeItems) {
+            const clozeId = item.id;
+            const blanks = item.blanks || [];
+            for (const blank of blanks) {
+                const token = blank.token || '';
+                const prefix = token.match(/^[A-Za-z]+/)?.[0] || token.replace(/_+$/, '');
+                const expected = Math.max(1, token.length - prefix.length);
+                const value = (answersState.cloze?.[clozeId]?.[token] || '').trim();
+                if (expected && value.length !== expected) {
+                    return false;
+                }
             }
         }
         return true;
     };
 
-    generateBtn.addEventListener('click', async () => {
-        statusEl.textContent = 'Generating reading mock...';
-        generateBtn.disabled = true;
+    const loadReadingMock = async () => {
+        if (isLoading) return;
+        isLoading = true;
+        statusEl.textContent = 'Loading reading practice...';
         submitBtn.disabled = true;
         resultsEl.innerHTML = '';
         contentEl.innerHTML = '';
@@ -550,27 +709,26 @@ document.addEventListener('DOMContentLoaded', () => {
             const res = await fetch('{{ url_for("new_toefl_reading_generate") }}', { method: 'POST' });
             const data = await res.json();
             if (!data.success) {
-                statusEl.textContent = data.message || 'Generation failed.';
-                generateBtn.disabled = false;
+                statusEl.textContent = data.message || 'Load failed.';
+                isLoading = false;
                 return;
             }
             currentMock = data.mock;
-            const clozeHtml = (currentMock.cloze || []).map(renderCloze).join('');
-            const dailyHtml = (currentMock.daily_life || []).map(renderDaily).join('');
-            const academicHtml = normalizeAcademic(currentMock.academic).map((item, idx) => renderAcademic(item, idx)).join('');
-            contentEl.innerHTML = clozeHtml + dailyHtml + academicHtml;
+            buildSteps(currentMock);
+            renderStep();
             statusEl.textContent = 'Mock generated. Complete the questions.';
             submitBtn.disabled = false;
         } catch (err) {
-            statusEl.textContent = 'Generation failed. Please try again.';
+            statusEl.textContent = 'Load failed. Please try again.';
         } finally {
-            generateBtn.disabled = false;
+            isLoading = false;
         }
-    });
+    };
 
     submitBtn.addEventListener('click', async () => {
         if (!validateClozeLengths()) {
             statusEl.textContent = 'Please complete every cloze blank with the exact number of letters.';
+            statusEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
             return;
         }
         const answers = collectAnswers();
@@ -598,14 +756,39 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    document.addEventListener('input', (event) => {
-        const target = event.target;
-        if (!target || !target.classList || !target.classList.contains('cloze-input')) return;
-        const expected = Number(target.getAttribute('data-expected-len') || 0);
-        if (expected && target.value.length > expected) {
-            target.value = target.value.slice(0, expected);
-        }
-    });
+    if (backBtn) {
+        backBtn.addEventListener('click', () => {
+            if (currentStepIndex > 0) {
+                currentStepIndex -= 1;
+                renderStep();
+            }
+        });
+    }
+
+    if (nextBtn) {
+        nextBtn.addEventListener('click', () => {
+            if (currentStepIndex < steps.length - 1) {
+                currentStepIndex += 1;
+                renderStep();
+            }
+        });
+    }
+
+    if (answerBtn) {
+        answerBtn.addEventListener('click', () => {
+            const panel = document.getElementById('kmfAnswerPanel');
+            if (!panel) return;
+            answerVisible = !answerVisible;
+            panel.classList.toggle('hidden', !answerVisible);
+            answerBtn.innerHTML = answerVisible
+                ? '<i class="fas fa-eye-slash"></i>Hide Answer'
+                : '<i class="fas fa-eye"></i>View Answer';
+        });
+    }
+
+    if (generateBtn) {
+        generateBtn.addEventListener('click', loadReadingMock);
+    }
 });
 </script>
 {% endblock %}

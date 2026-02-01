@@ -1,0 +1,163 @@
+{
+  "sentence_build": [
+    {
+      "prompt": "What was the highlight of your trip?",
+      "tokens": [
+        "were",
+        "the",
+        "was",
+        "old city",
+        "showed us around",
+        "who",
+        "tour guides"
+      ],
+      "answer": "The tour guides who showed us around the old city were fantastic.",
+      "context": "The _____ _____ _____ _____ _____ _____ fantastic."
+    },
+    {
+      "prompt": "I heard Anna got a promotion.",
+      "tokens": [
+        "a different department",
+        "if",
+        "moving to",
+        "know",
+        "do",
+        "you"
+      ],
+      "answer": "Do you know if she will be moving to a different department?",
+      "context": "_____ _____ _____ _____ she will be _____ _____"
+    },
+    {
+      "prompt": "We’re planning a trip to the mountains next weekend.",
+      "tokens": [
+        "the cabins",
+        "available",
+        "whether",
+        "can",
+        "will be",
+        "you"
+      ],
+      "answer": "Can you tell me whether the cabins will be available?",
+      "context": "_____ _____ tell me _____ _____ _____ _____"
+    },
+    {
+      "prompt": "I'm looking forward to the concert this weekend.",
+      "tokens": [
+        "does",
+        "what",
+        "time",
+        "it",
+        "start"
+      ],
+      "answer": "What time does it start?",
+      "context": "_____ _____ _____ _____ _____"
+    },
+    {
+      "prompt": "The museum exhibition opens next month.",
+      "tokens": [
+        "do",
+        "you",
+        "how",
+        "know",
+        "tickets",
+        "will cost",
+        "much"
+      ],
+      "answer": "Do you know how much tickets will cost?",
+      "context": "_____ _____ _____ _____ _____ _____ _____"
+    },
+    {
+      "prompt": "I'm planning to go to the beach tomorrow.",
+      "tokens": [
+        "is",
+        "time of year",
+        "what",
+        "the water",
+        "this",
+        "like",
+        "temperature"
+      ],
+      "answer": "What is the water temperature like this time of year?",
+      "context": "_____ _____ _____ _____ _____ _____ _____"
+    },
+    {
+      "prompt": "I need to buy groceries today.",
+      "tokens": [
+        "list",
+        "do",
+        "a",
+        "have",
+        "shopping",
+        "you"
+      ],
+      "answer": "Do you have a shopping list?",
+      "context": "_____ _____ _____ _____ _____ _____"
+    },
+    {
+      "prompt": "I'll be taking a cooking class this weekend.",
+      "tokens": [
+        "learn",
+        "what",
+        "will",
+        "you",
+        "recipes"
+      ],
+      "answer": "What recipes will you learn?",
+      "context": "_____ _____ _____ _____ _____"
+    },
+    {
+      "prompt": "What did Maria ask you about the book you're reading?",
+      "tokens": [
+        "she",
+        "wanted",
+        "a copy",
+        "buy",
+        "to know",
+        "could",
+        "where"
+      ],
+      "answer": "She wanted to know where she could buy a copy.",
+      "context": "She _____ _____ _____ _____ _____ _____ _____."
+    },
+    {
+      "prompt": "How did you prepare for the exam?",
+      "tokens": [
+        "by",
+        "the professor",
+        "that",
+        "the study guide",
+        "was provided",
+        "it"
+      ],
+      "answer": "I used the study guide that was provided by the professor.",
+      "context": "I used _____ _____ _____ _____ _____."
+    }
+  ],
+  "email": {
+    "id": "email_practice_test_1",
+    "scenario": "A new poetry magazine has asked its readers for submissions, and you decided to submit two of your poems. However, you had a problem using the online submission form, and you are not certain that your submissions were received.",
+    "instructions": [
+      "Tell the editor what you like about the new magazine.",
+      "Describe the problem you experienced.",
+      "Ask about the status of your submissions."
+    ],
+    "to_name": "editor@sunshinepoetrymagazine.com",
+    "subject": "Problem using submission form"
+  },
+  "discussion": {
+    "id": "discussion_practice_test_1",
+    "professor_prompt": "In your response, you should do the following. Volunteerism refers to the act of offering your time and service without financial compensation to benefit a community, organization, or cause. While many people volunteer mainly to help others, some institutions have mandatory volunteer programs. High schools are one example, where students may be required to complete a certain number of volunteer hours to graduate. What do you think? Should high school students be required to do volunteer work? Why or why not?",
+    "student_posts": [
+      {
+        "name": "Student A",
+        "stance": "Agree",
+        "message": "Yes, I think high schools should require volunteer hours because it helps students build a sense of civic responsibility. Many teenagers don’t naturally think about helping others, and this requirement can introduce them to the idea that their time and effort can make a real difference in the lives of others."
+      },
+      {
+        "name": "Student B",
+        "stance": "Disagree",
+        "message": "I don’t think volunteer hours should be required because many students already have limited free time. Some have part-time jobs or take care of you nger siblings after school. Adding a mandatory volunteer requirement could create extra stress and make it harder for those students to balance their existing responsibilities."
+      }
+    ]
+  }
+}

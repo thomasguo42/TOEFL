@@ -1,0 +1,391 @@
+{
+  "cloze": [
+    {
+      "id": "cloze_full_12833",
+      "paragraph": "Conservation is the effort to protect plants and animals that are endangered because of human activities. Conservationists sa__ endangered spe____ by crea____ areas wh___ they c__ live saf___. Conservationists al__ educate t__ public ab___ the impor_____ of preserving the natural world. Conservation is based on research about wildlife and ecosystems that aims to understand their needs and the threats they face. By taking care of the environment, conservationists help ensure a healthy planet for future generations.",
+      "blanks": [
+        {
+          "token": "sa__",
+          "answer": "save",
+          "part_of_speech": "unknown",
+          "hint": "Complete the word using context."
+        },
+        {
+          "token": "spe____",
+          "answer": "species",
+          "part_of_speech": "unknown",
+          "hint": "Complete the word using context."
+        },
+        {
+          "token": "crea____",
+          "answer": "creating",
+          "part_of_speech": "unknown",
+          "hint": "Complete the word using context."
+        },
+        {
+          "token": "wh___",
+          "answer": "where",
+          "part_of_speech": "unknown",
+          "hint": "Complete the word using context."
+        },
+        {
+          "token": "c__",
+          "answer": "can",
+          "part_of_speech": "unknown",
+          "hint": "Complete the word using context."
+        },
+        {
+          "token": "saf___",
+          "answer": "safely",
+          "part_of_speech": "unknown",
+          "hint": "Complete the word using context."
+        },
+        {
+          "token": "al__",
+          "answer": "also",
+          "part_of_speech": "unknown",
+          "hint": "Complete the word using context."
+        },
+        {
+          "token": "t__",
+          "answer": "the",
+          "part_of_speech": "unknown",
+          "hint": "Complete the word using context."
+        },
+        {
+          "token": "ab___",
+          "answer": "about",
+          "part_of_speech": "unknown",
+          "hint": "Complete the word using context."
+        },
+        {
+          "token": "impor_____",
+          "answer": "importance",
+          "part_of_speech": "unknown",
+          "hint": "Complete the word using context."
+        }
+      ]
+    },
+    {
+      "id": "cloze_full_5433",
+      "paragraph": "Economics is the study of how societies allocate resources and make decisions about production, distribution, and consumption. It exam____ the behavior o_ governments, busin_____, and indiv______ in t__ marketplace. Stud____ economics i_ not ju__ for th___ who asp___ to become economists or bankers. Gaining a basic understanding of economic concepts, like supply and demand, inflation, and employment, benefits everyone. It enables us to make informed decisions and understand the broader economic forces that shape our daily lives.",
+      "blanks": [
+        {
+          "token": "exam____",
+          "answer": "examines",
+          "part_of_speech": "unknown",
+          "hint": "Complete the word using context."
+        },
+        {
+          "token": "o_",
+          "answer": "of",
+          "part_of_speech": "unknown",
+          "hint": "Complete the word using context."
+        },
+        {
+          "token": "busin_____",
+          "answer": "businesses",
+          "part_of_speech": "unknown",
+          "hint": "Complete the word using context."
+        },
+        {
+          "token": "indiv______",
+          "answer": "individuals",
+          "part_of_speech": "unknown",
+          "hint": "Complete the word using context."
+        },
+        {
+          "token": "t__",
+          "answer": "the",
+          "part_of_speech": "unknown",
+          "hint": "Complete the word using context."
+        },
+        {
+          "token": "Stud____",
+          "answer": "Studying",
+          "part_of_speech": "unknown",
+          "hint": "Complete the word using context."
+        },
+        {
+          "token": "i_",
+          "answer": "is",
+          "part_of_speech": "unknown",
+          "hint": "Complete the word using context."
+        },
+        {
+          "token": "ju__",
+          "answer": "just",
+          "part_of_speech": "unknown",
+          "hint": "Complete the word using context."
+        },
+        {
+          "token": "th___",
+          "answer": "those",
+          "part_of_speech": "unknown",
+          "hint": "Complete the word using context."
+        },
+        {
+          "token": "asp___",
+          "answer": "aspire",
+          "part_of_speech": "unknown",
+          "hint": "Complete the word using context."
+        }
+      ]
+    }
+  ],
+  "daily_life": [
+    {
+      "id": "daily_1_0",
+      "caption": "Read an email.",
+      "format": "email",
+      "title": "Maintenance Notice",
+      "author": "",
+      "headers": {
+        "subject": "Maintenance Notice"
+      },
+      "body_lines": [
+        "Dear Mr. Brown,",
+        "We are pleased that you are considering our facility for your mother’s birthday party.",
+        "Our maintenance team is scheduled to paint your apartment’s living room on March 11starting at 9:00 a.m. We ask that you leave the apartment and not return until one hour",
+        "after the painters have finished at 12:00 p.m.",
+        "Best regards,",
+        "Anna Davis"
+      ],
+      "footer_lines": [],
+      "source_lines": [
+        "Subject: Maintenance Notice",
+        "Dear Mr. Brown,",
+        "We are pleased that you are considering our facility for your mother’s birthday party.",
+        "Our maintenance team is scheduled to paint your apartment’s living room on March 11starting at 9:00 a.m. We ask that you leave the apartment and not return until one hour",
+        "after the painters have finished at 12:00 p.m.",
+        "Best regards,",
+        "Anna Davis"
+      ],
+      "source_text": "Subject: Maintenance Notice Dear Mr. Brown, We are pleased that you are considering our facility for your mother’s birthday party. Our maintenance team is scheduled to paint your apartment’s living room on March 11starting at 9:00 a.m. We ask that you leave the apartment and not return until one hour after the painters have finished at 12:00 p.m. Best regards, Anna Davis",
+      "source_type": "an email",
+      "questions": [
+        {
+          "number": 11,
+          "question": "What room in the apartment will be painted?",
+          "options": [
+            "The kitchen",
+            "The dining room",
+            "The living room",
+            "The bedroom"
+          ],
+          "answer": "The living room",
+          "rationales": {},
+          "evidence_quote": null
+        },
+        {
+          "number": 12,
+          "question": "When can Mr. Brown return to the apartment?",
+          "options": [
+            "At 9:00 AM",
+            "At 11:00 AM",
+            "At 12:00 PM",
+            "At 1:00 PM 3"
+          ],
+          "answer": "At 1:00 PM 3",
+          "rationales": {},
+          "evidence_quote": null
+        }
+      ]
+    },
+    {
+      "id": "daily_2_1",
+      "caption": "Read an email.",
+      "format": "email",
+      "title": "Medical appointment",
+      "author": "",
+      "headers": {
+        "subject": "Medical appointment"
+      },
+      "body_lines": [
+        "Dear Ms. Patel,",
+        "Your appointment at Lakeside Medical Center is scheduled for May 10 at 3:00 P.M.",
+        "Please arrive 15 minutes early for paperwork. You will be seen by Dr. Liu. Click the link",
+        "below to confirm. To reschedule or cancel, call us at 756-8793.",
+        "Regards,",
+        "Brittany Jones"
+      ],
+      "footer_lines": [],
+      "source_lines": [
+        "Subject: Medical appointment",
+        "Dear Ms. Patel,",
+        "Your appointment at Lakeside Medical Center is scheduled for May 10 at 3:00 P.M.",
+        "Please arrive 15 minutes early for paperwork. You will be seen by Dr. Liu. Click the link",
+        "below to confirm. To reschedule or cancel, call us at 756-8793.",
+        "Regards,",
+        "Brittany Jones"
+      ],
+      "source_text": "Subject: Medical appointment Dear Ms. Patel, Your appointment at Lakeside Medical Center is scheduled for May 10 at 3:00 P.M. Please arrive 15 minutes early for paperwork. You will be seen by Dr. Liu. Click the link below to confirm. To reschedule or cancel, call us at 756-8793. Regards, Brittany Jones",
+      "source_type": "an email",
+      "questions": [
+        {
+          "number": 11,
+          "question": "What time should Ms. Patel arrive for her appointment?",
+          "options": [
+            "10:00 AM",
+            "2:45 PM",
+            "3:00 PM",
+            "3:15 PM"
+          ],
+          "answer": "2:45 PM",
+          "rationales": {},
+          "evidence_quote": null
+        },
+        {
+          "number": 12,
+          "question": "How can Ms. Patel cancel her appointment?",
+          "options": [
+            "By replying to the e-mail",
+            "By clicking a link",
+            "By calling a phone number",
+            "By sending a text message 8"
+          ],
+          "answer": "By calling a phone number",
+          "rationales": {},
+          "evidence_quote": null
+        }
+      ]
+    }
+  ],
+  "academic": [
+    {
+      "id": "academic_1",
+      "title": "Reading Section, Module 1",
+      "passage_lines": [
+        "Read a notice.",
+        "This area is specifically designated for quiet reading and study to ensure a peaceful",
+        "environment for all patrons. Please adhere to the following guidelines:"
+      ],
+      "passage": "Reading Section, Module 1 Read a notice. This area is specifically designated for quiet reading and study to ensure a peaceful environment for all patrons. Please adhere to the following guidelines:",
+      "questions": [
+        {
+          "number": 1,
+          "question": "Noise Levels: Please keep noise to a minimum. This includes refraining from loud conversations and phone calls.",
+          "options": []
+        },
+        {
+          "number": 2,
+          "question": "Electronic Devices: Ensure that all electronic devices, such as phones and laptops, are set to silent mode. The volume on headphones must be kept low.",
+          "options": []
+        },
+        {
+          "number": 3,
+          "question": "Conversations: If you need to have a conversation, please conduct it quietly or proceed to another area of the library.",
+          "options": []
+        },
+        {
+          "number": 4,
+          "question": "Music and Media: Listening to music or watching videos without headphones is not allowed. Please keep the volume of headphones at a level that only you can hear.",
+          "options": []
+        },
+        {
+          "number": 5,
+          "question": "Respect for Others: Be mindful of those around you who are studying or reading. Your cooperation helps maintain a serene environment for everyone.",
+          "options": []
+        },
+        {
+          "number": 13,
+          "question": "What can be concluded about the library?",
+          "options": [
+            "It has areas that are not specifically designated as quiet zones.",
+            "It has received numerous complaints about noise levels.",
+            "It is located on the campus of a university.",
+            "It holds a large collection of film and music recordings."
+          ],
+          "answer": "It has areas that are not specifically designated as quiet zones.",
+          "rationales": {},
+          "evidence_quote": null
+        },
+        {
+          "number": 14,
+          "question": "The phrase \"adhere to\" in the opening paragraph is closest in meaning to",
+          "options": [
+            "notice",
+            "read",
+            "follow",
+            "admire"
+          ],
+          "answer": "follow",
+          "rationales": {},
+          "evidence_quote": null
+        },
+        {
+          "number": 15,
+          "question": "What is indicated about headphones?",
+          "options": [
+            "They are not permitted in the library's quiet zone.",
+            "They are only allowed for use with smartphones and laptop computers.",
+            "They may not be shared between two users.",
+            "They should be kept at a low volume. Welcome to the Library Quiet Zone! 4"
+          ],
+          "answer": "They should be kept at a low volume. Welcome to the Library Quiet Zone! 4",
+          "rationales": {},
+          "evidence_quote": null
+        }
+      ]
+    },
+    {
+      "id": "academic_2",
+      "title": "Reading Section, Module 2",
+      "passage_lines": [
+        "Read an advertisement.",
+        "The programs will begin on May 1.",
+        "Volunteers must be available Saturdays or Sundays, 9 A.M. to 4 P.M.,",
+        "and complete a four-hour training session before starting.",
+        "Training sessions are scheduled for the week of April 15.",
+        "Previous experience with children preferred but not required.",
+        "Responsibilities include leading nature walks, supervising craft activities,",
+        "and helping with educational demonstrations.",
+        "Application deadline: March 15.",
+        "Background check required for all accepted volunteers.",
+        "Contact Sarah Mitchell at 555-0199 for more information."
+      ],
+      "passage": "Reading Section, Module 2 Read an advertisement. The programs will begin on May 1. Volunteers must be available Saturdays or Sundays, 9 A.M. to 4 P.M., and complete a four-hour training session before starting. Training sessions are scheduled for the week of April 15. Previous experience with children preferred but not required. Responsibilities include leading nature walks, supervising craft activities, and helping with educational demonstrations. Application deadline: March 15. Background check required for all accepted volunteers. Contact Sarah Mitchell at 555-0199 for more information.",
+      "questions": [
+        {
+          "number": 13,
+          "question": "What is this poster mainly advertising?",
+          "options": [
+            "Career opportunities at the Riverdale Parks Department",
+            "Educational programs for children",
+            "Volunteer opportunities for community members",
+            "Training courses for nature guides"
+          ],
+          "answer": "Volunteer opportunities for community members",
+          "rationales": {},
+          "evidence_quote": null
+        },
+        {
+          "number": 14,
+          "question": "What must volunteers do before they can start working?",
+          "options": [
+            "Submit references from previous employers",
+            "Complete training and pass a background check",
+            "Demonstrate experience working with children",
+            "Commit to working both Saturday and Sunday"
+          ],
+          "answer": "Complete training and pass a background check",
+          "rationales": {},
+          "evidence_quote": null
+        },
+        {
+          "number": 15,
+          "question": "When is the latest someone can apply for this program?",
+          "options": [
+            "March 15th",
+            "April 15th",
+            "May 1st",
+            "May 9th Riverdale Parks Department seeks dedicated volunteers to assist with weekendnature programs for families. 9"
+          ],
+          "answer": "March 15th",
+          "rationales": {},
+          "evidence_quote": null
+        }
+      ]
+    }
+  ]
+}

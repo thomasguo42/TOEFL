@@ -3,30 +3,8 @@
 {% block title %}New TOEFL Writing Practice{% endblock %}
 
 {% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/new_toefl_mock.css') }}">
 <style>
-    .mock-panel {
-        background: #ffffff;
-        border: 1px solid var(--toefl-border);
-        border-radius: 1.25rem;
-        padding: 2rem;
-    }
-
-    .mock-meta {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 1rem;
-        margin-top: 1.5rem;
-    }
-
-    .meta-chip {
-        background: var(--toefl-gray-bg);
-        border: 1px solid var(--toefl-border-light);
-        border-radius: 999px;
-        padding: 0.35rem 0.9rem;
-        font-size: 0.85rem;
-        color: var(--toefl-text-light);
-    }
-
     .results-split {
         display: grid;
         grid-template-columns: 1.2fr 1fr;
@@ -64,43 +42,56 @@
 {% endblock %}
 
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-lg-10 col-xl-8">
-        <div class="d-flex align-items-center justify-content-between flex-wrap gap-3 mb-4">
+<div class="kmf-shell">
+    <header class="kmf-topbar">
+        <div class="kmf-brand">
+            <div class="kmf-logo">学</div>
             <div>
-                <h1 class="mb-2"><i class="fas fa-pen-nib me-2"></i>Writing Practice</h1>
-                <p class="text-muted mb-0">Generate sentence-building, email, and academic discussion tasks.</p>
-            </div>
-            <a href="{{ url_for('new_toefl_practice_hub') }}" class="btn btn-outline-secondary">
-                <i class="fas fa-arrow-left me-2"></i>Back to Practice Hub
-            </a>
-        </div>
-
-        <div class="mock-panel">
-            <h4 class="mb-3">Practice Format</h4>
-            <p class="text-muted">
-                Gemini will generate each task using the same writing prompt patterns and scoring logic as the current writing tools.
-            </p>
-
-            <div class="mock-meta">
-                <span class="meta-chip">12 questions</span>
-                <span class="meta-chip">Sentence build + email</span>
-                <span class="meta-chip">Academic discussion</span>
-            </div>
-
-            <div class="mt-4">
-                <button class="btn btn-warning" id="generateWriting">
-                    <i class="fas fa-wand-magic-sparkles me-2"></i>Generate Writing Practice
-                </button>
-                <button class="btn btn-outline-secondary ms-2" id="submitWriting" disabled>
-                    <i class="fas fa-check me-2"></i>Submit Answers
-                </button>
-                <span class="text-muted ms-2" id="writingStatus">Ready to generate.</span>
+                <div class="kmf-brand-title">学而思国际 <span class="kmf-brand-tag">托福</span></div>
+                <div class="kmf-brand-sub">高分有方法 | 提能有保障</div>
             </div>
         </div>
+        <div class="kmf-toolbar">
+            <button class="kmf-pill" type="button"><i class="fas fa-circle-question"></i>Help</button>
+            <button class="kmf-pill" type="button"><i class="fas fa-bookmark"></i>Review</button>
+            <button class="kmf-pill kmf-pill--light" type="button" id="kmfBackBtn"><i class="fas fa-chevron-left"></i>Back</button>
+            <button class="kmf-pill" type="button" id="kmfAnswerBtn"><i class="fas fa-eye"></i>View Answer</button>
+            <button class="kmf-pill kmf-pill--light" type="button" id="kmfNextBtn">Next <i class="fas fa-chevron-right"></i></button>
+        </div>
+    </header>
+    <div class="kmf-sectionbar">
+        <div class="kmf-section-left">
+            <span id="kmfSectionName">Writing</span>
+            <span class="kmf-section-sep">|</span>
+            <span id="kmfQuestionMeta">Question 1 of 1</span>
+        </div>
+        <div class="kmf-section-right">
+            <span id="kmfTimer">00:00:00</span>
+            <button class="kmf-hide-time" type="button" id="kmfToggleTime"><i class="fas fa-eye-slash"></i>Hide Time</button>
+        </div>
+    </div>
+    <div class="kmf-canvas">
+        <div class="kmf-content">
+            <div class="kmf-card kmf-admin-card">
+                <div class="fw-semibold mb-2">Writing Practice</div>
+                <p class="text-muted mb-3">Generate sentence-building, email, and academic discussion tasks.</p>
+                <div class="kmf-admin-actions">
+                    <button class="btn btn-warning" id="generateWriting">
+                        <i class="fas fa-wand-magic-sparkles me-2"></i>Generate Writing Practice
+                    </button>
+                    <button class="btn btn-outline-secondary" id="submitWriting" disabled>
+                        <i class="fas fa-check me-2"></i>Submit Answers
+                    </button>
+                    <span class="text-muted" id="writingStatus">Ready to generate.</span>
+                    <a href="{{ url_for('new_toefl_practice_hub') }}" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left me-2"></i>Back to Practice Hub
+                    </a>
+                </div>
+            </div>
 
-        <div class="mt-4" id="writingContent"></div>
-        <div class="mt-4" id="writingResults"></div>
+            <div id="writingContent"></div>
+            <div class="mt-4" id="writingResults"></div>
+        </div>
     </div>
 </div>
 {% endblock %}
@@ -113,7 +104,21 @@ document.addEventListener('DOMContentLoaded', () => {
     const statusEl = document.getElementById('writingStatus');
     const contentEl = document.getElementById('writingContent');
     const resultsEl = document.getElementById('writingResults');
+    const sectionNameEl = document.getElementById('kmfSectionName');
+    const questionMetaEl = document.getElementById('kmfQuestionMeta');
+    const timerEl = document.getElementById('kmfTimer');
+    const toggleTimeBtn = document.getElementById('kmfToggleTime');
+    const backBtn = document.getElementById('kmfBackBtn');
+    const nextBtn = document.getElementById('kmfNextBtn');
+    const answerBtn = document.getElementById('kmfAnswerBtn');
     let currentMock = null;
+    let steps = [];
+    let currentStepIndex = 0;
+    let answerVisible = false;
+    const answersState = { sentence_build: {}, email_text: '', discussion_text: '' };
+    let timeHidden = false;
+    if (submitBtn) submitBtn.style.display = 'none';
+    let isLoading = false;
 
     const escapeHtml = (text) => (text || '')
         .replace(/&/g, '&amp;')
@@ -124,29 +129,54 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const renderSentenceBuild = (items) => {
         if (!items || !items.length) return '';
-        const rows = items.map((item, idx) => `
-            <div class="card mb-3">
-                <div class="card-body">
-                    <div class="fw-semibold mb-2">Sentence ${idx + 1}: ${escapeHtml(item.prompt || '')}</div>
-                    <div class="mb-2 text-muted small">${(item.tokens || []).map(escapeHtml).join(' | ')}</div>
-                    <input class="form-control" data-sentence-index="${idx}" placeholder="Type the correct sentence">
+        const rows = items.map((item, idx) => {
+            const tokens = (item.tokens || []).map(escapeHtml);
+            const sentenceIndex = Number.isFinite(item._idx) ? item._idx : idx;
+            return `
+                <div class="kmf-sentence-row">
+                    <div class="kmf-avatar">${escapeHtml((item.speaker || 'A').slice(0, 1))}</div>
+                    <div>
+                        <div class="fw-semibold mb-2">${escapeHtml(item.prompt || '')}</div>
+                        <div class="kmf-sentence-line">
+                            <input class="kmf-sentence-input" data-sentence-index="${sentenceIndex}" placeholder="Type the sentence">
+                        </div>
+                    </div>
                 </div>
+                ${tokens.length ? `<div class="kmf-word-bank">${tokens.map((token) => `<span>${token}</span>`).join('')}</div>` : ''}
+            `;
+        }).join('');
+
+        return `
+            <div class="kmf-card kmf-section">
+                <div class="kmf-heading">Build a Sentence</div>
+                ${rows}
             </div>
-        `).join('');
-        return `<div class="mb-4"><h5>Build a Sentence</h5>${rows}</div>`;
+        `;
     };
 
     const renderEmail = (task) => {
         if (!task) return '';
         const instructions = (task.instructions || []).map((line) => `<li>${escapeHtml(line)}</li>`).join('');
         return `
-            <div class="card mb-3">
-                <div class="card-body">
-                    <h5 class="card-title">Write an Email</h5>
-                    <p class="card-text">${escapeHtml(task.scenario || '')}</p>
-                    <ul>${instructions}</ul>
-                    <div class="mb-2 text-muted small">To: ${escapeHtml(task.to_name || '')} | Subject: ${escapeHtml(task.subject || '')}</div>
-                    <textarea class="form-control" rows="6" id="emailText" placeholder="Write your email response"></textarea>
+            <div class="kmf-card kmf-section">
+                <div class="kmf-writing-split">
+                    <div>
+                        <div class="fw-semibold mb-2">Write an Email</div>
+                        <p class="text-muted">${escapeHtml(task.scenario || '')}</p>
+                        <ul>${instructions}</ul>
+                    </div>
+                    <div class="kmf-response-panel">
+                        <div class="fw-semibold mb-2">Your Response:</div>
+                        <div class="fw-semibold">To: ${escapeHtml(task.to_name || '')}</div>
+                        <div class="fw-semibold mb-2">Subject: ${escapeHtml(task.subject || '')}</div>
+                        <div class="kmf-toolbar-row">
+                            <button class="kmf-tool-btn active" type="button">Cut</button>
+                            <button class="kmf-tool-btn" type="button">Paste</button>
+                            <button class="kmf-tool-btn" type="button">Undo</button>
+                            <button class="kmf-tool-btn" type="button">Redo</button>
+                        </div>
+                        <textarea class="kmf-response-textarea" id="emailText" placeholder="Write your email here..."></textarea>
+                    </div>
                 </div>
             </div>
         `;
@@ -154,34 +184,176 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const renderDiscussion = (task) => {
         if (!task) return '';
-        const posts = (task.student_posts || []).map((post) => `
-            <div class="border rounded p-2 mb-2">
-                <div class="fw-semibold">${escapeHtml(post.name || 'Student')}</div>
-                <div class="text-muted small">${escapeHtml(post.stance || '')}</div>
-                <div>${escapeHtml(post.message || '')}</div>
-            </div>
-        `).join('');
+        const posts = (task.student_posts || []).map((post) => {
+            const initials = escapeHtml((post.name || 'S').slice(0, 1));
+            return `
+                <div class="d-flex gap-3 mb-3">
+                    <div class="kmf-avatar">${initials}</div>
+                    <div>
+                        <div class="fw-semibold">${escapeHtml(post.name || 'Student')}</div>
+                        <div class="text-muted small mb-1">${escapeHtml(post.stance || '')}</div>
+                        <div>${escapeHtml(post.message || '')}</div>
+                    </div>
+                </div>
+            `;
+        }).join('');
         return `
-            <div class="card mb-3">
-                <div class="card-body">
-                    <h5 class="card-title">Academic Discussion</h5>
-                    <p class="card-text">${escapeHtml(task.professor_prompt || '')}</p>
-                    ${posts}
-                    <textarea class="form-control" rows="6" id="discussionText" placeholder="Write your discussion post"></textarea>
+            <div class="kmf-card kmf-section">
+                <div class="kmf-writing-split">
+                    <div>
+                        <div class="fw-semibold mb-2">Academic Discussion</div>
+                        <p class="text-muted">${escapeHtml(task.professor_prompt || '')}</p>
+                    </div>
+                    <div class="kmf-response-panel">
+                        ${posts}
+                        <div class="kmf-toolbar-row">
+                            <button class="kmf-tool-btn active" type="button">Cut</button>
+                            <button class="kmf-tool-btn" type="button">Paste</button>
+                            <button class="kmf-tool-btn" type="button">Undo</button>
+                            <button class="kmf-tool-btn" type="button">Redo</button>
+                        </div>
+                        <textarea class="kmf-response-textarea" id="discussionText" placeholder="Write your discussion response here..."></textarea>
+                    </div>
                 </div>
             </div>
         `;
     };
 
-    const collectAnswers = () => {
-        const sentenceBuild = {};
-        document.querySelectorAll('[data-sentence-index]').forEach((input) => {
-            sentenceBuild[input.dataset.sentenceIndex] = input.value || '';
+    const updateQuestionMeta = () => {
+        const total = steps.length || 1;
+        if (questionMetaEl) {
+            questionMetaEl.textContent = `Question ${Math.min(currentStepIndex + 1, total)} of ${total}`;
+        }
+        if (sectionNameEl) {
+            sectionNameEl.textContent = 'Writing';
+        }
+    };
+
+    const buildSteps = (mock) => {
+        const nextSteps = [];
+        (mock?.sentence_build || []).forEach((item, idx) => {
+            nextSteps.push({ type: 'sentence', item, idx });
         });
+        if (mock?.email) nextSteps.push({ type: 'email', item: mock.email });
+        if (mock?.discussion) nextSteps.push({ type: 'discussion', item: mock.discussion });
+        steps = nextSteps;
+        currentStepIndex = 0;
+    };
+
+    const renderAnswerPanel = () => '<div class="kmf-answer-panel hidden" id="kmfAnswerPanel"></div>';
+
+    const getAnswerContent = (step) => {
+        if (!step) return '<div>No answer available.</div>';
+        if (step.type === 'sentence') {
+            const answer = step.item?.answer || '';
+            return answer ? `<div><strong>Sample answer:</strong> ${escapeHtml(answer)}</div>` : '<div>No answer available.</div>';
+        }
+        return '<div>No model answer available for this task.</div>';
+    };
+
+    const renderStep = () => {
+        const step = steps[currentStepIndex];
+        if (!step) {
+            contentEl.innerHTML = '';
+            updateQuestionMeta();
+            return;
+        }
+        answerVisible = false;
+        let html = '';
+        if (step.type === 'sentence') {
+            html = renderSentenceBuild([{ ...step.item, _idx: step.idx }]) + renderAnswerPanel();
+            contentEl.innerHTML = html;
+            const input = contentEl.querySelector('[data-sentence-index]');
+            if (input) {
+                input.value = answersState.sentence_build?.[step.idx] || '';
+                input.addEventListener('input', () => {
+                    answersState.sentence_build[step.idx] = input.value || '';
+                });
+            }
+        } else if (step.type === 'email') {
+            html = renderEmail(step.item) + renderAnswerPanel();
+            contentEl.innerHTML = html;
+            const textarea = document.getElementById('emailText');
+            if (textarea) {
+                textarea.value = answersState.email_text || '';
+                textarea.addEventListener('input', () => {
+                    answersState.email_text = textarea.value || '';
+                });
+            }
+        } else if (step.type === 'discussion') {
+            html = renderDiscussion(step.item) + renderAnswerPanel();
+            contentEl.innerHTML = html;
+            const textarea = document.getElementById('discussionText');
+            if (textarea) {
+                textarea.value = answersState.discussion_text || '';
+                textarea.addEventListener('input', () => {
+                    answersState.discussion_text = textarea.value || '';
+                });
+            }
+        }
+
+        updateQuestionMeta();
+        const answerPanel = document.getElementById('kmfAnswerPanel');
+        if (answerPanel) {
+            answerPanel.innerHTML = getAnswerContent(step);
+            answerPanel.classList.add('hidden');
+        }
+
+        const isFirst = currentStepIndex === 0;
+        const isLast = currentStepIndex === steps.length - 1;
+        if (backBtn) backBtn.disabled = isFirst;
+        if (nextBtn) nextBtn.disabled = isLast;
+        if (submitBtn) {
+            submitBtn.disabled = !isLast;
+            submitBtn.style.display = isLast ? 'inline-block' : 'none';
+        }
+    };
+
+    if (toggleTimeBtn && timerEl) {
+        toggleTimeBtn.addEventListener('click', () => {
+            timeHidden = !timeHidden;
+            timerEl.style.visibility = timeHidden ? 'hidden' : 'visible';
+            toggleTimeBtn.innerHTML = timeHidden
+                ? '<i class="fas fa-eye"></i>Show Time'
+                : '<i class="fas fa-eye-slash"></i>Hide Time';
+        });
+    }
+
+    if (backBtn) {
+        backBtn.addEventListener('click', () => {
+            if (currentStepIndex > 0) {
+                currentStepIndex -= 1;
+                renderStep();
+            }
+        });
+    }
+
+    if (nextBtn) {
+        nextBtn.addEventListener('click', () => {
+            if (currentStepIndex < steps.length - 1) {
+                currentStepIndex += 1;
+                renderStep();
+            }
+        });
+    }
+
+    if (answerBtn) {
+        answerBtn.addEventListener('click', () => {
+            const panel = document.getElementById('kmfAnswerPanel');
+            if (!panel) return;
+            answerVisible = !answerVisible;
+            panel.classList.toggle('hidden', !answerVisible);
+            answerBtn.innerHTML = answerVisible
+                ? '<i class="fas fa-eye-slash"></i>Hide Answer'
+                : '<i class="fas fa-eye"></i>View Answer';
+        });
+    }
+
+    const collectAnswers = () => {
         return {
-            sentence_build: sentenceBuild,
-            email_text: document.getElementById('emailText')?.value || '',
-            discussion_text: document.getElementById('discussionText')?.value || '',
+            sentence_build: answersState.sentence_build,
+            email_text: answersState.email_text || '',
+            discussion_text: answersState.discussion_text || '',
         };
     };
 
@@ -457,9 +629,10 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     };
 
-    generateBtn.addEventListener('click', async () => {
-        statusEl.textContent = 'Generating writing mock...';
-        generateBtn.disabled = true;
+    const loadWritingMock = async () => {
+        if (isLoading) return;
+        isLoading = true;
+        statusEl.textContent = 'Loading writing practice...';
         submitBtn.disabled = true;
         resultsEl.innerHTML = '';
         contentEl.innerHTML = '';
@@ -468,24 +641,21 @@ document.addEventListener('DOMContentLoaded', () => {
             const res = await fetch('{{ url_for("new_toefl_writing_generate") }}', { method: 'POST' });
             const data = await res.json();
             if (!data.success) {
-                statusEl.textContent = data.message || 'Generation failed.';
-                generateBtn.disabled = false;
+                statusEl.textContent = data.message || 'Load failed.';
+                isLoading = false;
                 return;
             }
             currentMock = data.mock;
-            contentEl.innerHTML = [
-                renderSentenceBuild(currentMock.sentence_build),
-                renderEmail(currentMock.email),
-                renderDiscussion(currentMock.discussion),
-            ].join('');
+            buildSteps(currentMock);
+            renderStep();
             statusEl.textContent = 'Mock generated. Complete the tasks.';
             submitBtn.disabled = false;
         } catch (err) {
-            statusEl.textContent = 'Generation failed. Please try again.';
+            statusEl.textContent = 'Load failed. Please try again.';
         } finally {
-            generateBtn.disabled = false;
+            isLoading = false;
         }
-    });
+    };
 
     submitBtn.addEventListener('click', async () => {
         const answers = collectAnswers();
@@ -512,6 +682,10 @@ document.addEventListener('DOMContentLoaded', () => {
             submitBtn.disabled = false;
         }
     });
+
+    if (generateBtn) {
+        generateBtn.addEventListener('click', loadWritingMock);
+    }
 });
 </script>
 {% endblock %}

@@ -3,7 +3,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import Any, Dict, List, Optional
+import re
 
 
 @dataclass(frozen=True)
@@ -29,6 +30,31 @@ _TESTS = [
         test_id="practice_test_2",
         title="Full-Length Practice Test 2",
         filename="toefl-ibt-full-length-practice-test-2.txt",
+    ),
+    FullLengthTest(
+        test_id="teachers_resources_test_1",
+        title="Teacher Resources Practice Test 1",
+        filename="toefl-ibt-teachers-resources-practice-test-1.txt",
+    ),
+    FullLengthTest(
+        test_id="teachers_resources_test_2",
+        title="Teacher Resources Practice Test 2",
+        filename="toefl-ibt-teachers-resources-practice-test-2.txt",
+    ),
+    FullLengthTest(
+        test_id="teachers_resources_test_3",
+        title="Teacher Resources Practice Test 3",
+        filename="toefl-ibt-teachers-resources-practice-test-3.txt",
+    ),
+    FullLengthTest(
+        test_id="teachers_resources_test_4",
+        title="Teacher Resources Practice Test 4",
+        filename="toefl-ibt-teachers-resources-practice-test-4.txt",
+    ),
+    FullLengthTest(
+        test_id="teachers_resources_test_5",
+        title="Teacher Resources Practice Test 5",
+        filename="toefl-ibt-teachers-resources-practice-test-5.txt",
     ),
 ]
 
@@ -177,3 +203,84 @@ def get_writing_section(test_id: str) -> Optional[Dict[str, str]]:
         "content": content,
         "answer_key": answer_key,
     }
+
+
+def _should_skip_speaking_line(text: str) -> bool:
+    if not text:
+        return True
+    if text.isdigit():
+        return True
+    if text.startswith("TOEFL iBT"):
+        return True
+    if text.startswith("Teacher Resources"):
+        return True
+    if text.startswith("Practice Test"):
+        return True
+    return False
+
+
+def get_speaking_section(test_id: str) -> Optional[Dict[str, List[Dict[str, Any]]]]:
+    text = _load_text(test_id)
+    if not text:
+        return None
+
+    lines = [line.strip() for line in text.splitlines()]
+    start_idx = next((idx for idx, line in enumerate(lines) if line.strip() == "Speaking Section"), None)
+    if start_idx is None:
+        return None
+
+    repeat_items: List[Dict[str, Any]] = []
+    interview_items: List[Dict[str, Any]] = []
+    current_prompt: List[str] = []
+    current_mode: Optional[str] = None
+
+    def flush_prompt() -> None:
+        nonlocal current_prompt, current_mode
+        if current_prompt and current_mode:
+            prompt_text = re.sub(r"\s+", " ", " ".join(current_prompt)).strip()
+            if prompt_text:
+                if current_mode == "repeat":
+                    repeat_items.append({"prompt": prompt_text, "response_time_seconds": 10})
+                elif current_mode == "interview":
+                    interview_items.append({"prompt": prompt_text, "response_time_seconds": 45, "focus_points": []})
+        current_prompt = []
+
+    for raw in lines[start_idx + 1:]:
+        line = raw.strip()
+        if not line:
+            continue
+        if line == "Listen and Repeat":
+            flush_prompt()
+            current_mode = "repeat"
+            continue
+        if line == "Take an Interview":
+            flush_prompt()
+            current_mode = "interview"
+            continue
+        if line.endswith("Section") and line != "Speaking Section":
+            flush_prompt()
+            break
+        if line.startswith("Trainer:"):
+            flush_prompt()
+            current_mode = "repeat"
+            remainder = line[len("Trainer:"):].strip()
+            if remainder:
+                current_prompt = [remainder]
+            continue
+        if line.startswith("Interviewer:"):
+            flush_prompt()
+            current_mode = "interview"
+            remainder = line[len("Interviewer:"):].strip()
+            if remainder:
+                current_prompt = [remainder]
+            continue
+        if current_prompt:
+            if _should_skip_speaking_line(line):
+                continue
+            current_prompt.append(line)
+
+    flush_prompt()
+
+    if not repeat_items and not interview_items:
+        return None
+    return {"repeat_items": repeat_items, "items": interview_items}

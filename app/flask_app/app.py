@@ -3,6 +3,7 @@ TOEFL Vocabulary Studio - Flask Application
 Main application file with all routes and session management.
 """
 import os
+import json
 import random
 import re
 import time
@@ -32,10 +33,11 @@ from flask import (
 from werkzeug.exceptions import HTTPException
 from flask_cors import CORS
 from sqlalchemy import and_, or_, inspect, text, func
+from sqlalchemy.orm.attributes import flag_modified
 from markupsafe import Markup
 
 from config import config
-from models import db, User, Word, UserWord, ReviewLog, UnfamiliarWord
+from models import db, User, Word, UserWord, ReviewLog, UnfamiliarWord, NewToeflMockRecord
 from scheduler import compute_schedule
 from utils import (
     hash_password,
@@ -123,6 +125,44 @@ from models import (
     ListeningQuestion,
     ListeningUserProgress,
 )
+
+
+def _load_new_toefl_speaking_rubrics() -> Dict[str, str]:
+    """Load TOEFL speaking rubrics text for New TOEFL mock feedback pages."""
+    rubrics_path = Path(__file__).resolve().parents[2] / "TOEFL_Practice_Test" / "speaking-rubrics.txt"
+    if not rubrics_path.exists():
+        return {"repeat": "", "interview": "", "full": ""}
+    text = rubrics_path.read_text(encoding="utf-8", errors="ignore")
+    lower = text.lower()
+    guide_idx = lower.find("speaking scoring guide")
+    repeat_idx = 0 if text else -1
+    interview_idx = guide_idx if guide_idx != -1 else -1
+    repeat_text = ""
+    interview_text = ""
+    if repeat_idx != -1 and interview_idx != -1:
+        repeat_text = text[repeat_idx:interview_idx].strip()
+        interview_text = text[interview_idx:].strip()
+    elif repeat_idx != -1:
+        repeat_text = text[repeat_idx:].strip()
+    elif interview_idx != -1:
+        interview_text = text[interview_idx:].strip()
+    return {"repeat": repeat_text, "interview": interview_text, "full": text.strip()}
+
+
+def _map_overall_to_band(score: Optional[float]) -> int:
+    if score is None:
+        return 0
+    if score >= 90:
+        return 5
+    if score >= 80:
+        return 4
+    if score >= 70:
+        return 3
+    if score >= 60:
+        return 2
+    if score >= 50:
+        return 1
+    return 0
 
 
 # Initialize Flask app
@@ -1366,7 +1406,7 @@ def new_toefl_speaking_task(task_id):
         'speaking/practice.html',
         task=task,
         user=user,
-        mock_back_url=url_for('new_toefl_speaking_practice'),
+        mock_back_url=url_for('new_toefl_speaking_mock'),
         hide_regenerate=True,
         mock_mode=True,
     )
@@ -1539,6 +1579,7 @@ def new_toefl_speaking_generate():
 
     payload = request.get_json(silent=True) or {}
     interview_set_id = payload.get('interview_set_id')
+    prebuilt_only = os.getenv("TOEFL_PREBUILT_ONLY", "false").lower() in {"1", "true", "yes"}
 
     if _throttle_new_toefl('speaking'):
         task_ids = session.get('new_toefl_speaking_task_ids') or []
@@ -1547,17 +1588,20 @@ def new_toefl_speaking_generate():
             return jsonify({'success': True, 'cached': True, 'tasks': tasks})
         return jsonify({'success': False, 'message': 'Please wait a minute before generating again.'}), 429
 
-    client = get_gemini_client()
-    if not client or not client.is_configured:
-        return jsonify({'success': False, 'message': 'DeepSeek API is not configured'}), 503
-
     tts = get_tts_service()
-    mock = generate_speaking_mock(client, tts, interview_set_id=interview_set_id)
+    mock = generate_speaking_mock(
+        client=None,
+        tts=tts,
+        interview_set_id=interview_set_id,
+        allow_ai=not prebuilt_only,
+    )
     if not mock:
         task_ids = session.get('new_toefl_speaking_task_ids') or []
         if task_ids:
             tasks = [{'id': task_id, 'label': f'Task {idx + 1}', 'task_type': 'new_toefl_cached', 'response_time': 45} for idx, task_id in enumerate(task_ids)]
             return jsonify({'success': True, 'cached': True, 'tasks': tasks})
+        if prebuilt_only:
+            return jsonify({'success': False, 'message': 'Prebuilt speaking mock missing. Run prebuild once.'}), 503
         return jsonify({'success': False, 'message': 'AI is busy right now. Please try again shortly.'}), 503
 
     tasks: List[Dict[str, Any]] = []
@@ -1641,6 +1685,204 @@ def new_toefl_mock_tests():
     return jsonify({'success': True, 'tests': list_full_length_tests()})
 
 
+@app.route('/new-toefl/api/mock/records', methods=['GET'])
+@login_required
+def new_toefl_mock_records():
+    """List saved full-length mock records for a section."""
+    user = get_current_user()
+    if not user:
+        return jsonify({'success': False, 'message': 'Unauthorized'}), 401
+
+    section = request.args.get('section')
+    test_id = request.args.get('test_id')
+    allowed_sections = {'reading', 'listening', 'writing', 'speaking'}
+    if section not in allowed_sections:
+        return jsonify({'success': False, 'message': 'Invalid section'}), 400
+
+    query = NewToeflMockRecord.query.filter_by(user_id=user.id, section=section)
+    if test_id:
+        query = query.filter_by(test_id=test_id)
+
+    records = query.order_by(NewToeflMockRecord.updated_at.desc()).limit(25).all()
+    return jsonify({'success': True, 'records': [record.to_summary() for record in records]})
+
+
+@app.route('/new-toefl/api/mock/records/<int:record_id>', methods=['GET'])
+@login_required
+def new_toefl_mock_record(record_id: int):
+    """Return a single saved full-length mock record."""
+    user = get_current_user()
+    if not user:
+        return jsonify({'success': False, 'message': 'Unauthorized'}), 401
+
+    record = NewToeflMockRecord.query.get_or_404(record_id)
+    if record.user_id != user.id:
+        return jsonify({'success': False, 'message': 'Unauthorized'}), 403
+
+    if record.section == 'speaking':
+        from models import SpeakingResponse
+
+        answers = record.answers or {}
+        existing_responses = dict(answers.get('responses') or {})
+        meta = record.meta or {}
+        tasks_meta = meta.get('tasks') or []
+        task_ids = [
+            int(item.get('id')) for item in tasks_meta
+            if isinstance(item, dict) and str(item.get('id', '')).isdigit()
+        ]
+
+        if task_ids:
+            responses = (
+                SpeakingResponse.query
+                .filter(SpeakingResponse.user_id == user.id)
+                .filter(SpeakingResponse.task_id.in_(task_ids))
+                .order_by(SpeakingResponse.created_at.desc())
+                .all()
+            )
+            latest_by_task: Dict[int, SpeakingResponse] = {}
+            for response in responses:
+                if response.task_id not in latest_by_task:
+                    latest_by_task[response.task_id] = response
+
+            updated = False
+            new_responses = dict(existing_responses)
+            for task_id, response in latest_by_task.items():
+                task_key = str(task_id)
+                if task_key in new_responses:
+                    continue
+                feedback = response.feedback
+                new_responses[task_key] = {
+                    'task_id': response.task_id,
+                    'response_id': response.id,
+                    'audio_url': response.audio_url,
+                    'feedback_id': feedback.id if feedback else None,
+                    'overall_score': feedback.overall_score if feedback else None,
+                    'created_at': response.created_at.isoformat() if response.created_at else None,
+                }
+                updated = True
+
+            if updated:
+                record.answers = {**answers, 'responses': new_responses}
+                flag_modified(record, 'answers')
+                db.session.commit()
+
+    return jsonify({'success': True, 'record': record.to_dict()})
+
+
+@app.route('/new-toefl/api/mock/records/save', methods=['POST'])
+@login_required
+def new_toefl_mock_records_save():
+    """Create or update a full-length mock record."""
+    user = get_current_user()
+    if not user:
+        return jsonify({'success': False, 'message': 'Unauthorized'}), 401
+
+    payload = request.get_json(silent=True) or {}
+    section = payload.get('section')
+    test_id = payload.get('test_id')
+    status = payload.get('status') or 'in_progress'
+    answers = payload.get('answers') or {}
+    meta = payload.get('meta') or {}
+    record_id = payload.get('record_id')
+    allowed_sections = {'reading', 'listening', 'writing', 'speaking'}
+    if section not in allowed_sections or not test_id:
+        return jsonify({'success': False, 'message': 'Invalid record payload'}), 400
+
+    record = None
+    if record_id:
+        record = NewToeflMockRecord.query.get(record_id)
+        if not record or record.user_id != user.id:
+            return jsonify({'success': False, 'message': 'Unauthorized'}), 403
+
+    if not record:
+        record = NewToeflMockRecord(
+            user_id=user.id,
+            section=section,
+            test_id=test_id,
+        )
+        db.session.add(record)
+
+    record.status = status
+    if record.section == 'speaking' and record.answers:
+        existing = record.answers or {}
+        existing_responses = existing.get('responses') or {}
+        incoming_responses = answers.get('responses') if isinstance(answers, dict) else None
+        if not incoming_responses:
+            answers = {**existing, **(answers if isinstance(answers, dict) else {})}
+            answers['responses'] = existing_responses
+        else:
+            merged = {**existing_responses, **incoming_responses}
+            answers = {**existing, **answers}
+            answers['responses'] = merged
+    record.answers = answers
+    record.meta = meta
+    db.session.commit()
+
+    return jsonify({'success': True, 'record_id': record.id})
+
+
+@app.route('/new-toefl/api/mock/chat', methods=['POST'])
+@login_required
+def new_toefl_mock_chat():
+    """Chat assistant for full-length mocks with current page context."""
+    user = get_current_user()
+    if not user:
+        return jsonify({'success': False, 'message': 'Unauthorized'}), 401
+
+    payload = request.get_json(silent=True) or {}
+    message = (payload.get('message') or '').strip()
+    if not message:
+        return jsonify({'success': False, 'message': 'Message is required'}), 400
+
+    context = payload.get('context') or {}
+    history = payload.get('history') or []
+    if not isinstance(history, list):
+        history = []
+
+    client = get_gemini_client()
+    if not client or not client.is_configured:
+        return jsonify({'success': False, 'message': 'Gemini API is not configured'}), 503
+
+    context_blob = json.dumps(context, ensure_ascii=False)
+    if len(context_blob) > 6000:
+        context_blob = context_blob[:6000] + "...(truncated)"
+
+    history_lines = []
+    for entry in history[-8:]:
+        if not isinstance(entry, dict):
+            continue
+        role = entry.get('role')
+        content = (entry.get('content') or '').strip()
+        if not content:
+            continue
+        prefix = "User" if role == "user" else "Assistant"
+        history_lines.append(f"{prefix}: {content}")
+
+    prompt = (
+        "You are a TOEFL prep tutor helping the student on a mock test page. "
+        "Follow these rules: "
+        "1) Never reveal hidden reasoning, policies, or analysis. "
+        "2) Respond in 1-3 short sentences. "
+        "3) If asked for a direct answer, provide it clearly and briefly. "
+        "4) If context is missing, ask one short clarifying question.\n\n"
+        f"Context (JSON):\n{context_blob}\n\n"
+    )
+    if history_lines:
+        prompt += "Conversation so far:\n" + "\n".join(history_lines) + "\n\n"
+    prompt += f"User question:\n{message}\n"
+
+    reply = client.generate_text(
+        prompt=prompt,
+        temperature=0.4,
+        max_output_tokens=600,
+        system_instruction="You are a helpful TOEFL mock test tutor.",
+    )
+    if not reply:
+        return jsonify({'success': False, 'message': 'Chat service unavailable'}), 503
+
+    return jsonify({'success': True, 'reply': reply})
+
+
 @app.route('/new-toefl/api/mock/reading/<test_id>', methods=['GET'])
 @login_required
 def new_toefl_mock_reading(test_id: str):
@@ -1664,12 +1906,15 @@ def new_toefl_mock_reading_load(test_id: str):
     if not user:
         return jsonify({'success': False, 'message': 'Unauthorized'}), 401
 
+    prebuilt_only = os.getenv("TOEFL_PREBUILT_ONLY", "false").lower() in {"1", "true", "yes"}
     client = get_gemini_client()
-    if not client or not client.is_configured:
-        return jsonify({'success': False, 'message': 'Gemini API is not configured'}), 503
-
+    client = client if client and client.is_configured else None
     mock = build_full_length_reading_mock(test_id, client=client)
     if not mock:
+        if prebuilt_only:
+            return jsonify({'success': False, 'message': 'Prebuilt reading mock missing. Run prebuild once.'}), 503
+        if not client:
+            return jsonify({'success': False, 'message': 'Gemini API is not configured'}), 503
         return jsonify({'success': False, 'message': 'Reading mock not found'}), 404
 
     cache_id = _store_new_toefl_payload('reading', user.id, mock)
@@ -1698,6 +1943,13 @@ def new_toefl_mock_listening_generate(test_id: str):
     user = get_current_user()
     if not user:
         return jsonify({'success': False, 'message': 'Unauthorized'}), 401
+
+    prebuilt = build_full_length_listening_mock(test_id, client=None, tts=None)
+    if prebuilt:
+        cache_id = _store_new_toefl_payload('listening', user.id, prebuilt)
+        return jsonify({'success': True, 'cache_id': cache_id, 'mock': prebuilt, 'status': 'done', 'prebuilt': True})
+    if os.getenv("TOEFL_PREBUILT_ONLY", "false").lower() in {"1", "true", "yes"}:
+        return jsonify({'success': False, 'message': 'Prebuilt listening mock missing. Run prebuild once.'}), 503
 
     existing_job_id = session.get("new_toefl_mock_listening_job_id")
     if isinstance(existing_job_id, str):
@@ -1826,6 +2078,8 @@ def new_toefl_mock_writing_load(test_id: str):
 
     mock = build_full_length_writing_mock(test_id)
     if not mock:
+        if os.getenv("TOEFL_PREBUILT_ONLY", "false").lower() in {"1", "true", "yes"}:
+            return jsonify({'success': False, 'message': 'Prebuilt writing mock missing. Run prebuild once.'}), 503
         return jsonify({'success': False, 'message': 'Writing mock not found'}), 404
 
     cache_id = _store_new_toefl_payload('writing', user.id, mock)
@@ -1859,12 +2113,16 @@ def new_toefl_mock_speaking_generate(test_id: str):
         return jsonify({'success': False, 'message': 'Unauthorized'}), 401
 
     tts = get_tts_service()
-    client = get_gemini_client()
-    if not client or not client.is_configured:
-        return jsonify({'success': False, 'message': 'Gemini API is not configured'}), 503
-
-    mock = generate_speaking_mock(client, tts, interview_set_id=test_id)
+    prebuilt_only = os.getenv("TOEFL_PREBUILT_ONLY", "false").lower() in {"1", "true", "yes"}
+    mock = generate_speaking_mock(
+        client=None,
+        tts=tts,
+        interview_set_id=test_id,
+        allow_ai=not prebuilt_only,
+    )
     if not mock:
+        if prebuilt_only:
+            return jsonify({'success': False, 'message': 'Prebuilt speaking mock missing. Run prebuild once.'}), 503
         return jsonify({'success': False, 'message': 'Speaking mock not found'}), 404
 
     tasks: List[Dict[str, Any]] = []
@@ -1922,6 +2180,61 @@ def new_toefl_mock_speaking_generate(test_id: str):
     session['new_toefl_speaking_task_ids'] = [task['id'] for task in tasks]
 
     return jsonify({'success': True, 'tasks': tasks})
+
+
+@app.route('/new-toefl/api/speaking/tasks', methods=['GET'])
+@login_required
+def new_toefl_speaking_tasks_lookup():
+    """Lookup New TOEFL speaking tasks by id list."""
+    from models import SpeakingTask
+
+    user = get_current_user()
+    if not user:
+        return jsonify({'success': False, 'message': 'Unauthorized'}), 401
+
+    raw_ids = (request.args.get('ids') or '').strip()
+    if not raw_ids:
+        return jsonify({'success': False, 'message': 'No task ids provided'}), 400
+
+    ids: List[int] = []
+    for token in raw_ids.split(','):
+        token = token.strip()
+        if token.isdigit():
+            ids.append(int(token))
+    if not ids:
+        return jsonify({'success': False, 'message': 'No valid task ids provided'}), 400
+
+    tasks = SpeakingTask.query.filter(SpeakingTask.id.in_(ids)).all()
+    tasks_by_id = {task.id: task for task in tasks}
+
+    def _label_for(task: SpeakingTask) -> str:
+        if task.task_type == 'new_toefl_repeat':
+            if isinstance(task.task_number, int) and task.task_number >= 500:
+                return f'Repeat {task.task_number - 500}'
+            return 'Repeat'
+        if task.task_type == 'new_toefl_interview':
+            if isinstance(task.task_number, int) and task.task_number >= 600:
+                return f'Interview {task.task_number - 600}'
+            return 'Interview'
+        return task.topic or f'Task {task.id}'
+
+    ordered_tasks = sorted(tasks, key=lambda item: (item.task_number or 0, item.id))
+    ordered_ids = [task.id for task in ordered_tasks]
+    payload_ids = [task_id for task_id in ordered_ids if task_id in tasks_by_id]
+
+    payload = []
+    for task_id in payload_ids:
+        task = tasks_by_id.get(task_id)
+        if not task:
+            continue
+        payload.append({
+            'id': task.id,
+            'label': _label_for(task),
+            'task_type': task.task_type,
+            'response_time': task.response_time,
+        })
+
+    return jsonify({'success': True, 'tasks': payload})
 
 
 @app.route('/new-toefl/api/writing/generate', methods=['POST'])
@@ -4895,6 +5208,7 @@ def speaking_submit_response(task_id):
     task = SpeakingTask.query.get_or_404(task_id)
 
     audio_file = request.files.get('audio')
+    record_id = request.form.get('record_id') or request.args.get('record_id')
     if not audio_file or audio_file.filename == '':
         return jsonify({'success': False, 'message': 'No audio file provided'}), 400
 
@@ -4986,11 +5300,15 @@ def speaking_submit_response(task_id):
         repeat_eval = _score_listen_and_repeat(task.listening_transcript or task.prompt or "", transcription)
         delivery_score = repeat_eval["score_100"]
         fluency_score = None
-        pronunciation_score = None
         rhythm_score = None
         language_use_score = None
         topic_development_score = None
         overall_score = repeat_eval["score_100"]
+        speech_metrics = speech_metrics or {}
+        if isinstance(speech_metrics, dict):
+            speech_metrics["repeat_score_5"] = repeat_eval.get("score_5")
+            speech_metrics["repeat_similarity"] = repeat_eval.get("similarity")
+            speech_metrics["repeat_note"] = repeat_eval.get("note")
 
         repeat_strengths: List[str] = []
         repeat_improvements: List[str] = []
@@ -5064,9 +5382,32 @@ def speaking_submit_response(task_id):
     db.session.add(feedback)
     db.session.commit()
 
+    if record_id and task.task_type in {'new_toefl_repeat', 'new_toefl_interview'}:
+        record = NewToeflMockRecord.query.get(record_id)
+        if record and record.user_id == user.id and record.section == 'speaking':
+            answers = record.answers or {}
+            responses = dict(answers.get('responses') or {})
+            responses[str(task.id)] = {
+                'task_id': task.id,
+                'response_id': response.id,
+                'audio_url': response.audio_url,
+                'feedback_id': feedback.id,
+                'overall_score': feedback.overall_score,
+                'created_at': response.created_at.isoformat() if response.created_at else None,
+            }
+            record.answers = {**answers, 'responses': responses}
+            flag_modified(record, 'answers')
+            record.status = 'in_progress'
+            db.session.commit()
+
+    if task.task_type in {'new_toefl_repeat', 'new_toefl_interview'}:
+        redirect_url = url_for('new_toefl_speaking_feedback', response_id=response.id)
+    else:
+        redirect_url = url_for('speaking_feedback', response_id=response.id)
+
     return jsonify({
         'success': True,
-        'redirect': url_for('speaking_feedback', response_id=response.id)
+        'redirect': redirect_url,
     })
 
 
@@ -5094,12 +5435,56 @@ def speaking_feedback(response_id):
         flash('Feedback not available yet', 'warning')
         return redirect(url_for('speaking_dashboard'))
 
+    mock_back_url = None
+    if task and task.task_type in {'new_toefl_repeat', 'new_toefl_interview'}:
+        mock_back_url = url_for('new_toefl_speaking_practice')
+
     return render_template(
         'speaking/feedback.html',
         response=response,
         task=task,
         feedback=feedback,
-        user=user
+        user=user,
+        mock_back_url=mock_back_url,
+    )
+
+
+@app.route('/new-toefl/speaking/feedback/<int:response_id>')
+@login_required
+def new_toefl_speaking_feedback(response_id):
+    """Display feedback for New TOEFL mock speaking responses."""
+    from models import SpeakingResponse
+
+    user = get_current_user()
+    if not user:
+        return redirect(url_for('login'))
+
+    response = SpeakingResponse.query.get_or_404(response_id)
+    if response.user_id != user.id:
+        flash('Unauthorized access', 'danger')
+        return redirect(url_for('new_toefl_speaking_mock'))
+
+    task = response.task
+    feedback = response.feedback
+    if not feedback:
+        flash('Feedback not available yet', 'warning')
+        return redirect(url_for('new_toefl_speaking_mock'))
+
+    is_repeat = task.task_type == 'new_toefl_repeat'
+    metrics = feedback.speech_metrics or {}
+    rubric_text = _load_new_toefl_speaking_rubrics()
+    repeat_band = metrics.get('repeat_score_5') if is_repeat else _map_overall_to_band(feedback.overall_score)
+
+    return render_template(
+        'speaking/new_toefl_feedback.html',
+        response=response,
+        task=task,
+        feedback=feedback,
+        user=user,
+        is_repeat=is_repeat,
+        rubric_text=rubric_text,
+        repeat_band=repeat_band,
+        mock_back_url=url_for('new_toefl_speaking_mock'),
     )
 
 

@@ -1,0 +1,448 @@
+{
+  "cloze": [
+    {
+      "id": "cloze_full_51734",
+      "paragraph": "Early films were quite different from what we are used to today_they were silent and black_and_white. Technological develop(4 blank lines) introduced so(3 blank lines), color, a(2 blank lines) special eff(4 blank lines). Filmmaking requ(4 blank lines) the collab(7 blank lines) of ma(2 blank lines) different peo(3 blank lines): actors, dire(5 blank lines), writers. Films ha(2 blank lines) the power to entertain, educate, and inspire audiences, shaping popular culture and influencing social trends. The film industry has grown from its early beginnings to become a major cultural and economic force worldwide.",
+      "blanks": []
+    },
+    {
+      "id": "cloze_full_2955",
+      "paragraph": "Water is essential for life as we know it, so finding water on other planets and moons is a crucial part of the quest to find life beyond Earth. Mars’ riverbeds sh(2 blank lines) evidence o(1 blank line) water i(1 blank line) ancient ti(3 blank lines). The moons Europa a(2 blank lines) Enceladus ha(2 blank lines) ice_covered surf(4 blank lines) that m(2 blank lines) hide oce(3 blank lines) beneath. Discov(5 blank lines) new extraterrestrial water, whether past or present, liquid or solid, could significantly impact our understanding of life in the universe. Such findings could guide future missions in the search for habitable environments outside of Earth.",
+      "blanks": []
+    }
+  ],
+  "daily_life": [
+    {
+      "id": "daily_1_0",
+      "caption": "Read a notice.",
+      "format": "notice",
+      "title": "The Community Center will host a free language exchange event on Saturday at 3:00 PM. Learn a new",
+      "author": "",
+      "headers": {},
+      "body_lines": [
+        "language, meet people from different cultural backgrounds, and swap languages in a fun, flexible, and",
+        "relaxed way. We will pair you with a fluent speaker of a language of your choice."
+      ],
+      "footer_lines": [],
+      "source_lines": [
+        "The Community Center will host a free language exchange event on Saturday at 3:00 PM. Learn a new",
+        "language, meet people from different cultural backgrounds, and swap languages in a fun, flexible, and",
+        "relaxed way. We will pair you with a fluent speaker of a language of your choice."
+      ],
+      "source_text": "The Community Center will host a free language exchange event on Saturday at 3:00 PM. Learn a new language, meet people from different cultural backgrounds, and swap languages in a fun, flexible, and relaxed way. We will pair you with a fluent speaker of a language of your choice.",
+      "source_type": "a notice",
+      "questions": [
+        {
+          "number": 11,
+          "question": "What is the notice about?",
+          "options": [
+            "A foreign language book drive",
+            "A community organization meeting",
+            "A language exchange event",
+            "A student exchange program"
+          ],
+          "answer": "A language exchange event",
+          "rationales": {},
+          "evidence_quote": null
+        },
+        {
+          "number": 12,
+          "question": "What will participants NOT experience?",
+          "options": [
+            "Learn new languages",
+            "Practice relaxation techniques",
+            "Pair up with speakers of different languages",
+            "Meet people from different cultures 4"
+          ],
+          "answer": "Practice relaxation techniques",
+          "rationales": {},
+          "evidence_quote": null
+        }
+      ]
+    },
+    {
+      "id": "daily_1_1",
+      "caption": "Read an email.",
+      "format": "email",
+      "title": "Server Maintenance",
+      "author": "",
+      "headers": {
+        "subject": "Server Maintenance"
+      },
+      "body_lines": [
+        "The next university server maintenance is scheduled on May 22 from 2 AM to 6 AM. This is part of a scheduled maintenance that we conduct with our external provider.",
+        "During this window, access to network drives and cloud storage services will be temporarily unavailable.",
+        "Please save any important documents and plan your work accordingly. You may also experience",
+        "disruptions accessing your university email accounts. Online library databases will not be affected.",
+        "A reminder: Routine maintenance windows take place on a semi-monthly basis. In the event that",
+        "maintenance needs arise outside of the scheduled maintenance windows, we will do our best to give the",
+        "university community advanced notice.",
+        "If you experience issues, contact the IT team. We will send out another notification when maintenance is complete. We appreciate your understanding as we strive to ensure the security and reliability of our IT",
+        "infrastructure."
+      ],
+      "footer_lines": [],
+      "source_lines": [
+        "Subject: Server Maintenance",
+        "The next university server maintenance is scheduled on May 22 from 2 AM to 6 AM. This is part of a scheduled maintenance that we conduct with our external provider.",
+        "During this window, access to network drives and cloud storage services will be temporarily unavailable.",
+        "Please save any important documents and plan your work accordingly. You may also experience",
+        "disruptions accessing your university email accounts. Online library databases will not be affected.",
+        "A reminder: Routine maintenance windows take place on a semi-monthly basis. In the event that",
+        "maintenance needs arise outside of the scheduled maintenance windows, we will do our best to give the",
+        "university community advanced notice.",
+        "If you experience issues, contact the IT team. We will send out another notification when maintenance is complete. We appreciate your understanding as we strive to ensure the security and reliability of our IT",
+        "infrastructure."
+      ],
+      "source_text": "Subject: Server Maintenance The next university server maintenance is scheduled on May 22 from 2 AM to 6 AM. This is part of a scheduled maintenance that we conduct with our external provider. During this window, access to network drives and cloud storage services will be temporarily unavailable. Please save any important documents and plan your work accordingly. You may also experience disruptions accessing your university email accounts. Online library databases will not be affected. A reminder: Routine maintenance windows take place on a semi-monthly basis. In the event that maintenance needs arise outside of the scheduled maintenance windows, we will do our best to give the university community advanced notice. If you experience issues, contact the IT team. We will send out another notification when maintenance is complete. We appreciate your understanding as we strive to ensure the security and reliability of our IT infrastructure.",
+      "source_type": "an email",
+      "questions": [
+        {
+          "number": 13,
+          "question": "The email is most likely sent to",
+          "options": [
+            "IT support team members",
+            "university students, faculty, and staff",
+            "the external provider of the university server",
+            "people who have encountered issues with the university server"
+          ],
+          "answer": "university students, faculty, and staff",
+          "rationales": {},
+          "evidence_quote": null
+        },
+        {
+          "number": 14,
+          "question": "From 2 AM to 6 AM on May 22, what activity can be done without interruption?",
+          "options": [
+            "Logging onto university network drives",
+            "Saving documents onto the university cloud storage service",
+            "Sending and receiving emails using university email accounts",
+            "Searching for an article in the university library"
+          ],
+          "answer": "Searching for an article in the university library",
+          "rationales": {},
+          "evidence_quote": null
+        },
+        {
+          "number": 15,
+          "question": "What can be inferred about the university's server?",
+          "options": [
+            "It is currently offline.",
+            "It is managed only by the university IT team.",
+            "It sometimes requires emergency maintenance.",
+            "It is the subject of many complaints from the university community. 5"
+          ],
+          "answer": "It sometimes requires emergency maintenance.",
+          "rationales": {},
+          "evidence_quote": null
+        }
+      ]
+    },
+    {
+      "id": "daily_2_2",
+      "caption": "Read an email.",
+      "format": "email",
+      "title": "",
+      "author": "",
+      "headers": {},
+      "body_lines": [
+        "Dear Mr. Clark,",
+        "Your table reservation for 2 at La Bella Restaurant is confirmed for November 15th at 5 PM. Please arrive",
+        "10 minutes early for seating. We have noted your preference for seating close to a window and will",
+        "accommodate that as availability permits.",
+        "Best regards,",
+        "Maria Lopez"
+      ],
+      "footer_lines": [],
+      "source_lines": [
+        "Dear Mr. Clark,",
+        "Your table reservation for 2 at La Bella Restaurant is confirmed for November 15th at 5 PM. Please arrive",
+        "10 minutes early for seating. We have noted your preference for seating close to a window and will",
+        "accommodate that as availability permits.",
+        "Best regards,",
+        "Maria Lopez"
+      ],
+      "source_text": "Dear Mr. Clark, Your table reservation for 2 at La Bella Restaurant is confirmed for November 15th at 5 PM. Please arrive 10 minutes early for seating. We have noted your preference for seating close to a window and will accommodate that as availability permits. Best regards, Maria Lopez",
+      "source_type": "an email",
+      "questions": [
+        {
+          "number": 11,
+          "question": "How early should Mr. Clark arrive for seating?",
+          "options": [
+            "5 minutes early",
+            "10 minutes early",
+            "15 minutes early",
+            "20 minutes early"
+          ],
+          "answer": "10 minutes early",
+          "rationales": {},
+          "evidence_quote": null
+        },
+        {
+          "number": 12,
+          "question": "What will the restaurant try to provide?",
+          "options": [
+            "A private dining room",
+            "Seating near a window",
+            "Personalized service",
+            "A customized menu 9"
+          ],
+          "answer": "Seating near a window",
+          "rationales": {},
+          "evidence_quote": null
+        }
+      ]
+    },
+    {
+      "id": "daily_2_3",
+      "caption": "Read a text chain.",
+      "format": "notice",
+      "title": "**Larissa Velez (10:00 A.M.)** Hey team, just a reminder that the marketing materials for our client’s new-",
+      "author": "",
+      "headers": {},
+      "body_lines": [
+        "product launch need to be finalized by tomorrow.",
+        "**Miko Tanaka (10:05 A.M.)** Got it. I’ll finish the brochure design today.",
+        "**Pedro Alvarez (10:10 A.M.)** I’m working on the social media posts. They’ll be ready by the end of the",
+        "day. I think we should generate some real excitement for Grenstar’s new smart-tracking water bottle.",
+        "**Sophia Nguyen (10:15 A.M.)** I’ll review the content when Miko and Pedro have finished and make any",
+        "adjustments.",
+        "**Larissa Velez (10:20 A.M.)** Perfect. Make sure to double-check the dates and contact information. We know what happened last time.",
+        "**Sophia Nguyen (10:21 A.M.) Oh, yes, the client was not pleased. I am glad we started this double-",
+        "checking process. I will be sure to check the dates extra carefully.",
+        "**Larissa Velez (10:22 A.M.) Great, team! Her e’s to a smoother launch of the water bottle than of the",
+        "smart sportswear line!"
+      ],
+      "footer_lines": [],
+      "source_lines": [
+        "**Larissa Velez (10:00 A.M.)** Hey team, just a reminder that the marketing materials for our client’s new-",
+        "product launch need to be finalized by tomorrow.",
+        "**Miko Tanaka (10:05 A.M.)** Got it. I’ll finish the brochure design today.",
+        "**Pedro Alvarez (10:10 A.M.)** I’m working on the social media posts. They’ll be ready by the end of the",
+        "day. I think we should generate some real excitement for Grenstar’s new smart-tracking water bottle.",
+        "**Sophia Nguyen (10:15 A.M.)** I’ll review the content when Miko and Pedro have finished and make any",
+        "adjustments.",
+        "**Larissa Velez (10:20 A.M.)** Perfect. Make sure to double-check the dates and contact information. We know what happened last time.",
+        "**Sophia Nguyen (10:21 A.M.) Oh, yes, the client was not pleased. I am glad we started this double-",
+        "checking process. I will be sure to check the dates extra carefully.",
+        "**Larissa Velez (10:22 A.M.) Great, team! Her e’s to a smoother launch of the water bottle than of the",
+        "smart sportswear line!"
+      ],
+      "source_text": "**Larissa Velez (10:00 A.M.)** Hey team, just a reminder that the marketing materials for our client’s new- product launch need to be finalized by tomorrow. **Miko Tanaka (10:05 A.M.)** Got it. I’ll finish the brochure design today. **Pedro Alvarez (10:10 A.M.)** I’m working on the social media posts. They’ll be ready by the end of the day. I think we should generate some real excitement for Grenstar’s new smart-tracking water bottle. **Sophia Nguyen (10:15 A.M.)** I’ll review the content when Miko and Pedro have finished and make any adjustments. **Larissa Velez (10:20 A.M.)** Perfect. Make sure to double-check the dates and contact information. We know what happened last time. **Sophia Nguyen (10:21 A.M.) Oh, yes, the client was not pleased. I am glad we started this double- checking process. I will be sure to check the dates extra carefully. **Larissa Velez (10:22 A.M.) Great, team! Her e’s to a smoother launch of the water bottle than of the smart sportswear line!",
+      "source_type": "a text chain",
+      "questions": [
+        {
+          "number": 13,
+          "question": "At 10:20 A.M., what does Ms. Velez imply when she writes, \"We know what happened last time\"?",
+          "options": [
+            "A client was especially pleased with a marketing campaign.",
+            "Some errors were made regarding a previous product launch.",
+            "A brochure was never sent out.",
+            "A marketing team did not complete a project in time."
+          ],
+          "answer": "Some errors were made regarding a previous product launch.",
+          "rationales": {},
+          "evidence_quote": null
+        },
+        {
+          "number": 14,
+          "question": "What product is being launched?",
+          "options": [
+            "A type of water bottle",
+            "A line of sportswear",
+            "A type of smartphone",
+            "A type of software"
+          ],
+          "answer": "A type of water bottle",
+          "rationales": {},
+          "evidence_quote": null
+        },
+        {
+          "number": 15,
+          "question": "What does Mr. Alvarez indicate?",
+          "options": [
+            "He will double-check the content of a brochure.",
+            "He is the main point of contact for a client.",
+            "He helped design a new product.",
+            "He will complete some postings by the end of the day. 10"
+          ],
+          "answer": "He will complete some postings by the end of the day. 10",
+          "rationales": {},
+          "evidence_quote": null
+        }
+      ]
+    }
+  ],
+  "academic": [
+    {
+      "id": "academic_1",
+      "title": "Aqueducts",
+      "passage_lines": [
+        "Aqueducts were designed to transport water from distant sources into cities and agricultural areas, and",
+        "they were crucial engineering feats in ancient civilizations. This engineering marvel allowed civilizations to thrive in otherwise inhospitable environments.",
+        "The Romans, in particular, mastered the construction of aqueducts, building extensive networks that",
+        "supplied water to urban centers. These structures used a combination of gravity and (begin highlight) meticulously (end highlight)",
+        "calculated gradients to ensure a steady flow of water. Some Roman aqueducts, like the Pont du Gard in",
+        "France, are still standing today, showcasing the Romans’ remarkable engineering skills. In addition to providing water for drinking and irrigation, aqueducts were integral to public health and sanitation. They",
+        "supplied water to public baths, helping to maintain hygiene in densely populated urban areas. The",
+        "availability of fresh water also supported the growth of cities and the expansion of the Roman Empire.",
+        "Building aqueducts was a complex and labor-intensive process. Workers had to carve channels through",
+        "mountains and construct bridges over valleys. Despite these challenges, the benefits of aqueducts far",
+        "outweighed the difficulties. The legacy of Roman aqueducts continues to influence modern water",
+        "management systems, highlighting the importance of sustainable engineering practices."
+      ],
+      "passage": "Aqueducts Aqueducts were designed to transport water from distant sources into cities and agricultural areas, and they were crucial engineering feats in ancient civilizations. This engineering marvel allowed civilizations to thrive in otherwise inhospitable environments. The Romans, in particular, mastered the construction of aqueducts, building extensive networks that supplied water to urban centers. These structures used a combination of gravity and (begin highlight) meticulously (end highlight) calculated gradients to ensure a steady flow of water. Some Roman aqueducts, like the Pont du Gard in France, are still standing today, showcasing the Romans’ remarkable engineering skills. In addition to providing water for drinking and irrigation, aqueducts were integral to public health and sanitation. They supplied water to public baths, helping to maintain hygiene in densely populated urban areas. The availability of fresh water also supported the growth of cities and the expansion of the Roman Empire. Building aqueducts was a complex and labor-intensive process. Workers had to carve channels through mountains and construct bridges over valleys. Despite these challenges, the benefits of aqueducts far outweighed the difficulties. The legacy of Roman aqueducts continues to influence modern water management systems, highlighting the importance of sustainable engineering practices.",
+      "questions": [
+        {
+          "number": 16,
+          "question": "The word “meticulously” in the passage is closest in meaning to",
+          "options": [
+            "inaccurately",
+            "precisely",
+            "vaguely",
+            "carelessly"
+          ],
+          "answer": "precisely",
+          "rationales": {},
+          "evidence_quote": null
+        },
+        {
+          "number": 17,
+          "question": "What can be inferred about the workers who built the aqueducts?",
+          "options": [
+            "They were not very skilled.",
+            "They faced significant physical challenges.",
+            "They primarily worked on bridges.",
+            "They were not aware of the aqueducts' importance."
+          ],
+          "answer": "They faced significant physical challenges.",
+          "rationales": {},
+          "evidence_quote": null
+        },
+        {
+          "number": 18,
+          "question": "Why does the author mention the Pont du Gard in France?",
+          "options": [
+            "To illustrate how aqueducts were constructed",
+            "To give an example of a well-preserved aqueduct",
+            "To explain the importance of aqueducts in France",
+            "To describe the engineering techniques used by the Romans"
+          ],
+          "answer": "To give an example of a well-preserved aqueduct",
+          "rationales": {},
+          "evidence_quote": null
+        },
+        {
+          "number": 19,
+          "question": "What role did aqueducts play in the expansion of the Roman Empire?",
+          "options": [
+            "They facilitated the transportation of goods.",
+            "They provided water for drinking and sanitation.",
+            "They helped in building bridges over valleys.",
+            "They enabled the construction of public baths. 6"
+          ],
+          "answer": "They provided water for drinking and sanitation.",
+          "rationales": {},
+          "evidence_quote": null
+        },
+        {
+          "number": 20,
+          "question": "What can be inferred about modern water management systems?",
+          "options": [
+            "They no longer use principles from Roman engineering.",
+            "They are less efficient than Roman aqueducts.",
+            "They are influenced by Roman engineering practices.",
+            "They are not as labor-intensive as Roman aqueducts. 7"
+          ],
+          "answer": "They are influenced by Roman engineering practices.",
+          "rationales": {},
+          "evidence_quote": null
+        }
+      ]
+    },
+    {
+      "id": "academic_2",
+      "title": "Sleep Patterns",
+      "passage_lines": [
+        "Sleep patterns vary (begin highlight) considerably (end highlight) among different animal species. Some animals, like dolphins, have",
+        "unique sleep methods. Dolphins practice unihemispheric slow-wave sleep, meaning one half of their brain",
+        "sleeps while the other remains awake. This adaptation allows them to surface for air and stay alert for",
+        "predators even while resting.",
+        "Birds also display interesting sleep behaviors. Many bird species can sleep while flying. (A) During long",
+        "migratory flights, some birds may engage in unihemispheric sleep, similar to dolphins, enabling them to navigate and avoid threats. (B) Additionally, certain birds can sleep with both hemispheres of their brain",
+        "but in short bursts, allowing them to maintain continuous flight for extended periods.",
+        "(C) Sleep patterns have evolved based on environmental needs. For example, grazing animals like cows",
+        "and horses sleep minimally, often standing up, which helps them stay vigilant against predators. (D) In contrast, predators such as lions and tigers can afford longer, deeper sleep because they face fewer",
+        "threats. Understanding these varied sleep patterns provides insight into how animals have adapted to their habitats and survival challenges. The balance between rest and vigilance is crucial for survival,",
+        "revealing the intricate adaptations across the animal kingdom."
+      ],
+      "passage": "Sleep Patterns Sleep patterns vary (begin highlight) considerably (end highlight) among different animal species. Some animals, like dolphins, have unique sleep methods. Dolphins practice unihemispheric slow-wave sleep, meaning one half of their brain sleeps while the other remains awake. This adaptation allows them to surface for air and stay alert for predators even while resting. Birds also display interesting sleep behaviors. Many bird species can sleep while flying. (A) During long migratory flights, some birds may engage in unihemispheric sleep, similar to dolphins, enabling them to navigate and avoid threats. (B) Additionally, certain birds can sleep with both hemispheres of their brain but in short bursts, allowing them to maintain continuous flight for extended periods. (C) Sleep patterns have evolved based on environmental needs. For example, grazing animals like cows and horses sleep minimally, often standing up, which helps them stay vigilant against predators. (D) In contrast, predators such as lions and tigers can afford longer, deeper sleep because they face fewer threats. Understanding these varied sleep patterns provides insight into how animals have adapted to their habitats and survival challenges. The balance between rest and vigilance is crucial for survival, revealing the intricate adaptations across the animal kingdom.",
+      "questions": [
+        {
+          "number": 16,
+          "question": "The word “considerably” in the first paragraph is closest in meaning to",
+          "options": [
+            "actively",
+            "significantly",
+            "predictably",
+            "consistently"
+          ],
+          "answer": "significantly",
+          "rationales": {},
+          "evidence_quote": null
+        },
+        {
+          "number": 17,
+          "question": "According to the second paragraph, how do some birds sleep during migratory flights?",
+          "options": [
+            "By flying in short bursts",
+            "By practicing unihemispheric sleep",
+            "By stopping regularly during flights",
+            "By sleeping deeply for long periods"
+          ],
+          "answer": "By practicing unihemispheric sleep",
+          "rationales": {},
+          "evidence_quote": null
+        },
+        {
+          "number": 18,
+          "question": "Why do grazing animals like cows and horses sleep minimally?",
+          "options": [
+            "To conserve energy",
+            "To maintain continuous flight",
+            "To stay alert against predators",
+            "To surface for air"
+          ],
+          "answer": "To stay alert against predators",
+          "rationales": {},
+          "evidence_quote": null
+        },
+        {
+          "number": 19,
+          "question": "Why does the author mention “predators such as lions and tigers”?",
+          "options": [
+            "To illustrate how predators can afford longer sleep due to fewer threats",
+            "To highlight the sleep patterns of grazing animals",
+            "To emphasize the time it takes for certain animals to adapt their sleep patterns",
+            "To show that sleep patterns of predators can vary over time 11"
+          ],
+          "answer": "To illustrate how predators can afford longer sleep due to fewer threats",
+          "rationales": {},
+          "evidence_quote": null
+        },
+        {
+          "number": 20,
+          "question": "There are four locations (A, B, C, and D) in the passage that indicate where the following sentence could be added. But what affects birds’ sleep norms? Where would the sentence best fit? Select a location where the sentence could be added to the passage.",
+          "options": [
+            "Option A",
+            "Option B",
+            "Option C",
+            "Option D 12"
+          ],
+          "answer": "Option C",
+          "rationales": {},
+          "evidence_quote": null
+        }
+      ]
+    }
+  ]
+}

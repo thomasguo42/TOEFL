@@ -35,7 +35,7 @@
       ],
       "items": [
         {
-          "prompt": "Thank you for speaking with me today. I am conducting a study about people's experiences and perceptions of living in a city. I'd like to ask you some questions. [2-second pause] Now, do you currently live in a big city, a small town, or a village?",
+          "prompt": "Thank you for speaking with me today. I am conducting a study about people's experiences and perceptions of living in a city. I'd like to ask you some questions. Now, do you currently live in a big city, a small town, or a village?",
           "response_time_seconds": 45,
           "focus_points": []
         },

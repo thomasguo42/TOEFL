@@ -1,0 +1,413 @@
+{
+  "responses": [
+    {
+      "prompt": "Is the library open now?",
+      "options": [
+        "Yes, until nine p.m.",
+        "Maybe last week.",
+        "Every book.",
+        "No, dinner is at eight p.m."
+      ],
+      "answer": "Yes, until nine p.m.",
+      "rationales": {},
+      "audio_url": "/static/listening_audio/new_toefl_response_ced87b900f3b.mp3"
+    },
+    {
+      "prompt": "Could you help me organize these files?",
+      "options": [
+        "Sure, I can.",
+        "The calendar is current.",
+        "Yes, on the left.",
+        "The kitchen is large."
+      ],
+      "answer": "Sure, I can.",
+      "rationales": {},
+      "audio_url": "/static/listening_audio/new_toefl_response_3647befaecb5.mp3"
+    },
+    {
+      "prompt": "It looks like you didn't finish the slides for the presentation.",
+      "options": [
+        "Yes, I agree with the manager.",
+        "The concert was fantastic.",
+        "Sorry—I forgot.",
+        "Yes, I'll leave tomorrow evening."
+      ],
+      "answer": "Sorry—I forgot.",
+      "rationales": {},
+      "audio_url": "/static/listening_audio/new_toefl_response_1083a1a215f6.mp3"
+    },
+    {
+      "prompt": "It's quite warm, isn't it?",
+      "options": [
+        "I haven't had a chance to check the schedule.",
+        "It's not in the budget for this year.",
+        "The hallway lights are out again.",
+        "Especially for this time of year."
+      ],
+      "answer": "Especially for this time of year.",
+      "rationales": {},
+      "audio_url": "/static/listening_audio/new_toefl_response_dcfb71f2e939.mp3"
+    },
+    {
+      "prompt": "Will you be able to meet the deadline for your research paper?",
+      "options": [
+        "Sure, I'll call them tomorrow.",
+        "Sorry to hear that.",
+        "I'm on track to finish on time.",
+        "Not such a good idea."
+      ],
+      "answer": "I'm on track to finish on time.",
+      "rationales": {},
+      "audio_url": "/static/listening_audio/new_toefl_response_b16800655061.mp3"
+    },
+    {
+      "prompt": "When is your job interview?",
+      "options": [
+        "It will be in the conference room.",
+        "It's been rescheduled to Monday morning.",
+        "I'll do that next time.",
+        "We went out for lunch afterward."
+      ],
+      "answer": "It's been rescheduled to Monday morning.",
+      "rationales": {},
+      "audio_url": "/static/listening_audio/new_toefl_response_4d07803073e5.mp3"
+    },
+    {
+      "prompt": "I'm having trouble resetting my password.",
+      "options": [
+        "Let me find the instructions for you.",
+        "I can't attend tonight.",
+        "I don't know how many.",
+        "Set the documents on the table. 17"
+      ],
+      "answer": "Let me find the instructions for you.",
+      "rationales": {},
+      "audio_url": "/static/listening_audio/new_toefl_response_406649709b87.mp3"
+    },
+    {
+      "prompt": "Would you mind closing the window?",
+      "options": [
+        "Sure, I'll call tomorrow.",
+        "Check under the table.",
+        "No problem.",
+        "Closed on Mondays."
+      ],
+      "answer": "No problem.",
+      "rationales": {},
+      "audio_url": "/static/listening_audio/new_toefl_response_ad8bf06b71a9.mp3"
+    },
+    {
+      "prompt": "The seminar meets at eight thirty a.m. on Wednesdays.",
+      "options": [
+        "Nearly 90 minutes.",
+        "Thank you for reminding me.",
+        "The bookstore opens at noon on Sundays.",
+        "About 200 faculty members."
+      ],
+      "answer": "Thank you for reminding me.",
+      "rationales": {},
+      "audio_url": "/static/listening_audio/new_toefl_response_711929663a74.mp3"
+    },
+    {
+      "prompt": "Have you created the syllabus for the art his tory course?",
+      "options": [
+        "Sure, I'll check them.",
+        "No, the artwork is being shipped.",
+        "I'll have time tomorrow morning.",
+        "The professor called me back."
+      ],
+      "answer": "I'll have time tomorrow morning.",
+      "rationales": {},
+      "audio_url": "/static/listening_audio/new_toefl_response_6f00d177fcab.mp3"
+    },
+    {
+      "prompt": "Where can I find the cafeteria?",
+      "options": [
+        "On the ground floor.",
+        "A bigger lobby.",
+        "Usually at eleven thirty a.m.",
+        "Good meal selections."
+      ],
+      "answer": "On the ground floor.",
+      "rationales": {},
+      "audio_url": "/static/listening_audio/new_toefl_response_cec04922deb0.mp3"
+    },
+    {
+      "prompt": "Who will summarize our team's research findings",
+      "options": [
+        "Jacob already found his.",
+        "No more than 1,000 words.",
+        "Emily would do a great job.",
+        "Different lab equipment."
+      ],
+      "answer": "Emily would do a great job.",
+      "rationales": {},
+      "audio_url": "/static/listening_audio/new_toefl_response_c6e02cd62a82.mp3"
+    },
+    {
+      "prompt": "How do you use this software?",
+      "options": [
+        "Follow the tutorial.",
+        "Purchase a computer.",
+        "A soft touch is needed.",
+        "Thursday afternoons."
+      ],
+      "answer": "Follow the tutorial.",
+      "rationales": {},
+      "audio_url": "/static/listening_audio/new_toefl_response_6e29393e479c.mp3"
+    },
+    {
+      "prompt": "Is the café open now?",
+      "options": [
+        "Around back.",
+        "Coffee and tea.",
+        "It’s closed.",
+        "She is available. 23"
+      ],
+      "answer": "It’s closed.",
+      "rationales": {},
+      "audio_url": "/static/listening_audio/new_toefl_response_24f87636a993.mp3"
+    }
+  ],
+  "conversation": [
+    {
+      "id": "conv_1_0",
+      "segments": [
+        {
+          "speaker": "Man",
+          "text": "I’ve been having trouble with my car lately. It makes a weird sound every time I start it."
+        },
+        {
+          "speaker": "Woman",
+          "text": "That's annoying. Have you taken it to get checked out?"
+        },
+        {
+          "speaker": "Man",
+          "text": "Not yet. I’m planning to go tomorrow."
+        },
+        {
+          "speaker": "Woman",
+          "text": "That’s a good idea. It might be something minor, but it's better to be safe."
+        },
+        {
+          "speaker": "Man",
+          "text": "Exactly. I just pray it doesn't cost me an arm and a leg. And I hope to get my car back by Sunday. I need to pick up my mother at the airport then."
+        },
+        {
+          "speaker": "Woman",
+          "text": "Fingers crossed!"
+        }
+      ],
+      "questions": [
+        {
+          "number": 9,
+          "question": "What problem is the man having with his car?",
+          "options": [
+            "It cannot start.",
+            "It makes a strange noise.",
+            "It is unable to move fast.",
+            "It is unsafe to drive."
+          ],
+          "answer": "It makes a strange noise.",
+          "rationales": {}
+        },
+        {
+          "number": 10,
+          "question": "What does the man imply at the end of the conversation?",
+          "options": [
+            "He wants to buy a new car.",
+            "He needs his car for an important errand he must do.",
+            "He needs advice about a mechanic to use.",
+            "He hopes an issue is minor. 18"
+          ],
+          "answer": "He hopes an issue is minor. 18",
+          "rationales": {}
+        }
+      ],
+      "audio_url": "/static/listening_audio/new_toefl_conversation_8c79c85a9ca4.mp3"
+    },
+    {
+      "id": "conv_1_1",
+      "segments": [
+        {
+          "speaker": "Woman",
+          "text": "I heard you’re planning a trip to Sky-High Ski Resort this winter. Have you booked everything yet?"
+        },
+        {
+          "speaker": "Man",
+          "text": "Well, I’ve booked the cabin to stay, but I still need to reserve skis and ski boots."
+        },
+        {
+          "speaker": "Woman",
+          "text": "You don’t have your own?"
+        },
+        {
+          "speaker": "Man",
+          "text": "No, this will actually be my first time skiing. I’m a bit nervous."
+        },
+        {
+          "speaker": "Woman",
+          "text": "You’ll do fine. By the way, there’s a great Thai restaurant next to the resort, and I don’t think it requires reservations."
+        },
+        {
+          "speaker": "Man",
+          "text": "Great! What’s the name?"
+        },
+        {
+          "speaker": "Woman",
+          "text": "Can’t remember off the top of my head. Lemme look it up on my phone. What does the man still need to book? (A) Transportation (B) A restaurant table (C) A cabin (D) Skiing equipment What will the woman do next? (A) Look up a recipe (B) Check the name of a restaurant (C) Offer the man some skiing advice (D) Make a phone call 19 Listening Section, Module 1"
+        }
+      ],
+      "questions": [],
+      "audio_url": "/static/listening_audio/new_toefl_conversation_fb165c52ba18.mp3"
+    },
+    {
+      "id": "conv_2_2",
+      "segments": [
+        {
+          "speaker": "Man",
+          "text": "I’ve been eyeing the new gym downtown…"
+        },
+        {
+          "speaker": "Woman",
+          "text": "Have you checked their facilities?"
+        },
+        {
+          "speaker": "Man",
+          "text": "Yes, they have modern equipment and offer various classes."
+        },
+        {
+          "speaker": "Woman",
+          "text": "Are the prices reasonable?"
+        },
+        {
+          "speaker": "Man",
+          "text": "The daily use fees are higher than I expected. So maybe I’ll get a long-term membership instead."
+        },
+        {
+          "speaker": "Woman",
+          "text": "Well, if you think you’ll go regularly…"
+        },
+        {
+          "speaker": "Man",
+          "text": "Yeah, the fitness book I’m reading says that’s the way to get in shape anyway."
+        }
+      ],
+      "questions": [
+        {
+          "number": 9,
+          "question": "What did the man dislike about the new gym?",
+          "options": [
+            "The location",
+            "The facilities",
+            "The equipment",
+            "The prices for one-time use"
+          ],
+          "answer": "The prices for one-time use",
+          "rationales": {}
+        },
+        {
+          "number": 10,
+          "question": "Why does the man mention a book?",
+          "options": [
+            "To offer a reading suggestion for the woman",
+            "To explain how he found out about the new gym",
+            "To give an extra reason for getting a long-term membership",
+            "To point out that there are many different ways to get in shape 24"
+          ],
+          "answer": "To give an extra reason for getting a long-term membership",
+          "rationales": {}
+        }
+      ],
+      "audio_url": "/static/listening_audio/new_toefl_conversation_d136e34a5e79.mp3"
+    }
+  ],
+  "talk": [
+    {
+      "id": "talk_1_0",
+      "talk": "I want to let everyone know that my office hours will be changing. Starting next week, I will be available on Mondays and Wednesdays from 2 to 4 p.m., instead of the current 1 to 3 p.m. If you have an urgent need to meet with me and these times don't work for you, please email me and I can schedule an appointment. Keep in mind that office hours are a great opportunity to discuss any questions or concerns you have about the course material. What is the main topic of the announcement? (A) A revision to a schedule (B) The process for making an appointment (C) Updates to course material (D) An upcoming exam What does the professor encourage students to do? (A) Form study groups with classmates (B) Begin planning their schedule for next semester (C) Meet with her if they have questions (D) Email her a list of their concerns 20 Listening Section, Module 1",
+      "questions": [],
+      "audio_url": "/static/listening_audio/new_toefl_talk_0f17e23bc17d.mp3"
+    },
+    {
+      "id": "talk_1_1",
+      "talk": "(M-Br) Let’s talk a little about language acquisition, which is the process by which humans learn to understand and use language. There are two main types of language first language acquisition and second language acquisition. First language acquisition occurs naturally and with relative ease during early childhood, through interaction with family and the surrounding environment. Children are able to pick up their native language quickly due to their innate linguistic capabilities, a concept supported by the linguist Noam Chomsky’s theory of Universal Grammar. Universal Grammar suggests that the ability to acquire language is innate to humans and that all human languages share a common underlying structure. Second language acquisition, on the other hand, often requires more conscious effort and formal education and typically happens later in life. Several factors influence the ease and success of second language acquisition, including exposure to the language, age, and motivation. Motivation, in particular, plays a crucial role—highly motivated individuals are more likely to engage actively with the language and persist in their learning efforts. Age is also significant; according to the critical period hypothesis, there is an optimal window in early childhood during which language acquisition occurs most easily. After this period, acquiring a new language can be more challenging. Understanding these processes helps educators and linguists develop effective teaching methods and language learning tools. How is the talk mainly organized? (A) It contrasts children’s innate linguistic capabilities with those of adults. (B) It lists the principles of Noam Chomsky’s theory of Universal Grammar. (C) It describes the differences between two methods of teaching language. (D) It discusses the two main types of language acquisition. Why does the speaker mention Noam Chomsky’s theory of Universal Grammar? (A) To highlight the importance of formal education in language learning (B) To explain why children areable to pick up their native language quickly (C) To describe how some languages are more complex than others (D) To provide background on the critical period hypothesis What does the speaker say about motivation and language acquisition? (A) Higher motivation makes it easier for a person to acquire a second language. (B) Motivation becomes less important to language acquisition as a person ages. (C) Children with increased exposure to a second language are more motivated to learn it. (D) Formal education does not motivate people to acquire a second language. 19 Listening Section, Module 1 According to the speaker, what is suggested by the critical period hypothesis? (A) People with innate linguistic capabilities acquire language easily. (B) There is an optimal window in early childhood for language acquisition. (C) A longer period of language exposure supports better learning. (D) Second language acquisition occurs most easily in early adulthood. 21",
+      "questions": [],
+      "audio_url": "/static/listening_audio/new_toefl_talk_0f9921ecf229.mp3"
+    },
+    {
+      "id": "talk_2_2",
+      "talk": "Due to some recent changes in university policy, we need everyone to update their contact information in the student portal. Doing so will ensure that your eceive important notifications, including about class cancellations and emergency alerts. Please complete the update by the end of this week. Don't take a chance on missing out on critical information.",
+      "questions": [
+        {
+          "number": 11,
+          "question": "Why does the speaker mention class cancellations and emergency alerts?",
+          "options": [
+            "To inform students about recent policy changes",
+            "To emphasize the importance of updating contact information",
+            "To promote a new program on personal health",
+            "To point out that classes are often canceled because of bad weather"
+          ],
+          "answer": "To emphasize the importance of updating contact information",
+          "rationales": {}
+        },
+        {
+          "number": 12,
+          "question": "What does the speaker imply when he says, \"Don't take a chance on missing out on critical information\"?",
+          "options": [
+            "Students should makes updates quickly.",
+            "Class attendance is mandatory.",
+            "The portal can be difficult to navigate.",
+            "Important information has just been posted. 25"
+          ],
+          "answer": "Students should makes updates quickly.",
+          "rationales": {}
+        }
+      ],
+      "audio_url": "/static/listening_audio/new_toefl_talk_3efc7128a26c.mp3"
+    },
+    {
+      "id": "talk_2_3",
+      "talk": "Today we’re discussing the notion of the ecological footprint, something that measures the impact of human activities on the environment uh, in terms of the amount of natural resources we consume and the waste we generate. The ecological footprint is often expressed in terms of number of global hectares. This number represents the total area of biologically productive land or water needed in order to support human activity. It considers various factors, including carbon emissions, food consumption, water usage, and land development. One primary component of the ecological footprint is the carbon footprint, which measures the amount of greenhouse gases emitted due to consumption of fossil fuels like petroleum and coal. High carbon footprints contribute significantly to global warming. Another important aspect is our consumption of natural resources like water and food, which can lead to resource depletion and environmental degradation. The concept of ecological footprint is crucial for understanding and addressing the sustainability of human activities. By measuring our ecological footprint, individuals, companies, and even whole countries can identify areas where they can reduce their impact on the environment. This could include adopting practices like recycling, conserving water, using renewable energy, and reducing waste.",
+      "questions": [
+        {
+          "number": 13,
+          "question": "What is the main topic of the talk?",
+          "options": [
+            "Replacing fossil fuels with more sustainable energy sources",
+            "A way of measuring the effects of human activities on the environment",
+            "How fossil fuel use leads to global warming",
+            "The importance of water conservation to a sustainable future"
+          ],
+          "answer": "A way of measuring the effects of human activities on the environment",
+          "rationales": {}
+        },
+        {
+          "number": 14,
+          "question": "According to the speaker, the ecological footprint is expressed in terms of",
+          "options": [
+            "area of land and water needed",
+            "amount of greenhouse gas produced",
+            "global temperature increase",
+            "number of natural resources consumed"
+          ],
+          "answer": "area of land and water needed",
+          "rationales": {}
+        },
+        {
+          "number": 15,
+          "question": "What does the speaker say about the carbon footprint?",
+          "options": [
+            "It primarily applies to industrial activities.",
+            "It includes tracking the biodiversity of an ecosystem.",
+            "It is a component of the ecological footprint.",
+            "It considers the number of vehicles in a given area. 26"
+          ],
+          "answer": "It is a component of the ecological footprint.",
+          "rationales": {}
+        }
+      ],
+      "audio_url": "/static/listening_audio/new_toefl_talk_4a01e9ab0893.mp3"
+    }
+  ]
+}

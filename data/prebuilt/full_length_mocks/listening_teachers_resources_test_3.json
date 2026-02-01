@@ -1,0 +1,401 @@
+{
+  "responses": [
+    {
+      "prompt": "Who can fix the printer?",
+      "options": [
+        "Mike can.",
+        "Sarah said so.",
+        "At the library.",
+        "Each weekend."
+      ],
+      "answer": "Mike can.",
+      "rationales": {},
+      "audio_url": "/static/listening_audio/new_toefl_response_49f06d71568d.mp3"
+    },
+    {
+      "prompt": "Please update the expense report.",
+      "options": [
+        "I hope so.",
+        "Yesterday, I think.",
+        "Straight ahead, then left.",
+        "I'll get to it."
+      ],
+      "answer": "I'll get to it.",
+      "rationales": {},
+      "audio_url": "/static/listening_audio/new_toefl_response_68e602170ada.mp3"
+    },
+    {
+      "prompt": "Would you mind turning down the music?",
+      "options": [
+        "Sure, I'll do it.",
+        "I just found mine.",
+        "I put it on the shelf.",
+        "The concert is on Friday."
+      ],
+      "answer": "Sure, I'll do it.",
+      "rationales": {},
+      "audio_url": "/static/listening_audio/new_toefl_response_8ab702d95894.mp3"
+    },
+    {
+      "prompt": "It's quite hot, isn't it?",
+      "options": [
+        "Over the weekend, I think.",
+        "It should cool down tomorrow.",
+        "The movie is at 5 p.m.",
+        "Sure, it's at the bakery."
+      ],
+      "answer": "It should cool down tomorrow.",
+      "rationales": {},
+      "audio_url": "/static/listening_audio/new_toefl_response_01caba6ed21b.mp3"
+    },
+    {
+      "prompt": "Why did you leave early?",
+      "options": [
+        "I think that it could be nice.",
+        "Yes, the trees are beautiful.",
+        "I was feeling unwell.",
+        "At some point in the evening."
+      ],
+      "answer": "I was feeling unwell.",
+      "rationales": {},
+      "audio_url": "/static/listening_audio/new_toefl_response_1c76bcac6de6.mp3"
+    },
+    {
+      "prompt": "When is the next train to Paris?",
+      "options": [
+        "At the main station downtown.",
+        "Probably with breakfast.",
+        "In the evening.",
+        "Yesterday morning."
+      ],
+      "answer": "In the evening.",
+      "rationales": {},
+      "audio_url": "/static/listening_audio/new_toefl_response_e01bd617ade8.mp3"
+    },
+    {
+      "prompt": "Would you prefer to fly to the conference or take the train?",
+      "options": [
+        "Both locations have closed.",
+        "The new one should be better.",
+        "Which is less expensive?",
+        "How many are there? 17"
+      ],
+      "answer": "Which is less expensive?",
+      "rationales": {},
+      "audio_url": "/static/listening_audio/new_toefl_response_07954bd85233.mp3"
+    },
+    {
+      "prompt": "Which bus goes to the airport?",
+      "options": [
+        "Bus number 30.",
+        "Jake might do it.",
+        "The flight is quite long.",
+        "A 25-minute drive."
+      ],
+      "answer": "Bus number 30.",
+      "rationales": {},
+      "audio_url": "/static/listening_audio/new_toefl_response_f138c99670a5.mp3"
+    },
+    {
+      "prompt": "Why is the gym closed?",
+      "options": [
+        "Yesterday's storm caused damage.",
+        "Be sure to shut down the equipment.",
+        "A new workout routine.",
+        "Because he has two already."
+      ],
+      "answer": "Yesterday's storm caused damage.",
+      "rationales": {},
+      "audio_url": "/static/listening_audio/new_toefl_response_8ae4b51b950d.mp3"
+    },
+    {
+      "prompt": "Could you proofread this document?",
+      "options": [
+        "I should have time tomorrow.",
+        "Every weekend over the past few months.",
+        "Yes, last week at the library.",
+        "It's downtown, I think."
+      ],
+      "answer": "I should have time tomorrow.",
+      "rationales": {},
+      "audio_url": "/static/listening_audio/new_toefl_response_37468d312094.mp3"
+    },
+    {
+      "prompt": "Do you mind if I take the aisle seat?",
+      "options": [
+        "Everyone is seated.",
+        "Not for me, thank you.",
+        "Only single seats.",
+        "Not at all."
+      ],
+      "answer": "Not at all.",
+      "rationales": {},
+      "audio_url": "/static/listening_audio/new_toefl_response_5062b7ed6b00.mp3"
+    },
+    {
+      "prompt": "Did your epair your bicycle yourself?",
+      "options": [
+        "That brand has a good reputation.",
+        "I took it to a professional.",
+        "No, it's not far from here.",
+        "Sure, I'll take a look at it."
+      ],
+      "answer": "I took it to a professional.",
+      "rationales": {},
+      "audio_url": "/static/listening_audio/new_toefl_response_0d1412cedafd.mp3"
+    },
+    {
+      "prompt": "This café just opened for business, didn't it?",
+      "options": [
+        "Sure, right away.",
+        "On the right.",
+        "Every evening.",
+        "Only last week."
+      ],
+      "answer": "Only last week.",
+      "rationales": {},
+      "audio_url": "/static/listening_audio/new_toefl_response_9515d0e87b65.mp3"
+    },
+    {
+      "prompt": "How do you feel about the new marketing strategy?",
+      "options": [
+        "I remember it well.",
+        "I'm still thinking about it.",
+        "I don't know if I can attend.",
+        "I'd like to visit them. 23"
+      ],
+      "answer": "I'm still thinking about it.",
+      "rationales": {},
+      "audio_url": "/static/listening_audio/new_toefl_response_82dc60df06f5.mp3"
+    }
+  ],
+  "conversation": [
+    {
+      "id": "conv_1_0",
+      "segments": [
+        {
+          "speaker": "Man",
+          "text": "I just got an email saying that the company picnic at Emerald Park has been rescheduled."
+        },
+        {
+          "speaker": "Woman",
+          "text": "Oh, really? How come?"
+        },
+        {
+          "speaker": "Man",
+          "text": "Apparently the forecast is terrible next Wednesday... heavy rain."
+        },
+        {
+          "speaker": "Woman",
+          "text": "Oh, that makes sense. Did they mention the new date?"
+        },
+        {
+          "speaker": "Man",
+          "text": "Yes, this Saturday, the tenth."
+        },
+        {
+          "speaker": "Woman",
+          "text": "I’ll mark my calendar. I’m looking forward to having some food in good company."
+        }
+      ],
+      "questions": [
+        {
+          "number": 9,
+          "question": "Why was an event rescheduled?",
+          "options": [
+            "Because of the weather",
+            "Because a park will be closed",
+            "Because of a schedule conflict",
+            "Because Saturday is a day off"
+          ],
+          "answer": "Because of the weather",
+          "rationales": {}
+        },
+        {
+          "number": 10,
+          "question": "What will the speakers do this Saturday?",
+          "options": [
+            "Go hiking in a park",
+            "Socialize with their coworkers",
+            "Go to a restaurant",
+            "Discuss the new schedule 18"
+          ],
+          "answer": "Socialize with their coworkers",
+          "rationales": {}
+        }
+      ],
+      "audio_url": "/static/listening_audio/new_toefl_conversation_e6ff2eb369f9.mp3"
+    },
+    {
+      "id": "conv_1_1",
+      "segments": [
+        {
+          "speaker": "Man",
+          "text": "I’m having trouble deciding which laptop to buy. There are so many options out there."
+        },
+        {
+          "speaker": "Woman",
+          "text": "Have you narrowed it down at all?"
+        },
+        {
+          "speaker": "Man",
+          "text": "Sort of. I’m debating between a high-performance model for gaming and a more budget-friendly one for everyday tasks."
+        },
+        {
+          "speaker": "Woman",
+          "text": "Have your ead some user reviews? They might help you decide if the extra cost would be worthwhile."
+        },
+        {
+          "speaker": "Man",
+          "text": "Yeah, maybe. Though the reviews of the sneakers I bought last month said they're super-durable, and yet I have holes in them already. What is the man trying to choose? (A) A phone (B) A game (C) A computer (D) A pair of sneakers Why does the man mention a purchase that he made last month? (A) To imply that he no longer trusts product reviews (B) To explain why he prefers a durable product (C) To recommend a new product to the woman (D) To indicate why he does not want to buy an expensive product"
+        }
+      ],
+      "questions": [],
+      "audio_url": "/static/listening_audio/new_toefl_conversation_656b60363575.mp3"
+    },
+    {
+      "id": "conv_2_2",
+      "segments": [
+        {
+          "speaker": "Woman",
+          "text": "Are you all set for your presentation tomorrow?"
+        },
+        {
+          "speaker": "Man",
+          "text": "Almost. I still need to finalize my slides and add a couple more visuals to make it engaging."
+        },
+        {
+          "speaker": "Woman",
+          "text": "If you need any help, let me know. I'm done with mine already."
+        },
+        {
+          "speaker": "Man",
+          "text": "Well, it'd be helpful for me to practice my speech in front of someone..."
+        },
+        {
+          "speaker": "Woman",
+          "text": "I'm free at 4:30, if you want to come by my office."
+        },
+        {
+          "speaker": "Man",
+          "text": "Thanks! I appreciate it. I'd love to get your thoughts before I deliver it to the full audience tomorrow."
+        }
+      ],
+      "questions": [
+        {
+          "number": 9,
+          "question": "What does the man still need to do for his presentation?",
+          "options": [
+            "Print handouts for the audience",
+            "Finish preparing the visual elements",
+            "Write his speech",
+            "Notify his colleagues about it"
+          ],
+          "answer": "Finish preparing the visual elements",
+          "rationales": {}
+        },
+        {
+          "number": 10,
+          "question": "What will the man most likely do this afternoon?",
+          "options": [
+            "Practice his speech",
+            "Deliver his presentation to a group",
+            "Review the woman's presentation",
+            "Express his appreciation 24"
+          ],
+          "answer": "Practice his speech",
+          "rationales": {}
+        }
+      ],
+      "audio_url": "/static/listening_audio/new_toefl_conversation_42e86d8b34dd.mp3"
+    }
+  ],
+  "talk": [
+    {
+      "id": "talk_1_0",
+      "talk": "Before we get started, don't forget that the first draft of your research paper is due on Monday. This draft should include your thesis statement, main arguments, and a preliminary list of sources. It's only a draft, so it's okay if it's not perfect. The goal is to get feedback and refine your ideas. Please submit your draft electronically via the course portal by midnight on Monday. What is the main purpose of the announcement? (A) To point out flaws in a research paper (B) To remind students about an assignment (C) To explain how to write a thesis statement (D) To invite students to a lecture on Monday 19 Listening Section, Module 1 What does the speaker suggest about the first draft? (A) It must contain no errors. (B) It should include all final sources. (C) It is a major part of the students' grade. (D) It is intended for feedback and improvement. 20 Listening Section, Module 1",
+      "questions": [],
+      "audio_url": "/static/listening_audio/new_toefl_talk_1ca4ab301c0d.mp3"
+    },
+    {
+      "id": "talk_1_1",
+      "talk": "Today we’re exploring neuroplasticity, which means the brain’s ability to reorganize its elf by forming new neural connections throughout life. Neuroplasticity allows the brain to adapt in response to learning, experience, and other stimulation. This remarkable capacity for change is crucial for cognitive development and skill acquisition. There are structural and functional. Structural neuroplasticity involves changes in the physical structure of the brain, such as the growth of new neurons or the strengthening of synapses. Functional neuroplasticity, on the other hand, refers to changes in the brain’s activity patterns, allowing different areas to take over functions previously managed by underperforming regions. For example, if a region responsible for language processing becomes less active, nearby or even distant areas may increase their activity to support language functions. Now, research has shown that engaging in activities that stimulate the brain, such as learning new skills, physical exercise, and cognitive training, can enhance both structural and functional neuroplasticity. Consider aerobic exercises like running or swimming—they help the brain by boosting a special protein called BDNF, which works like fertilizer for brain cells, helping them grow and stay healthy. Understanding neuroplasticity has important implications for creating strategies that promote brain resilience. By leveraging neuroplasticity, researchers and practitioners aim to support cognitive vitality in people of all ages. What is the main topic of the talk? (A) The importance of cognitive training to overall brain health (B) The brain’s ability to reorganize its elf by forming new connections (C) Changes in the physical structure of the brain over a lifetime (D) The comprehensive anatomy of the human brain According to the talk, what does neuroplasticity allow the brain to do? (A) Adapt in response to learning and experience (B) Protect its elf from excessive stimulation (C) Activate parts of the brain that are not ordinarily used (D) Transmit signals faster between neurons Which of the following lets certain areas of the brain take over roles previously managed by other regions? (A) Cognitive neuroplasticity (B) Structural neuroplasticity (C) Physical neuroplasticity (D) Functional neuroplasticity 19 Listening Section, Module 1 What point does the professor make about physical exercise? (A) It is beneficial to exercise at any time of day. (B) It allows the brain to cool down and rest. (C) It supports brain health by increasing a certain protein. (D) It is good to consume protein after exercising. 21",
+      "questions": [],
+      "audio_url": "/static/listening_audio/new_toefl_talk_bbd84f7b46db.mp3"
+    },
+    {
+      "id": "talk_2_2",
+      "talk": "Environmentally minded students will be happy to know that compost collection bins have been placed next to every paper and plastic recycling receptacle in the student center food court. Now, any uneaten food can be placed into a compost bin. The contents of the bins are collected daily by agriculture students who are transforming our food waste into plant food through the process of composting. Please do your part to keep our campus sustainable through recycling and composting.",
+      "questions": [
+        {
+          "number": 11,
+          "question": "According to the talk, what do agriculture students do each day?",
+          "options": [
+            "Place composting bins around the campus",
+            "Water plants at the student center",
+            "Recruit volunteers for a recycling program",
+            "Empty the contents of compost containers"
+          ],
+          "answer": "Empty the contents of compost containers",
+          "rationales": {}
+        },
+        {
+          "number": 12,
+          "question": "What should be placed in the new bins?",
+          "options": [
+            "Plastic bottles",
+            "Paper products",
+            "Food waste",
+            "Metal cans 25"
+          ],
+          "answer": "Food waste",
+          "rationales": {}
+        }
+      ],
+      "audio_url": "/static/listening_audio/new_toefl_talk_8249497a4d82.mp3"
+    },
+    {
+      "id": "talk_2_3",
+      "talk": "Today, I want to talk about a fascinating topic in chemistry: catalysts— substances that speed up chemical reactions without being used up. Think of them as helpful assistants that make reactions happen faster and more efficiently, while staying unchanged. This means they don’t become part of the final product, so they can be reused again and again in multiple reactions. Catalysts are everywhere. In our bodies, enzymes act as natural catalysts, helping with digestion and metabolism. In industry, they’re essential for making plastics, medicines, and fuels. What makes catalysts powerful is that they lower the energy needed for a reaction to happen. Imagine baking the recipe says to heat the oven to 400°F, but someone gives you a special pan that lets it bake perfectly at 300°F. That pan is like a catalyst—it helps the ingredients become a cake, a product, using less energy. Now, let’s look at something even more nanozymes. These are tiny, artificial materials that mimic enzymes. They’re more stable in harsh conditions like heat or acidity, cheaper to produce, and can be tailored for specific tasks. For example, nanozymes are used in environmental cleanup efforts. They can break down harmful pollutants in extreme conditions—like polluted water or industrial waste—things like pesticides, dyes, or heavy metals—turning them into safer, less toxic substances.",
+      "questions": [
+        {
+          "number": 13,
+          "question": "What is the main topic of the talk?",
+          "options": [
+            "How a chemical reaction progresses from start to finish",
+            "The role of catalysts in chemical reactions",
+            "Materials used in the production of nanozymes",
+            "The importance of enzymes in digestion"
+          ],
+          "answer": "The role of catalysts in chemical reactions",
+          "rationales": {}
+        },
+        {
+          "number": 14,
+          "question": "What point does the professor make about the unchanging nature of catalysts?",
+          "options": [
+            "It makes them easier to produce in laboratories.",
+            "It causes them to lack flexibility.",
+            "It allows them to be used repeatedly.",
+            "It makes them inefficient for some complex chemical processes."
+          ],
+          "answer": "It allows them to be used repeatedly.",
+          "rationales": {}
+        },
+        {
+          "number": 15,
+          "question": "Why does the professor mention a cake?",
+          "options": [
+            "To show how catalysts make reactions occur with less energy",
+            "To point out a common problem with digestion",
+            "To illustrate how certain enzymes produce high temperatures",
+            "To explain how chemical reactions can influence cake flavor 26"
+          ],
+          "answer": "To show how catalysts make reactions occur with less energy",
+          "rationales": {}
+        }
+      ],
+      "audio_url": "/static/listening_audio/new_toefl_talk_af368324dc3c.mp3"
+    }
+  ]
+}

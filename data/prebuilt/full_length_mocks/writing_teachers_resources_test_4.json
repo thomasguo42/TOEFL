@@ -1,0 +1,162 @@
+{
+  "sentence_build": [
+    {
+      "prompt": "Where did you get your shoes?",
+      "tokens": [
+        "visited",
+        "had",
+        "it",
+        "last month",
+        "the shop",
+        "a sale",
+        "I"
+      ],
+      "answer": "The shop I visited last month had a sale.",
+      "context": "_____ _____ _____ _____ _____ _____."
+    },
+    {
+      "prompt": "The workshop yesterday was very informative.",
+      "tokens": [
+        "another one",
+        "do",
+        "there",
+        "if",
+        "be",
+        "you know",
+        "will"
+      ],
+      "answer": "Do you know if there will be another one soon?",
+      "context": "_____ _____ _____ _____ _____ _____ _____ soon?"
+    },
+    {
+      "prompt": "The new restaurant downtown has amazing reviews.",
+      "tokens": [
+        "know",
+        "do",
+        "if",
+        "has",
+        "vegetarian options",
+        "have",
+        "you",
+        "they"
+      ],
+      "answer": "Do you know if they have vegetarian options?",
+      "context": "_____ _____ _____ _____ _____ _____ _____?"
+    },
+    {
+      "prompt": "That was a great movie we watched last night.",
+      "tokens": [
+        "that",
+        "by",
+        "director",
+        "would",
+        "like",
+        "another film",
+        "to see"
+      ],
+      "answer": "Would you like to see another film by that director?",
+      "context": "_____ you _____ _____ _____ _____ _____ _____?"
+    },
+    {
+      "prompt": "I’m planning to visit my grandparents next weekend.",
+      "tokens": [
+        "to the airport",
+        "tell me",
+        "you",
+        "can",
+        "need",
+        "a lift",
+        "whether"
+      ],
+      "answer": "Can you tell me whether you need a lift to the airport?",
+      "context": "_____ you _____ _____ _____ _____ _____ _____?"
+    },
+    {
+      "prompt": "The book you lent me was fascinating.",
+      "tokens": [
+        "has",
+        "you know",
+        "have",
+        "the author",
+        "if",
+        "other books",
+        "do"
+      ],
+      "answer": "Do you know if the author has written other books?",
+      "context": "_____ _____ _____ _____ _____ written _____"
+    },
+    {
+      "prompt": "The new software update looks promising.",
+      "tokens": [
+        "able",
+        "which",
+        "the download",
+        "website",
+        "to find",
+        "were you"
+      ],
+      "answer": "On which website were you able to find the download?",
+      "context": "On _____ _____ _____ _____ _____ _____"
+    },
+    {
+      "prompt": "The new coffee shop downtown is very popular.",
+      "tokens": [
+        "that",
+        "football matches",
+        "you can",
+        "on screen",
+        "watch",
+        "where",
+        "the one"
+      ],
+      "answer": "Is that the one where you can watch football matches on screen?",
+      "context": "Is _____ _____ _____ _____ _____ _____ _____"
+    },
+    {
+      "prompt": "We had a great time at the concert last night.",
+      "tokens": [
+        "that band",
+        "is performing",
+        "when",
+        "how",
+        "find out",
+        "again",
+        "can we"
+      ],
+      "answer": "How can we find out when that band is performing again?",
+      "context": "_____ _____ _____ _____ _____ _____ _____"
+    },
+    {
+      "prompt": "I really enjoyed the hiking trip last weekend.",
+      "tokens": [
+        "if",
+        "more trips",
+        "planned",
+        "there are",
+        "you",
+        "tell me",
+        "can"
+      ],
+      "answer": "Can you tell me if there are more trips planned for this month?",
+      "context": "_____ _____ _____ _____ _____ _____ _____ for this month?"
+    }
+  ],
+  "email": {
+    "id": "email_teachers_resources_test_4",
+    "scenario": "Write for an Academic Discussion Description 30 Writing Section Build a Sentence Move the words in the boxes to create grammatical sentences. A clock will show you how much time you have to complete this task. Make an appropriate sentence. 1. Where did you get your shoes? _____ _____ _____ _____ _____ _____.visited / had / it / last month / the shop / a sale / I 2. The workshop yesterday was very informative. _____ _____ _____ _____ _____ _____ _____ soon? another one / do / there / if / be / you know / will 3. The new restaurant downtown has amazing reviews. _____ _____ _____ _____ _____ _____ _____? know / do / if / has / vegetarian options / have / you / they 4. That was a great movie we watched last night. _____ you _____ _____ _____ _____ _____ _____? that / by / director / would / like / another film / to see 31 Writing Section 5. I’m planning to visit my grandparents next weekend. _____ you _____ _____ _____ _____ _____ _____? to the airport / tell me / you / can / need / a lift / whether 6. The book you lent me was fascinating. _____ _____ _____ _____ _____ written _____?has / you know / have / the author / if / other books / do 7. The new software update looks promising. On _____ _____ _____ _____ _____ _____?able / which / the download / website / to find / were you 8. The new coffee shop downtown is very popular. Is _____ _____ _____ _____ _____ _____ _____?that / football matches / you can / on screen / watch / where / the one 9. We had a great time at the concert last night. _____ _____ _____ _____ _____ _____ _____?that band / is performing / when / how / find out / again / can we 10. I really enjoyed the hiking trip last weekend. _____ _____ _____ _____ _____ _____ _____ for this month? if / more trips / planned / there are / you / tell me / can 32 Writing Section You are a student organizing a study group for an upcoming exam. You want to invite your classmates to join the group and explain to them your ideas about how the group should proceed. Explain the purpose of the study group. Describe the topics you plan to cover during the study sessions and other ideas you have for the sessions. Suggest a time and location for the first meeting. 33 Writing Section",
+    "instructions": [],
+    "to_name": "Classmates",
+    "subject": "Invitation to join study group"
+  },
+  "discussion": {
+    "id": "discussion_teachers_resources_test_4",
+    "professor_prompt": "professor’s question. In your response, you should do the following. Express and support your opinion. Dr. Achebe Next week we’ll be discussing the impact of digital media on traditional forms of communication. Some argue that digital media has had a beneficial effect overall, as it has greatly improved global communication and connectivity. Others believe it has had a largely negative effect, leading to the decline of face-to-face interactions and reduced quality of relationships. What is your opinion on this?",
+    "student_posts": [
+      {
+        "name": "Student B",
+        "stance": "Disagree",
+        "message": "I believe digital media has primarily had a positive effect. It allows people to stay in touch over long distances with friends and family with whom they may not have had much contact otherwise. The convenience and speed of digital media allow people to communicate with ease. Although it seems like a good thing on the surface, I think digital media has led to some serious problems. People often spend more time online than engaging in real-life conversations, which can erode social bonds and reduce the quality of communication with others. We need to find a balance between digital and traditional communication. 34"
+      }
+    ]
+  }
+}

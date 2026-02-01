@@ -167,6 +167,56 @@ class TTSService:
             current_app.logger.error(f"TTS generation failed: {e}")
             return None
 
+    def generate_audio_cached(
+        self,
+        text: str,
+        filename_prefix: str,
+        cache_key: str,
+        voice: str = "default",
+        language: str = "en",
+    ) -> Optional[TTSResult]:
+        """Generate audio once and reuse the same filename on future requests."""
+        audio_dir = self._ensure_audio_dir()
+        safe_prefix = secure_filename(filename_prefix)
+        filename = f"{safe_prefix}_{cache_key}.mp3"
+        file_path = audio_dir / filename
+        cached = self.get_cached_audio(filename_prefix, cache_key, text=text)
+        if cached:
+            return cached
+
+        result = self.generate_audio(text, filename_prefix=filename_prefix, voice=voice, language=language)
+        if not result:
+            return None
+
+        src_path = audio_dir / Path(result.audio_path).name
+        if src_path.exists():
+            src_path.rename(file_path)
+            result.audio_path = f"listening_audio/{filename}"
+        return result
+
+    def get_cached_audio(
+        self,
+        filename_prefix: str,
+        cache_key: str,
+        text: str = "",
+    ) -> Optional[TTSResult]:
+        """Return cached audio info if the file exists (no generation)."""
+        audio_dir = self._ensure_audio_dir()
+        safe_prefix = secure_filename(filename_prefix)
+        filename = f"{safe_prefix}_{cache_key}.mp3"
+        file_path = audio_dir / filename
+        if not file_path.exists():
+            return None
+
+        words = (text or "").split()
+        duration = len(words) / 2.33 if words else 0.0
+        return TTSResult(
+            audio_path=f"listening_audio/{filename}",
+            duration_seconds=duration,
+            word_timestamps=[],
+            provider=self.provider,
+        )
+
     def _generate_gtts(
         self,
         text: str,
@@ -646,6 +696,38 @@ class TTSService:
 
         full_text = " ".join(full_text_parts)
         return self.generate_audio(full_text, filename_prefix)
+
+    def generate_multi_speaker_audio_cached(
+        self,
+        segments: List[Dict[str, str]],
+        filename_prefix: str,
+        cache_key: str,
+    ) -> Optional[TTSResult]:
+        """Generate multi-speaker audio once and reuse the same filename on future requests."""
+        audio_dir = self._ensure_audio_dir()
+        safe_prefix = secure_filename(filename_prefix)
+        filename = f"{safe_prefix}_{cache_key}.mp3"
+        file_path = audio_dir / filename
+        if file_path.exists():
+            full_text = " ".join([s.get("text", "") for s in segments])
+            words = full_text.split()
+            duration = len(words) / 2.33 if words else 0.0
+            return TTSResult(
+                audio_path=f"listening_audio/{filename}",
+                duration_seconds=duration,
+                word_timestamps=[],
+                provider=self.provider,
+            )
+
+        result = self.generate_multi_speaker_audio(segments, filename_prefix=filename_prefix)
+        if not result:
+            return None
+
+        src_path = audio_dir / Path(result.audio_path).name
+        if src_path.exists():
+            src_path.rename(file_path)
+            result.audio_path = f"listening_audio/{filename}"
+        return result
 
     def _generate_kokoro_multi_speaker(
         self,

@@ -1,0 +1,528 @@
+{
+  "responses": [
+    {
+      "prompt": "How can I get this light to work?",
+      "options": [
+        "The lighter one is over there.",
+        "There's a switch on the back wall.",
+        "The side door is open.",
+        "I prefer to work at home."
+      ],
+      "answer": "There's a switch on the back wall.",
+      "rationales": {},
+      "audio_url": "/static/listening_audio/new_toefl_response_07a1b8cea297.mp3"
+    },
+    {
+      "prompt": "I'm not available tomorrow.",
+      "options": [
+        "Let's try to get there early.",
+        "What's a better day for you?",
+        "It's not on my schedule either.",
+        "I was in a meeting last night."
+      ],
+      "answer": "What's a better day for you?",
+      "rationales": {},
+      "audio_url": "/static/listening_audio/new_toefl_response_507aa30340ef.mp3"
+    },
+    {
+      "prompt": "The campus talent contest will be held next Saturday evening.",
+      "options": [
+        "I can hold that for you.",
+        "Stage lighting is usually very hot.",
+        "My roommate is a talented basketball player.",
+        "Do you know who the judges will be?"
+      ],
+      "answer": "Do you know who the judges will be?",
+      "rationales": {},
+      "audio_url": "/static/listening_audio/new_toefl_response_e23d648f81db.mp3"
+    },
+    {
+      "prompt": "What time do I need to pick up Michael from the train station?",
+      "options": [
+        "Don't worry about it--I'll get him.",
+        "He said he prefers the window seat.",
+        "The station now has a snack shop.",
+        "There's road construction near the entrance."
+      ],
+      "answer": "Don't worry about it--I'll get him.",
+      "rationales": {},
+      "audio_url": "/static/listening_audio/new_toefl_response_7d784125d725.mp3"
+    },
+    {
+      "prompt": "Isn't the grocery store open late tonight?",
+      "options": [
+        "Yes, it is.",
+        "No, shopping takes time.",
+        "It's next to the store.",
+        "I'd rather not."
+      ],
+      "answer": "Yes, it is.",
+      "rationales": {},
+      "audio_url": "/static/listening_audio/new_toefl_response_423a452b1ec7.mp3"
+    },
+    {
+      "prompt": "Did you bring the identification documents?",
+      "options": [
+        "They are in the blue folder.",
+        "Who can identify them?",
+        "Both can be done.",
+        "Yes, I would."
+      ],
+      "answer": "They are in the blue folder.",
+      "rationales": {},
+      "audio_url": "/static/listening_audio/new_toefl_response_0633e26d1db4.mp3"
+    },
+    {
+      "prompt": "Wait, isn't the concert tomorrow night?",
+      "options": [
+        "No, it's tonight.",
+        "No, I can't wait.",
+        "Yes, I would.",
+        "Yes, that's fine."
+      ],
+      "answer": "No, it's tonight.",
+      "rationales": {},
+      "audio_url": "/static/listening_audio/new_toefl_response_921f20c9a481.mp3"
+    },
+    {
+      "prompt": "I'm not available this afternoon.",
+      "options": [
+        "So am I.",
+        "It takes a while.",
+        "I didn't mean it.",
+        "Well, I understand."
+      ],
+      "answer": "Well, I understand.",
+      "rationales": {},
+      "audio_url": "/static/listening_audio/new_toefl_response_0d041b757b7d.mp3"
+    },
+    {
+      "prompt": "Who is responsible for the project timeline?",
+      "options": [
+        "I do.",
+        "I'm not sure.",
+        "A few unexpected delays.",
+        "It stays on track."
+      ],
+      "answer": "I'm not sure.",
+      "rationales": {},
+      "audio_url": "/static/listening_audio/new_toefl_response_826dfaa236f8.mp3"
+    },
+    {
+      "prompt": "Why did the team meeting get canceled?",
+      "options": [
+        "Two days ago.",
+        "Meeting attendees.",
+        "Actually, it was rescheduled.",
+        "How about another time?"
+      ],
+      "answer": "Actually, it was rescheduled.",
+      "rationales": {},
+      "audio_url": "/static/listening_audio/new_toefl_response_5ea9ef5bb93d.mp3"
+    },
+    {
+      "prompt": "Can you assist me with my science report?",
+      "options": [
+        "Let me know what you think.",
+        "You're very kind.",
+        "What exactly do you need help with?",
+        "It doesn't matter."
+      ],
+      "answer": "What exactly do you need help with?",
+      "rationales": {},
+      "audio_url": "/static/listening_audio/new_toefl_response_c21fe5912746.mp3"
+    },
+    {
+      "prompt": "I'm not sure about the current plan.",
+      "options": [
+        "That's unfortunate.",
+        "Sure, I can.",
+        "I think you have it.",
+        "No, it's planned."
+      ],
+      "answer": "That's unfortunate.",
+      "rationales": {},
+      "audio_url": "/static/listening_audio/new_toefl_response_eff1ea6e2627.mp3"
+    },
+    {
+      "prompt": "If you need help, ask Ms. Johnson.",
+      "options": [
+        "Either is fine by me.",
+        "Happy to help.",
+        "That's what I'll do.",
+        "I'm available."
+      ],
+      "answer": "That's what I'll do.",
+      "rationales": {},
+      "audio_url": "/static/listening_audio/new_toefl_response_56e8b0468117.mp3"
+    },
+    {
+      "prompt": "What time does the event start?",
+      "options": [
+        "In the party room.",
+        "At 1 p.m.",
+        "It's crowded.",
+        "Event coordinators."
+      ],
+      "answer": "At 1 p.m.",
+      "rationales": {},
+      "audio_url": "/static/listening_audio/new_toefl_response_29e00fc8303d.mp3"
+    },
+    {
+      "prompt": "Who is hosting the party tonight?",
+      "options": [
+        "The marketing team is.",
+        "It's tonight.",
+        "I can't help it.",
+        "It's good for two days."
+      ],
+      "answer": "The marketing team is.",
+      "rationales": {},
+      "audio_url": "/static/listening_audio/new_toefl_response_4d6449b7aab9.mp3"
+    },
+    {
+      "prompt": "Let's go hiking this weekend.",
+      "options": [
+        "Maybe it is.",
+        "Why not this weekend instead?",
+        "Have you checked the weather?",
+        "Are you busy?"
+      ],
+      "answer": "Have you checked the weather?",
+      "rationales": {},
+      "audio_url": "/static/listening_audio/new_toefl_response_9c1014de1dd8.mp3"
+    }
+  ],
+  "conversation": [
+    {
+      "id": "conv_1_0",
+      "segments": [
+        {
+          "speaker": "Man",
+          "text": "I think my laptop is acting up again. It keeps freezing and shutting down randomly."
+        },
+        {
+          "speaker": "Woman",
+          "text": "That’s frustrating. Have you tried restarting it or running a virus scan?"
+        },
+        {
+          "speaker": "Man",
+          "text": "Yes, I did both, but it didn’t help. I might need to take it to a repair shop."
+        },
+        {
+          "speaker": "Woman",
+          "text": "That sounds like a good idea. They should be able to diagnose and fix the issue."
+        },
+        {
+          "speaker": "Man",
+          "text": "I’ll do that this afternoon."
+        }
+      ],
+      "questions": [
+        {
+          "number": 9,
+          "question": "What problem is the man experiencing with his laptop?",
+          "options": [
+            "It has a cracked screen.",
+            "It won’t turn on.",
+            "It keeps freezing and shutting down.",
+            "It is running slowly."
+          ],
+          "answer": "It keeps freezing and shutting down.",
+          "rationales": {}
+        },
+        {
+          "number": 10,
+          "question": "What will the man most likely do next?",
+          "options": [
+            "Buy a new laptop",
+            "Run another virus scan",
+            "Take his laptop to a repair shop",
+            "Restart his laptop"
+          ],
+          "answer": "Take his laptop to a repair shop",
+          "rationales": {}
+        }
+      ],
+      "audio_url": "/static/listening_audio/new_toefl_conversation_68a1ae269977.mp3"
+    },
+    {
+      "id": "conv_1_1",
+      "segments": [
+        {
+          "speaker": "Man",
+          "text": "Are you going to the supermarket today by any chance?"
+        },
+        {
+          "speaker": "Woman",
+          "text": "I was just there yesterday. Why?"
+        },
+        {
+          "speaker": "Man",
+          "text": "I suddenly remembered that I’m supposed to bring some drinks to my team’s lunch meeting tomorrow at work, and I’m in the middle of a project I need to finish tonight."
+        },
+        {
+          "speaker": "Woman",
+          "text": "You’re in luck. I stocked up yesterday."
+        }
+      ],
+      "questions": [
+        {
+          "number": 11,
+          "question": "What is the man’s problem?",
+          "options": [
+            "He has nothing to eat for lunch.",
+            "He is unable to attend a meeting.",
+            "He forgot about an obligation at work.",
+            "He needs more resources to finish a project."
+          ],
+          "answer": "He forgot about an obligation at work.",
+          "rationales": {}
+        },
+        {
+          "number": 12,
+          "question": "What does the woman imply when she says, “I stocked up yesterday”?",
+          "options": [
+            "She does not plan to go to work tomorrow.",
+            "She will provide the man with drinks for his meeting.",
+            "The supermarket has plenty of drinks available.",
+            "The man will not need extra time to finish his project."
+          ],
+          "answer": "She will provide the man with drinks for his meeting.",
+          "rationales": {}
+        }
+      ],
+      "audio_url": "/static/listening_audio/new_toefl_conversation_668943399ffa.mp3"
+    },
+    {
+      "id": "conv_2_2",
+      "segments": [
+        {
+          "speaker": "Man",
+          "text": "Have your eturned the books we borrowed from the library?"
+        },
+        {
+          "speaker": "Woman",
+          "text": "Why? I thought we could keep them for six weeks."
+        },
+        {
+          "speaker": "Man",
+          "text": "Actually, it’s now four weeks. They changed the policy. I guess I forgot to tell you!"
+        },
+        {
+          "speaker": "Woman",
+          "text": "That means they’re due tomorrow!"
+        },
+        {
+          "speaker": "Man",
+          "text": "Exactly!"
+        },
+        {
+          "speaker": "Woman",
+          "text": "In that case, I’ll take care of it right now!"
+        }
+      ],
+      "questions": [
+        {
+          "number": 9,
+          "question": "What was the woman not aware of?",
+          "options": [
+            "The library’s new location",
+            "The library’s borrowing policy",
+            "The library’s holiday schedule",
+            "The library’s hours of operation"
+          ],
+          "answer": "The library’s borrowing policy",
+          "rationales": {}
+        },
+        {
+          "number": 10,
+          "question": "What will the woman probably do next?",
+          "options": [
+            "Return books to the library",
+            "Make a phone call to the library",
+            "Pay a fine for returning books late",
+            "Borrow a new book from the library"
+          ],
+          "answer": "Return books to the library",
+          "rationales": {}
+        }
+      ],
+      "audio_url": "/static/listening_audio/new_toefl_conversation_a17f29b3a37c.mp3"
+    }
+  ],
+  "talk": [
+    {
+      "id": "talk_1_0",
+      "talk": "Welcome to the creative writing club's monthly meeting! Before we get started, I wanted to remind you of the guidelines for our upcoming short-story contest. We’re looking for stories on the theme of family, and all stories must be submitted by the end of November to be considered. Good luck to everyone participating!",
+      "questions": [
+        {
+          "number": 13,
+          "question": "Why does the speaker mention family?",
+          "options": [
+            "It is the topic of the story they are reading.",
+            "It was discussed at last month’s meeting.",
+            "It is a contest theme.",
+            "Families are invited to the next meeting."
+          ],
+          "answer": "It is a contest theme.",
+          "rationales": {}
+        },
+        {
+          "number": 14,
+          "question": "What does the speaker encourage the participants to do?",
+          "options": [
+            "Observe the guidelines",
+            "Read last month’s submissions",
+            "Prepare for a presentation",
+            "Join the club’s mailing list"
+          ],
+          "answer": "Observe the guidelines",
+          "rationales": {}
+        }
+      ],
+      "audio_url": "/static/listening_audio/new_toefl_talk_d712d26a776d.mp3"
+    },
+    {
+      "id": "talk_1_1",
+      "talk": "Dark matter is a type of matter that doesn’t emit, absorb, or reflect light, making it invisible to c urrent instruments. Despite being unobservable directly, it’s believed to make up about 27 percent of the universe’s mass-energy content. How do scientist s know dark matter exists? Well, all the stars in a galaxy rotate around the center of their galaxy. According to basic physics, the farther a star is from the center of a galaxy, the slower it should rotate. However, observations show that stars in the outer regions of galaxies rotate at unexpectedly high speeds. This anomaly suggests that a massive, unseen matter is exerting gravitational force, keeping the stars moving faster than expected. Dark matter is hugely important for the structure of the universe. Computer simulations show that ga laxies wouldn't have formed the way they did if dark matter hadn't been around. But what does dark matter consist of? Well, there are different theories, so let's consider a couple of them.",
+      "questions": [
+        {
+          "number": 15,
+          "question": "What is the main topic of the talk?",
+          "options": [
+            "How gravity affects stars",
+            "Material in the universe that cannot be directly seen",
+            "The distribution of stars in galaxies",
+            "The formation of the universe"
+          ],
+          "answer": "Material in the universe that cannot be directly seen",
+          "rationales": {}
+        },
+        {
+          "number": 16,
+          "question": "According to the speaker, how do scientists infer the existence of dark matter?",
+          "options": [
+            "From the temperature of visible matter",
+            "From the amount of light in the universe",
+            "From the number of stars in galaxies",
+            "From the speed of stars' movement"
+          ],
+          "answer": "From the speed of stars' movement",
+          "rationales": {}
+        },
+        {
+          "number": 17,
+          "question": "Why does the speaker mention computer simulations?",
+          "options": [
+            "To support the claim that dark matter plays an important role in the universe",
+            "To describe how the gravitational forces acting on stars were calculated",
+            "To highlight the anomalies in basic physics",
+            "To explain how the speeds of stars were measured"
+          ],
+          "answer": "To support the claim that dark matter plays an important role in the universe",
+          "rationales": {}
+        },
+        {
+          "number": 18,
+          "question": "What will the speaker most likely discuss next?",
+          "options": [
+            "Measurements of dark matter in galaxies",
+            "Ideas about dark matter’s composition",
+            "The anomalies in galaxy rotation caused by dark matter",
+            "The distribution of dark matter in the universe"
+          ],
+          "answer": "Ideas about dark matter’s composition",
+          "rationales": {}
+        }
+      ],
+      "audio_url": "/static/listening_audio/new_toefl_talk_eb755752aed4.mp3"
+    },
+    {
+      "id": "talk_2_2",
+      "talk": "Good evening everyone. Just a friendly reminder that the university's annual charity auction w ill take place tomorrow at 7 P.M. in the Main Hall. All proceeds will go to local charities. We hope to see you there and appreciate your support!",
+      "questions": [
+        {
+          "number": 11,
+          "question": "What is the main topic of the announcement?",
+          "options": [
+            "A new university event",
+            "A lecture on local charities",
+            "A change in venue",
+            "An upcoming fundraiser"
+          ],
+          "answer": "An upcoming fundraiser",
+          "rationales": {}
+        },
+        {
+          "number": 12,
+          "question": "What does the speaker hope the listeners will do?",
+          "options": [
+            "Attend an event",
+            "Prepare for a lecture",
+            "Donate online",
+            "Volunteer at an event"
+          ],
+          "answer": "Attend an event",
+          "rationales": {}
+        }
+      ],
+      "audio_url": "/static/listening_audio/new_toefl_talk_1508dd5d2c5f.mp3"
+    },
+    {
+      "id": "talk_2_3",
+      "talk": "Biomimicry is the human practice of learning from and imitating things found in nature in order to create new inventions. This way, scientists and engineers can create innovative solutions that are both efficient and sustainable. One well-known example of biomimicry is the development of a widely used fastening system. The in ventor was inspired by the way burrs, uh thorns, from plants stuck to his dog’s fur. By replicating the tiny hooks found on the burrs he removed from the dog f ur, he created the new fastening system. Another example is the design of energy-efficient buildings based on the ventilation system of structures created by termites. Termites are ground-dwelling insects that use different materials to create hills, or mounds, in which the termites live. Termite mounds have a complex network of vents. The vents maintain a stable internal temperature, which can be emulated in human architecture. Biomimicry can also be applied to renewable energy. For instance, researchers are developing wind t urbine blades modeled after the flippers of humpback whales. The unique shape of the flippers reduces drag and increases efficiency, leading to more effective wind energy capture.",
+      "questions": [
+        {
+          "number": 13,
+          "question": "What is the talk mainly about?",
+          "options": [
+            "Ways in which humans use natural materials in clothing and architecture",
+            "Hiding strategies of different animals",
+            "New methods of using renewable energy",
+            "Examples of how humans imitate nature for practical purposes"
+          ],
+          "answer": "Examples of how humans imitate nature for practical purposes",
+          "rationales": {}
+        },
+        {
+          "number": 14,
+          "question": "Why does the speaker mention a dog?",
+          "options": [
+            "To illustrate how an inventor copied animal behavior",
+            "To compare its efficiency in movement with that of humpback whales",
+            "To explain how a structure found in plants inspired an invention",
+            "To show the close bond between scientists and animals"
+          ],
+          "answer": "To explain how a structure found in plants inspired an invention",
+          "rationales": {}
+        },
+        {
+          "number": 15,
+          "question": "What point does the speaker make about termite mounds?",
+          "options": [
+            "The temperature inside of them does not change much.",
+            "Termites sometimes build them near human-made structures.",
+            "Building them takes a lot of energy.",
+            "They are created mostly from plant material."
+          ],
+          "answer": "The temperature inside of them does not change much.",
+          "rationales": {}
+        },
+        {
+          "number": 16,
+          "question": "What does the speaker imply about wind turbine blades that are being developed?",
+          "options": [
+            "The noise they create can be harmful to whales.",
+            "They can be easily installed on buildings.",
+            "They can be efficiently constructed from renewable materials.",
+            "They are very similar to some whales' flippers in shape."
+          ],
+          "answer": "They are very similar to some whales' flippers in shape.",
+          "rationales": {}
+        }
+      ],
+      "audio_url": "/static/listening_audio/new_toefl_talk_ed357b208214.mp3"
+    }
+  ]
+}

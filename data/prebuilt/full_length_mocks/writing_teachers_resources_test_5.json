@@ -1,0 +1,155 @@
+{
+  "sentence_build": [
+    {
+      "prompt": "Your presentation yesterday was impressive.",
+      "tokens": [
+        "you want",
+        "of it",
+        "me",
+        "you",
+        "to send",
+        "do",
+        "a copy"
+      ],
+      "answer": "Do you want me to send you a copy?",
+      "context": "Thanks. _____ _____ _____ _____ _____ _____ _____"
+    },
+    {
+      "prompt": "I wish I hadn't missed the conference last week.",
+      "tokens": [
+        "the recordings",
+        "where",
+        "don’t",
+        "know",
+        "the sessions",
+        "of",
+        "to get"
+      ],
+      "answer": "Don't you know where to get the recordings of the sessions?",
+      "context": "_____ you _____ _____ _____ _____ _____ _____?"
+    },
+    {
+      "prompt": "The new yoga class was very relaxing.",
+      "tokens": [
+        "are",
+        "a few",
+        "classes",
+        "wonder",
+        "I",
+        "held",
+        "if"
+      ],
+      "answer": "I wonder if a few classes are held on Saturdays.",
+      "context": "_____ _____ _____ _____ _____ _____ _____ on Saturdays."
+    },
+    {
+      "prompt": "We had a blast at the national park yesterday.",
+      "tokens": [
+        "does",
+        "it",
+        "anybody",
+        "whether",
+        "is open",
+        "know",
+        "they"
+      ],
+      "answer": "Does anybody know whether it is open all year long?",
+      "context": "_____ _____ _____ _____ _____ _____ all year long?"
+    },
+    {
+      "prompt": "The film festival this weekend was amazing.",
+      "tokens": [
+        "they",
+        "if",
+        "are",
+        "can",
+        "find out",
+        "planning",
+        "another one"
+      ],
+      "answer": "Can we find out if they are planning another one?",
+      "context": "_____ we _____ _____ _____ _____ _____ _____"
+    },
+    {
+      "prompt": "The workshop on graphic design was very helpful.",
+      "tokens": [
+        "why",
+        "each",
+        "tell me",
+        "how long",
+        "was",
+        "workshop session",
+        "could"
+      ],
+      "answer": "Could you tell me how long each workshop session was?",
+      "context": "_____ you _____ _____ _____ _____ _____"
+    },
+    {
+      "prompt": "The new art exhibit at the museum is stunning.",
+      "tokens": [
+        "would",
+        "to know",
+        "how",
+        "I",
+        "you",
+        "happen",
+        "can get"
+      ],
+      "answer": "Would you happen to know how I can get exhibit information?",
+      "context": "_____ _____ _____ _____ _____ _____ _____ exhibit information"
+    },
+    {
+      "prompt": "Let's go to that new gym this afternoon.",
+      "tokens": [
+        "know",
+        "you",
+        "do",
+        "is",
+        "usually crowded",
+        "if",
+        "it"
+      ],
+      "answer": "Do you know if it is usually crowded at this time?",
+      "context": "_____ _____ _____ _____ _____ _____ _____ at this time"
+    },
+    {
+      "prompt": "I really enjoyed the documentary we watched yesterday.",
+      "tokens": [
+        "you",
+        "how",
+        "heard",
+        "it",
+        "they filmed",
+        "any details",
+        "have"
+      ],
+      "answer": "Have you heard any details about how they filmed it?",
+      "context": "_____ _____ _____ _____ about _____ _____ _____?"
+    },
+    {
+      "prompt": "I'm applying for a position at that new technology hub.",
+      "tokens": [
+        "do",
+        "they",
+        "have",
+        "how many",
+        "you",
+        "open positions"
+      ],
+      "answer": "Do you know how many open positions they have?",
+      "context": "_____ _____ know _____ _____ _____ _____"
+    }
+  ],
+  "email": {
+    "id": "email_teachers_resources_test_5",
+    "scenario": "Write for an Academic Discussion Description 30 Writing Section Build a Sentence Move the words in the boxes to create grammatical sentences. A clock will show you how much time you have to complete this task. Make an appropriate sentence. 1. Your presentation yesterday was impressive. Thanks. _____ _____ _____ _____ _____ _____ _____?you want / of it / me / you / to send / do / a copy 2. I wish I hadn't missed the conference last week. _____ you _____ _____ _____ _____ _____ _____? the recordings / where / don’t / know / the sessions / of / to get 3. The new yoga class was very relaxing. _____ _____ _____ _____ _____ _____ _____ on Saturdays. are / a few / classes / wonder / I / held / if 4. We had a blast at the national park yesterday. _____ _____ _____ _____ _____ _____ all year long? does / it / anybody / whether / is open / know / they 31 Writing Section 5. The film festival this weekend was amazing. _____ we _____ _____ _____ _____ _____ _____?they / if / are / can / find out / planning / another one 6. The workshop on graphic design was very helpful. _____ you _____ _____ _____ _____ _____?why / each / tell me / how long / was / workshop session / could 7. The new art exhibit at the museum is stunning. _____ _____ _____ _____ _____ _____ _____ exhibit information?would / to know / how / I / you / happen / can get 8. Let's go to that new gym this afternoon. _____ _____ _____ _____ _____ _____ _____ at this time?know / you / do / is / usually crowded / if / it 9. I really enjoyed the documentary we watched yesterday. _____ _____ _____ _____ about _____ _____ _____? you / how / heard / it / they filmed / any details / have 10. I'm applying for a position at that new technology hub. _____ _____ know _____ _____ _____ _____?do / they / have / how many / you / open positions 32 Writing Section your ecently attended a workshop on digital marketing and found it to be very informative. You want to thank the presenter, Ms. Clark, and ask for additional resources to further your understanding of the topic. Thank her for the workshop. Provide a detailed explanation of why you found the workshop to be informative. Ask for additional resources or recommendations for further study. 33 Writing Section",
+    "instructions": [],
+    "to_name": "Ms. Clark",
+    "subject": "Appreciation and request for additional resources"
+  },
+  "discussion": {
+    "id": "discussion_teachers_resources_test_5",
+    "professor_prompt": "In your response, you should do the following. Express and support your opinion. Dr. Gupta Human activities like pollution and deforestation harm the environment. Some argue we must reduce or eliminate these actions to mitigate their impact. Others support technologies and initiatives that lessen the damage without stopping the activities— such as pollution cleanup or forest restoration. This alternative approach focuses on managing consequences rather than prevention. What do you think is the most effective way to address environmental issues—eliminating harmful activities or minimizing their impact? Why? The best way to protect the environment is to stop harmful activities like pollution and deforestation. If we don’t end them, the damage will continue and get worse. Prevention is more effective than trying to fix problems after they happen. Reducing future damage only delays the inevitable destruction these activities cause. Human development has increased to the extent that stopping all harmful activities in time for it to make a difference would be nearly impossible. Instead, we should focus on smarter solutions that reduce harm. Innovations like carbon capture to reduce climate change help limit damage while allowing progress. This approach supports environmental protection without demanding drastic lifestyle changes. 34",
+    "student_posts": []
+  }
+}

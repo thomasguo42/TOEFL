@@ -1,0 +1,376 @@
+{
+  "responses": [
+    {
+      "prompt": "Is the gym open right now?",
+      "options": [
+        "I think so.",
+        "He is tired.",
+        "Yesterday evening.",
+        "Last time."
+      ],
+      "answer": "I think so.",
+      "rationales": {},
+      "audio_url": "/static/listening_audio/new_toefl_response_34cec9a8633b.mp3"
+    },
+    {
+      "prompt": "Could you help me review this report?",
+      "options": [
+        "It's on the table.",
+        "Not right now.",
+        "Yes, last Monday.",
+        "Sure, let's have some."
+      ],
+      "answer": "Not right now.",
+      "rationales": {},
+      "audio_url": "/static/listening_audio/new_toefl_response_39ce05c80d8e.mp3"
+    },
+    {
+      "prompt": "Could you please forward me the e-mail?",
+      "options": [
+        "Yes, in the computer.",
+        "I had the same complaint.",
+        "It's facing forward.",
+        "I'll send it immediately."
+      ],
+      "answer": "I'll send it immediately.",
+      "rationales": {},
+      "audio_url": "/static/listening_audio/new_toefl_response_eb0a252c391e.mp3"
+    },
+    {
+      "prompt": "It's quite chilly outside, isn't it?",
+      "options": [
+        "Last night, I think.",
+        "Perhaps soon.",
+        "The soup is great.",
+        "Not really."
+      ],
+      "answer": "Not really.",
+      "rationales": {},
+      "audio_url": "/static/listening_audio/new_toefl_response_9dbd88de6b3f.mp3"
+    },
+    {
+      "prompt": "Did you finalize the proposal?",
+      "options": [
+        "Sure, I'm free.",
+        "That's a good choice.",
+        "Sorry—I forgot.",
+        "We saved you a seat."
+      ],
+      "answer": "Sorry—I forgot.",
+      "rationales": {},
+      "audio_url": "/static/listening_audio/new_toefl_response_fa8555b87d87.mp3"
+    },
+    {
+      "prompt": "Is the meeting at ten a.m.?",
+      "options": [
+        "This evening is fine.",
+        "Sure, let's talk soon.",
+        "No, in the conference room.",
+        "I believe it was cancelled."
+      ],
+      "answer": "I believe it was cancelled.",
+      "rationales": {},
+      "audio_url": "/static/listening_audio/new_toefl_response_c8b62bdd0a0a.mp3"
+    },
+    {
+      "prompt": "Where is the nearest pharmacy?",
+      "options": [
+        "They are open late.",
+        "The shipment arrived this morning.",
+        "There's one inside the supermarket.",
+        "I had a good experience there. 17"
+      ],
+      "answer": "There's one inside the supermarket.",
+      "rationales": {},
+      "audio_url": "/static/listening_audio/new_toefl_response_d3f0c7d8d798.mp3"
+    },
+    {
+      "prompt": "How do you turn on the projector?",
+      "options": [
+        "The images are a little fuzzy.",
+        "I think it might be broken.",
+        "It printed ten copies by mistake.",
+        "I've needed a new monitor for a while."
+      ],
+      "answer": "I think it might be broken.",
+      "rationales": {},
+      "audio_url": "/static/listening_audio/new_toefl_response_e0092a3e9080.mp3"
+    },
+    {
+      "prompt": "Should we meet today or tomorrow?",
+      "options": [
+        "I'm available either day.",
+        "I will forward it to the team.",
+        "We were short-staffed yesterday.",
+        "It was printed this morning."
+      ],
+      "answer": "I'm available either day.",
+      "rationales": {},
+      "audio_url": "/static/listening_audio/new_toefl_response_ebba63843963.mp3"
+    },
+    {
+      "prompt": "When is the next train to London?",
+      "options": [
+        "Later this evening.",
+        "Not too far from here.",
+        "It stops in Oxford.",
+        "It's often crowded."
+      ],
+      "answer": "Later this evening.",
+      "rationales": {},
+      "audio_url": "/static/listening_audio/new_toefl_response_0d3a5524f514.mp3"
+    },
+    {
+      "prompt": "Why did you leave early?",
+      "options": [
+        "I'll add it to the agenda.",
+        "I wasn't interested in the second half.",
+        "As soon as possible.",
+        "I'll need to check the schedule."
+      ],
+      "answer": "I wasn't interested in the second half.",
+      "rationales": {},
+      "audio_url": "/static/listening_audio/new_toefl_response_1c76bcac6de6.mp3"
+    },
+    {
+      "prompt": "Do you prefer tea or coffee?",
+      "options": [
+        "With milk, please.",
+        "On Thursday.",
+        "Try some sugar.",
+        "Coffee would be great."
+      ],
+      "answer": "Coffee would be great.",
+      "rationales": {},
+      "audio_url": "/static/listening_audio/new_toefl_response_6a6d3818d3da.mp3"
+    },
+    {
+      "prompt": "Could you assist with the presentation?",
+      "options": [
+        "Her e's your receipt.",
+        "At the library.",
+        "On the right.",
+        "Maybe later."
+      ],
+      "answer": "Maybe later.",
+      "rationales": {},
+      "audio_url": "/static/listening_audio/new_toefl_response_0ea45081fb11.mp3"
+    },
+    {
+      "prompt": "Where did you leave the keys?",
+      "options": [
+        "At five p.m.",
+        "In the drawer.",
+        "Every Sunday.",
+        "Under the weather. 23"
+      ],
+      "answer": "In the drawer.",
+      "rationales": {},
+      "audio_url": "/static/listening_audio/new_toefl_response_8e0313572931.mp3"
+    }
+  ],
+  "conversation": [
+    {
+      "id": "conv_1_0",
+      "segments": [
+        {
+          "speaker": "Woman",
+          "text": "My lease is up at the end of the month."
+        },
+        {
+          "speaker": "Man",
+          "text": "Have you started looking for a new apartment to rent yet?"
+        },
+        {
+          "speaker": "Woman",
+          "text": "Yes, but I haven’t found anything that I like."
+        },
+        {
+          "speaker": "Man",
+          "text": "Have you tried looking downtown? Now that they’ve finally finished building the giant new hotel there, it’s a much cleaner and quieter area."
+        },
+        {
+          "speaker": "Woman",
+          "text": "That’s a good idea. I’ll check online tonight."
+        }
+      ],
+      "questions": [
+        {
+          "number": 9,
+          "question": "What is the woman trying to do?",
+          "options": [
+            "Find a new job",
+            "Rent a new apartment",
+            "Renew a lease",
+            "Book a hotel room"
+          ],
+          "answer": "Rent a new apartment",
+          "rationales": {}
+        },
+        {
+          "number": 10,
+          "question": "What does the man imply when he mentions a new hotel?",
+          "options": [
+            "The woman should book a room in the new hotel.",
+            "The woman should check information about the new hotel online.",
+            "Downtown apartments are very expensive.",
+            "The downtown area was not a nice place to live until recently. 18"
+          ],
+          "answer": "The downtown area was not a nice place to live until recently. 18",
+          "rationales": {}
+        }
+      ],
+      "audio_url": "/static/listening_audio/new_toefl_conversation_a63377de68f1.mp3"
+    },
+    {
+      "id": "conv_1_1",
+      "segments": [
+        {
+          "speaker": "Man",
+          "text": "Did you manage to fix the issue with your computer?"
+        },
+        {
+          "speaker": "Woman",
+          "text": "I did. It turned out to be a software problem."
+        },
+        {
+          "speaker": "Man",
+          "text": "Great. What did you do to resolve it?"
+        },
+        {
+          "speaker": "Woman",
+          "text": "I updated the operating system, and now everything is working fine."
+        },
+        {
+          "speaker": "Man",
+          "text": "It’s always a relief when it’s something simple and not hardware-related."
+        },
+        {
+          "speaker": "Woman",
+          "text": "Absolutely. My manager told me his computer suddenly powered off last month; it turned out to be a hardware issue, and he had to buy a new computer. What problem did the woman have with her computer? (A) A hardware issue (B) A software issue (C) A network issue (D) A power issue Why does the woman mention her manager? (A) To explain why she needed her computer urgently (B) To indicate that hardware issues can be particularly problematic (C) To provide details about how she solved a problem (D) To describe the benefits of a new operating system"
+        }
+      ],
+      "questions": [],
+      "audio_url": "/static/listening_audio/new_toefl_conversation_a225722d71e0.mp3"
+    },
+    {
+      "id": "conv_2_2",
+      "segments": [],
+      "questions": [
+        {
+          "number": 9,
+          "question": "Why does the woman mention the man’s parents?",
+          "options": [
+            "To identify people that should be invited",
+            "To request an item from the supermarket",
+            "To explain the source of a lasagna recipe",
+            "To propose a dish for a party"
+          ],
+          "answer": "To propose a dish for a party",
+          "rationales": {}
+        },
+        {
+          "number": 10,
+          "question": "What will the man most likely do in the evening?",
+          "options": [
+            "Buy some food",
+            "Speak with the Johnsons",
+            "Cook steak",
+            "Visit his parents 24"
+          ],
+          "answer": "Buy some food",
+          "rationales": {}
+        }
+      ],
+      "audio_url": "/static/listening_audio/new_toefl_conversation_da39a3ee5e6b.mp3"
+    }
+  ],
+  "talk": [
+    {
+      "id": "talk_1_0",
+      "talk": "Please note that we will not be meeting on Friday. I just received a last-minute invitation to present at a conference this weekend, and I'll be flying on Friday. I know that you were going to start your presentations then. Julie and Max, we'll just move you to Monday, and those scheduled for Monday will move to Wednesday, and so on. This will actually give everyone a few extra days to work on your presentations. What will the speaker be doing on Friday? (A) Traveling to a conference (B) Listening to student presentations (C) Grading student projects (D) Giving a presentation to her colleagues 19 Listening Section, Module 1 What can be concluded about Julie and Max? (A) They asked for extra time to work on a project. (B) They recently attended a conference. (C) They will have to miss class on Monday. (D) They are the first students who will give presentations. 20 Listening Section, Module 1",
+      "questions": [],
+      "audio_url": "/static/listening_audio/new_toefl_talk_84bfd43652b9.mp3"
+    },
+    {
+      "id": "talk_1_1",
+      "talk": "The placebo effect occurs when people experience real health improvements after receiving a treatment with no medical value—like a sugar pill—simply because they believe it’s real. Clinical trials use various placebos, including creams, gels, or even fake devices. It’s important that these are designed to closely resemble actual treatments. This ensures that participants can’t tell whether they’re receiving the real treatment or the placebo, which in turn keeps the study fair and the results scientifically reliable. The placebo effect highlights the powerful connection between mind and body. It’s influenced by factors such as patient expectations, how the treatment is delivered, and the provider’s credibility. In fact, a recent study found that when people expect relief, their brains respond as if real medicine has been given. This expectation alone can trigger specific brain activity, activating a pathway that links regions involved in thought, emotion, and movement. When these areas work together, they create a kind of bridge, connecting mind and body—mental belief and physical response. While placebos don’t actually cure diseases, the belief that a treatment will work can lead to real improvements in how a patient feels. So, when combined with actual medicine, I believe this psychological boost can enhance overall care. What does the speaker mainly discuss? (A) How scientists first discovered the placebo effect (B) How the brain drives the placebo effect (C) What types of medications are used in clinical trials (D) What role pharmaceutical companies play in placebo research What point does the speaker make about the various types of placebos? (A) They should be cheaper than the actual treatment. (B) They should be colorful and eye-catching. (C) They must undergo testing before clinical use. (D) They must resemble real treatments. Why does the speaker discuss “creating a kind of bridge”? (A) To illustrate how expectation can lead to physical response (B) To describe how medicine travels through the body (C) To clarify how emotions can block medical progress (D) To discuss the chemical composition of placebos What is the speaker's opinion about the use of placebos in health care? (A) Placebos are not very relevant to patient care. (B) Placebos can complement traditional therapies. (C) Placebos are only beneficial in psychological experiments. (D) Placebos should be studied more before being used in clinical settings. 21",
+      "questions": [],
+      "audio_url": "/static/listening_audio/new_toefl_talk_c720b599c1be.mp3"
+    },
+    {
+      "id": "talk_2_2",
+      "talk": "Tickets for this year's spring music extravaganza at Gladstone Auditorium are now available for purchase online and at the student union box office. As always, the event will feature a lineup of your fellow students performing music from various genres, including rock, jazz, and country. This year features a special guest performer, internationally renowned cellist Ben Bernal, who graduated from our university twenty years ago. Tickets are expected to sell out quickly, so make sure to get yours today.",
+      "questions": [
+        {
+          "number": 11,
+          "question": "What is the main topic of the announcement?",
+          "options": [
+            "A new process for ordering tickets",
+            "A survey of student music preferences",
+            "A change of venue for concert",
+            "An upcoming musical performance"
+          ],
+          "answer": "An upcoming musical performance",
+          "rationales": {}
+        },
+        {
+          "number": 12,
+          "question": "What is different about this year's event?",
+          "options": [
+            "It will be held outdoors.",
+            "It will include a performance by a former student.",
+            "It will focus on music from various countries.",
+            "It will feature dance performances. 25"
+          ],
+          "answer": "It will include a performance by a former student.",
+          "rationales": {}
+        }
+      ],
+      "audio_url": "/static/listening_audio/new_toefl_talk_f605927ecf20.mp3"
+    },
+    {
+      "id": "talk_2_3",
+      "talk": "Today, we’re discussing the concept of the carbon footprint and its implications for environmental sustainability. A carbon footprint measures the total amount of greenhouse gases produced directly and indirectly by human activities, usually expressed in equivalent tons of carbon dioxide. This includes emissions from activities such as driving a car, using electricity, and manufacturing goods. The importance of understanding our carbon footprint lies in its impact on global warming and climate change. Greenhouse gases trap heat in the atmosphere, leading to rising global temperatures, melting ice caps, and more extreme weather events. By measuring our carbon footprint, we can identify the main sources of emissions and take steps to reduce them. For instance, individuals can lower their carbon footprint by opting for public transportation, using energy-efficient appliances, and reducing meat consumption, since livestock farming is a significant source of methane emissions, a potent greenhouse gas. Businesses can also play a crucial role by adopting sustainable practices like using renewable energy sources, improving energy efficiency, and minimizing waste. Moreover, governments can implement policies that promote carbon reduction, such as setting emissions targets, providing incentives for green technologies, and investing in sustainable infrastructure. Reducing our carbon footprint is essential for mitigating climate change and promoting a healthier planet for future generations. It requires collective effort and awareness to make meaningful progress.",
+      "questions": [
+        {
+          "number": 13,
+          "question": "What is the main topic of the talk?",
+          "options": [
+            "The effects of global warming",
+            "The concept of the carbon footprint",
+            "The benefits of renewable energy",
+            "The role of governments in sustainability"
+          ],
+          "answer": "The concept of the carbon footprint",
+          "rationales": {}
+        },
+        {
+          "number": 14,
+          "question": "According to the talk, what can individuals do to lower their carbon footprint?",
+          "options": [
+            "Increase meat consumption",
+            "Use public transportation",
+            "Manufacture more goods",
+            "Trap heat in the atmosphere"
+          ],
+          "answer": "Use public transportation",
+          "rationales": {}
+        },
+        {
+          "number": 15,
+          "question": "Why does the speaker mention livestock farming?",
+          "options": [
+            "To explain a source of methane emissions",
+            "To discuss public transportation options",
+            "To highlight energy-efficient practices",
+            "To illustrate the impact of manufacturing goods 26"
+          ],
+          "answer": "To explain a source of methane emissions",
+          "rationales": {}
+        }
+      ],
+      "audio_url": "/static/listening_audio/new_toefl_talk_536e2b0f3455.mp3"
+    }
+  ]
+}

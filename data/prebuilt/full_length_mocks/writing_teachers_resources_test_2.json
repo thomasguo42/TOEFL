@@ -1,0 +1,149 @@
+{
+  "sentence_build": [
+    {
+      "prompt": "Are you going to the concert tonight?",
+      "tokens": [
+        "do",
+        "kind",
+        "of",
+        "that",
+        "not",
+        "like",
+        "I"
+      ],
+      "answer": "I do not like that kind of music."
+    },
+    {
+      "prompt": "Did you enjoy the book I lent you?",
+      "tokens": [
+        ".find",
+        "to be",
+        "was",
+        "very engaging",
+        "the story"
+      ],
+      "answer": "I did not find the story to be very engaging."
+    },
+    {
+      "prompt": "The latest marketing campaign was a tremendous success!",
+      "tokens": [
+        "realized",
+        "I",
+        "never",
+        "too",
+        "social media",
+        "how",
+        "effective"
+      ],
+      "answer": "I never realized how effective social media can be."
+    },
+    {
+      "prompt": "Why was Martha talking to the owner of the garden shop?",
+      "tokens": [
+        ".planting",
+        "some flowers",
+        "start",
+        "when",
+        "to know",
+        "to",
+        "so"
+      ],
+      "answer": "She wanted to know when to start planting some flowers."
+    },
+    {
+      "prompt": "Evan said you have a question for me.",
+      "tokens": [
+        ".to know",
+        "where",
+        "because",
+        "the programming job",
+        "you",
+        "about",
+        "found out"
+      ],
+      "answer": "I'd like to know where you found out about the programming job."
+    },
+    {
+      "prompt": "What did you think of the movie?",
+      "tokens": [
+        ".was",
+        "very",
+        "my opinion",
+        "it",
+        "not",
+        "entertaining"
+      ],
+      "answer": "In my opinion it was not very entertaining."
+    },
+    {
+      "prompt": "Do you want to try the new recipe I found?",
+      "tokens": [
+        ".at cooking",
+        "am",
+        "good",
+        "not",
+        "complex dishes"
+      ],
+      "answer": "No, I am not good at cooking complex dishes."
+    },
+    {
+      "prompt": "Have you finished reading the novel?",
+      "tokens": [
+        "reached",
+        "I",
+        "the last chapter",
+        "already",
+        "haven't"
+      ],
+      "answer": "I haven't reached the last chapter yet."
+    },
+    {
+      "prompt": "Will you attend the seminar tomorrow?",
+      "tokens": [
+        ".have",
+        "topic",
+        "interest",
+        "in",
+        "that",
+        "no",
+        "not"
+      ],
+      "answer": "I have no interest in that topic."
+    },
+    {
+      "prompt": "Did you buy the groceries I asked for?",
+      "tokens": [
+        ".not",
+        "did",
+        "have",
+        "everything",
+        "on",
+        "none",
+        "the list"
+      ],
+      "answer": "The store did not have everything on the list."
+    }
+  ],
+  "email": {
+    "id": "email_teachers_resources_test_2",
+    "scenario": "Write for an Academic Discussion Participate in an online discussion. 28 Build a Sentence Move the words in the boxes to create grammatical sentences. A clock will show you how much time you have to complete this task. Make an appropriate sentence. 1. Are you going to the concert tonight? (7 blank lines) music. do / kind / of / that / not / like / I 2. Did you enjoy the book I lent you? I did not (4 blank lines) .find / to be / was / very engaging / the story 3. The latest marketing campaign was a tremendous success! (6 blank lines) can be. realized / I / never / too / social media / how / effective 4. Why was Martha talking to the owner of the garden shop? She wanted (6 blank lines) .planting / some flowers / start / when / to know / to / so 5. Evan said you have a question for me. I’d like (6 blank lines) .to know / where / because / the programming job / you / about / found out 29 6. What did you think of the movie? In (6 blank lines) .was / very / my opinion / it / not / entertaining 7. Do you want to try the new recipe I found? No, I (5 blank lines) .at cooking / am / good / not / complex dishes 8. Have you finished reading the novel? (4 blank lines) yet. reached / I / the last chapter / already / haven't 9. Will you attend the seminar tomorrow? I (6 blank lines) .have / topic / interest / in / that / no / not 10. Did you buy the groceries I asked for? The store (6 blank lines) .not / did / have / everything / on / none / the list 30 You have been working on a group project with several classmates for a course. One of your group members, Alex, has not been participating actively and has missed several assignments. You want to address this issue and find a solution. 31",
+    "instructions": [
+      "Describe the current progress of the group project.",
+      "Explain how his lack of participation is affecting the group.",
+      "Suggest ways he can contribute to the project moving forward."
+    ],
+    "to_name": "Alex",
+    "subject": "Group Project Participation"
+  },
+  "discussion": {
+    "id": "discussion_teachers_resources_test_2",
+    "professor_prompt": "question. In your response, you should do the following. Art and media have the power to influence public opinion and behavior on environmental issues. For example, movies and social media can bring attention to climate change and inspire action with powerful words, images, and stories. However, some worry that art and media may oversimplify complex environmental issues or focus too much on negative aspects for dramatic effect. Do you think art and media are an appropriate way to increase public awareness of complex environmental issues? Why or why not? It's evident that commercial interests in media can slant the representation of issues like climate change, pushing certain agendas. This bias can mislead the public, overshadowing impartial scientific evidence.",
+    "student_posts": [
+      {
+        "name": "Student B",
+        "stance": "Disagree",
+        "message": "I believe innovative media campaigns and interactive artworks have a unique ability to connect with people on a personal level, driving home the urgency of environmental issues more than dry facts ever could. Such creative expressions can motivate individuals to take immediate action, showcasing practical ways to contribute to environmental sustainability. 32"
+      }
+    ]
+  }
+}

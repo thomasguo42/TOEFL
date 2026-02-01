@@ -1,8 +1,10 @@
 """DeepSeek-powered content generation for the New TOEFL mock exams."""
 from __future__ import annotations
 
+import hashlib
 import json
 import math
+import os
 import random
 import re
 from pathlib import Path
@@ -12,6 +14,7 @@ from uuid import uuid4
 from flask import current_app
 
 from .gemini_client import GeminiClient, get_gemini_client
+from .full_length_tests import get_speaking_section, list_full_length_tests
 from .tts_service import TTSService
 
 READING_CLOZE_TOPICS = [
@@ -91,6 +94,11 @@ WRITING_SYSTEM_PROMPT = (
 )
 
 INTERVIEW_SETS_PATH = Path(__file__).resolve().parents[3] / "data" / "seeds" / "new_toefl_interview_sets.json"
+
+
+def _audio_cache_key(text: str) -> str:
+    normalized = re.sub(r"\s+", " ", (text or "").strip()).lower()
+    return hashlib.sha1(normalized.encode("utf-8")).hexdigest()[:12]
 
 
 def _safe_text(value: Any) -> str:
@@ -592,7 +600,11 @@ def generate_listening_mock(
         prompt_text = _safe_text(item.get("prompt"))
         if not prompt_text:
             continue
-        audio = tts.generate_audio(prompt_text, filename_prefix="new_toefl_response")
+        audio = tts.generate_audio_cached(
+            prompt_text,
+            filename_prefix="new_toefl_response",
+            cache_key=_audio_cache_key(prompt_text),
+        )
         if audio:
             item["audio_url"] = f"/static/{audio.audio_path}"
 
@@ -600,14 +612,24 @@ def generate_listening_mock(
     conversation = _generate_conversation_set(client)
     if conversation:
         segments = conversation.get("segments", [])
-        audio = tts.generate_multi_speaker_audio(segments, filename_prefix="new_toefl_conversation")
+        segment_text = " ".join([f"{s.get('speaker', '')}:{s.get('text', '')}" for s in segments]).strip()
+        audio = tts.generate_multi_speaker_audio_cached(
+            segments,
+            filename_prefix="new_toefl_conversation",
+            cache_key=_audio_cache_key(segment_text),
+        )
         if audio:
             conversation["audio_url"] = f"/static/{audio.audio_path}"
 
     current_app.logger.info("New TOEFL listening mock: generating talk...")
     talk = _generate_talk_set(client)
     if talk:
-        audio = tts.generate_audio(talk.get("talk", ""), filename_prefix="new_toefl_talk")
+        talk_text = talk.get("talk", "")
+        audio = tts.generate_audio_cached(
+            talk_text,
+            filename_prefix="new_toefl_talk",
+            cache_key=_audio_cache_key(talk_text),
+        )
         if audio:
             talk["audio_url"] = f"/static/{audio.audio_path}"
 
@@ -628,19 +650,42 @@ def generate_listening_mock(
 
 
 def _load_interview_sets() -> List[Dict[str, Any]]:
+    parsed_sets: List[Dict[str, Any]] = []
+    tests = list_full_length_tests()
+    for test in tests:
+        test_id = test.get("id")
+        if not test_id:
+            continue
+        speaking = get_speaking_section(test_id)
+        if not speaking:
+            continue
+        repeat_items = speaking.get("repeat_items") or []
+        interview_items = speaking.get("items") or []
+        if not repeat_items and not interview_items:
+            continue
+        parsed_sets.append({
+            "id": test_id,
+            "title": test.get("title") or test_id,
+            "repeat_items": repeat_items,
+            "items": interview_items,
+        })
+
+    if parsed_sets:
+        return parsed_sets
+
+    sets: List[Dict[str, Any]] = []
     if not INTERVIEW_SETS_PATH.exists():
         current_app.logger.warning("Interview sets file not found: %s", INTERVIEW_SETS_PATH)
-        return []
+    else:
+        try:
+            payload = json.loads(INTERVIEW_SETS_PATH.read_text(encoding="utf-8"))
+        except Exception as exc:
+            current_app.logger.warning("Failed to parse interview sets: %s", exc)
+            payload = {}
 
-    try:
-        payload = json.loads(INTERVIEW_SETS_PATH.read_text(encoding="utf-8"))
-    except Exception as exc:
-        current_app.logger.warning("Failed to parse interview sets: %s", exc)
-        return []
-
-    sets = payload.get("sets") if isinstance(payload, dict) else None
-    if not isinstance(sets, list):
-        return []
+        raw_sets = payload.get("sets") if isinstance(payload, dict) else None
+        if isinstance(raw_sets, list):
+            sets = raw_sets
 
     cleaned: List[Dict[str, Any]] = []
     for entry in sets:
@@ -704,12 +749,16 @@ def _generate_interview_prompts(
     client: GeminiClient,
     count: int = 4,
     speaking_set: Optional[Dict[str, Any]] = None,
+    allow_ai: bool = True,
 ) -> Optional[List[Dict[str, Any]]]:
     if speaking_set:
         items = speaking_set.get("items", [])
         if len(items) >= count:
             return items[:count]
         return items
+
+    if not allow_ai:
+        return None
 
     if not client or not client.is_configured:
         return None
@@ -746,11 +795,15 @@ def _generate_repeat_prompts(
     client: GeminiClient,
     count: int = 7,
     speaking_set: Optional[Dict[str, Any]] = None,
+    allow_ai: bool = True,
 ) -> Optional[List[Dict[str, Any]]]:
     if speaking_set:
         items = speaking_set.get("repeat_items", [])
         if items:
             return items[:count] if len(items) >= count else items
+
+    if not allow_ai:
+        return None
 
     return _generate_repeat_prompts_ai(client, count=count)
 
@@ -790,31 +843,63 @@ def generate_speaking_mock(
     client: Optional[GeminiClient] = None,
     tts: Optional[TTSService] = None,
     interview_set_id: Optional[str] = None,
+    allow_ai: bool = True,
 ) -> Optional[Dict[str, Any]]:
-    client = client or get_gemini_client()
-    if not client or not client.is_configured:
-        return None
-
     tts = tts or TTSService()
 
     speaking_set = _choose_speaking_set(interview_set_id)
-    repeat_items = _generate_repeat_prompts(client, speaking_set=speaking_set) or []
+    if interview_set_id and speaking_set:
+        allow_ai = False
+    if allow_ai:
+        client = client or get_gemini_client()
+        if (not speaking_set) and (not client or not client.is_configured):
+            return None
+        if not client or not client.is_configured:
+            client = None
+    else:
+        client = None
+    prebuilt_only = os.getenv("TOEFL_PREBUILT_ONLY", "false").lower() in {"1", "true", "yes"}
+    missing_audio = False
+    repeat_items = _generate_repeat_prompts(client, speaking_set=speaking_set, allow_ai=allow_ai) or []
     for item in repeat_items:
         prompt_text = _safe_text(item.get("prompt"))
         if not prompt_text:
             continue
-        audio = tts.generate_audio(prompt_text, filename_prefix="new_toefl_repeat")
+        cache_key = _audio_cache_key(prompt_text)
+        if prebuilt_only:
+            audio = tts.get_cached_audio("new_toefl_repeat", cache_key, text=prompt_text)
+        else:
+            audio = tts.generate_audio_cached(
+                prompt_text,
+                filename_prefix="new_toefl_repeat",
+                cache_key=cache_key,
+            )
+        if prebuilt_only and not audio:
+            missing_audio = True
         if audio:
             item["audio_url"] = f"/static/{audio.audio_path}"
 
-    interview_items = _generate_interview_prompts(client, speaking_set=speaking_set) or []
+    interview_items = _generate_interview_prompts(client, speaking_set=speaking_set, allow_ai=allow_ai) or []
     for item in interview_items:
         prompt_text = _safe_text(item.get("prompt"))
         if not prompt_text:
             continue
-        audio = tts.generate_audio(prompt_text, filename_prefix="new_toefl_interview")
+        cache_key = _audio_cache_key(prompt_text)
+        if prebuilt_only:
+            audio = tts.get_cached_audio("new_toefl_interview", cache_key, text=prompt_text)
+        else:
+            audio = tts.generate_audio_cached(
+                prompt_text,
+                filename_prefix="new_toefl_interview",
+                cache_key=cache_key,
+            )
+        if prebuilt_only and not audio:
+            missing_audio = True
         if audio:
             item["audio_url"] = f"/static/{audio.audio_path}"
+
+    if prebuilt_only and missing_audio:
+        return None
 
     if not repeat_items and not interview_items:
         return None

@@ -122,9 +122,20 @@
 
 {% block content %}
 <div class="feedback-container">
+    {% set is_repeat = task.task_type == 'new_toefl_repeat' %}
+    {% set ns = namespace(similarity='') %}
+    {% if feedback.specific_feedback %}
+        {% for item in feedback.specific_feedback %}
+            {% if item.startswith('Similarity to prompt:') %}
+                {% set ns.similarity = item %}
+            {% endif %}
+        {% endfor %}
+    {% endif %}
+    {% set similarity_value = ns.similarity.split(':')[-1].strip() if ns.similarity else '' %}
     <div class="mb-3 d-flex gap-2">
-        <a href="{{ url_for('speaking_dashboard') }}" class="btn btn-outline-secondary btn-sm">
-            <i class="fas fa-arrow-left me-2"></i>Back to Speaking Dashboard
+        <a href="{{ mock_back_url or url_for('speaking_dashboard') }}" class="btn btn-outline-secondary btn-sm">
+            <i class="fas fa-arrow-left me-2"></i>
+            {% if mock_back_url %}Back to New TOEFL Mock{% else %}Back to Speaking Dashboard{% endif %}
         </a>
         <a href="{{ url_for('speaking_task_start', task_number=task.task_number) }}" class="btn btn-outline-primary btn-sm">
             <i class="fas fa-redo me-2"></i>Try Again
@@ -133,7 +144,7 @@
 
     <div class="score-card">
         <div class="overall-score">{{ feedback.overall_score|round|int }}<small style="font-size: 2rem;">/100</small></div>
-        <h2 class="mb-2">Overall Score</h2>
+        <h2 class="mb-2">{{ 'Accuracy Score' if is_repeat else 'Overall Score' }}</h2>
         <p class="mb-0">
             {% if feedback.overall_score >= 80 %}
                 Excellent performance!
@@ -148,6 +159,29 @@
     </div>
 
     <div class="category-scores">
+        {% if is_repeat %}
+        <div class="category-card">
+            <div class="category-score">{{ feedback.delivery_score|round|int if feedback.delivery_score is not none else '-' }}</div>
+            <h5>Accuracy</h5>
+            <p class="text-muted small mb-0">Correctness of the repetition</p>
+        </div>
+        <div class="category-card">
+            <div class="category-score">{{ feedback.pronunciation_score|round|int if feedback.pronunciation_score is not none else '-' }}</div>
+            <h5>Pronunciation</h5>
+            <p class="text-muted small mb-0">Clarity of spoken sounds</p>
+        </div>
+        <div class="category-card">
+            <div class="category-score">
+                {% if similarity_value %}
+                    {{ (similarity_value|float * 100)|round|int }}
+                {% else %}
+                    -
+                {% endif %}
+            </div>
+            <h5>Similarity</h5>
+            <p class="text-muted small mb-0">Match to the prompt</p>
+        </div>
+        {% else %}
         <div class="category-card">
             <div class="category-score">{{ feedback.delivery_score|round|int }}</div>
             <h5>Delivery</h5>
@@ -163,6 +197,7 @@
             <h5>Topic Development</h5>
             <p class="text-muted small mb-0">Task fulfillment and supporting detail</p>
         </div>
+        {% endif %}
     </div>
 
     <div class="row g-4 mb-4">
@@ -215,11 +250,14 @@
     </div>
 
     <div class="feedback-section">
-        <h4 class="mb-3"><i class="fas fa-microphone me-2"></i>Delivery Analysis</h4>
+        <h4 class="mb-3"><i class="fas fa-microphone me-2"></i>{{ 'Accuracy Analysis' if is_repeat else 'Delivery Analysis' }}</h4>
         <div class="row g-4">
             <div class="col-md-6">
                 <table class="metric-table">
                     {% set metrics = feedback.speech_metrics or {} %}
+                    {% if similarity_value %}
+                    <tr><th>Similarity to prompt</th><td>{{ (similarity_value|float * 100)|round(1) }}%</td></tr>
+                    {% endif %}
                     <tr><th>Speech rate (wpm)</th><td>{{ metrics.get('speech_rate')|round(1) if metrics.get('speech_rate') else '-' }}</td></tr>
                     <tr><th>Articulation rate (syl/s)</th><td>{{ metrics.get('articulation_rate')|round(2) if metrics.get('articulation_rate') else '-' }}</td></tr>
                     <tr><th>Speaking time ratio</th><td>{{ (metrics.get('speaking_time_ratio') * 100)|round(1) ~ '%' if metrics.get('speaking_time_ratio') else '-' }}</td></tr>
@@ -231,27 +269,28 @@
                 <div class="row text-center">
                     <div class="col-4">
                         <div class="fw-semibold text-muted">Fluency</div>
-                        <div class="display-6 fw-bold" style="color:#0f766e;">{{ feedback.fluency_score|round|int }}</div>
+                        <div class="display-6 fw-bold" style="color:#0f766e;">{{ feedback.fluency_score|round|int if feedback.fluency_score is not none else '-' }}</div>
                     </div>
                     <div class="col-4">
                         <div class="fw-semibold text-muted">Pronunciation</div>
-                        <div class="display-6 fw-bold" style="color:#0f766e;">{{ feedback.pronunciation_score|round|int }}</div>
+                        <div class="display-6 fw-bold" style="color:#0f766e;">{{ feedback.pronunciation_score|round|int if feedback.pronunciation_score is not none else '-' }}</div>
                     </div>
                     <div class="col-4">
                         <div class="fw-semibold text-muted">Rhythm</div>
-                        <div class="display-6 fw-bold" style="color:#0f766e;">{{ feedback.rhythm_score|round|int }}</div>
+                        <div class="display-6 fw-bold" style="color:#0f766e;">{{ feedback.rhythm_score|round|int if feedback.rhythm_score is not none else '-' }}</div>
                     </div>
                 </div>
             </div>
         </div>
         {% if feedback.specific_feedback %}
-        <h5 class="mt-4">Detailed Notes</h5>
+        <h5 class="mt-4">{{ 'Similarity Notes' if is_repeat else 'Detailed Notes' }}</h5>
         {% for message in feedback.specific_feedback %}
         <div class="feedback-item">{{ message }}</div>
         {% endfor %}
         {% endif %}
     </div>
 
+    {% if not is_repeat %}
     <div class="feedback-section">
         <h4 class="mb-3"><i class="fas fa-language me-2"></i>Language Use</h4>
         <div class="row g-4 mb-3">
@@ -259,7 +298,8 @@
                 <table class="metric-table">
                     <tr><th>Lexical diversity</th><td>{{ feedback.lexical_diversity|round(3) if feedback.lexical_diversity else '-' }}</td></tr>
                     <tr><th>Academic words</th><td>{{ feedback.academic_word_count if feedback.academic_word_count is not none else '-' }}</td></tr>
-                    <tr><th>Avg. sentence length</th><td>{{ feedback.speech_metrics.get('average_sentence_length')|round(1) if feedback.speech_metrics else '-' }}</td></tr>
+                    {% set avg_sentence_length = feedback.speech_metrics.get('average_sentence_length') if feedback.speech_metrics else none %}
+                    <tr><th>Avg. sentence length</th><td>{{ avg_sentence_length|round(1) if avg_sentence_length is not none else '-' }}</td></tr>
                 </table>
             </div>
             <div class="col-md-6">
@@ -305,6 +345,7 @@
         <p><strong>Support &amp; Details:</strong> {{ feedback.support_sufficiency }}</p>
         {% endif %}
     </div>
+    {% endif %}
 
     {% if feedback.strengths %}
     <div class="feedback-section">
@@ -332,8 +373,9 @@
         <a href="{{ url_for('speaking_task_start', task_number=task.task_number) }}" class="btn btn-primary btn-lg">
             <i class="fas fa-redo me-2"></i>Practice Again
         </a>
-        <a href="{{ url_for('speaking_dashboard') }}" class="btn btn-outline-secondary btn-lg">
-            <i class="fas fa-th me-2"></i>Choose Another Task
+        <a href="{{ mock_back_url or url_for('speaking_dashboard') }}" class="btn btn-outline-secondary btn-lg">
+            <i class="fas fa-th me-2"></i>
+            {% if mock_back_url %}Back to New TOEFL Mock{% else %}Choose Another Task{% endif %}
         </a>
     </div>
 </div>

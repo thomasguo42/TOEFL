@@ -1,0 +1,155 @@
+{
+  "sentence_build": [
+    {
+      "prompt": "I'm planning to study abroad next year.",
+      "tokens": [
+        "you",
+        "which",
+        "planning",
+        "countries",
+        "in Europe",
+        "are",
+        "plan"
+      ],
+      "answer": "Which countries in Europe are you planning to visit?",
+      "context": "_____ _____ _____ _____ _____ _____ _____ to visit."
+    },
+    {
+      "prompt": "I'm excited to go camping this weekend.",
+      "tokens": [
+        "that",
+        "you",
+        "have",
+        "black bears",
+        "live",
+        "heard"
+      ],
+      "answer": "Have you heard that black bears live near the campground?",
+      "context": "_____ _____ _____ _____ _____ _____ near the campground?"
+    },
+    {
+      "prompt": "I'm planning to take a photography class.",
+      "tokens": [
+        "the",
+        "interests",
+        "what",
+        "more",
+        "you",
+        "photography",
+        "most",
+        "of"
+      ],
+      "answer": "What type of photography interests you the most?",
+      "context": "_____ type _____ _____ _____ _____ _____ _____?"
+    },
+    {
+      "prompt": "I'm thinking of adopting a dog this summer.",
+      "tokens": [
+        "which",
+        "plan",
+        "of dog",
+        "you",
+        "do",
+        "to adopt",
+        "planning"
+      ],
+      "answer": "Which breed of dog do you plan to adopt?",
+      "context": "_____ breed _____ _____ _____ _____ _____?"
+    },
+    {
+      "prompt": "I’m going to start writing a biography",
+      "tokens": [
+        "have",
+        "about",
+        "to write",
+        "which",
+        "chosen",
+        "you",
+        "choose"
+      ],
+      "answer": "Which historical figure have you chosen to write about?",
+      "context": "_____ his torical figure _____ _____ _____ _____ _____"
+    },
+    {
+      "prompt": "I'm moving to a new city next month.",
+      "tokens": [
+        "to move",
+        "from here",
+        "away",
+        "why",
+        "have",
+        "chosen"
+      ],
+      "answer": "Why have you chosen to move away from here?",
+      "context": "_____ _____ you _____ _____ _____ _____"
+    },
+    {
+      "prompt": "I'm planning to start a new project at work.",
+      "tokens": [
+        "to complete",
+        "the new assignment",
+        "when",
+        "expect",
+        "you",
+        "do"
+      ],
+      "answer": "When do you expect to complete the new assignment?",
+      "context": "_____ _____ _____ _____ _____ _____"
+    },
+    {
+      "prompt": "I'm going to submit my application today.",
+      "tokens": [
+        "the position",
+        "applied",
+        "your coworkers",
+        "any",
+        "has",
+        "of",
+        "for"
+      ],
+      "answer": "Have any of your coworkers applied for the position?",
+      "context": "Have _____ _____ _____ _____ _____ _____"
+    },
+    {
+      "prompt": "I'm attending a friend’s wedding next week.",
+      "tokens": [
+        "plan to attend",
+        "the wedding reception",
+        "you",
+        "do"
+      ],
+      "answer": "Do you plan to attend the wedding reception afterward?",
+      "context": "_____ _____ _____ _____ afterward?"
+    },
+    {
+      "prompt": "I had a great time at the dinner party last night.",
+      "tokens": [
+        "serve",
+        "they",
+        "the main course",
+        "before",
+        "any appetizers"
+      ],
+      "answer": "Did they serve any appetizers before the main course?",
+      "context": "Did _____ _____ _____ _____ _____"
+    }
+  ],
+  "email": {
+    "id": "email_teachers_resources_test_3",
+    "scenario": "Write for an Academic Discussion Description 30 Writing Section Build a Sentence Move the words in the boxes to create grammatical sentences. A clock will show you how much time you have to complete this task. Make an appropriate sentence. 1. I'm planning to study abroad next year. _____ _____ _____ _____ _____ _____ _____ to visit. you / which / planning / countries/ in Europe / are / plan 2. I'm excited to go camping this weekend. _____ _____ _____ _____ _____ _____ near the campground? that / you / have / black bears / live / heard 3. I'm planning to take a photography class. _____ type _____ _____ _____ _____ _____ _____? the / interests / what / more / you / photography / most / of 4. I'm thinking of adopting a dog this summer. _____ breed _____ _____ _____ _____ _____? which / plan / of dog / you / do / to adopt / planning 31 Writing Section 5. I’m going to start writing a biography _____ his torical figure _____ _____ _____ _____ _____?have / about / to write / which / chosen / you / choose 6. I'm moving to a new city next month. _____ _____ you _____ _____ _____ _____?to move / from here / away / why / have / chosen 7. I'm planning to start a new project at work. _____ _____ _____ _____ _____ _____?to complete / the new assignment / when / expect / you / do 8. I'm going to submit my application today. Have _____ _____ _____ _____ _____ _____?the position / applied / your coworkers / any / has / of / for 9. I'm attending a friend’s wedding next week. _____ _____ _____ _____ afterward? plan to attend / the wedding reception / you / do 10. I had a great time at the dinner party last night. Did _____ _____ _____ _____ _____?serve / they / the main course / before / any appetizers 32 Writing Section You are a member of the neighborhood association, and you have noticed that the local park needs some maintenance. You decide to contact the association president, Mr. Williams, to discuss the issues and offer a suggestion. Describe the maintenance issue you have observed in the park. Explain why it is important to address the issue. Make a suggestion for how to deal with the issue. 33 Writing Section",
+    "instructions": [],
+    "to_name": "Mr. Williams",
+    "subject": "Concern about park maintenance"
+  },
+  "discussion": {
+    "id": "discussion_teachers_resources_test_3",
+    "professor_prompt": "professor’s question In your response, you should do the following. Express and support your opinion. Dr. Diaz Next week we’ll be discussing the impact of urbanization on community life. Urbanization has led to the development of large cities with diverse populations. Some people believe that urbanization fosters a sense of community and cultural exchange, while others think it leads to social isolation and the breakdown of close-knit communities usually found in small towns and villages. What are your thoughts on this and why?",
+    "student_posts": [
+      {
+        "name": "Student B",
+        "stance": "Disagree",
+        "message": "I believe urbanization fosters a sense of community and cultural exchange. Large cities bring together people from different backgrounds, creating opportunities for cultural interaction and mutual understanding. Urban areas often have vibrant social scenes that encourage community building. In my opinion, urbanization leads to social isolation and the breakdown of close-knit communities. The fast-paced city life can make it difficult for people to form meaningful connections. Traditional community bonds, often found in smaller towns, tend to weaken in urban settings. 34"
+      }
+    ]
+  }
+}

@@ -1,0 +1,461 @@
+{
+  "cloze": [
+    {
+      "id": "cloze_full_13066",
+      "paragraph": "Early civilizations, including those in Mesopotamia, Egypt, the Indus Valley, and China, emerged around river valleys, where fertile land and water resources supported agriculture. Th__ developed sophis_______ social struc_____, written lang_____, and adva____ technologies, wh___ allowed th__ to thr___ and esta_____ cities, tr___ networks, and even empires. Just as important were their significant contributions to fields like art, science, and law. These developments were crucial in shaping the course of human his tory.",
+      "blanks": [
+        {
+          "token": "Th__",
+          "answer": "They",
+          "part_of_speech": "unknown",
+          "hint": "Complete the word using context."
+        },
+        {
+          "token": "sophis_______",
+          "answer": "sophisticated",
+          "part_of_speech": "unknown",
+          "hint": "Complete the word using context."
+        },
+        {
+          "token": "struc_____",
+          "answer": "structures",
+          "part_of_speech": "unknown",
+          "hint": "Complete the word using context."
+        },
+        {
+          "token": "lang_____",
+          "answer": "languages",
+          "part_of_speech": "unknown",
+          "hint": "Complete the word using context."
+        },
+        {
+          "token": "adva____",
+          "answer": "advanced",
+          "part_of_speech": "unknown",
+          "hint": "Complete the word using context."
+        },
+        {
+          "token": "wh___",
+          "answer": "which",
+          "part_of_speech": "unknown",
+          "hint": "Complete the word using context."
+        },
+        {
+          "token": "th__",
+          "answer": "them",
+          "part_of_speech": "unknown",
+          "hint": "Complete the word using context."
+        },
+        {
+          "token": "thr___",
+          "answer": "thrive",
+          "part_of_speech": "unknown",
+          "hint": "Complete the word using context."
+        },
+        {
+          "token": "esta_____",
+          "answer": "establish",
+          "part_of_speech": "unknown",
+          "hint": "Complete the word using context."
+        },
+        {
+          "token": "tr___",
+          "answer": "trade",
+          "part_of_speech": "unknown",
+          "hint": "Complete the word using context."
+        }
+      ]
+    },
+    {
+      "id": "cloze_full_8667",
+      "paragraph": "Consciousness is the state of being aware of and able to think about one’s own existence, thoughts, and surroundings. Wh__ you lo__ in a mir___ and recognize your____, you exh____ self_awareness, wh___ is n__ unique t_humans b__ isal__ found in dolphins and great apes. Consciousness is not to be confused with cognition. The latter refers to mental processes involved in gaining knowledge and solving problems, like thinking, judging, and remembering.",
+      "blanks": [
+        {
+          "token": "Wh__",
+          "answer": "When",
+          "part_of_speech": "unknown",
+          "hint": "Complete the word using context."
+        },
+        {
+          "token": "lo__",
+          "answer": "look",
+          "part_of_speech": "unknown",
+          "hint": "Complete the word using context."
+        },
+        {
+          "token": "mir___",
+          "answer": "mirror",
+          "part_of_speech": "unknown",
+          "hint": "Complete the word using context."
+        },
+        {
+          "token": "your____",
+          "answer": "yourself",
+          "part_of_speech": "unknown",
+          "hint": "Complete the word using context."
+        },
+        {
+          "token": "exh____",
+          "answer": "exhibit",
+          "part_of_speech": "unknown",
+          "hint": "Complete the word using context."
+        },
+        {
+          "token": "wh___",
+          "answer": "which",
+          "part_of_speech": "unknown",
+          "hint": "Complete the word using context."
+        },
+        {
+          "token": "n__",
+          "answer": "not",
+          "part_of_speech": "unknown",
+          "hint": "Complete the word using context."
+        },
+        {
+          "token": "b__",
+          "answer": "bo",
+          "part_of_speech": "unknown",
+          "hint": "Complete the word using context."
+        },
+        {
+          "token": "isal__",
+          "answer": "isalut",
+          "part_of_speech": "unknown",
+          "hint": "Complete the word using context."
+        }
+      ]
+    }
+  ],
+  "daily_life": [
+    {
+      "id": "daily_1_0",
+      "caption": "Read a notice.",
+      "format": "notice",
+      "title": "This is to let all employees know that the staff meeting scheduled for Wednesday, August 10th at 2:00 PMhas been rescheduled. The meeting will now take place on Friday, August 12th at 3:00 PM in the main",
+      "author": "",
+      "headers": {},
+      "body_lines": [
+        "conference room. Please be on time. Thank you."
+      ],
+      "footer_lines": [],
+      "source_lines": [
+        "This is to let all employees know that the staff meeting scheduled for Wednesday, August 10th at 2:00 PMhas been rescheduled. The meeting will now take place on Friday, August 12th at 3:00 PM in the main",
+        "conference room. Please be on time. Thank you."
+      ],
+      "source_text": "This is to let all employees know that the staff meeting scheduled for Wednesday, August 10th at 2:00 PMhas been rescheduled. The meeting will now take place on Friday, August 12th at 3:00 PM in the main conference room. Please be on time. Thank you.",
+      "source_type": "a notice",
+      "questions": [
+        {
+          "number": 11,
+          "question": "What is the main purpose of the notice?",
+          "options": [
+            "To introduce new employees to staff",
+            "To announce a change in a meeting schedule",
+            "To apologize for a scheduling conflict",
+            "To inform employees of a conference opportunity"
+          ],
+          "answer": "To announce a change in a meeting schedule",
+          "rationales": {},
+          "evidence_quote": null
+        },
+        {
+          "number": 12,
+          "question": "When will the staff meeting take place?",
+          "options": [
+            "Wednesday, August 10th at 2:00 PM",
+            "Wednesday, August 10th at 3:00 PM",
+            "Friday, August 12th at 2:00 PM",
+            "Friday, August 12th at 3:00 PM 4"
+          ],
+          "answer": "Friday, August 12th at 3:00 PM 4",
+          "rationales": {},
+          "evidence_quote": null
+        }
+      ]
+    },
+    {
+      "id": "daily_1_1",
+      "caption": "Read an email.",
+      "format": "email",
+      "title": "RE: inquiry",
+      "author": "",
+      "headers": {
+        "subject": "RE: inquiry"
+      },
+      "body_lines": [
+        "Dear Mr. Santiago,",
+        "We are pleased that you are considering our facility for your mother’s birthday party.",
+        "Our outdoor area includes a playground and picnic tables, which can be set up to your preference. We offer a variety of dining options that suit different dietary needs. Please find the menu attached to this",
+        "email.",
+        "Our team can organize activities for people of all ages, including arts and crafts, board games, and more.",
+        "We do not have photographers on staff, but we have worked with external professional photographers in the past and are happy to provide you with recommendations.",
+        "To secure your date, we require a down payment of 30 percent of the total cost. If you need to cancel",
+        "your booking, please notify us at least fourteen days in advance. Cancellations made outside this window",
+        "will forfeit the down payment.",
+        "Regards,",
+        "Rebecca Yang"
+      ],
+      "footer_lines": [],
+      "source_lines": [
+        "Subject: RE: inquiry",
+        "Dear Mr. Santiago,",
+        "We are pleased that you are considering our facility for your mother’s birthday party.",
+        "Our outdoor area includes a playground and picnic tables, which can be set up to your preference. We offer a variety of dining options that suit different dietary needs. Please find the menu attached to this",
+        "email.",
+        "Our team can organize activities for people of all ages, including arts and crafts, board games, and more.",
+        "We do not have photographers on staff, but we have worked with external professional photographers in the past and are happy to provide you with recommendations.",
+        "To secure your date, we require a down payment of 30 percent of the total cost. If you need to cancel",
+        "your booking, please notify us at least fourteen days in advance. Cancellations made outside this window",
+        "will forfeit the down payment.",
+        "Regards,",
+        "Rebecca Yang"
+      ],
+      "source_text": "Subject: RE: inquiry Dear Mr. Santiago, We are pleased that you are considering our facility for your mother’s birthday party. Our outdoor area includes a playground and picnic tables, which can be set up to your preference. We offer a variety of dining options that suit different dietary needs. Please find the menu attached to this email. Our team can organize activities for people of all ages, including arts and crafts, board games, and more. We do not have photographers on staff, but we have worked with external professional photographers in the past and are happy to provide you with recommendations. To secure your date, we require a down payment of 30 percent of the total cost. If you need to cancel your booking, please notify us at least fourteen days in advance. Cancellations made outside this window will forfeit the down payment. Regards, Rebecca Yang",
+      "source_type": "an email",
+      "questions": [
+        {
+          "number": 13,
+          "question": "What can be inferred about Mr. Santiago?",
+          "options": [
+            "He is about to celebrate his birthday.",
+            "He has used Rebecca Yang's facility in the past.",
+            "He is a professional event organizer.",
+            "He has requested information about Rebecca Yang's facility."
+          ],
+          "answer": "He has requested information about Rebecca Yang's facility.",
+          "rationales": {},
+          "evidence_quote": null
+        },
+        {
+          "number": 14,
+          "question": "Rebecca Yang's team does NOT include",
+          "options": [
+            "Cooks",
+            "Professional photographers",
+            "People who can facilitate children's games",
+            "People who can set up picnic tables"
+          ],
+          "answer": "Professional photographers",
+          "rationales": {},
+          "evidence_quote": null
+        },
+        {
+          "number": 15,
+          "question": "What information is being provided along with the email message?",
+          "options": [
+            "Food choices",
+            "Types of arts and crafts activities",
+            "Dates available for booking",
+            "Contact information of photographers 5"
+          ],
+          "answer": "Food choices",
+          "rationales": {},
+          "evidence_quote": null
+        }
+      ]
+    },
+    {
+      "id": "daily_2_2",
+      "caption": "Read an email.",
+      "format": "email",
+      "title": "",
+      "author": "",
+      "headers": {},
+      "body_lines": [
+        "Dear Ms. Simmons,",
+        "We are delighted to confirm your reservation for the Italian cooking class on June 25th at 4:00 PM. Please",
+        "arrive fifteen minutes early for registration. Bring an apron, a chef’s knife, and a notebook. We’ll provide a cutting board.",
+        "Best regards,",
+        "Lily Evans"
+      ],
+      "footer_lines": [],
+      "source_lines": [
+        "Dear Ms. Simmons,",
+        "We are delighted to confirm your reservation for the Italian cooking class on June 25th at 4:00 PM. Please",
+        "arrive fifteen minutes early for registration. Bring an apron, a chef’s knife, and a notebook. We’ll provide a cutting board.",
+        "Best regards,",
+        "Lily Evans"
+      ],
+      "source_text": "Dear Ms. Simmons, We are delighted to confirm your reservation for the Italian cooking class on June 25th at 4:00 PM. Please arrive fifteen minutes early for registration. Bring an apron, a chef’s knife, and a notebook. We’ll provide a cutting board. Best regards, Lily Evans",
+      "source_type": "an email",
+      "questions": [
+        {
+          "number": 11,
+          "question": "What is the main purpose of the e-mail?",
+          "options": [
+            "To request attendance at a class",
+            "To confirm a reservation for a class",
+            "To update travel plans",
+            "To provide registration instructions"
+          ],
+          "answer": "To confirm a reservation for a class",
+          "rationales": {},
+          "evidence_quote": null
+        },
+        {
+          "number": 12,
+          "question": "What is Ms. Simmons NOT required to bring?",
+          "options": [
+            "An apron",
+            "A cutting board",
+            "A chef’s knife",
+            "A notebook 8"
+          ],
+          "answer": "A cutting board",
+          "rationales": {},
+          "evidence_quote": null
+        }
+      ]
+    },
+    {
+      "id": "daily_2_3",
+      "caption": "Read an email.",
+      "format": "email",
+      "title": "Annual conference",
+      "author": "",
+      "headers": {
+        "subject": "Annual conference"
+      },
+      "body_lines": [
+        "Dear Ms. Adams,",
+        "We are pleased to invite you to the annual educational psychology conference taking place on October",
+        "13–15.",
+        "This year’s conference theme is “Emotions and Psychological Processes.” The keynote speaker will be Dr.",
+        "Jane Smith. We will also organize four panel discussions with leading scholars as well as interactive",
+        "workshops. More details will be forthcoming.",
+        "We are excited to announce the return of poster sessions this year, where graduate students and early-",
+        "career researchers will present their work. If you would like to present your research in the poster session,",
+        "please submit an extended abstract for review by the conference committee by August 31.",
+        "Breakfast and lunch will be provided for a nominal fee with a variety of options to accommodate different",
+        "dietary needs. Additionally, all attendees will receive a conference packet, including materials from the",
+        "sessions and a certificate of participation.",
+        "Regards,",
+        "Michael Brown"
+      ],
+      "footer_lines": [],
+      "source_lines": [
+        "Subject: Annual conference",
+        "Dear Ms. Adams,",
+        "We are pleased to invite you to the annual educational psychology conference taking place on October",
+        "13–15.",
+        "This year’s conference theme is “Emotions and Psychological Processes.” The keynote speaker will be Dr.",
+        "Jane Smith. We will also organize four panel discussions with leading scholars as well as interactive",
+        "workshops. More details will be forthcoming.",
+        "We are excited to announce the return of poster sessions this year, where graduate students and early-",
+        "career researchers will present their work. If you would like to present your research in the poster session,",
+        "please submit an extended abstract for review by the conference committee by August 31.",
+        "Breakfast and lunch will be provided for a nominal fee with a variety of options to accommodate different",
+        "dietary needs. Additionally, all attendees will receive a conference packet, including materials from the",
+        "sessions and a certificate of participation.",
+        "Regards,",
+        "Michael Brown"
+      ],
+      "source_text": "Subject: Annual conference Dear Ms. Adams, We are pleased to invite you to the annual educational psychology conference taking place on October 13–15. This year’s conference theme is “Emotions and Psychological Processes.” The keynote speaker will be Dr. Jane Smith. We will also organize four panel discussions with leading scholars as well as interactive workshops. More details will be forthcoming. We are excited to announce the return of poster sessions this year, where graduate students and early- career researchers will present their work. If you would like to present your research in the poster session, please submit an extended abstract for review by the conference committee by August 31. Breakfast and lunch will be provided for a nominal fee with a variety of options to accommodate different dietary needs. Additionally, all attendees will receive a conference packet, including materials from the sessions and a certificate of participation. Regards, Michael Brown",
+      "source_type": "an email",
+      "questions": [
+        {
+          "number": 13,
+          "question": "What is the main purpose of the email?",
+          "options": [
+            "To reque st information about Ms. Adams' research",
+            "To invite Ms. Adams to speak at a conference",
+            "To provide details about an event",
+            "To announce participants of the poster sessions"
+          ],
+          "answer": "To provide details about an event",
+          "rationales": {},
+          "evidence_quote": null
+        }
+      ]
+    }
+  ],
+  "academic": [
+    {
+      "id": "academic_1",
+      "title": "The Effects of Urbanization on Bird Populations",
+      "passage_lines": [
+        "Urbanization has had a profound impact on bird populations worldwide. As cities expand, natural habitats",
+        "are replaced with buildings, roads, and other infrastructure. This leads to a significant reduction in the",
+        "availability of nesting sites and food sources for birds.",
+        "Some species, such as pigeons and sparrows, have adapted well to urban environments, taking advantage",
+        "of the new resources and structures. However, many other species struggle to survive in these altered",
+        "landscapes. Therefore, it is imperative to find solutions that help birds adapt to city life. One notable effect",
+        "of urbanization is the change in bird song. Birds living in cities often sing at higher pitches and volumes",
+        "than their rural counterparts. This adaptation helps them communicate over the noise of traffic and",
+        "human activity. Additionally, the artificial lighting in cities can disrupt the natural circadian (daily",
+        "time-related) rhythms of birds, affecting their breeding and feeding behaviors.",
+        "Conservationists are working to mitigate the negative effects of urbanization on birds. Initiatives such as creating urban green spaces, constructing bird-friendly buildings, and reducing light pollution are being",
+        "implemented. These efforts aim to create a more hospitable environment for birds, allowing them to coexist with humans in urban settings."
+      ],
+      "passage": "The Effects of Urbanization on Bird Populations Urbanization has had a profound impact on bird populations worldwide. As cities expand, natural habitats are replaced with buildings, roads, and other infrastructure. This leads to a significant reduction in the availability of nesting sites and food sources for birds. Some species, such as pigeons and sparrows, have adapted well to urban environments, taking advantage of the new resources and structures. However, many other species struggle to survive in these altered landscapes. Therefore, it is imperative to find solutions that help birds adapt to city life. One notable effect of urbanization is the change in bird song. Birds living in cities often sing at higher pitches and volumes than their rural counterparts. This adaptation helps them communicate over the noise of traffic and human activity. Additionally, the artificial lighting in cities can disrupt the natural circadian (daily time-related) rhythms of birds, affecting their breeding and feeding behaviors. Conservationists are working to mitigate the negative effects of urbanization on birds. Initiatives such as creating urban green spaces, constructing bird-friendly buildings, and reducing light pollution are being implemented. These efforts aim to create a more hospitable environment for birds, allowing them to coexist with humans in urban settings.",
+      "questions": [
+        {
+          "number": 16,
+          "question": "The word “mitigate” in the passage is closest in meaning to",
+          "options": [
+            "understand",
+            "analyze",
+            "communicate",
+            "reduce"
+          ],
+          "answer": "reduce",
+          "rationales": {},
+          "evidence_quote": null
+        },
+        {
+          "number": 17,
+          "question": "Which of the following is NOT mentioned as an effect of urbanization on birds in the passage?",
+          "options": [
+            "Reduced availability of nesting sites",
+            "Changes in bird song",
+            "Increased food sources",
+            "Disrupted circadian rhythms"
+          ],
+          "answer": "Increased food sources",
+          "rationales": {},
+          "evidence_quote": null
+        },
+        {
+          "number": 18,
+          "question": "Why does the author mention pigeons and sparrows?",
+          "options": [
+            "To identify birds that struggle to survive in urban environments",
+            "To give examples of birds that have adjusted to living in urban settings",
+            "To highlight the diversity of urban bird species",
+            "To suggest that all birds can adapt to cities"
+          ],
+          "answer": "To give examples of birds that have adjusted to living in urban settings",
+          "rationales": {},
+          "evidence_quote": null
+        },
+        {
+          "number": 19,
+          "question": "What is one initiative mentioned in the passage to help birds in urban areas?",
+          "options": [
+            "Introducing new bird species to urban areas",
+            "Providing human-made food sources to birds",
+            "Creating urban green spaces",
+            "Decreasing the amount of noise made by traffic"
+          ],
+          "answer": "Creating urban green spaces",
+          "rationales": {},
+          "evidence_quote": null
+        },
+        {
+          "number": 20,
+          "question": "What can be inferred about the impact artificial lighting in cities has on birds?",
+          "options": [
+            "It disrupts the natural behaviors of birds.",
+            "It allows birds to find food at night.",
+            "It helps birds to adapt to urban environments.",
+            "It increases the population of urban birds. 6"
+          ],
+          "answer": "It disrupts the natural behaviors of birds.",
+          "rationales": {},
+          "evidence_quote": null
+        }
+      ]
+    }
+  ]
+}

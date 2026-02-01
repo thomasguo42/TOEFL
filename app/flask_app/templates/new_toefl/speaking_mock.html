@@ -3,71 +3,60 @@
 {% block title %}New TOEFL Speaking Practice{% endblock %}
 
 {% block extra_css %}
-<style>
-    .mock-panel {
-        background: #ffffff;
-        border: 1px solid var(--toefl-border);
-        border-radius: 1.25rem;
-        padding: 2rem;
-    }
-
-    .mock-meta {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 1rem;
-        margin-top: 1.5rem;
-    }
-
-    .meta-chip {
-        background: var(--toefl-gray-bg);
-        border: 1px solid var(--toefl-border-light);
-        border-radius: 999px;
-        padding: 0.35rem 0.9rem;
-        font-size: 0.85rem;
-        color: var(--toefl-text-light);
-    }
-</style>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/new_toefl_mock.css') }}">
 {% endblock %}
 
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-lg-10 col-xl-8">
-        <div class="d-flex align-items-center justify-content-between flex-wrap gap-3 mb-4">
+<div class="kmf-shell">
+    <header class="kmf-topbar">
+        <div class="kmf-brand">
+            <div class="kmf-logo">学</div>
             <div>
-                <h1 class="mb-2"><i class="fas fa-microphone me-2"></i>Speaking Practice</h1>
-                <p class="text-muted mb-0">Generate listen-and-repeat plus interview prompts with speaking evaluation.</p>
-            </div>
-            <a href="{{ url_for('new_toefl_practice_hub') }}" class="btn btn-outline-secondary">
-                <i class="fas fa-arrow-left me-2"></i>Back to Practice Hub
-            </a>
-        </div>
-
-        <div class="mock-panel">
-            <h4 class="mb-3">Practice Format</h4>
-            <p class="text-muted">
-                Gemini will generate prompts and expected responses using the existing speaking generator.
-                Evaluation will reuse the SpeechRater feedback pipeline.
-            </p>
-
-            <div class="mock-meta">
-                <span class="meta-chip">11 questions</span>
-                <span class="meta-chip">Listen & repeat</span>
-                <span class="meta-chip">Interview responses</span>
-            </div>
-
-            <div class="mt-4">
-                <label class="form-label fw-semibold">Choose full-length interview set</label>
-                <select class="form-select mb-3" id="interviewSet">
-                    <option value="">Loading interview sets...</option>
-                </select>
-                <button class="btn btn-warning" id="generateSpeaking">
-                    <i class="fas fa-wand-magic-sparkles me-2"></i>Generate Speaking Practice
-                </button>
-                <span class="text-muted ms-2" id="speakingStatus">Ready to generate.</span>
+                <div class="kmf-brand-title">学而思国际 <span class="kmf-brand-tag">托福</span></div>
+                <div class="kmf-brand-sub">高分有方法 | 提能有保障</div>
             </div>
         </div>
+        <div class="kmf-toolbar">
+            <button class="kmf-pill" type="button"><i class="fas fa-volume-up"></i>Volume</button>
+            <button class="kmf-pill" type="button"><i class="fas fa-circle-question"></i>Help</button>
+            <button class="kmf-pill kmf-pill--light" type="button" id="kmfBackBtn"><i class="fas fa-chevron-left"></i>Back</button>
+            <button class="kmf-pill" type="button" id="kmfAnswerBtn"><i class="fas fa-eye"></i>View Answer</button>
+            <button class="kmf-pill kmf-pill--light" type="button" id="kmfNextBtn">Next <i class="fas fa-chevron-right"></i></button>
+        </div>
+    </header>
+    <div class="kmf-sectionbar">
+        <div class="kmf-section-left">
+            <span id="kmfSectionName">Speaking</span>
+            <span class="kmf-section-sep">|</span>
+            <span id="kmfQuestionMeta">Question 1 of 1</span>
+        </div>
+        <div class="kmf-section-right">
+            <span>00:00:00</span>
+            <button class="kmf-hide-time" type="button"><i class="fas fa-eye-slash"></i>Hide Time</button>
+        </div>
+    </div>
+    <div class="kmf-canvas">
+        <div class="kmf-content">
+            <div class="kmf-card kmf-admin-card">
+                <div class="fw-semibold mb-2">Speaking Practice</div>
+                <p class="text-muted mb-3">Generate listen-and-repeat plus interview prompts with speaking evaluation.</p>
+                <div class="kmf-admin-actions">
+                    <label class="form-label fw-semibold mb-0">Choose full-length interview set</label>
+                    <select class="form-select" id="interviewSet">
+                        <option value="">Loading interview sets...</option>
+                    </select>
+                    <button class="btn btn-warning" id="generateSpeaking">
+                        <i class="fas fa-wand-magic-sparkles me-2"></i>Generate Speaking Practice
+                    </button>
+                    <span class="text-muted" id="speakingStatus">Ready to generate.</span>
+                    <a href="{{ url_for('new_toefl_practice_hub') }}" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left me-2"></i>Back to Practice Hub
+                    </a>
+                </div>
+            </div>
 
-        <div class="mt-4" id="speakingContent"></div>
+            <div id="speakingContent"></div>
+        </div>
     </div>
 </div>
 {% endblock %}
@@ -79,18 +68,28 @@ document.addEventListener('DOMContentLoaded', () => {
     const statusEl = document.getElementById('speakingStatus');
     const contentEl = document.getElementById('speakingContent');
     const interviewSetEl = document.getElementById('interviewSet');
+    const questionMetaEl = document.getElementById('kmfQuestionMeta');
+    const backBtn = document.getElementById('kmfBackBtn');
+    const nextBtn = document.getElementById('kmfNextBtn');
+    const answerBtn = document.getElementById('kmfAnswerBtn');
+    let steps = [];
+    let currentStepIndex = 0;
+    let answerVisible = false;
+    let isLoading = false;
 
-    const renderTasks = (tasks) => {
-        if (!tasks || !tasks.length) {
+    const renderAnswerPanel = () => '<div class="kmf-answer-panel hidden" id="kmfAnswerPanel">No model answer available for speaking tasks.</div>';
+
+    const renderStep = () => {
+        if (!steps.length) {
             contentEl.innerHTML = '<div class="alert alert-warning">No tasks generated.</div>';
             return;
         }
+        const task = steps[currentStepIndex];
         const baseUrl = '{{ url_for("new_toefl_speaking_task", task_id=0) }}';
-        const items = tasks.map((task) => {
-            const url = baseUrl.replace('/0', `/${task.id}`);
-            return `
-            <div class="card mb-3">
-                <div class="card-body d-flex justify-content-between align-items-center flex-wrap gap-3">
+        const url = baseUrl.replace('/0', `/${task.id}`);
+        contentEl.innerHTML = `
+            <div class="kmf-card kmf-section">
+                <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
                     <div>
                         <div class="fw-semibold">${task.label}</div>
                         <div class="text-muted small">Response time: ${task.response_time}s</div>
@@ -98,9 +97,50 @@ document.addEventListener('DOMContentLoaded', () => {
                     <a class="btn btn-outline-primary" href="${url}">Start Task</a>
                 </div>
             </div>
-            `;
-        }).join('');
-        contentEl.innerHTML = items;
+            ${renderAnswerPanel()}
+        `;
+
+        answerVisible = false;
+        const panel = document.getElementById('kmfAnswerPanel');
+        if (panel) panel.classList.add('hidden');
+        const isFirst = currentStepIndex === 0;
+        const isLast = currentStepIndex === steps.length - 1;
+        if (backBtn) backBtn.disabled = isFirst;
+        if (nextBtn) nextBtn.disabled = isLast;
+        if (questionMetaEl) {
+            const total = steps.length || 1;
+            questionMetaEl.textContent = `Question ${Math.min(currentStepIndex + 1, total)} of ${total}`;
+        }
+    };
+
+    const loadSpeakingMock = async () => {
+        if (isLoading) return;
+        isLoading = true;
+        statusEl.textContent = 'Loading speaking practice...';
+        contentEl.innerHTML = '';
+
+        try {
+            const setId = interviewSetEl ? interviewSetEl.value : '';
+            const res = await fetch('{{ url_for("new_toefl_speaking_generate") }}', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ interview_set_id: setId || null }),
+            });
+            const data = await res.json();
+            if (!data.success) {
+                statusEl.textContent = data.message || 'Load failed.';
+                isLoading = false;
+                return;
+            }
+            steps = data.tasks || [];
+            currentStepIndex = 0;
+            renderStep();
+            statusEl.textContent = 'Mock loaded. Open each task to record.';
+        } catch (err) {
+            statusEl.textContent = 'Load failed. Please try again.';
+        } finally {
+            isLoading = false;
+        }
     };
 
     const loadInterviewSets = async () => {
@@ -115,37 +155,46 @@ document.addEventListener('DOMContentLoaded', () => {
                 return `<option value="${item.id}">${label}</option>`;
             }).join('');
             interviewSetEl.innerHTML = options || '<option value="">No sets available</option>';
+            if (interviewSetEl.options.length) {
+                interviewSetEl.selectedIndex = 0;
+            }
         } catch (err) {
             interviewSetEl.innerHTML = '<option value="">No sets available</option>';
         }
     };
+    if (generateBtn) {
+        generateBtn.addEventListener('click', loadSpeakingMock);
+    }
 
-    generateBtn.addEventListener('click', async () => {
-        statusEl.textContent = 'Generating speaking mock...';
-        generateBtn.disabled = true;
-        contentEl.innerHTML = '';
-
-        try {
-            const setId = interviewSetEl ? interviewSetEl.value : '';
-            const res = await fetch('{{ url_for("new_toefl_speaking_generate") }}', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ interview_set_id: setId || null }),
-            });
-            const data = await res.json();
-            if (!data.success) {
-                statusEl.textContent = data.message || 'Generation failed.';
-                generateBtn.disabled = false;
-                return;
+    if (backBtn) {
+        backBtn.addEventListener('click', () => {
+            if (currentStepIndex > 0) {
+                currentStepIndex -= 1;
+                renderStep();
             }
-            renderTasks(data.tasks || []);
-            statusEl.textContent = 'Mock generated. Open each task to record.';
-        } catch (err) {
-            statusEl.textContent = 'Generation failed. Please try again.';
-        } finally {
-            generateBtn.disabled = false;
-        }
-    });
+        });
+    }
+
+    if (nextBtn) {
+        nextBtn.addEventListener('click', () => {
+            if (currentStepIndex < steps.length - 1) {
+                currentStepIndex += 1;
+                renderStep();
+            }
+        });
+    }
+
+    if (answerBtn) {
+        answerBtn.addEventListener('click', () => {
+            const panel = document.getElementById('kmfAnswerPanel');
+            if (!panel) return;
+            answerVisible = !answerVisible;
+            panel.classList.toggle('hidden', !answerVisible);
+            answerBtn.innerHTML = answerVisible
+                ? '<i class="fas fa-eye-slash"></i>Hide Answer'
+                : '<i class="fas fa-eye"></i>View Answer';
+        });
+    }
 
     loadInterviewSets();
 });
