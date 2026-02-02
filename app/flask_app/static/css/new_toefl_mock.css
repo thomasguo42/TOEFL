@@ -187,6 +187,15 @@ main.container {
     display: none;
 }
 
+.kmf-transcript-text {
+    margin-top: 8px;
+    padding: 12px;
+    border-radius: 10px;
+    border: 1px solid #d8dfdf;
+    background: #ffffff;
+    white-space: pre-wrap;
+}
+
 .kmf-card {
     background: var(--kmf-card);
     border: 1px solid #e3e6e6;

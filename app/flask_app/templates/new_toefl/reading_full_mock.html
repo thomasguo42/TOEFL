@@ -1027,7 +1027,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const text = (chatInput?.value || '').trim();
         if (!text) return;
         appendChatMessage('user', text);
-        chatState.history.push({ role: 'user', content: text });
         chatInput.value = '';
         appendChatMessage('assistant', 'Thinking...');
         const placeholder = chatBody?.lastElementChild;
@@ -1039,7 +1038,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 body: JSON.stringify({
                     message: text,
                     context: buildChatContext(),
-                    history: chatState.history.slice(-8),
+                    history: [],
                 }),
             });
             const data = await res.json();
@@ -1049,7 +1048,6 @@ document.addEventListener('DOMContentLoaded', () => {
             } else {
                 appendChatMessage('assistant', reply);
             }
-            chatState.history.push({ role: 'assistant', content: reply });
         } catch (err) {
             if (placeholder) {
                 placeholder.querySelector('.kmf-chat-bubble').textContent = 'Chat service unavailable.';
@@ -1065,6 +1063,8 @@ document.addEventListener('DOMContentLoaded', () => {
     if (chatClose && chatPanel) {
         chatClose.addEventListener('click', () => {
             chatPanel.classList.add('hidden');
+            if (chatBody) chatBody.innerHTML = '<div class="kmf-chat-hint">Ask about the current reading question or your answers.</div>';
+            chatState.history = [];
         });
     }
     if (chatSend) {

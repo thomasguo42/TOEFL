@@ -1662,6 +1662,7 @@ def new_toefl_speaking_generate():
             'label': f'Repeat {idx}',
             'task_type': task.task_type,
             'response_time': task.response_time,
+            'listening_transcript': task.listening_transcript,
         })
 
     for idx, item in enumerate(interview_items, start=1):
@@ -1686,6 +1687,7 @@ def new_toefl_speaking_generate():
             'label': f'Interview {idx}',
             'task_type': task.task_type,
             'response_time': task.response_time,
+            'listening_transcript': task.listening_transcript,
         })
 
     db.session.commit()
@@ -1868,9 +1870,8 @@ def new_toefl_mock_chat():
         return jsonify({'success': False, 'message': 'Message is required'}), 400
 
     context = payload.get('context') or {}
-    history = payload.get('history') or []
-    if not isinstance(history, list):
-        history = []
+    # Ignore client history to keep chat stateless per request.
+    history = []
 
     client = get_gemini_client()
     if not client or not client.is_configured:
@@ -2265,6 +2266,7 @@ def new_toefl_speaking_tasks_lookup():
             'label': _label_for(task),
             'task_type': task.task_type,
             'response_time': task.response_time,
+            'listening_transcript': task.listening_transcript,
         })
 
     return jsonify({'success': True, 'tasks': payload})

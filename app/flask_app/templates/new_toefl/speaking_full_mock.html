@@ -120,7 +120,38 @@ document.addEventListener('DOMContentLoaded', () => {
         .replace(/\"/g, '&quot;')
         .replace(/'/g, '&#39;');
 
-    const renderAnswerPanel = () => '<div class="kmf-answer-panel hidden" id="kmfAnswerPanel">No model answer available for speaking tasks.</div>';
+    const renderAnswerPanel = () => '<div class="kmf-answer-panel hidden" id="kmfAnswerPanel"></div>';
+
+    const getAnswerContent = (task) => {
+        const transcript = task?.listening_transcript || '';
+        if (!transcript) {
+            return 'No transcript available for this task.';
+        }
+        return `
+            <div>
+                <div class="fw-semibold">Transcript</div>
+                <div class="kmf-transcript-text">${escapeHtml(transcript)}</div>
+            </div>
+        `;
+    };
+
+    const hydrateTasksWithTranscripts = async (tasks) => {
+        const ids = (tasks || []).map((task) => task?.id).filter((val) => Number.isFinite(val));
+        const needsFetch = (tasks || []).some((task) => !task?.listening_transcript && Number.isFinite(task?.id));
+        if (!ids.length || !needsFetch) return tasks || [];
+        try {
+            const res = await fetch(`/new-toefl/api/speaking/tasks?ids=${encodeURIComponent(ids.join(','))}`);
+            const data = await res.json();
+            if (!data.success || !Array.isArray(data.tasks)) return tasks || [];
+            const byId = {};
+            data.tasks.forEach((item) => {
+                if (item && Number.isFinite(item.id)) byId[item.id] = item;
+            });
+            return (tasks || []).map((task) => (byId[task.id] ? { ...task, ...byId[task.id] } : task));
+        } catch (err) {
+            return tasks || [];
+        }
+    };
 
     const buildTaskUrl = (taskId) => {
         let url = taskUrlBase.replace('/0', `/${taskId}`);
@@ -182,7 +213,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
         answerVisible = false;
         const panel = document.getElementById('kmfAnswerPanel');
-        if (panel) panel.classList.add('hidden');
+        if (panel) {
+            panel.innerHTML = getAnswerContent(task);
+            panel.classList.add('hidden');
+        }
         const startLink = contentEl.querySelector('[data-task-id]');
         if (startLink) {
             startLink.addEventListener('click', async (event) => {
@@ -267,7 +301,7 @@ document.addEventListener('DOMContentLoaded', () => {
             currentStepIndex = record.meta?.current_step || 0;
             const presetTasks = record.meta?.tasks || [];
             if (presetTasks.length) {
-                steps = presetTasks;
+                steps = await hydrateTasksWithTranscripts(presetTasks);
                 renderStep();
                 statusEl.textContent = 'Loaded saved attempt.';
             } else if (record.answers?.responses && Object.keys(record.answers.responses).length) {
@@ -519,7 +553,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const text = (chatInput?.value || '').trim();
         if (!text) return;
         appendChatMessage('user', text);
-        chatState.history.push({ role: 'user', content: text });
         chatInput.value = '';
         appendChatMessage('assistant', 'Thinking...');
         const placeholder = chatBody?.lastElementChild;
@@ -531,7 +564,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 body: JSON.stringify({
                     message: text,
                     context: buildChatContext(),
-                    history: chatState.history.slice(-8),
+                    history: [],
                 }),
             });
             const data = await res.json();
@@ -541,7 +574,6 @@ document.addEventListener('DOMContentLoaded', () => {
             } else {
                 appendChatMessage('assistant', reply);
             }
-            chatState.history.push({ role: 'assistant', content: reply });
         } catch (err) {
             if (placeholder) {
                 placeholder.querySelector('.kmf-chat-bubble').textContent = 'Chat service unavailable.';
@@ -557,6 +589,8 @@ document.addEventListener('DOMContentLoaded', () => {
     if (chatClose && chatPanel) {
         chatClose.addEventListener('click', () => {
             chatPanel.classList.add('hidden');
+            if (chatBody) chatBody.innerHTML = '<div class="kmf-chat-hint">Ask about the speaking tasks or strategies.</div>';
+            chatState.history = [];
         });
     }
     if (chatSend) {

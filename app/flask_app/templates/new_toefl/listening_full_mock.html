@@ -233,12 +233,45 @@ document.addEventListener('DOMContentLoaded', () => {
         return `<div class="mt-3"><div class="fw-semibold">Analysis</div>${rows}</div>`;
     };
 
+    const getTranscriptForStep = (step) => {
+        if (!step) return '';
+        if (step.type === 'response') {
+            return step.item?.prompt || '';
+        }
+        if (step.type === 'conversation' || step.type === 'conversation_audio') {
+            const segments = step.conversation?.segments || step.item?.segments || [];
+            if (!segments.length) return '';
+            return segments.map((seg) => {
+                const speaker = seg?.speaker ? `${seg.speaker}: ` : '';
+                return `${speaker}${seg?.text || ''}`.trim();
+            }).filter(Boolean).join('\n');
+        }
+        if (step.type === 'talk' || step.type === 'talk_audio') {
+            return step.talk?.talk || step.item?.talk || '';
+        }
+        return '';
+    };
+
     const getAnswerContent = (step) => {
         if (!step) return '';
+        const transcript = getTranscriptForStep(step);
+        const transcriptBlock = transcript
+            ? `
+                <div>
+                    <div class="fw-semibold">Transcript</div>
+                    <div class="kmf-transcript-text">${escapeHtml(transcript)}</div>
+                </div>
+            `
+            : '';
         const item = step.question || step.item;
         const answer = item?.answer || '';
         const analysis = renderRationales(item);
-        return answer ? `<div><strong>Correct answer:</strong> ${escapeHtml(answer)}</div>${analysis}` : '';
+        const answerBlock = answer
+            ? `<div class="mt-3"><strong>Correct answer:</strong> ${escapeHtml(answer)}</div>${analysis}`
+            : analysis
+                ? `<div class="mt-3">${analysis}</div>`
+                : '';
+        return `${transcriptBlock}${answerBlock}`;
     };
 
     const bindSingleChoice = (groupName, onSelect) => {
@@ -753,7 +786,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const text = (chatInput?.value || '').trim();
         if (!text) return;
         appendChatMessage('user', text);
-        chatState.history.push({ role: 'user', content: text });
         chatInput.value = '';
         appendChatMessage('assistant', 'Thinking...');
         const placeholder = chatBody?.lastElementChild;
@@ -765,7 +797,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 body: JSON.stringify({
                     message: text,
                     context: buildChatContext(),
-                    history: chatState.history.slice(-8),
+                    history: [],
                 }),
             });
             const data = await res.json();
@@ -775,7 +807,6 @@ document.addEventListener('DOMContentLoaded', () => {
             } else {
                 appendChatMessage('assistant', reply);
             }
-            chatState.history.push({ role: 'assistant', content: reply });
         } catch (err) {
             if (placeholder) {
                 placeholder.querySelector('.kmf-chat-bubble').textContent = 'Chat service unavailable.';
@@ -791,6 +822,8 @@ document.addEventListener('DOMContentLoaded', () => {
     if (chatClose && chatPanel) {
         chatClose.addEventListener('click', () => {
             chatPanel.classList.add('hidden');
+            if (chatBody) chatBody.innerHTML = '<div class="kmf-chat-hint">Ask about the current listening question or your answers.</div>';
+            chatState.history = [];
         });
     }
     if (chatSend) {
