@@ -165,6 +165,39 @@ def _map_overall_to_band(score: Optional[float]) -> int:
     return 0
 
 
+def _round_to_half(value: Optional[float]) -> float:
+    if value is None:
+        return 0.0
+    return round(float(value) * 2) / 2
+
+
+def _map_delivery_score_to_band(score: Optional[float]) -> float:
+    if score is None:
+        return 0.0
+    score = float(score)
+    if score >= 92:
+        return 5.0
+    if score >= 88:
+        return 4.5
+    if score >= 82:
+        return 4.0
+    if score >= 76:
+        return 3.5
+    if score >= 70:
+        return 3.0
+    if score >= 64:
+        return 2.5
+    if score >= 58:
+        return 2.0
+    if score >= 52:
+        return 1.5
+    if score >= 46:
+        return 1.0
+    if score >= 40:
+        return 0.5
+    return 0.0
+
+
 # Initialize Flask app
 app = Flask(__name__)
 app.config.from_object(config[os.getenv('FLASK_ENV', 'development')])
@@ -5011,48 +5044,78 @@ def _score_listen_and_repeat(prompt: str, transcript: str) -> Dict[str, Any]:
 
     if not response_tokens:
         return {
-            "score_5": 0,
-            "score_100": 0.0,
+            "score_5": 0.0,
             "similarity": 0.0,
             "note": "No response or unintelligible response.",
+            "rubric_evidence": [
+                "No response or unintelligible; does not meet rubric requirements.",
+            ],
         }
 
     if response_tokens == prompt_tokens:
         return {
-            "score_5": 5,
-            "score_100": 100.0,
+            "score_5": 5.0,
             "similarity": 1.0,
             "note": "Exact repetition with fully intelligible delivery.",
+            "rubric_evidence": [
+                "Fully intelligible and exact repetition of the prompt.",
+            ],
         }
 
     similarity = SequenceMatcher(None, prompt_tokens, response_tokens).ratio()
     length_ratio = (len(response_tokens) / len(prompt_tokens)) if prompt_tokens else 0.0
 
-    if similarity >= 0.90:
-        score = 4
+    if similarity >= 0.95:
+        score = 4.5
+        note = "Meaning captured with only minor changes."
+        evidence = "Minor word/grammar changes that do not change meaning."
+    elif similarity >= 0.90:
+        score = 4.0
         note = "Meaning captured with minor changes in words or grammar."
+        evidence = "Minor changes but original meaning preserved."
+    elif similarity >= 0.85:
+        score = 3.5
+        note = "Response is essentially full with some meaning shifts."
+        evidence = "Mostly full sentence; some word changes affect meaning."
     elif similarity >= 0.80:
-        score = 3
+        score = 3.0
         note = "Response is essentially full but meaning shifts in places."
-    elif similarity >= 0.60:
-        score = 2
+        evidence = "Majority of content words present, but meaning shifts."
+    elif similarity >= 0.70:
+        score = 2.5
         note = "Significant parts are missing or inaccurate."
-    elif similarity >= 0.40:
-        score = 1
+        evidence = "Large portions missing or inaccurate; meaning unclear."
+    elif similarity >= 0.60:
+        score = 2.0
+        note = "Significant parts are missing or inaccurate."
+        evidence = "Missing important content; response fragmentary."
+    elif similarity >= 0.50:
+        score = 1.5
         note = "Only a small portion of the prompt is captured."
-    else:
-        score = 0
+        evidence = "Very limited capture of prompt content."
+    elif similarity >= 0.40:
+        score = 1.0
+        note = "Only a small portion of the prompt is captured."
+        evidence = "Mostly unintelligible; few recognizable words."
+    elif similarity >= 0.30:
+        score = 0.5
         note = "Response is largely unintelligible or unrelated to the prompt."
+        evidence = "Minimal response; largely unintelligible."
+    else:
+        score = 0.0
+        note = "Response is largely unintelligible or unrelated to the prompt."
+        evidence = "No meaningful repetition of the prompt."
 
     if length_ratio < 0.3:
-        score = min(score, 1)
+        score = min(score, 1.0)
         note = "Very short response; most of the prompt is missing."
+        evidence = "Response is fragmentary; most of the prompt is missing."
 
     return {
         "score_5": score,
-        "score_100": round(score * 20, 1),
         "similarity": round(similarity, 3),
         "note": note,
+        "rubric_evidence": [evidence],
     }
 
 
@@ -5264,6 +5327,7 @@ def speaking_submit_response(task_id):
         current_app.logger.info('SpeechRater unavailable; skipping delivery analysis.')
 
     repeat_task = task.task_type == 'new_toefl_repeat'
+    is_new_toefl_task = task.task_type in {'new_toefl_repeat', 'new_toefl_interview'}
     engine = get_feedback_engine()
     language_result = None
     topic_result = None
@@ -5298,37 +5362,47 @@ def speaking_submit_response(task_id):
 
     if repeat_task:
         repeat_eval = _score_listen_and_repeat(task.listening_transcript or task.prompt or "", transcription)
-        delivery_score = repeat_eval["score_100"]
+        repeat_band = float(repeat_eval.get("score_5") or 0.0)
+        overall_band = _round_to_half(repeat_band)
+        overall_score_30 = round(overall_band * 6, 1)
+        delivery_score = None
         fluency_score = None
+        pronunciation_score = None
         rhythm_score = None
         language_use_score = None
         topic_development_score = None
-        overall_score = repeat_eval["score_100"]
+        overall_score = overall_score_30 if is_new_toefl_task else repeat_eval.get("score_100", 0.0)
         speech_metrics = speech_metrics or {}
         if isinstance(speech_metrics, dict):
-            speech_metrics["repeat_score_5"] = repeat_eval.get("score_5")
+            speech_metrics["repeat_score_5"] = repeat_band
             speech_metrics["repeat_similarity"] = repeat_eval.get("similarity")
             speech_metrics["repeat_note"] = repeat_eval.get("note")
+            if is_new_toefl_task:
+                speech_metrics["overall_band_5"] = overall_band
+                speech_metrics["overall_score_30"] = overall_score_30
+                speech_metrics["rubric_evidence"] = repeat_eval.get("rubric_evidence") or []
 
         repeat_strengths: List[str] = []
         repeat_improvements: List[str] = []
-        if repeat_eval["score_5"] >= 4:
-            repeat_strengths.append("Repeats the prompt accurately with only minor differences.")
-        elif repeat_eval["score_5"] == 3:
-            repeat_strengths.append("Most content words are present.")
-            repeat_improvements.append("Keep the original meaning by avoiding substitutions or omissions.")
-        elif repeat_eval["score_5"] == 2:
+        if repeat_band >= 4.5:
+            repeat_strengths.append("Exact or near-exact repetition with fully intelligible delivery.")
+        elif repeat_band >= 4.0:
+            repeat_strengths.append("Meaning is captured with only minor changes.")
+        elif repeat_band >= 3.0:
+            repeat_strengths.append("Most content is present, but meaning shifts in places.")
+            repeat_improvements.append("Preserve original meaning by avoiding substitutions or omissions.")
+        elif repeat_band >= 2.0:
             repeat_improvements.append("Include the full sentence; several key words are missing.")
-        elif repeat_eval["score_5"] <= 1:
-            repeat_improvements.append("Repeat the entire sentence, not fragments or unrelated words.")
+        else:
+            repeat_improvements.append("Repeat the entire sentence clearly, not fragments or unrelated words.")
 
         combined_strengths = _unique_list(delivery_strengths + repeat_strengths)
         combined_improvements = _unique_list(delivery_improvements + repeat_improvements)
-        specific_feedback = _unique_list([
-            f"Similarity to prompt: {repeat_eval['similarity']}",
-            repeat_eval["note"],
+        specific_feedback = _unique_list(repeat_eval.get("rubric_evidence") or [
+            f"Similarity to prompt: {repeat_eval.get('similarity')}",
+            repeat_eval.get("note"),
         ])
-        task_fulfillment = repeat_eval["note"]
+        task_fulfillment = repeat_eval.get("note")
         clarity_coherence = "Intelligibility based on how closely the response matches the prompt."
         support_sufficiency = "Not applicable for listen-and-repeat tasks."
         grammar_errors = []
@@ -5336,20 +5410,53 @@ def speaking_submit_response(task_id):
         lexical_diversity = None
         academic_word_count = None
     else:
-        delivery_score = delivery_score if delivery_score is not None else (60.0 if transcription else 0.0)
-        fluency_score = fluency_score if fluency_score is not None else delivery_score
-        pronunciation_score = pronunciation_score if pronunciation_score is not None else delivery_score
-        rhythm_score = rhythm_score if rhythm_score is not None else delivery_score
+        if is_new_toefl_task:
+            delivery_band = _map_delivery_score_to_band(delivery_score if delivery_score is not None else (60.0 if transcription else 0.0))
+            delivery_band = _round_to_half(delivery_band)
+            fluency_score = _round_to_half(_map_delivery_score_to_band(fluency_score if fluency_score is not None else delivery_score))
+            pronunciation_score = _round_to_half(_map_delivery_score_to_band(pronunciation_score if pronunciation_score is not None else delivery_score))
+            rhythm_score = _round_to_half(_map_delivery_score_to_band(rhythm_score if rhythm_score is not None else delivery_score))
+            language_use_score = language_result.score if language_result else 0.0
+            topic_development_score = topic_result.score if topic_result else 0.0
+            subscores = [score for score in [delivery_band, language_use_score, topic_development_score] if isinstance(score, (int, float))]
+            overall_band = _round_to_half(sum(subscores) / len(subscores)) if subscores else 0.0
+            overall_score = round(overall_band * 6, 1)
 
-        language_use_score = language_result.score if language_result else 0.0
-        topic_development_score = topic_result.score if topic_result else 0.0
+            speech_metrics = speech_metrics or {}
+            if isinstance(speech_metrics, dict):
+                speech_metrics["overall_band_5"] = overall_band
+                speech_metrics["overall_score_30"] = overall_score
+                speech_metrics["delivery_band_5"] = delivery_band
+                speech_metrics["language_use_band_5"] = language_use_score
+                speech_metrics["topic_development_band_5"] = topic_development_score
+                rubric_evidence = []
+                if language_result and language_result.rubric_evidence:
+                    rubric_evidence.extend(language_result.rubric_evidence)
+                if topic_result and topic_result.rubric_evidence:
+                    rubric_evidence.extend(topic_result.rubric_evidence)
+                if rubric_evidence:
+                    speech_metrics["rubric_evidence"] = _unique_list(rubric_evidence)
 
-        scores = [score for score in [delivery_score, language_use_score, topic_development_score] if score]
-        overall_score = round(sum(scores) / len(scores), 1) if scores else 0.0
+            delivery_score = delivery_band
+        else:
+            delivery_score = delivery_score if delivery_score is not None else (60.0 if transcription else 0.0)
+            fluency_score = fluency_score if fluency_score is not None else delivery_score
+            pronunciation_score = pronunciation_score if pronunciation_score is not None else delivery_score
+            rhythm_score = rhythm_score if rhythm_score is not None else delivery_score
+            language_use_score = (language_result.score * 20) if language_result else 0.0
+            topic_development_score = (topic_result.score * 20) if topic_result else 0.0
+
+            scores = [score for score in [delivery_score, language_use_score, topic_development_score] if score]
+            overall_score = round(sum(scores) / len(scores), 1) if scores else 0.0
 
         combined_strengths = _unique_list(delivery_strengths + (language_result.strengths if language_result else []) + (topic_result.strengths if topic_result else []))
         combined_improvements = _unique_list(delivery_improvements + (language_result.improvements if language_result else []) + (topic_result.improvements if topic_result else []))
-        specific_feedback = _unique_list(specific_feedback or (language_result.improvements[:1] if language_result else []) + (topic_result.improvements[:1] if topic_result else []))
+        rubric_feedback = []
+        if language_result and language_result.rubric_evidence:
+            rubric_feedback.extend(language_result.rubric_evidence)
+        if topic_result and topic_result.rubric_evidence:
+            rubric_feedback.extend(topic_result.rubric_evidence)
+        specific_feedback = _unique_list(rubric_feedback or (language_result.improvements[:1] if language_result else []) + (topic_result.improvements[:1] if topic_result else []))
         task_fulfillment = topic_result.task_fulfillment if topic_result else None
         clarity_coherence = topic_result.clarity_coherence if topic_result else None
         support_sufficiency = topic_result.support_sufficiency if topic_result else None
@@ -5357,6 +5464,16 @@ def speaking_submit_response(task_id):
         vocabulary_suggestions = language_result.vocabulary_suggestions if language_result else []
         lexical_diversity = language_result.lexical_diversity if language_result else None
         academic_word_count = language_result.academic_word_count if language_result else None
+
+    if is_new_toefl_task and isinstance(speech_metrics, dict):
+        if not speech_metrics.get("rubric_evidence"):
+            fallback_evidence: List[str] = []
+            if combined_strengths:
+                fallback_evidence.extend(combined_strengths[:2])
+            if combined_improvements:
+                fallback_evidence.extend(combined_improvements[:2])
+            if fallback_evidence:
+                speech_metrics["rubric_evidence"] = _unique_list(fallback_evidence)
 
     feedback = SpeakingFeedback(
         response_id=response.id,
@@ -5473,7 +5590,44 @@ def new_toefl_speaking_feedback(response_id):
     is_repeat = task.task_type == 'new_toefl_repeat'
     metrics = feedback.speech_metrics or {}
     rubric_text = _load_new_toefl_speaking_rubrics()
-    repeat_band = metrics.get('repeat_score_5') if is_repeat else _map_overall_to_band(feedback.overall_score)
+    if is_repeat:
+        repeat_band = metrics.get('repeat_score_5')
+    else:
+        repeat_band = metrics.get('overall_band_5')
+        if repeat_band is None and feedback.overall_score is not None:
+            repeat_band = _round_to_half(feedback.overall_score / 6)
+
+    record = None
+    try:
+        records = (
+            NewToeflMockRecord.query
+            .filter_by(user_id=user.id, section='speaking')
+            .order_by(NewToeflMockRecord.updated_at.desc())
+            .limit(50)
+            .all()
+        )
+        for item in records:
+            answers = item.answers or {}
+            responses = answers.get('responses') or {}
+            for entry in responses.values():
+                if str(entry.get('response_id')) == str(response.id):
+                    record = item
+                    break
+            if record:
+                break
+        if not record:
+            for item in records:
+                meta = item.meta or {}
+                tasks = meta.get('tasks') or []
+                if any(isinstance(task_meta, dict) and task_meta.get('id') == task.id for task_meta in tasks):
+                    record = item
+                    break
+    except Exception:
+        record = None
+
+    mock_back_url = url_for('new_toefl_speaking_mock')
+    if record:
+        mock_back_url = url_for('new_toefl_speaking_mock', test_id=record.test_id, record_id=record.id)
 
     return render_template(
         'speaking/new_toefl_feedback.html',
@@ -5484,7 +5638,7 @@ def new_toefl_speaking_feedback(response_id):
         is_repeat=is_repeat,
         rubric_text=rubric_text,
         repeat_band=repeat_band,
-        mock_back_url=url_for('new_toefl_speaking_mock'),
+        mock_back_url=mock_back_url,
     )
 
 

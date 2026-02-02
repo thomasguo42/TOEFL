@@ -64,6 +64,7 @@ class LanguageUseResult:
     grammar_issues: List[Dict[str, str]]
     strengths: List[str]
     improvements: List[str]
+    rubric_evidence: List[str]
 
 
 @dataclass
@@ -75,6 +76,7 @@ class TopicDevelopmentResult:
     content_accuracy: Optional[str]
     strengths: List[str]
     improvements: List[str]
+    rubric_evidence: List[str]
 
 
 class SpeakingFeedbackEngine:
@@ -92,6 +94,36 @@ class SpeakingFeedbackEngine:
 
     def _tokenize(self, transcript: str) -> List[str]:
         return [match.group(0).lower() for match in _TOKEN_RE.finditer(transcript or '')]
+
+    @staticmethod
+    def _round_to_half(value: float) -> float:
+        return round(value * 2) / 2
+
+    @staticmethod
+    def _map_100_to_band(score: float) -> float:
+        if score is None:
+            return 0.0
+        if score >= 92:
+            return 5.0
+        if score >= 88:
+            return 4.5
+        if score >= 82:
+            return 4.0
+        if score >= 76:
+            return 3.5
+        if score >= 70:
+            return 3.0
+        if score >= 64:
+            return 2.5
+        if score >= 58:
+            return 2.0
+        if score >= 52:
+            return 1.5
+        if score >= 46:
+            return 1.0
+        if score >= 40:
+            return 0.5
+        return 0.0
 
     def evaluate_language_use(self, transcript: str) -> LanguageUseResult:
         tokens = self._tokenize(transcript)
@@ -119,7 +151,7 @@ class SpeakingFeedbackEngine:
         grammar_issues: List[Dict[str, str]] = []
         strengths: List[str] = []
         improvements: List[str] = []
-        score_adjustment = 0.0
+        rubric_evidence: List[str] = []
 
         llm_payload = self._call_llm_for_language(transcript)
         if llm_payload:
@@ -128,20 +160,27 @@ class SpeakingFeedbackEngine:
             grammar_issues = llm_payload.get('grammar_issues') or []
             strengths = llm_payload.get('strengths') or []
             improvements = llm_payload.get('improvements') or []
-            try:
-                score_adjustment = float(llm_payload.get('score_adjustment', 0.0))
-            except (TypeError, ValueError):
-                score_adjustment = 0.0
+            rubric_evidence = llm_payload.get('rubric_evidence') or []
 
-        score = max(40.0, min(100.0, heuristics_score + score_adjustment)) if total_words else 0.0
+        if llm_payload and llm_payload.get('score_5') is not None:
+            try:
+                score = float(llm_payload.get('score_5'))
+            except (TypeError, ValueError):
+                score = self._map_100_to_band(heuristics_score) if total_words else 0.0
+        else:
+            score = self._map_100_to_band(heuristics_score) if total_words else 0.0
+        score = max(0.0, min(5.0, score))
+        score = self._round_to_half(score)
 
         if not strengths and total_words:
             strengths.append('Uses a range of vocabulary and complete sentences.')
         if not improvements:
             improvements.append('Incorporate more precise academic vocabulary and connect ideas smoothly.')
+        if not rubric_evidence:
+            rubric_evidence.append('Language control allows ideas to be generally understood.')
 
         return LanguageUseResult(
-            score=round(score, 1),
+            score=score,
             lexical_diversity=round(lexical_diversity, 3),
             academic_word_count=academic_word_count,
             academic_words_used=academic_words_used,
@@ -152,6 +191,7 @@ class SpeakingFeedbackEngine:
             grammar_issues=grammar_issues,
             strengths=strengths,
             improvements=improvements,
+            rubric_evidence=rubric_evidence,
         )
 
     def evaluate_topic_development(
@@ -173,10 +213,14 @@ class SpeakingFeedbackEngine:
         support = None
         content_accuracy = None
         score = base_score
+        rubric_evidence: List[str] = []
 
         if llm_payload:
             try:
-                score = float(llm_payload.get('score', base_score))
+                if llm_payload.get('score_5') is not None:
+                    score = float(llm_payload.get('score_5'))
+                else:
+                    score = float(llm_payload.get('score', base_score))
             except (TypeError, ValueError):
                 score = base_score
             task_fulfillment = llm_payload.get('task_fulfillment')
@@ -185,20 +229,29 @@ class SpeakingFeedbackEngine:
             content_accuracy = llm_payload.get('content_accuracy')
             strengths = llm_payload.get('strengths') or []
             improvements = llm_payload.get('improvements') or []
+            rubric_evidence = llm_payload.get('rubric_evidence') or []
 
         if not strengths and transcript.strip():
             strengths.append('Addresses the prompt with a clear main idea.')
         if not improvements:
             improvements.append('Add specific supporting details and transitions between ideas.')
+        if not rubric_evidence:
+            rubric_evidence.append('Response is generally on topic with some development.')
+
+        if isinstance(score, (int, float)) and score > 5:
+            score = self._map_100_to_band(score)
+        score = max(0.0, min(5.0, float(score))) if transcript.strip() else 0.0
+        score = self._round_to_half(score)
 
         return TopicDevelopmentResult(
-            score=round(max(40.0, min(100.0, score)), 1) if transcript.strip() else 0.0,
+            score=score,
             task_fulfillment=task_fulfillment,
             clarity_coherence=clarity,
             support_sufficiency=support,
             content_accuracy=content_accuracy,
             strengths=strengths,
             improvements=improvements,
+            rubric_evidence=rubric_evidence,
         )
 
     # ------------------------------------------------------------------
@@ -210,25 +263,28 @@ class SpeakingFeedbackEngine:
             return None
 
         prompt = f"""
-You are an expert TOEFL Speaking evaluator. Perform a HOLISTIC analysis of the student's response for language use, word choice, grammar, and vocabulary.
+You are an expert TOEFL Speaking rater focusing on Language Use for the Take an Interview task.
 
-TOEFL Speaking Language Use Criteria:
-1. Grammar: Evaluate sentence structure, verb tenses, subject-verb agreement, articles, prepositions
-2. Vocabulary: Assess word choice appropriateness, academic vocabulary use, precision, range
-3. Idioms & Expressions: Check if expressions are natural and appropriate
-4. Clarity: Evaluate if ideas are expressed clearly without ambiguity
+Rubric anchors (0-5, half steps allowed):
+5: Range of accurate grammar and vocabulary allows clear, precise meaning; errors are rare.
+4: Grammar/vocabulary are adequate; minor errors do not impede meaning.
+3: Limited range and accuracy noticeably restrict clarity; errors sometimes interfere.
+2: Very limited range; frequent errors make meaning difficult.
+1: Mostly unintelligible or isolated words; severe errors.
+0: No response / not English.
 
-Analyze the transcript and return STRICT JSON with this schema:
+Analyze the transcript and return STRICT JSON:
 {{
+  "score_5": number (0-5, half steps),
+  "rubric_evidence": ["Short rubric-matched evidence statements", ...],
   "grammar_issues": [{{"snippet": "string", "issue": "string", "suggestion": "string"}}],
-  "vocabulary_suggestions": ["Specific suggestions to improve word choice and use more precise/academic vocabulary", ...],
+  "vocabulary_suggestions": ["Specific word-choice upgrades", ...],
   "word_choice_issues": [{{"word_used": "string", "better_alternative": "string", "reason": "string"}}],
-  "strengths": ["Specific strengths in grammar, vocabulary, or expression", ...],
-  "improvements": ["Specific actionable improvements for grammar and vocabulary", ...],
-  "score_adjustment": number  # Range -10 to +10, based on overall language sophistication
+  "strengths": ["Specific language strengths", ...],
+  "improvements": ["Specific language improvements", ...]
 }}
 
-Keep entries concise (under 140 characters each).
+Keep entries concise (under 140 characters each). Be strict and rubric-aligned.
 
 Transcript:
 """ + transcript.strip()
@@ -270,13 +326,13 @@ Transcript:
         rubric_block = ""
         if task_type and "interview" in task_type:
             rubric_block = """
-Take an Interview Rubric (0-5 overall, map to 40-100 in this score):
-5: Fully addresses the question, clear and fluent; well elaborated; good pace and intelligibility; accurate grammar/vocabulary.
-4: Addresses the question, reasonably clear; some elaboration; generally good pace; adequate grammar/vocabulary.
-3: Addresses the question but limited elaboration/clarity; choppy pace or noticeable pronunciation issues.
-2: Mostly unsuccessful; minimal support or relevance; limited intelligibility; very limited language range.
-1: Unsuccessful; largely unintelligible or only isolated words/phrases.
-0: No response or entirely unrelated/non-English response.
+Take an Interview Rubric (0-5, half steps allowed):
+5: Fully addresses the question; on topic; well elaborated; clear and fluent.
+4: Addresses the question; generally clear; some elaboration; minor weaknesses.
+3: Addresses the question but limited elaboration/clarity.
+2: Minimally relevant; little support; hard to follow.
+1: Mostly unintelligible or isolated words.
+0: No response / off-topic / not English.
 """
 
         prompt = f"""
@@ -293,7 +349,8 @@ TOEFL Speaking Content Evaluation Criteria:
 
 Provide a comprehensive evaluation. Return STRICT JSON:
 {{
-  "score": number between 40 and 100,
+  "score_5": number between 0 and 5 (half steps allowed),
+  "rubric_evidence": ["Short rubric-matched evidence statements", ...],
   "task_fulfillment": "Detailed assessment of whether all parts were addressed (2-3 sentences)",
   "clarity_coherence": "Assessment of organization, transitions, and logical flow (2-3 sentences)",
   "support_sufficiency": "Assessment of detail, examples, and development (2-3 sentences)",

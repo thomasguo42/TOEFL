@@ -93,37 +93,32 @@
         <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
             <div>
                 <div class="text-uppercase small">Overall Band (0-5)</div>
-                <div class="display-5 fw-bold">{{ repeat_band }}</div>
+                <div class="display-5 fw-bold">{{ repeat_band|round(1) if repeat_band is not none else '-' }}</div>
             </div>
             <div>
-                <div class="text-uppercase small">Overall (0-100)</div>
-                <div class="display-6 fw-bold">{{ feedback.overall_score|round|int }}</div>
+                <div class="text-uppercase small">Overall (0-30)</div>
+                <div class="display-6 fw-bold">{{ feedback.overall_score|round(1) }}</div>
             </div>
             <div class="nt-tag">{{ 'Listen & Repeat' if is_repeat else 'Interview' }}</div>
         </div>
     </div>
 
     <div class="nt-score-grid mb-4">
-        <div class="nt-score-box">
-            <h5>Fluency</h5>
-            <div class="nt-score-value">{{ feedback.fluency_score|round|int if feedback.fluency_score is not none else '-' }}</div>
-            <div class="text-muted small">Pace, pauses, and smoothness.</div>
-        </div>
-        <div class="nt-score-box">
-            <h5>Pronunciation</h5>
-            <div class="nt-score-value">{{ feedback.pronunciation_score|round|int if feedback.pronunciation_score is not none else '-' }}</div>
-            <div class="text-muted small">Clarity and intelligibility.</div>
-        </div>
         {% if not is_repeat %}
         <div class="nt-score-box">
-            <h5>Content</h5>
-            <div class="nt-score-value">{{ feedback.topic_development_score|round|int if feedback.topic_development_score is not none else '-' }}</div>
-            <div class="text-muted small">Addressing the prompt with support.</div>
+            <h5>Delivery</h5>
+            <div class="nt-score-value">{{ feedback.delivery_score|round(1) if feedback.delivery_score is not none else '-' }}</div>
+            <div class="text-muted small">Fluency, pronunciation, rhythm.</div>
         </div>
         <div class="nt-score-box">
-            <h5>Grammar &amp; Word Choice</h5>
-            <div class="nt-score-value">{{ feedback.language_use_score|round|int if feedback.language_use_score is not none else '-' }}</div>
-            <div class="text-muted small">Accuracy and range.</div>
+            <h5>Language Use</h5>
+            <div class="nt-score-value">{{ feedback.language_use_score|round(1) if feedback.language_use_score is not none else '-' }}</div>
+            <div class="text-muted small">Grammar accuracy and vocabulary range.</div>
+        </div>
+        <div class="nt-score-box">
+            <h5>Topic Development</h5>
+            <div class="nt-score-value">{{ feedback.topic_development_score|round(1) if feedback.topic_development_score is not none else '-' }}</div>
+            <div class="text-muted small">Addressing the prompt with support.</div>
         </div>
         {% else %}
         <div class="nt-score-box">
@@ -133,6 +128,38 @@
         </div>
         {% endif %}
     </div>
+
+    {% if not is_repeat %}
+    <div class="nt-score-grid mb-4">
+        <div class="nt-score-box">
+            <h5>Fluency</h5>
+            <div class="nt-score-value">{{ feedback.fluency_score|round(1) if feedback.fluency_score is not none else '-' }}</div>
+            <div class="text-muted small">Pace, pauses, and smoothness.</div>
+        </div>
+        <div class="nt-score-box">
+            <h5>Pronunciation</h5>
+            <div class="nt-score-value">{{ feedback.pronunciation_score|round(1) if feedback.pronunciation_score is not none else '-' }}</div>
+            <div class="text-muted small">Clarity and intelligibility.</div>
+        </div>
+        <div class="nt-score-box">
+            <h5>Rhythm</h5>
+            <div class="nt-score-value">{{ feedback.rhythm_score|round(1) if feedback.rhythm_score is not none else '-' }}</div>
+            <div class="text-muted small">Stress, intonation, and flow.</div>
+        </div>
+    </div>
+    {% endif %}
+
+    {% set rubric_evidence = feedback.speech_metrics.get('rubric_evidence') if feedback.speech_metrics else [] %}
+    {% if rubric_evidence %}
+    <div class="nt-section">
+        <h4 class="mb-2">Rubric Evidence</h4>
+        <ul>
+            {% for item in rubric_evidence %}
+            <li>{{ item }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
 
     <div class="nt-section">
         <h4 class="mb-2">Your Recording</h4>

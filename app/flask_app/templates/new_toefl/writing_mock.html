@@ -442,7 +442,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const renderSubscores = (feedback) => {
             if (!feedback) return '';
+            const overallBand = feedback.overall_score_5 ?? (feedback.overall_score ? (feedback.overall_score / 6) : null);
             const rows = [
+                ['Overall (0-5)', overallBand],
                 ['Overall (0-30)', feedback.overall_score],
                 ['Content (0-5)', feedback.content_development_score],
                 ['Organization (0-5)', feedback.organization_structure_score],
@@ -470,6 +472,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const coachSummary = escapeHtml(feedback.coach_summary || '');
             const scoreExplanation = escapeHtml(feedback.score_explanation || '');
+            const rubricEvidence = (feedback.rubric_evidence || []).map((item) => `<li>${escapeHtml(item)}</li>`).join('');
+            const overallBand = feedback.overall_score_5 ?? (feedback.overall_score ? (feedback.overall_score / 6) : null);
             const annotations = normalizeAnnotations((essayText || '').toString(), feedback.annotations);
             const annotationsHtml = annotations.length ? `
                 <div class="mt-3">
@@ -499,8 +503,9 @@ document.addEventListener('DOMContentLoaded', () => {
             return `
                 <div class="card mb-3">
                     <div class="card-body">
-                        <h5 class="mb-2">${escapeHtml(title)} (Score: ${escapeHtml(String(feedback.overall_score ?? 'N/A'))})</h5>
+                        <h5 class="mb-2">${escapeHtml(title)} (Band: ${escapeHtml(String(overallBand ?? 'N/A'))})</h5>
                         ${renderSubscores(feedback)}
+                        ${rubricEvidence ? `<div class="mt-3"><h6 class="mb-2">Rubric Evidence</h6><ul class="small text-muted mb-0">${rubricEvidence}</ul></div>` : ''}
                         ${coachSummary ? `<p class="mt-3 mb-0">${coachSummary}</p>` : '<p class="mt-3 mb-0 text-muted">No summary returned.</p>'}
                         ${scoreExplanation ? `<p class="mt-2 mb-0 small text-muted">${scoreExplanation}</p>` : ''}
                         ${feedback.content_rationale ? `<div class="mt-3"><h6 class="mb-2">Why these scores</h6><div class="small text-muted"><div><strong>Content:</strong> ${escapeHtml(feedback.content_rationale)}</div><div class="mt-1"><strong>Organization:</strong> ${escapeHtml(feedback.organization_rationale || '')}</div><div class="mt-1"><strong>Vocabulary:</strong> ${escapeHtml(feedback.vocabulary_rationale || '')}</div><div class="mt-1"><strong>Grammar:</strong> ${escapeHtml(feedback.grammar_rationale || '')}</div></div></div>` : ''}

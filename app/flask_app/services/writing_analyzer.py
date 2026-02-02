@@ -199,7 +199,7 @@ Write an Email Rubric (0-5 overall):
 2: Mostly unsuccessful; limited/irrelevant elaboration; limited syntax/vocab; accumulation of errors.
 1: Unsuccessful; very little elaboration; telegraphic language; serious/frequent errors; minimal original language.
 0: Blank/off-topic/not English/entirely copied or gibberish.
-Use this rubric to set overall_score_5 and align all feedback to it.
+Use this rubric to set overall_score_5 (half steps allowed) and align all feedback to it.
 """
         elif task_type == 'discussion':
             task_specific = """
@@ -225,7 +225,7 @@ Academic Discussion Rubric (0-5 overall):
 2: Mostly unsuccessful; ideas hard to follow or only partially relevant; limited syntax/vocab; accumulation of errors.
 1: Unsuccessful; few coherent ideas; very limited syntax/vocab; serious/frequent errors; minimal original language.
 0: Blank/off-topic/not English/entirely copied or gibberish.
-Use this rubric to set overall_score_5 and align all feedback to it.
+Use this rubric to set overall_score_5 (half steps allowed) and align all feedback to it.
 """
 
         strict_requirements = """
@@ -255,11 +255,11 @@ Student Essay ({word_count} words):
 Provide detailed analysis with:
 
 1. SCORES (0-5 scale for subscores, overall will be converted to 0-30):
-   - overall_score_5: Overall score 0-5
-   - content_development: Ideas, examples, details (0-5)
-   - organization: Structure, coherence, transitions (0-5)
-   - vocabulary: Word choice, range, appropriateness (0-5)
-   - grammar: Grammar accuracy, sentence variety (0-5)
+   - overall_score_5: Overall score 0-5 (half steps allowed)
+   - content_development: Ideas, examples, details (0-5, half steps allowed)
+   - organization: Structure, coherence, transitions (0-5, half steps allowed)
+   - vocabulary: Word choice, range, appropriateness (0-5, half steps allowed)
+   - grammar: Grammar accuracy, sentence variety (0-5, half steps allowed)
 
 2. ANNOTATIONS (In-line feedback - find 5-8 specific issues):
    Array of objects, each with:
@@ -275,6 +275,7 @@ Provide detailed analysis with:
    - organization_rationale: 1-2 sentences explaining the Organization score (<=260 chars)
    - vocabulary_rationale: 1-2 sentences explaining the Vocabulary score (<=260 chars)
    - grammar_rationale: 1-2 sentences explaining the Grammar score (<=260 chars)
+   - rubric_evidence: Array of 3-4 short statements that explicitly match rubric descriptors
    - strengths: Array of 3-4 specific strengths (each under 120 chars)
    - improvements: Array of 4-5 actionable improvements (each under 120 chars)
    - grammar_issues: Array of 2-3 grammar problems with corrections (each under 100 chars)
@@ -353,6 +354,19 @@ Return STRICT JSON with ALL fields. Be CONCISE - respect character limits. Use c
             score_part = f"{label} score: {score}/5. " if isinstance(score, (int, float)) else ""
             hint = f"Focus on: {suggestions[0]}." if suggestions else "Focus on improving clarity and specificity."
             feedback[field] = f"{score_part}{hint}"
+
+        if not feedback.get("rubric_evidence"):
+            evidence: List[str] = []
+            overall = feedback.get("overall_score_5")
+            if isinstance(overall, (int, float)):
+                evidence.append(f"Overall performance aligns with a {overall}/5 response on the rubric.")
+            strengths = feedback.get("strengths") or []
+            if strengths:
+                evidence.append(strengths[0])
+            improvements = feedback.get("improvements") or []
+            if improvements:
+                evidence.append(f"Rubric gap: {improvements[0]}")
+            feedback["rubric_evidence"] = evidence[:4]
 
         feedback["score_explanation"] = self._build_score_explanation(feedback, task_type=task_type)
         return feedback
@@ -498,12 +512,34 @@ Return STRICT JSON with ALL fields. Be CONCISE - respect character limits. Use c
             return None
         data = self._flatten_feedback(raw_feedback)
 
+        overall_raw = data.get('overall_score_5')
+        if overall_raw in (None, '', []):
+            overall_alt = self._safe_float(self._pick_field(data, ('overall_score', 'overall', 'score', 'total_score')))
+            if overall_alt:
+                if overall_alt <= 5:
+                    overall_raw = overall_alt
+                elif overall_alt <= 30:
+                    overall_raw = overall_alt / 6
+                elif overall_alt <= 100:
+                    overall_raw = overall_alt / 20
+        def normalize_band(value: Any) -> float:
+            score = self._safe_float(value, 0.0)
+            if score <= 5:
+                return self._round_to_half(score)
+            if score <= 30:
+                return self._round_to_half(score / 6)
+            if score <= 100:
+                return self._round_to_half(score / 20)
+            return 5.0 if score > 5 else 0.0
+
+        overall_score_5 = normalize_band(overall_raw)
         normalized: Dict[str, Any] = {
-            'overall_score': self._convert_to_30_scale(self._safe_float(data.get('overall_score_5', 0.0))),
-            'content_development_score': self._safe_float(data.get('content_development', 0.0)),
-            'organization_structure_score': self._safe_float(data.get('organization', 0.0)),
-            'vocabulary_language_score': self._safe_float(data.get('vocabulary', 0.0)),
-            'grammar_mechanics_score': self._safe_float(data.get('grammar', 0.0)),
+            'overall_score_5': overall_score_5,
+            'overall_score': self._convert_to_30_scale(overall_score_5),
+            'content_development_score': normalize_band(self._pick_field(data, ('content_development', 'content_development_score', 'content'))),
+            'organization_structure_score': normalize_band(self._pick_field(data, ('organization', 'organization_score', 'structure'))),
+            'vocabulary_language_score': normalize_band(self._pick_field(data, ('vocabulary', 'vocabulary_score', 'lexical'))),
+            'grammar_mechanics_score': normalize_band(self._pick_field(data, ('grammar', 'grammar_score', 'mechanics'))),
             'annotations': self._normalize_annotations(data.get('annotations')),
             'coach_summary': self._normalize_text_field(data.get('coach_summary')) or '',
             'content_rationale': self._normalize_text_field(data.get('content_rationale')) or '',
@@ -516,6 +552,7 @@ Return STRICT JSON with ALL fields. Be CONCISE - respect character limits. Use c
             'vocabulary_suggestions': self._normalize_list_field(self._pick_field(data, ('vocabulary_suggestions', 'lexical_suggestions', 'word_choice')), limit=3, max_len=100),
             'organization_notes': self._normalize_list_field(self._pick_field(data, ('organization_notes', 'structure_notes')), limit=2, max_len=120),
             'content_suggestions': self._normalize_list_field(self._pick_field(data, ('content_suggestions', 'content_notes', 'development_notes')), limit=2, max_len=120),
+            'rubric_evidence': self._normalize_list_field(self._pick_field(data, ('rubric_evidence', 'rubric_notes', 'evidence')), limit=4, max_len=180),
         }
 
         if task_type == 'integrated':
@@ -533,6 +570,10 @@ Return STRICT JSON with ALL fields. Be CONCISE - respect character limits. Use c
 
         self._apply_score_strictness(normalized, data, task_type)
         return normalized
+
+    @staticmethod
+    def _round_to_half(value: float) -> float:
+        return round(float(value) * 2) / 2
 
     def _flatten_feedback(self, payload: Dict[str, Any]) -> Dict[str, Any]:
         """Flatten common nested DeepSeek structures into a single dict."""
@@ -612,6 +653,7 @@ Return STRICT JSON with ALL fields. Be CONCISE - respect character limits. Use c
             feedback['content_development_score'] = min(feedback.get('content_development_score', cap_content), cap_content)
             allowed_overall = self._convert_to_30_scale(cap_content)
             feedback['overall_score'] = min(feedback.get('overall_score', allowed_overall), allowed_overall)
+            feedback['overall_score_5'] = min(feedback.get('overall_score_5', cap_content), cap_content)
 
             # Clamp organization and vocabulary slightly to avoid inflated totals on off-topic essays
             if cap_content <= 2.0:
@@ -657,6 +699,7 @@ Return STRICT JSON with ALL fields. Be CONCISE - respect character limits. Use c
             feedback['content_development_score'] = min(feedback.get('content_development_score', cap_content), cap_content)
             allowed_overall = self._convert_to_30_scale(cap_content)
             feedback['overall_score'] = min(feedback.get('overall_score', allowed_overall), allowed_overall)
+            feedback['overall_score_5'] = min(feedback.get('overall_score_5', cap_content), cap_content)
 
             feedback['organization_structure_score'] = min(feedback.get('organization_structure_score', cap_content + 0.5), cap_content + 0.5)
             feedback['vocabulary_language_score'] = min(feedback.get('vocabulary_language_score', cap_content + 0.5), cap_content + 0.5)
@@ -889,6 +932,7 @@ Return STRICT JSON with ALL fields. Be CONCISE - respect character limits. Use c
     def _empty_feedback(self) -> Dict:
         """Return empty feedback structure."""
         return {
+            'overall_score_5': 0.0,
             'overall_score': 0.0,
             'content_development_score': 0.0,
             'organization_structure_score': 0.0,
@@ -901,6 +945,7 @@ Return STRICT JSON with ALL fields. Be CONCISE - respect character limits. Use c
             'vocabulary_rationale': '',
             'grammar_rationale': '',
             'score_explanation': '',
+            'rubric_evidence': [],
             'strengths': [],
             'improvements': [],
             'grammar_issues': [],

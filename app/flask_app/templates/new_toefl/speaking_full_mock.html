@@ -105,7 +105,9 @@ document.addEventListener('DOMContentLoaded', () => {
     let answerVisible = false;
     let timeHidden = false;
     const answersState = { completed_task_ids: [], responses: {} };
-    const queryTestId = new URLSearchParams(window.location.search).get('test_id') || '';
+    const queryParams = new URLSearchParams(window.location.search);
+    const queryTestId = queryParams.get('test_id') || '';
+    const queryRecordId = queryParams.get('record_id') || '';
     const exitUrl = '{{ url_for("new_toefl_mock_hub") }}';
     let recordId = null;
     let saveTimer = null;
@@ -241,6 +243,70 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
+    const loadRecordById = async (recordIdValue) => {
+        if (!recordIdValue) return;
+        isLoadingRecord = true;
+        try {
+            const res = await fetch(`/new-toefl/api/mock/records/${recordIdValue}`);
+            const data = await res.json();
+            if (!data.success) {
+                statusEl.textContent = 'Failed to load record.';
+                return;
+            }
+            const record = data.record || {};
+            recordId = record.id || null;
+            if (record.test_id && record.test_id !== testSelect.value) {
+                testSelect.value = record.test_id;
+            }
+            answersState.completed_task_ids = record.answers?.completed_task_ids || [];
+            answersState.responses = record.answers?.responses || {};
+            if (record.answers?.responses) {
+                const responseItems = Object.values(record.answers.responses);
+                answersState.completed_task_ids = responseItems.map((item) => Number(item?.task_id)).filter((val) => Number.isFinite(val));
+            }
+            currentStepIndex = record.meta?.current_step || 0;
+            const presetTasks = record.meta?.tasks || [];
+            if (presetTasks.length) {
+                steps = presetTasks;
+                renderStep();
+                statusEl.textContent = 'Loaded saved attempt.';
+            } else if (record.answers?.responses && Object.keys(record.answers.responses).length) {
+                const taskIds = Object.values(record.answers.responses)
+                    .map((item) => Number(item?.task_id))
+                    .filter((val) => Number.isFinite(val));
+                if (taskIds.length) {
+                    const taskRes = await fetch(`/new-toefl/api/speaking/tasks?ids=${encodeURIComponent(taskIds.join(','))}`);
+                    const taskData = await taskRes.json();
+                    if (taskData.success && Array.isArray(taskData.tasks) && taskData.tasks.length) {
+                        steps = taskData.tasks;
+                        currentStepIndex = 0;
+                        renderStep();
+                        statusEl.textContent = 'Loaded saved recordings.';
+                    } else {
+                        await loadSpeakingMock(testSelect.value, { skipSave: true });
+                        statusEl.textContent = 'Loaded saved attempt.';
+                    }
+                } else {
+                    await loadSpeakingMock(testSelect.value, { skipSave: true });
+                    statusEl.textContent = 'Loaded saved attempt.';
+                }
+            } else {
+                await loadSpeakingMock(testSelect.value, { skipSave: true });
+                statusEl.textContent = 'Loaded saved attempt.';
+            }
+            if (currentStepIndex > 0 && currentStepIndex < steps.length) {
+                renderStep();
+            }
+            if (recordSelect && recordId) {
+                recordSelect.value = String(recordId);
+            }
+        } catch (err) {
+            statusEl.textContent = 'Failed to load record.';
+        } finally {
+            isLoadingRecord = false;
+        }
+    };
+
     const saveRecord = async (status = 'in_progress') => {
         if (!testSelect.value) return false;
         const payload = {
@@ -290,7 +356,10 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (err) {
             testSelect.innerHTML = '<option value="">No tests available</option>';
         } finally {
-            loadRecords();
+            await loadRecords();
+            if (queryRecordId) {
+                await loadRecordById(queryRecordId);
+            }
         }
     };
 
@@ -394,63 +463,7 @@ document.addEventListener('DOMContentLoaded', () => {
         loadRecordBtn.addEventListener('click', async () => {
             const selected = recordSelect?.value;
             if (!selected) return;
-            isLoadingRecord = true;
-            try {
-                const res = await fetch(`/new-toefl/api/mock/records/${selected}`);
-                const data = await res.json();
-                if (!data.success) {
-                    statusEl.textContent = 'Failed to load record.';
-                    return;
-                }
-                const record = data.record || {};
-                recordId = record.id || null;
-                if (record.test_id && record.test_id !== testSelect.value) {
-                    testSelect.value = record.test_id;
-                }
-                answersState.completed_task_ids = record.answers?.completed_task_ids || [];
-                answersState.responses = record.answers?.responses || {};
-                if (record.answers?.responses) {
-                    const responseItems = Object.values(record.answers.responses);
-                    answersState.completed_task_ids = responseItems.map((item) => Number(item?.task_id)).filter((val) => Number.isFinite(val));
-                }
-                currentStepIndex = record.meta?.current_step || 0;
-                const presetTasks = record.meta?.tasks || [];
-                if (presetTasks.length) {
-                    steps = presetTasks;
-                    renderStep();
-                    statusEl.textContent = 'Loaded saved attempt.';
-                } else if (record.answers?.responses && Object.keys(record.answers.responses).length) {
-                    const taskIds = Object.values(record.answers.responses)
-                        .map((item) => Number(item?.task_id))
-                        .filter((val) => Number.isFinite(val));
-                    if (taskIds.length) {
-                        const taskRes = await fetch(`/new-toefl/api/speaking/tasks?ids=${encodeURIComponent(taskIds.join(','))}`);
-                        const taskData = await taskRes.json();
-                        if (taskData.success && Array.isArray(taskData.tasks) && taskData.tasks.length) {
-                            steps = taskData.tasks;
-                            currentStepIndex = 0;
-                            renderStep();
-                            statusEl.textContent = 'Loaded saved recordings.';
-                        } else {
-                            await loadSpeakingMock(testSelect.value, { skipSave: true });
-                            statusEl.textContent = 'Loaded saved attempt.';
-                        }
-                    } else {
-                        await loadSpeakingMock(testSelect.value, { skipSave: true });
-                        statusEl.textContent = 'Loaded saved attempt.';
-                    }
-                } else {
-                    await loadSpeakingMock(testSelect.value, { skipSave: true });
-                    statusEl.textContent = 'Loaded saved attempt.';
-                }
-                if (currentStepIndex > 0 && currentStepIndex < steps.length) {
-                    renderStep();
-                }
-            } catch (err) {
-                statusEl.textContent = 'Failed to load record.';
-            } finally {
-                isLoadingRecord = false;
-            }
+            await loadRecordById(selected);
         });
     }
 
