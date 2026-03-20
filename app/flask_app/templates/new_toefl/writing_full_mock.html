@@ -45,9 +45,9 @@
 <div class="kmf-shell">
     <header class="kmf-topbar">
         <div class="kmf-brand">
-            <div class="kmf-logo">学</div>
+            <div class="kmf-logo">A</div>
             <div>
-                <div class="kmf-brand-title">学而思国际 <span class="kmf-brand-tag">托福</span></div>
+                <div class="kmf-brand-title">AnnaToefl</div>
                 <div class="kmf-brand-sub">高分有方法 | 提能有保障</div>
             </div>
         </div>
@@ -68,6 +68,8 @@
         <div class="kmf-section-right">
             <span id="kmfTimer">00:00:00</span>
             <button class="kmf-hide-time" type="button" id="kmfToggleTime"><i class="fas fa-eye-slash"></i>Hide Time</button>
+            <button class="kmf-pill kmf-pill--light" type="button" id="kmfTimerStart">Start</button>
+            <button class="kmf-pill kmf-pill--light" type="button" id="kmfTimerPause" disabled>Pause</button>
         </div>
     </div>
     <div class="kmf-canvas">
@@ -141,6 +143,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const questionMetaEl = document.getElementById('kmfQuestionMeta');
     const timerEl = document.getElementById('kmfTimer');
     const toggleTimeBtn = document.getElementById('kmfToggleTime');
+    const timerStartBtn = document.getElementById('kmfTimerStart');
+    const timerPauseBtn = document.getElementById('kmfTimerPause');
     const backBtn = document.getElementById('kmfBackBtn');
     const nextBtn = document.getElementById('kmfNextBtn');
     const answerBtn = document.getElementById('kmfAnswerBtn');
@@ -156,6 +160,10 @@ document.addEventListener('DOMContentLoaded', () => {
     let recordId = null;
     let saveTimer = null;
     let isLoadingRecord = false;
+    const totalSeconds = 30 * 60;
+    let remainingSeconds = totalSeconds;
+    let timerInterval = null;
+    let timerRunning = false;
 
     const escapeHtml = (text) => (text || '')
         .replace(/&/g, '&amp;')
@@ -277,6 +285,43 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
+    const formatTime = (seconds) => {
+        const clamped = Math.max(0, seconds);
+        const hrs = String(Math.floor(clamped / 3600)).padStart(2, '0');
+        const mins = String(Math.floor((clamped % 3600) / 60)).padStart(2, '0');
+        const secs = String(clamped % 60).padStart(2, '0');
+        return `${hrs}:${mins}:${secs}`;
+    };
+
+    const updateTimerDisplay = () => {
+        if (timerEl) timerEl.textContent = formatTime(remainingSeconds);
+    };
+
+    const startTimer = () => {
+        if (timerRunning) return;
+        timerRunning = true;
+        if (timerStartBtn) timerStartBtn.textContent = 'Resume';
+        if (timerPauseBtn) timerPauseBtn.disabled = false;
+        timerInterval = setInterval(() => {
+            if (remainingSeconds > 0) {
+                remainingSeconds -= 1;
+                updateTimerDisplay();
+            }
+            if (remainingSeconds <= 0) {
+                stopTimer();
+            }
+        }, 1000);
+    };
+
+    const stopTimer = () => {
+        timerRunning = false;
+        if (timerInterval) {
+            clearInterval(timerInterval);
+            timerInterval = null;
+        }
+        if (timerPauseBtn) timerPauseBtn.disabled = true;
+    };
+
     const buildSteps = (mock) => {
         const nextSteps = [];
         (mock?.sentence_build || []).forEach((item, idx) => {
@@ -370,6 +415,18 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    if (timerStartBtn) {
+        timerStartBtn.addEventListener('click', () => {
+            startTimer();
+        });
+    }
+
+    if (timerPauseBtn) {
+        timerPauseBtn.addEventListener('click', () => {
+            stopTimer();
+        });
+    }
+
     if (backBtn) {
         backBtn.addEventListener('click', () => {
             if (!currentMock || !steps.length) {
@@ -414,8 +471,27 @@ document.addEventListener('DOMContentLoaded', () => {
         };
     };
 
+    const buildStepIndexMap = () => {
+        const map = { sentence: {}, email: null, discussion: null };
+        steps.forEach((step, index) => {
+            if (step.type === 'sentence') map.sentence[step.idx] = index;
+            if (step.type === 'email') map.email = index;
+            if (step.type === 'discussion') map.discussion = index;
+        });
+        return map;
+    };
+
+    const jumpToStep = (stepIndex) => {
+        if (!Number.isFinite(stepIndex)) return;
+        if (stepIndex < 0 || stepIndex >= steps.length) return;
+        currentStepIndex = stepIndex;
+        renderStep();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
     const renderResults = (payload) => {
         if (!payload) return;
+        const stepIndexMap = buildStepIndexMap();
         const sentenceSummary = `
             <div class="alert alert-info">
                 Sentence Build Score: ${payload.sentence_score}% (${payload.sentence_correct}/${payload.sentence_total})
@@ -428,8 +504,11 @@ document.addEventListener('DOMContentLoaded', () => {
             const tokens = Array.isArray(item.tokens) ? item.tokens.map(escapeHtml).join(' | ') : '';
             const expected = escapeHtml(item.expected || '');
             const user = escapeHtml(item.user || '');
+            const stepIndex = stepIndexMap.sentence[idx];
+            const clickableClass = Number.isFinite(stepIndex) ? 'kmf-report-row' : '';
+            const jumpAttr = Number.isFinite(stepIndex) ? `data-step-index="${stepIndex}" role="button"` : '';
             return `
-                <div class="d-flex align-items-start gap-3 py-2 border-bottom">
+                <div class="d-flex align-items-start gap-3 py-2 border-bottom ${clickableClass}" ${jumpAttr}>
                     <div class="${statusClass} fw-semibold">${item.correct ? 'Correct' : 'Wrong'}</div>
                     <div class="flex-grow-1">
                         <div><strong>Sentence ${idx + 1}</strong></div>
@@ -593,10 +672,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 ${renderPromptCard('Your Email (highlighted)', highlightEssay(payload.email_text, payload.email_feedback?.annotations))}
             `;
             const right = renderTaskFeedback('Email Feedback', payload.email_feedback, payload.email_text);
+            const jumpAttr = Number.isFinite(stepIndexMap.email) ? `data-step-index="${stepIndexMap.email}" role="button"` : '';
             return `
                 <div class="card mb-3">
                     <div class="card-body">
-                        <h5 class="card-title">Email Task</h5>
+                        <h5 class="card-title">
+                            Email Task
+                            ${Number.isFinite(stepIndexMap.email) ? `<button class="btn btn-link p-0 ms-2 js-jump-link" type="button" ${jumpAttr}>Jump to task</button>` : ''}
+                        </h5>
                         <div class="results-split">
                             <div class="results-sticky">${left}</div>
                             <div>${right}</div>
@@ -635,11 +718,15 @@ document.addEventListener('DOMContentLoaded', () => {
                     { key: 'source_integration', label: 'Evidence Precision' },
                 ],
             );
+            const jumpAttr = Number.isFinite(stepIndexMap.discussion) ? `data-step-index="${stepIndexMap.discussion}" role="button"` : '';
 
             return `
                 <div class="card mb-3">
                     <div class="card-body">
-                        <h5 class="card-title">Discussion Task</h5>
+                        <h5 class="card-title">
+                            Discussion Task
+                            ${Number.isFinite(stepIndexMap.discussion) ? `<button class="btn btn-link p-0 ms-2 js-jump-link" type="button" ${jumpAttr}>Jump to task</button>` : ''}
+                        </h5>
                         <div class="results-split">
                             <div class="results-sticky">${left}</div>
                             <div>${right}</div>
@@ -657,6 +744,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
             </div>
         ` + renderEmailSplit() + renderDiscussionSplit();
+
+        resultsEl.querySelectorAll('[data-step-index]').forEach((row) => {
+            row.addEventListener('click', (event) => {
+                const target = Number(row.getAttribute('data-step-index'));
+                if (!Number.isFinite(target)) return;
+                if (event.target && event.target.closest('.js-ann-card')) return;
+                jumpToStep(target);
+            });
+        });
 
         resultsEl.querySelectorAll('.js-ann-card').forEach((node) => {
             const key = node.getAttribute('data-ann-key');
@@ -854,6 +950,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     loadTests();
+    updateTimerDisplay();
 
     const chatToggle = document.getElementById('kmfChatToggle');
     const chatPanel = document.getElementById('kmfChatPanel');

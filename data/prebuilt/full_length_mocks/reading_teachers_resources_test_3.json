@@ -1,8 +1,8 @@
 {
   "cloze": [
     {
-      "id": "cloze_full_12833",
-      "paragraph": "Conservation is the effort to protect plants and animals that are endangered because of human activities. Conservationists sa__ endangered spe____ by crea____ areas wh___ they c__ live saf___. Conservationists al__ educate t__ public ab___ the impor_____ of preserving the natural world. Conservation is based on research about wildlife and ecosystems that aims to understand their needs and the threats they face. By taking care of the environment, conservationists help ensure a healthy planet for future generations.",
+      "id": "cloze_full_28525",
+      "paragraph": "Conservation is the effort to protect plants and animals that are endangered because of human activities. Conservationists sa__ endangered spe____ by crea____ areas wh___ they c__ live saf___. Conservationistsal__ educate t__ public ab___ the impor_____ of preserving the natural world. Conservation is based on research about wildlife and ecosystems that aims to understand their needs and the threats they face. By taking care of the environment, conservationists help ensure a healthy planet for future generations.",
       "blanks": [
         {
           "token": "sa__",
@@ -41,8 +41,8 @@
           "hint": "Complete the word using context."
         },
         {
-          "token": "al__",
-          "answer": "also",
+          "token": "Conservationistsal__",
+          "answer": "Conservationistsalso",
           "part_of_speech": "unknown",
           "hint": "Complete the word using context."
         },
@@ -64,10 +64,11 @@
           "part_of_speech": "unknown",
           "hint": "Complete the word using context."
         }
-      ]
+      ],
+      "module": 1
     },
     {
-      "id": "cloze_full_5433",
+      "id": "cloze_full_36862",
       "paragraph": "Economics is the study of how societies allocate resources and make decisions about production, distribution, and consumption. It exam____ the behavior o_ governments, busin_____, and indiv______ in t__ marketplace. Stud____ economics i_ not ju__ for th___ who asp___ to become economists or bankers. Gaining a basic understanding of economic concepts, like supply and demand, inflation, and employment, benefits everyone. It enables us to make informed decisions and understand the broader economic forces that shape our daily lives.",
       "blanks": [
         {
@@ -130,12 +131,14 @@
           "part_of_speech": "unknown",
           "hint": "Complete the word using context."
         }
-      ]
+      ],
+      "module": 2
     }
   ],
   "daily_life": [
     {
       "id": "daily_1_0",
+      "module": 1,
       "caption": "Read an email.",
       "format": "email",
       "title": "Maintenance Notice",
@@ -174,8 +177,13 @@
             "The bedroom"
           ],
           "answer": "The living room",
-          "rationales": {},
-          "evidence_quote": null
+          "rationales": {
+            "The kitchen": "The notice does not mention the kitchen being painted.",
+            "The dining room": "The notice does not mention the dining room being painted.",
+            "The living room": "The notice explicitly states the living room will be painted.",
+            "The bedroom": "The notice does not mention the bedroom being painted."
+          },
+          "evidence_quote": "Our maintenance team is scheduled to paint your apartment’s living room"
         },
         {
           "number": 12,
@@ -187,13 +195,19 @@
             "At 1:00 PM 3"
           ],
           "answer": "At 1:00 PM 3",
-          "rationales": {},
-          "evidence_quote": null
+          "rationales": {
+            "At 9:00 AM": "Mr. Brown must leave at 9:00 AM, not return then.",
+            "At 11:00 AM": "The painters finish at 12:00 PM, not 11:00 AM.",
+            "At 12:00 PM": "Mr. Brown cannot return at 12:00 PM, but one hour after.",
+            "At 1:00 PM 3": "Mr. Brown can return one hour after the painters finish at 12:00 PM."
+          },
+          "evidence_quote": "not return until one hour after the painters have finished at 12:00 p.m."
         }
       ]
     },
     {
       "id": "daily_2_1",
+      "module": 2,
       "caption": "Read an email.",
       "format": "email",
       "title": "Medical appointment",
@@ -232,8 +246,13 @@
             "3:15 PM"
           ],
           "answer": "2:45 PM",
-          "rationales": {},
-          "evidence_quote": null
+          "rationales": {
+            "10:00 AM": "The appointment is at 3:00 PM, not 10:00 AM.",
+            "2:45 PM": "Ms. Patel should arrive 15 minutes before 3:00 PM.",
+            "3:00 PM": "This is the appointment time, not the arrival time.",
+            "3:15 PM": "This is 15 minutes after the appointment time."
+          },
+          "evidence_quote": "Please arrive 15 minutes early for paperwork."
         },
         {
           "number": 12,
@@ -245,8 +264,13 @@
             "By sending a text message 8"
           ],
           "answer": "By calling a phone number",
-          "rationales": {},
-          "evidence_quote": null
+          "rationales": {
+            "By replying to the e-mail": "The email does not state that replying will cancel the appointment.",
+            "By clicking a link": "The provided link is for confirmation, not cancellation.",
+            "By calling a phone number": "The email explicitly instructs to call a number to cancel.",
+            "By sending a text message 8": "There is no mention of canceling via text message in the email."
+          },
+          "evidence_quote": "To reschedule or cancel, call us at 756-8793."
         }
       ]
     }
@@ -254,6 +278,7 @@
   "academic": [
     {
       "id": "academic_1",
+      "module": 1,
       "title": "Reading Section, Module 1",
       "passage_lines": [
         "Read a notice.",
@@ -297,8 +322,13 @@
             "It holds a large collection of film and music recordings."
           ],
           "answer": "It has areas that are not specifically designated as quiet zones.",
-          "rationales": {},
-          "evidence_quote": null
+          "rationales": {
+            "It has areas that are not specifically designated as quiet zones.": "The notice implies other areas exist that are not designated for quiet study.",
+            "It has received numerous complaints about noise levels.": "The notice does not mention any complaints about noise levels.",
+            "It is located on the campus of a university.": "The source does not provide information about the library's location.",
+            "It holds a large collection of film and music recordings.": "The source does not mention any film or music recordings."
+          },
+          "evidence_quote": "This area is specifically designated for quiet reading and study"
         },
         {
           "number": 14,
@@ -310,8 +340,13 @@
             "admire"
           ],
           "answer": "follow",
-          "rationales": {},
-          "evidence_quote": null
+          "rationales": {
+            "notice": "Incorrect. 'Notice' is a noun referring to the announcement itself, not an action.",
+            "read": "Incorrect. 'Read' is an action mentioned in the notice, but not the meaning of 'adhere to'.",
+            "follow": "Correct. 'Follow' means to act according to rules or instructions.",
+            "admire": "Incorrect. 'Admire' means to regard with respect or warm approval, which is not implied."
+          },
+          "evidence_quote": "Please adhere to the following guidelines"
         },
         {
           "number": 15,
@@ -323,13 +358,19 @@
             "They should be kept at a low volume. Welcome to the Library Quiet Zone! 4"
           ],
           "answer": "They should be kept at a low volume. Welcome to the Library Quiet Zone! 4",
-          "rationales": {},
-          "evidence_quote": null
+          "rationales": {
+            "They are not permitted in the library's quiet zone.": "The notice does not explicitly prohibit headphones, only that the area is for quiet study.",
+            "They are only allowed for use with smartphones and laptop computers.": "The notice does not specify any restrictions on the type of device headphones can be used with.",
+            "They may not be shared between two users.": "The notice does not mention anything about sharing headphones.",
+            "They should be kept at a low volume. Welcome to the Library Quiet Zone! 4": "The notice implies that any sound from headphones should be kept low to maintain quiet."
+          },
+          "evidence_quote": "This area is specifically designated for quiet reading and study to ensure a peaceful environment for all patrons."
         }
       ]
     },
     {
       "id": "academic_2",
+      "module": 2,
       "title": "Reading Section, Module 2",
       "passage_lines": [
         "Read an advertisement.",
@@ -356,8 +397,13 @@
             "Training courses for nature guides"
           ],
           "answer": "Volunteer opportunities for community members",
-          "rationales": {},
-          "evidence_quote": null
+          "rationales": {
+            "Career opportunities at the Riverdale Parks Department": "The ad seeks volunteers, not paid employees for the Parks Department.",
+            "Educational programs for children": "While programs for children are mentioned, the ad is for volunteers, not enrollment.",
+            "Volunteer opportunities for community members": "The ad clearly seeks individuals to volunteer their time for specific roles.",
+            "Training courses for nature guides": "Training is mentioned, but it's for volunteers, not a standalone course for guides."
+          },
+          "evidence_quote": "Volunteers must be available Saturdays or Sundays..."
         },
         {
           "number": 14,
@@ -369,8 +415,13 @@
             "Commit to working both Saturday and Sunday"
           ],
           "answer": "Complete training and pass a background check",
-          "rationales": {},
-          "evidence_quote": null
+          "rationales": {
+            "Submit references from previous employers": "References are not mentioned as a requirement.",
+            "Complete training and pass a background check": "Volunteers must complete training and pass a background check before starting.",
+            "Demonstrate experience working with children": "Experience with children is preferred but not required.",
+            "Commit to working both Saturday and Sunday": "Volunteers can choose to work Saturdays or Sundays, not necessarily both."
+          },
+          "evidence_quote": "complete a four-hour training session before starting. Background check required for all accepted volunteers."
         },
         {
           "number": 15,
@@ -382,8 +433,13 @@
             "May 9th Riverdale Parks Department seeks dedicated volunteers to assist with weekendnature programs for families. 9"
           ],
           "answer": "March 15th",
-          "rationales": {},
-          "evidence_quote": null
+          "rationales": {
+            "March 15th": "The advertisement explicitly states the application deadline is March 15.",
+            "April 15th": "April 15th is the start date for training sessions, not the application deadline.",
+            "May 1st": "May 1st is the program start date, well after the application deadline.",
+            "May 9th Riverdale Parks Department seeks dedicated volunteers to assist with weekendnature programs for families. 9": "There is no mention of May 9th as an application deadline in the advertisement."
+          },
+          "evidence_quote": "Application deadline: March 15."
         }
       ]
     }

@@ -9,7 +9,13 @@
         "Last time."
       ],
       "answer": "I think so.",
-      "rationales": {},
+      "rationales": {
+        "I think so.": "This directly answers the question about the gym's availability.",
+        "He is tired.": "The man's physical state is irrelevant to the gym's opening hours.",
+        "Yesterday evening.": "The question asks about the present time, not a past time.",
+        "Last time.": "This phrase is too vague and doesn't answer the question."
+      },
+      "module": 1,
       "audio_url": "/static/listening_audio/new_toefl_response_34cec9a8633b.mp3"
     },
     {
@@ -21,7 +27,13 @@
         "Sure, let's have some."
       ],
       "answer": "Not right now.",
-      "rationales": {},
+      "rationales": {
+        "It's on the table.": "This option does not address the request for help with the report.",
+        "Not right now.": "This option directly answers the request, indicating inability to help at the moment.",
+        "Yes, last Monday.": "This option answers a question about when the report was reviewed, not if help is available.",
+        "Sure, let's have some.": "This option offers to share something, which is irrelevant to reviewing a report."
+      },
+      "module": 1,
       "audio_url": "/static/listening_audio/new_toefl_response_39ce05c80d8e.mp3"
     },
     {
@@ -33,7 +45,13 @@
         "I'll send it immediately."
       ],
       "answer": "I'll send it immediately.",
-      "rationales": {},
+      "rationales": {
+        "Yes, in the computer.": "This response is irrelevant to the request to forward an email.",
+        "I had the same complaint.": "This response is unrelated to the man's request for an email.",
+        "It's facing forward.": "This response is a literal interpretation of 'forward' and does not address the email request.",
+        "I'll send it immediately.": "This response directly and politely agrees to fulfill the request to forward the email."
+      },
+      "module": 1,
       "audio_url": "/static/listening_audio/new_toefl_response_eb0a252c391e.mp3"
     },
     {
@@ -45,7 +63,13 @@
         "Not really."
       ],
       "answer": "Not really.",
-      "rationales": {},
+      "rationales": {
+        "Last night, I think.": "This option answers when it was chilly, not if it is chilly now.",
+        "Perhaps soon.": "This option answers when it might be chilly, not if it is chilly now.",
+        "The soup is great.": "This option is irrelevant to the statement about the weather.",
+        "Not really.": "This option directly contradicts the speaker's statement about the weather."
+      },
+      "module": 1,
       "audio_url": "/static/listening_audio/new_toefl_response_9dbd88de6b3f.mp3"
     },
     {
@@ -57,7 +81,13 @@
         "We saved you a seat."
       ],
       "answer": "Sorry—I forgot.",
-      "rationales": {},
+      "rationales": {
+        "Sure, I'm free.": "This response is irrelevant to the question about finalizing a proposal.",
+        "That's a good choice.": "This response is unrelated to the question about completing a proposal.",
+        "Sorry—I forgot.": "This response directly answers the question by stating the proposal is not finalized due to forgetting.",
+        "We saved you a seat.": "This response is irrelevant to the question about the proposal's status."
+      },
+      "module": 1,
       "audio_url": "/static/listening_audio/new_toefl_response_fa8555b87d87.mp3"
     },
     {
@@ -69,7 +99,13 @@
         "I believe it was cancelled."
       ],
       "answer": "I believe it was cancelled.",
-      "rationales": {},
+      "rationales": {
+        "This evening is fine.": "This option is irrelevant as the question is about a meeting time, not a time for discussion.",
+        "Sure, let's talk soon.": "This option is irrelevant as the question is about a meeting time, not a time for discussion.",
+        "No, in the conference room.": "This option answers a question about location, not time, and contradicts the correct answer.",
+        "I believe it was cancelled.": "This option directly answers the question about the meeting time by stating it will not happen."
+      },
+      "module": 1,
       "audio_url": "/static/listening_audio/new_toefl_response_c8b62bdd0a0a.mp3"
     },
     {
@@ -78,11 +114,35 @@
         "They are open late.",
         "The shipment arrived this morning.",
         "There's one inside the supermarket.",
-        "I had a good experience there. 17"
+        "I had a good experience there."
       ],
       "answer": "There's one inside the supermarket.",
-      "rationales": {},
+      "rationales": {
+        "They are open late.": "Irrelevant to the location of the pharmacy.",
+        "The shipment arrived this morning.": "Irrelevant to the location of the pharmacy.",
+        "There's one inside the supermarket.": "Directly answers the question about the pharmacy's location.",
+        "I had a good experience there.": "Irrelevant to the location of the pharmacy."
+      },
+      "module": 1,
       "audio_url": "/static/listening_audio/new_toefl_response_d3f0c7d8d798.mp3"
+    },
+    {
+      "prompt": "Which room is the meeting in?",
+      "options": [
+        "The same one as last week.",
+        "A lot of people can't make it.",
+        "Right after lunch.",
+        "There wasn't enough room for everyone last time."
+      ],
+      "answer": "The same one as last week.",
+      "rationales": {
+        "The same one as last week.": "This option directly answers the question about the meeting room's location.",
+        "A lot of people can't make it.": "This option discusses attendance, not the meeting room.",
+        "Right after lunch.": "This option refers to the timing of the meeting, not its location.",
+        "There wasn't enough room for everyone last time.": "This option discusses a past issue with space, not the current room."
+      },
+      "module": 1,
+      "audio_url": "/static/listening_audio/new_toefl_response_d004780ca751.mp3"
     },
     {
       "prompt": "How do you turn on the projector?",
@@ -93,7 +153,13 @@
         "I've needed a new monitor for a while."
       ],
       "answer": "I think it might be broken.",
-      "rationales": {},
+      "rationales": {
+        "The images are a little fuzzy.": "The woman is asking how to turn it on, not about image quality.",
+        "I think it might be broken.": "This directly addresses the inability to turn on the projector.",
+        "It printed ten copies by mistake.": "Printing is unrelated to turning on a projector.",
+        "I've needed a new monitor for a while.": "A monitor is different from a projector, and the issue is turning it on."
+      },
+      "module": 2,
       "audio_url": "/static/listening_audio/new_toefl_response_e0092a3e9080.mp3"
     },
     {
@@ -105,7 +171,13 @@
         "It was printed this morning."
       ],
       "answer": "I'm available either day.",
-      "rationales": {},
+      "rationales": {
+        "I'm available either day.": "This option directly answers the question about availability for meeting.",
+        "I will forward it to the team.": "This option is irrelevant as the conversation is about scheduling, not forwarding information.",
+        "We were short-staffed yesterday.": "This option is irrelevant as the conversation is about scheduling, not past staffing issues.",
+        "It was printed this morning.": "This option is irrelevant as the conversation is about scheduling, not printing."
+      },
+      "module": 2,
       "audio_url": "/static/listening_audio/new_toefl_response_ebba63843963.mp3"
     },
     {
@@ -117,7 +189,13 @@
         "It's often crowded."
       ],
       "answer": "Later this evening.",
-      "rationales": {},
+      "rationales": {
+        "Later this evening.": "This directly answers the question about timing.",
+        "Not too far from here.": "This describes distance, not time.",
+        "It stops in Oxford.": "This describes the route, not the timing.",
+        "It's often crowded.": "This describes a characteristic, not the timing."
+      },
+      "module": 2,
       "audio_url": "/static/listening_audio/new_toefl_response_0d3a5524f514.mp3"
     },
     {
@@ -129,7 +207,13 @@
         "I'll need to check the schedule."
       ],
       "answer": "I wasn't interested in the second half.",
-      "rationales": {},
+      "rationales": {
+        "I'll add it to the agenda.": "This response is irrelevant to the question about leaving early.",
+        "I wasn't interested in the second half.": "This directly answers why the person left early, implying they stayed for the first half.",
+        "As soon as possible.": "This is a response to a question about timing, not about leaving early.",
+        "I'll need to check the schedule.": "This is a response about scheduling, not about the reason for leaving early."
+      },
+      "module": 2,
       "audio_url": "/static/listening_audio/new_toefl_response_1c76bcac6de6.mp3"
     },
     {
@@ -141,7 +225,13 @@
         "Coffee would be great."
       ],
       "answer": "Coffee would be great.",
-      "rationales": {},
+      "rationales": {
+        "With milk, please.": "This option answers a question about preference, not about how to prepare the drink.",
+        "On Thursday.": "This option answers a question about time, not about preference.",
+        "Try some sugar.": "This option is a suggestion, not an answer to a preference question.",
+        "Coffee would be great.": "This option directly answers the question about preference by choosing one of the options."
+      },
+      "module": 2,
       "audio_url": "/static/listening_audio/new_toefl_response_6a6d3818d3da.mp3"
     },
     {
@@ -153,7 +243,13 @@
         "Maybe later."
       ],
       "answer": "Maybe later.",
-      "rationales": {},
+      "rationales": {
+        "Her e's your receipt.": "This is a receipt, unrelated to the request for help.",
+        "At the library.": "This indicates a location, not a response to the request.",
+        "On the right.": "This indicates a direction, not a response to the request.",
+        "Maybe later.": "This politely declines the request for assistance."
+      },
+      "module": 2,
       "audio_url": "/static/listening_audio/new_toefl_response_0ea45081fb11.mp3"
     },
     {
@@ -162,11 +258,35 @@
         "At five p.m.",
         "In the drawer.",
         "Every Sunday.",
-        "Under the weather. 23"
+        "Under the weather."
       ],
       "answer": "In the drawer.",
-      "rationales": {},
+      "rationales": {
+        "At five p.m.": "This option answers 'when', not 'where'.",
+        "In the drawer.": "This option directly answers the question about the location of the keys.",
+        "Every Sunday.": "This option answers 'when', not 'where'.",
+        "Under the weather.": "This option is an idiom meaning 'sick', not a location."
+      },
+      "module": 2,
       "audio_url": "/static/listening_audio/new_toefl_response_8e0313572931.mp3"
+    },
+    {
+      "prompt": "It's really noisy in the lobby, isn't it?",
+      "options": [
+        "Yes, I turned mine down.",
+        "I haven't been able to work with them yet.",
+        "They don't know how to do it.",
+        "It's the first day of the big medical conference."
+      ],
+      "answer": "It's the first day of the big medical conference.",
+      "rationales": {
+        "Yes, I turned mine down.": "This response is irrelevant to the woman's statement about noise.",
+        "I haven't been able to work with them yet.": "This response is unrelated to the topic of noise in the lobby.",
+        "They don't know how to do it.": "This response does not address the woman's observation about noise.",
+        "It's the first day of the big medical conference.": "This option explains the reason for the noise, directly addressing the woman's comment."
+      },
+      "module": 2,
+      "audio_url": "/static/listening_audio/new_toefl_response_8e8646998868.mp3"
     }
   ],
   "conversation": [
@@ -205,7 +325,12 @@
             "Book a hotel room"
           ],
           "answer": "Rent a new apartment",
-          "rationales": {}
+          "rationales": {
+            "Find a new job": "The conversation is about finding a place to live, not employment.",
+            "Rent a new apartment": "The woman explicitly states she is looking for a new apartment.",
+            "Renew a lease": "The woman's lease is ending, implying she needs a new place, not to extend her current one.",
+            "Book a hotel room": "The conversation is about renting, not booking temporary accommodation like a hotel."
+          }
         },
         {
           "number": 10,
@@ -214,12 +339,18 @@
             "The woman should book a room in the new hotel.",
             "The woman should check information about the new hotel online.",
             "Downtown apartments are very expensive.",
-            "The downtown area was not a nice place to live until recently. 18"
+            "The downtown area was not a nice place to live until recently."
           ],
-          "answer": "The downtown area was not a nice place to live until recently. 18",
-          "rationales": {}
+          "answer": "The downtown area was not a nice place to live until recently.",
+          "rationales": {
+            "The woman should book a room in the new hotel.": "The speaker suggests looking downtown for an apartment, not staying at the hotel.",
+            "The woman should check information about the new hotel online.": "The speaker suggests checking online for apartments, not for hotel information.",
+            "Downtown apartments are very expensive.": "The passage does not mention the cost of downtown apartments.",
+            "The downtown area was not a nice place to live until recently.": "The speaker implies the area improved after the hotel construction, suggesting it was less desirable before."
+          }
         }
       ],
+      "module": 1,
       "audio_url": "/static/listening_audio/new_toefl_conversation_a63377de68f1.mp3"
     },
     {
@@ -247,11 +378,47 @@
         },
         {
           "speaker": "Woman",
-          "text": "Absolutely. My manager told me his computer suddenly powered off last month; it turned out to be a hardware issue, and he had to buy a new computer. What problem did the woman have with her computer? (A) A hardware issue (B) A software issue (C) A network issue (D) A power issue Why does the woman mention her manager? (A) To explain why she needed her computer urgently (B) To indicate that hardware issues can be particularly problematic (C) To provide details about how she solved a problem (D) To describe the benefits of a new operating system"
+          "text": "Absolutely. My manager told me his computer suddenly powered off last month; it turned out to be a hardware issue, and he had to buy a new computer."
         }
       ],
-      "questions": [],
-      "audio_url": "/static/listening_audio/new_toefl_conversation_a225722d71e0.mp3"
+      "questions": [
+        {
+          "number": 11,
+          "question": "What problem did the woman have with her computer?",
+          "options": [
+            "A hardware issue",
+            "A software issue",
+            "A network issue",
+            "A power issue"
+          ],
+          "answer": "A software issue",
+          "rationales": {
+            "A hardware issue": "The text explicitly states the problem was software-related, not hardware.",
+            "A software issue": "The text confirms the computer issue was a software problem.",
+            "A network issue": "The conversation does not mention any network problems.",
+            "A power issue": "The text does not mention any power-related issues with the woman's computer."
+          }
+        },
+        {
+          "number": 12,
+          "question": "Why does the woman mention her manager?",
+          "options": [
+            "To explain why she needed her computer urgently",
+            "To indicate that hardware issues can be particularly problematic",
+            "To provide details about how she solved a problem",
+            "To describe the benefits of a new operating system"
+          ],
+          "answer": "To indicate that hardware issues can be particularly problematic",
+          "rationales": {
+            "To explain why she needed her computer urgently": "The text does not mention the woman needing her computer urgently.",
+            "To indicate that hardware issues can be particularly problematic": "The manager's hardware issue led to buying a new computer, illustrating the severity.",
+            "To provide details about how she solved a problem": "She describes her own solution, not her manager's.",
+            "To describe the benefits of a new operating system": "The manager's issue was hardware, not software, so it doesn't detail OS benefits."
+          }
+        }
+      ],
+      "module": 1,
+      "audio_url": "/static/listening_audio/new_toefl_conversation_a1776566fcf2.mp3"
     },
     {
       "id": "conv_2_2",
@@ -267,7 +434,12 @@
             "To propose a dish for a party"
           ],
           "answer": "To propose a dish for a party",
-          "rationales": {}
+          "rationales": {
+            "To identify people that should be invited": "The text does not discuss invitations or who should be invited.",
+            "To request an item from the supermarket": "The woman does not mention the supermarket or request any items.",
+            "To explain the source of a lasagna recipe": "The woman does not mention a lasagna recipe or its origin.",
+            "To propose a dish for a party": "The woman suggests making lasagna, which is a dish suitable for a party."
+          }
         },
         {
           "number": 10,
@@ -276,27 +448,139 @@
             "Buy some food",
             "Speak with the Johnsons",
             "Cook steak",
-            "Visit his parents 24"
+            "Visit his parents"
           ],
           "answer": "Buy some food",
-          "rationales": {}
+          "rationales": {
+            "Buy some food": "The man explicitly states he needs to buy food for dinner.",
+            "Speak with the Johnsons": "The man mentions the Johnsons but not a plan to speak with them.",
+            "Cook steak": "The man does not mention cooking steak; he needs to buy food first.",
+            "Visit his parents": "The man does not mention visiting his parents."
+          }
         }
       ],
+      "module": 2,
       "audio_url": "/static/listening_audio/new_toefl_conversation_da39a3ee5e6b.mp3"
     }
   ],
   "talk": [
     {
       "id": "talk_1_0",
-      "talk": "Please note that we will not be meeting on Friday. I just received a last-minute invitation to present at a conference this weekend, and I'll be flying on Friday. I know that you were going to start your presentations then. Julie and Max, we'll just move you to Monday, and those scheduled for Monday will move to Wednesday, and so on. This will actually give everyone a few extra days to work on your presentations. What will the speaker be doing on Friday? (A) Traveling to a conference (B) Listening to student presentations (C) Grading student projects (D) Giving a presentation to her colleagues 19 Listening Section, Module 1 What can be concluded about Julie and Max? (A) They asked for extra time to work on a project. (B) They recently attended a conference. (C) They will have to miss class on Monday. (D) They are the first students who will give presentations. 20 Listening Section, Module 1",
-      "questions": [],
-      "audio_url": "/static/listening_audio/new_toefl_talk_84bfd43652b9.mp3"
+      "talk": "Please note that we will not be meeting on Friday. I just received a last-minute invitation to present at a conference this weekend, and I'll be flying on Friday. I know that you were going to start your presentations then. Julie and Max, we'll just move you to Monday, and those scheduled for Monday will move to Wednesday, and so on. This will actually give everyone a few extra days to work on your presentations.",
+      "questions": [
+        {
+          "number": 13,
+          "question": "What will the speaker be doing on Friday?",
+          "options": [
+            "Traveling to a conference",
+            "Listening to student presentations",
+            "Grading student projects",
+            "Giving a presentation to her colleagues"
+          ],
+          "answer": "Traveling to a conference",
+          "rationales": {
+            "Traveling to a conference": "Correct. The speaker explicitly states they will be flying on Friday.",
+            "Listening to student presentations": "Incorrect. The speaker is canceling the Friday meeting, not attending presentations.",
+            "Grading student projects": "Incorrect. The text does not mention grading projects.",
+            "Giving a presentation to her colleagues": "Incorrect. The speaker is flying to present, not giving a presentation to colleagues on Friday."
+          }
+        },
+        {
+          "number": 14,
+          "question": "What can be concluded about Julie and Max?",
+          "options": [
+            "They asked for extra time to work on a project.",
+            "They recently attended a conference.",
+            "They will have to miss class on Monday.",
+            "They are the first students who will give presentations."
+          ],
+          "answer": "They are the first students who will give presentations.",
+          "rationales": {
+            "They asked for extra time to work on a project.": "The text does not state they requested more time; the change is due to the instructor's absence.",
+            "They recently attended a conference.": "The text states the instructor is attending a conference, not Julie and Max.",
+            "They will have to miss class on Monday.": "Their presentations are moved to Monday, not missed.",
+            "They are the first students who will give presentations.": "The text implies they are first by rescheduling them to Monday, the new start date."
+          }
+        }
+      ],
+      "module": 1,
+      "audio_url": "/static/listening_audio/new_toefl_talk_48543ae262c1.mp3"
     },
     {
       "id": "talk_1_1",
-      "talk": "The placebo effect occurs when people experience real health improvements after receiving a treatment with no medical value—like a sugar pill—simply because they believe it’s real. Clinical trials use various placebos, including creams, gels, or even fake devices. It’s important that these are designed to closely resemble actual treatments. This ensures that participants can’t tell whether they’re receiving the real treatment or the placebo, which in turn keeps the study fair and the results scientifically reliable. The placebo effect highlights the powerful connection between mind and body. It’s influenced by factors such as patient expectations, how the treatment is delivered, and the provider’s credibility. In fact, a recent study found that when people expect relief, their brains respond as if real medicine has been given. This expectation alone can trigger specific brain activity, activating a pathway that links regions involved in thought, emotion, and movement. When these areas work together, they create a kind of bridge, connecting mind and body—mental belief and physical response. While placebos don’t actually cure diseases, the belief that a treatment will work can lead to real improvements in how a patient feels. So, when combined with actual medicine, I believe this psychological boost can enhance overall care. What does the speaker mainly discuss? (A) How scientists first discovered the placebo effect (B) How the brain drives the placebo effect (C) What types of medications are used in clinical trials (D) What role pharmaceutical companies play in placebo research What point does the speaker make about the various types of placebos? (A) They should be cheaper than the actual treatment. (B) They should be colorful and eye-catching. (C) They must undergo testing before clinical use. (D) They must resemble real treatments. Why does the speaker discuss “creating a kind of bridge”? (A) To illustrate how expectation can lead to physical response (B) To describe how medicine travels through the body (C) To clarify how emotions can block medical progress (D) To discuss the chemical composition of placebos What is the speaker's opinion about the use of placebos in health care? (A) Placebos are not very relevant to patient care. (B) Placebos can complement traditional therapies. (C) Placebos are only beneficial in psychological experiments. (D) Placebos should be studied more before being used in clinical settings. 21",
-      "questions": [],
-      "audio_url": "/static/listening_audio/new_toefl_talk_c720b599c1be.mp3"
+      "talk": "The placebo effect occurs when people experience real health improvements after receiving a treatment with no medical value—like a sugar pill—simply because they believe it’s real. Clinical trials use various placebos, including creams, gels, or even fake devices. It’s important that these are designed to closely resemble actual treatments. This ensures that participants can’t tell whether they’re receiving the real treatment or the placebo, which in turn keeps the study fair and the results scientifically reliable. The placebo effect highlights the powerful connection between mind and body. It’s influenced by factors such as patient expectations, how the treatment is delivered, and the provider’s credibility. In fact, a recent study found that when people expect relief, their brains respond as if real medicine has been given. This expectation alone can trigger specific brain activity, activating a pathway that links regions involved in thought, emotion, and movement. When these areas work together, they create a kind of bridge, connecting mind and body—mental belief and physical response. While placebos don’t actually cure diseases, the belief that a treatment will work can lead to real improvements in how a patient feels. So, when combined with actual medicine, I believe this psychological boost can enhance overall care.",
+      "questions": [
+        {
+          "number": 15,
+          "question": "What does the speaker mainly discuss?",
+          "options": [
+            "How scientists first discovered the placebo effect",
+            "How the brain drives the placebo effect",
+            "What types of medications are used in clinical trials",
+            "What role pharmaceutical companies play in placebo research"
+          ],
+          "answer": "How the brain drives the placebo effect",
+          "rationales": {
+            "How scientists first discovered the placebo effect": "The text does not mention the initial discovery of the placebo effect.",
+            "How the brain drives the placebo effect": "The text explains how expectations trigger brain activity, linking mind and body.",
+            "What types of medications are used in clinical trials": "The text mentions various placebos but not specific medication types used.",
+            "What role pharmaceutical companies play in placebo research": "The text does not discuss the role of pharmaceutical companies in research."
+          }
+        },
+        {
+          "number": 16,
+          "question": "What point does the speaker make about the various types of placebos?",
+          "options": [
+            "They should be cheaper than the actual treatment.",
+            "They should be colorful and eye-catching.",
+            "They must undergo testing before clinical use.",
+            "They must resemble real treatments."
+          ],
+          "answer": "They must resemble real treatments.",
+          "rationales": {
+            "They should be cheaper than the actual treatment.": "The text does not mention cost comparison between placebos and actual treatments.",
+            "They should be colorful and eye-catching.": "The text does not suggest placebos should be colorful or eye-catching.",
+            "They must undergo testing before clinical use.": "The text does not state that placebos must undergo testing before clinical use.",
+            "They must resemble real treatments.": "Placebos must be designed to closely resemble actual treatments to maintain study fairness."
+          }
+        },
+        {
+          "number": 17,
+          "question": "Why does the speaker discuss “creating a kind of bridge”?",
+          "options": [
+            "To illustrate how expectation can lead to physical response",
+            "To describe how medicine travels through the body",
+            "To clarify how emotions can block medical progress",
+            "To discuss the chemical composition of placebos"
+          ],
+          "answer": "To illustrate how expectation can lead to physical response",
+          "rationales": {
+            "To illustrate how expectation can lead to physical response": "This option accurately reflects the text's explanation of the mind-body connection.",
+            "To describe how medicine travels through the body": "The text does not discuss the physical movement of medicine within the body.",
+            "To clarify how emotions can block medical progress": "The text states that belief can lead to improvements, not that emotions block progress.",
+            "To discuss the chemical composition of placebos": "The text focuses on the psychological aspect, not the chemical makeup of placebos."
+          }
+        },
+        {
+          "number": 18,
+          "question": "What is the speaker's opinion about the use of placebos in health care?",
+          "options": [
+            "Placebos are not very relevant to patient care.",
+            "Placebos can complement traditional therapies.",
+            "Placebos are only beneficial in psychological experiments.",
+            "Placebos should be studied more before being used in clinical settings."
+          ],
+          "answer": "Placebos can complement traditional therapies.",
+          "rationales": {
+            "Placebos are not very relevant to patient care.": "The text states placebos can enhance overall care, contradicting this option.",
+            "Placebos can complement traditional therapies.": "The speaker believes the psychological boost from placebos can enhance overall care when combined with actual medicine.",
+            "Placebos are only beneficial in psychological experiments.": "The text discusses real health improvements and brain activity, not just psychological experiments.",
+            "Placebos should be studied more before being used in clinical settings.": "The text implies placebos are already used in clinical trials and the speaker supports their use in care."
+          }
+        }
+      ],
+      "module": 1,
+      "audio_url": "/static/listening_audio/new_toefl_talk_2a40eba2acd0.mp3"
     },
     {
       "id": "talk_2_2",
@@ -312,7 +596,12 @@
             "An upcoming musical performance"
           ],
           "answer": "An upcoming musical performance",
-          "rationales": {}
+          "rationales": {
+            "A new process for ordering tickets": "The announcement does not describe a new ticket ordering process.",
+            "A survey of student music preferences": "The announcement does not survey student music preferences.",
+            "A change of venue for concert": "The announcement does not mention any change of venue for the concert.",
+            "An upcoming musical performance": "The announcement details an upcoming musical performance at Gladstone Auditorium."
+          }
         },
         {
           "number": 12,
@@ -321,12 +610,18 @@
             "It will be held outdoors.",
             "It will include a performance by a former student.",
             "It will focus on music from various countries.",
-            "It will feature dance performances. 25"
+            "It will feature dance performances."
           ],
           "answer": "It will include a performance by a former student.",
-          "rationales": {}
+          "rationales": {
+            "It will be held outdoors.": "The source states the event is at Gladstone Auditorium, not outdoors.",
+            "It will include a performance by a former student.": "The source explicitly mentions a special guest performer who is a former student.",
+            "It will focus on music from various countries.": "The source lists genres like rock, jazz, and country, not music from various countries.",
+            "It will feature dance performances.": "The source mentions music performances, not dance performances."
+          }
         }
       ],
+      "module": 2,
       "audio_url": "/static/listening_audio/new_toefl_talk_f605927ecf20.mp3"
     },
     {
@@ -343,7 +638,12 @@
             "The role of governments in sustainability"
           ],
           "answer": "The concept of the carbon footprint",
-          "rationales": {}
+          "rationales": {
+            "The effects of global warming": "This is too narrow; the talk uses global warming as a consequence, not the main topic.",
+            "The concept of the carbon footprint": "This option accurately reflects the central theme discussed throughout the passage.",
+            "The benefits of renewable energy": "This is too specific; renewable energy is mentioned as a solution, not the main topic.",
+            "The role of governments in sustainability": "This is too specific; government roles are discussed as a part of the solution, not the main topic."
+          }
         },
         {
           "number": 14,
@@ -355,7 +655,12 @@
             "Trap heat in the atmosphere"
           ],
           "answer": "Use public transportation",
-          "rationales": {}
+          "rationales": {
+            "Increase meat consumption": "Incorrect. The text states reducing meat consumption lowers the footprint.",
+            "Use public transportation": "Correct. The text explicitly mentions this as an individual action.",
+            "Manufacture more goods": "Incorrect. Manufacturing goods is a source of emissions, not a reduction method.",
+            "Trap heat in the atmosphere": "Incorrect. Trapping heat causes global warming, which the text aims to mitigate."
+          }
         },
         {
           "number": 15,
@@ -364,12 +669,35 @@
             "To explain a source of methane emissions",
             "To discuss public transportation options",
             "To highlight energy-efficient practices",
-            "To illustrate the impact of manufacturing goods 26"
+            "To illustrate the impact of manufacturing goods"
           ],
           "answer": "To explain a source of methane emissions",
-          "rationales": {}
+          "rationales": {
+            "To explain a source of methane emissions": "The text explicitly states livestock farming is a significant source of methane emissions.",
+            "To discuss public transportation options": "The text mentions public transportation as a way to lower a carbon footprint, not as a source of methane.",
+            "To highlight energy-efficient practices": "The text mentions energy-efficient appliances as a way to lower a carbon footprint, not livestock farming.",
+            "To illustrate the impact of manufacturing goods": "The text mentions manufacturing goods as a source of emissions, but not in relation to livestock farming."
+          }
+        },
+        {
+          "number": 16,
+          "question": "What can be inferred about the role of governments in reducing carbon footprints?",
+          "options": [
+            "They can only set emissions targets.",
+            "They are the primary source of greenhouse gases.",
+            "They can implement policies to promote carbon reduction.",
+            "They have a minimal impact on sustainability."
+          ],
+          "answer": "They can implement policies to promote carbon reduction.",
+          "rationales": {
+            "They can only set emissions targets.": "This is incorrect because the text states governments can do more than just set targets.",
+            "They are the primary source of greenhouse gases.": "This is incorrect; the text attributes greenhouse gases to human activities generally, not specifically governments.",
+            "They can implement policies to promote carbon reduction.": "This is supported by the text, which lists policies governments can implement.",
+            "They have a minimal impact on sustainability.": "This is incorrect; the text implies governments have a significant role through policy."
+          }
         }
       ],
+      "module": 2,
       "audio_url": "/static/listening_audio/new_toefl_talk_536e2b0f3455.mp3"
     }
   ]

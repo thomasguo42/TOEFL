@@ -1,7 +1,7 @@
 {
   "cloze": [
     {
-      "id": "cloze_full_54877",
+      "id": "cloze_full_6951",
       "paragraph": "We know from drawings that have been preserved in caves for over 10,000 years that early humans performed dances as a group activity. We mi___ think th__ prehistoric peo___ concentrated on__ on ba___ survival. How____, it i_ clear fr__ the rec___ that dan____ was important to them. They recorded more drawings of dances than of any other group activity. Dances served various purposes, including ritualistic communication with the divine, storytelling, and social cohesion.",
       "blanks": [
         {
@@ -64,78 +64,75 @@
           "part_of_speech": "unknown",
           "hint": "Complete the word using context."
         }
-      ]
+      ],
+      "module": 1
     },
     {
-      "id": "cloze_full_29232",
-      "paragraph": "The human brain is a complex organ responsible for controlling all bodily functions and enabling thought, emot ion, and memory. It i_ divided in__ several reg____, each wi__ specific ro___. The cerebrum, i__ largest pa__, is invo____ in cogn_____ functions su__ as reasoning, planning, and language. The cerebellum coordinates mo vement and balance, while the brainstem controls vital bodily functions like breathing and heart rate. Together, they enable the brain to perform its various tasks.",
+      "id": "cloze_full_26487",
+      "paragraph": "The human brain is a complex organ responsible for controlling all bodily functions and enabling thought, emotion, and memory. It i_divided in__ several reg____, each wi__ specific ro___. The cerebrum, i__ largest pa__, is invo____ in cogn_____ functions su__ as reasoning, planning, and language. The cerebellum coordinates movement and balance, while the brainstem controls vital bodily functions like breathing and heart rate. Together, they enable the brain to perform its various tasks.",
       "blanks": [
         {
-          "token": "i_",
-          "answer": "is",
-          "part_of_speech": "unknown",
-          "hint": "Complete the word using context."
-        },
-        {
           "token": "in__",
-          "answer": "into",
+          "answer": "ins",
           "part_of_speech": "unknown",
           "hint": "Complete the word using context."
         },
         {
           "token": "reg____",
-          "answer": "regions",
+          "answer": "regto",
           "part_of_speech": "unknown",
           "hint": "Complete the word using context."
         },
         {
           "token": "wi__",
-          "answer": "with",
+          "answer": "wiions",
           "part_of_speech": "unknown",
           "hint": "Complete the word using context."
         },
         {
           "token": "ro___",
-          "answer": "roles",
+          "answer": "roth",
           "part_of_speech": "unknown",
           "hint": "Complete the word using context."
         },
         {
           "token": "i__",
-          "answer": "its",
+          "answer": "iles",
           "part_of_speech": "unknown",
           "hint": "Complete the word using context."
         },
         {
           "token": "pa__",
-          "answer": "part",
+          "answer": "pats",
           "part_of_speech": "unknown",
           "hint": "Complete the word using context."
         },
         {
           "token": "invo____",
-          "answer": "involved",
+          "answer": "invort",
           "part_of_speech": "unknown",
           "hint": "Complete the word using context."
         },
         {
           "token": "cogn_____",
-          "answer": "cognitive",
+          "answer": "cognlved",
           "part_of_speech": "unknown",
           "hint": "Complete the word using context."
         },
         {
           "token": "su__",
-          "answer": "such",
+          "answer": "suitive",
           "part_of_speech": "unknown",
           "hint": "Complete the word using context."
         }
-      ]
+      ],
+      "module": 2
     }
   ],
   "daily_life": [
     {
       "id": "daily_1_0",
+      "module": 1,
       "caption": "Read a notice.",
       "format": "notice",
       "title": "Municipal Charter",
@@ -172,8 +169,13 @@
             "A bank"
           ],
           "answer": "A bank",
-          "rationales": {},
-          "evidence_quote": null
+          "rationales": {
+            "An Internet provider": "The notice mentions billing statements and account access, not internet services.",
+            "A computer company": "The notice discusses billing statements, not computer sales or services.",
+            "A paper company": "The notice promotes paperless billing, not the sale of paper products.",
+            "A bank": "The notice refers to savings account statements and account access, typical of a bank."
+          },
+          "evidence_quote": "Enroll in paperless billing to receive monthly savings account statements"
         },
         {
           "number": 12,
@@ -185,13 +187,19 @@
             "By calling a Municipal Charter customer service representative"
           ],
           "answer": "By using the Municipal Charter app",
-          "rationales": {},
-          "evidence_quote": null
+          "rationales": {
+            "By visiting a Municipal Charter office": "The source does not mention visiting a physical office for enrollment.",
+            "By accessing the Municipal Charter website": "The source directs users to the mobile app, not the website, for enrollment.",
+            "By using the Municipal Charter app": "The source explicitly states to use the mobile app to enroll.",
+            "By calling a Municipal Charter customer service representative": "The source does not mention calling customer service for enrollment."
+          },
+          "evidence_quote": "Access your Municipal Charter account through the mobile app and select account preferences... to enroll."
         }
       ]
     },
     {
       "id": "daily_1_1",
+      "module": 1,
       "caption": "Read a social media post.",
       "format": "social",
       "title": "Sofia Baker",
@@ -249,8 +257,13 @@
             "To offer advice on starting a stall at the farmer's market"
           ],
           "answer": "To describe the variety of products available at the farmer’s market",
-          "rationales": {},
-          "evidence_quote": null
+          "rationales": {
+            "To explain the benefits of organic farming": "The post mentions organic produce but doesn't focus on explaining farming methods.",
+            "To describe the variety of products available at the farmer’s market": "The post highlights fruits, veggies, baked goods, crafts, and live music, showcasing diverse offerings.",
+            "To compare different farmer's markets in the area": "The post focuses on a single market, not a comparison of multiple markets.",
+            "To offer advice on starting a stall at the farmer's market": "The post describes the market experience, not how to set up a stall."
+          },
+          "evidence_quote": "Fresh fruits, veggies, homemade goodies, and unique crafts await you."
         },
         {
           "number": 14,
@@ -262,8 +275,13 @@
             "They have a beautiful and well-decorated stall."
           ],
           "answer": "They provide friendly service and excellent products.",
-          "rationales": {},
-          "evidence_quote": null
+          "rationales": {
+            "They offer cooking tips and recipes.": "The text does not mention cooking tips or recipes being offered.",
+            "They offer the lowest prices at the market.": "The text does not state that their prices are the lowest at the market.",
+            "They provide friendly service and excellent products.": "The text explicitly mentions their quality produce and cordial service, which are excellent products and friendly service.",
+            "They have a beautiful and well-decorated stall.": "The text does not describe the appearance or decoration of their stall."
+          },
+          "evidence_quote": "The Thompson family's organic produce is a must-try, known for its quality and cordial service."
         },
         {
           "number": 15,
@@ -275,13 +293,19 @@
             "To take advantage of early morning discounts"
           ],
           "answer": "To get freshly baked bread and pastries before they are gone",
-          "rationales": {},
-          "evidence_quote": null
+          "rationales": {
+            "To get the free samples given in mornings": "The text does not mention free samples being given in the mornings.",
+            "To get freshly baked bread and pastries before they are gone": "The text states that the best bread and pastries sell out fast, encouraging early arrival.",
+            "To meet the famous baker": "The text does not mention a famous baker, only a bakery stall.",
+            "To take advantage of early morning discounts": "The text does not mention any early morning discounts."
+          },
+          "evidence_quote": "get there early for the best bread and pastries, including gluten-free and vegan options. The smell of freshly baked goods fills the air, and these treats sell out fast!"
         }
       ]
     },
     {
       "id": "daily_2_2",
+      "module": 2,
       "caption": "Read an email.",
       "format": "email",
       "title": "Art Workshop Reservation Confirmation",
@@ -330,8 +354,13 @@
             "September 30th"
           ],
           "answer": "September 20th",
-          "rationales": {},
-          "evidence_quote": null
+          "rationales": {
+            "September 10th": "September 10th was the date the reservation was made, not the workshop.",
+            "September 12th": "September 12th is not mentioned in the email.",
+            "September 20th": "The email explicitly states the workshop is on September 20th.",
+            "September 30th": "September 30th is not mentioned in the email."
+          },
+          "evidence_quote": "The workshop will take place on September 20th"
         },
         {
           "number": 12,
@@ -343,13 +372,19 @@
             "Proof of reservation"
           ],
           "answer": "A protective garment",
-          "rationales": {},
-          "evidence_quote": null
+          "rationales": {
+            "A payment method": "The email does not mention any payment is required.",
+            "Extra paint": "The email states all necessary supplies are provided.",
+            "A protective garment": "The email asks attendees to bring an apron or smock for protection.",
+            "Proof of reservation": "The email confirms the reservation but does not ask for proof."
+          },
+          "evidence_quote": "please bring your own apron or smock"
         }
       ]
     },
     {
       "id": "daily_2_3",
+      "module": 2,
       "caption": "Read an email.",
       "format": "email",
       "title": "You're Invited-Bring Friends & Family to Our Grand Opening!",
@@ -412,8 +447,13 @@
             "To announce a discount available to fitness-center members"
           ],
           "answer": "To attract customers to a new fitness center",
-          "rationales": {},
-          "evidence_quote": null
+          "rationales": {
+            "To attract customers to a new fitness center": "The email invites recipients to a grand opening, highlighting the facility and its offerings to draw them in.",
+            "To provide Ms. Nguyen with an opportunity to provide expert personal training": "The email mentions personal training as a feature, not an opportunity for Ms. Nguyen to provide it.",
+            "To celebrate Ms. Nguyen's achievements in wellness": "The email is an invitation to an event, not a celebration of Ms. Nguyen's personal accomplishments.",
+            "To announce a discount available to fitness-center members": "While a discount is mentioned, it's a promotional tool to attract attendees to the grand opening, not the primary announcement."
+          },
+          "evidence_quote": "We're excited to invite you-and your friends and family-to the grand opening of our new branch"
         },
         {
           "number": 14,
@@ -425,8 +465,13 @@
             "She is new to using fitness centers and exercise equipment."
           ],
           "answer": "She is a member at one of the fitness center's other locations.",
-          "rationales": {},
-          "evidence_quote": null
+          "rationales": {
+            "She helps the fitness center to organize activities.": "The email does not state she organizes activities.",
+            "She has already explored the new facility.": "The email invites her to explore the new facility, implying she hasn't.",
+            "She is a member at one of the fitness center's other locations.": "The email is exclusively for members and their guests, indicating she is a member.",
+            "She is new to using fitness centers and exercise equipment.": "The email mentions the facility is designed for all fitness levels, not that she is new."
+          },
+          "evidence_quote": "This celebration, exclusively for our valued members and their guests"
         },
         {
           "number": 15,
@@ -435,11 +480,16 @@
             "Expert personal trainers",
             "Top-tier athletes",
             "Existing fitness-center members",
-            "Community members of all fitness levels 9"
+            "Community members of all fitness levels"
           ],
-          "answer": "Community members of all fitness levels 9",
-          "rationales": {},
-          "evidence_quote": null
+          "answer": "Community members of all fitness levels",
+          "rationales": {
+            "Expert personal trainers": "Trainers are staff, not the primary intended users.",
+            "Top-tier athletes": "The text mentions 'all fitness levels,' not exclusively athletes.",
+            "Existing fitness-center members": "Members are invited, but the invitation extends beyond them.",
+            "Community members of all fitness levels": "The center is designed for everyone, regardless of their fitness level."
+          },
+          "evidence_quote": "a space designed for all fitness levels"
         }
       ]
     }
@@ -447,15 +497,20 @@
   "academic": [
     {
       "id": "academic_1",
+      "module": 1,
       "title": "The Mirror Test",
       "passage_lines": [
         "Very young children cannot recognize themselves in a mirror; they usually achieve this milestone",
         "around 18 months of age. The ability to recognize oneself in the mirror is considered to be a key",
         "component of self-awareness and consciousness for humans. But what about animals?",
-        "For many years, scientists have known that members of the great ape family could recognize themselves in mirrors. They measured this by the “mirror test,” which involved putting a colored mark",
-        "on an ape’s body, and then showing the ape its reflection in a mirror. If the ape tried to remove the mark on its own body, the scientists knew that the ape was recognizing its reflection.",
-        "Apes are close relatives of humans, but in recent years, scientists have discovered that other animals also pass the “mirror test.” Elephants and dolphins have shown signs of self-recognition. These, like",
-        "apes, are highly intelligent animals. But in a more recent experiment, a type of fish called the cleaner fish tried to scrape a mark off its body when it saw its elf in the mirror. This suggests that even less intelligent",
+        "For many years, scientists have known that members of the great ape family could recognize",
+        "themselves in mirrors. They measured this by the “mirror test,” which involved putting a colored mark",
+        "on an ape’s body, and then showing the ape its reflection in a mirror. If the ape tried to remove the mark",
+        "on its own body, the scientists knew that the ape was recognizing its reflection.",
+        "Apes are close relatives of humans, but in recent years, scientists have discovered that other animals",
+        "also pass the “mirror test.” Elephants and dolphins have shown signs of self-recognition. These, like",
+        "apes, are highly intelligent animals. But in a more recent experiment, a type of fish called the cleaner fish",
+        "tried to scrape a mark off its body when it saw its elf in the mirror. This suggests that even less intelligent",
         "animals may possess more self-awareness than previously suspected."
       ],
       "passage": "The Mirror Test Very young children cannot recognize themselves in a mirror; they usually achieve this milestone around 18 months of age. The ability to recognize oneself in the mirror is considered to be a key component of self-awareness and consciousness for humans. But what about animals? For many years, scientists have known that members of the great ape family could recognize themselves in mirrors. They measured this by the “mirror test,” which involved putting a colored mark on an ape’s body, and then showing the ape its reflection in a mirror. If the ape tried to remove the mark on its own body, the scientists knew that the ape was recognizing its reflection. Apes are close relatives of humans, but in recent years, scientists have discovered that other animals also pass the “mirror test.” Elephants and dolphins have shown signs of self-recognition. These, like apes, are highly intelligent animals. But in a more recent experiment, a type of fish called the cleaner fish tried to scrape a mark off its body when it saw its elf in the mirror. This suggests that even less intelligent animals may possess more self-awareness than previously suspected.",
@@ -470,8 +525,13 @@
             "Recent experiments on fish"
           ],
           "answer": "Research on animal cognition",
-          "rationales": {},
-          "evidence_quote": null
+          "rationales": {
+            "Stages of early childhood development": "The passage mentions children briefly but focuses on animals, not child development stages.",
+            "Research on animal cognition": "The passage discusses various animals and their ability to recognize themselves, which is animal cognition.",
+            "Differences between apes, elephants, and dolphins": "The passage mentions these animals but does not focus on comparing them; it uses them as examples.",
+            "Recent experiments on fish": "The passage mentions fish experiments but includes earlier research on apes, elephants, and dolphins."
+          },
+          "evidence_quote": "For many years, scientists have known that members of the great ape family could recognize themselves in mirrors."
         },
         {
           "number": 17,
@@ -483,8 +543,13 @@
             "discovery"
           ],
           "answer": "accomplishment",
-          "rationales": {},
-          "evidence_quote": null
+          "rationales": {
+            "accomplishment": "An accomplishment is a significant achievement or milestone.",
+            "distance": "The word refers to a developmental stage, not a measure of space.",
+            "weight": "The word refers to a developmental stage, not a measure of mass.",
+            "discovery": "A milestone is an achievement, not the act of finding something out."
+          },
+          "evidence_quote": "they usually achieve this milestone around 18 months of age"
         },
         {
           "number": 18,
@@ -496,8 +561,13 @@
             "It showed whether some animals can detect color differences."
           ],
           "answer": "It helped them determine whether the animals recognized themselves.",
-          "rationales": {},
-          "evidence_quote": null
+          "rationales": {
+            "It made it possible to track the animals’ movements.": "The text does not mention tracking the animals' movements.",
+            "It helped them determine whether the animals recognized themselves.": "The text explicitly states this was the purpose of the mark.",
+            "It made it easier to tell the animals apart.": "The text does not mention distinguishing between animals.",
+            "It showed whether some animals can detect color differences.": "The text does not discuss the animals' ability to detect color."
+          },
+          "evidence_quote": "They measured this by the “mirror test,” which involved putting a colored mark on an ape’s body, and then showing the ape its reflection in a mirror."
         },
         {
           "number": 19,
@@ -509,8 +579,13 @@
             "They understand certain signs from other animals."
           ],
           "answer": "They understand certain signs from other animals.",
-          "rationales": {},
-          "evidence_quote": null
+          "rationales": {
+            "They can recognize themselves in mirrors.": "Elephants have shown signs of self-recognition in mirrors.",
+            "They are highly intelligent animals.": "The passage states elephants are highly intelligent animals.",
+            "They possess qualities in common with apes.": "Elephants, like apes, are mentioned as passing the mirror test.",
+            "They understand certain signs from other animals.": "The passage does not mention elephants understanding signs from other animals."
+          },
+          "evidence_quote": "Elephants and dolphins have shown signs of self-recognition."
         },
         {
           "number": 20,
@@ -522,13 +597,19 @@
             "To provide an example of an animal that does not recognize its elf"
           ],
           "answer": "To suggest that a wide range of animals may possess self-awareness",
-          "rationales": {},
-          "evidence_quote": null
+          "rationales": {
+            "To suggest that a wide range of animals may possess self-awareness": "The author uses cleaner fish to show that even less intelligent animals might have self-awareness.",
+            "To imply that ocean animals are highly intelligent": "The passage does not focus on ocean animals' intelligence, but on self-awareness across species.",
+            "To demonstrate a flaw in a recent experiment": "The author presents the cleaner fish experiment as evidence, not as flawed.",
+            "To provide an example of an animal that does not recognize its elf": "The cleaner fish passing the test indicates self-recognition, not a lack thereof."
+          },
+          "evidence_quote": "This suggests that even less intelligent animals may possess more self-awareness than previously suspected."
         }
       ]
     },
     {
       "id": "academic_2",
+      "module": 2,
       "title": "The Paradox of Choice",
       "passage_lines": [
         "The paradox of choice, a concept popularized by psychologist Barry Schwartz, suggests that more",
@@ -559,34 +640,49 @@
             "Limiting consumer choices can lead to higher satisfaction."
           ],
           "answer": "Limiting consumer choices can lead to higher satisfaction.",
-          "rationales": {},
-          "evidence_quote": null
+          "rationales": {
+            "Effective marketing strategies focus on increasing product options.": "This contradicts the passage, which states more options can lead to less satisfaction.",
+            "Modern consumer culture is driven by a demand for fewer products.": "The passage argues that an overabundance of choices can overwhelm consumers, not that there's a demand for fewer products.",
+            "Individualism enhances consumer contentment.": "The passage suggests the opposite: individualistic cultures, with high value on choice, can experience significant decision burdens.",
+            "Limiting consumer choices can lead to higher satisfaction.": "The passage explicitly states that fewer choices can make consumers happier and reduce anxiety."
+          },
+          "evidence_quote": "This phenomenon reveals that fewer choices can sometimes make consumers happier"
         },
         {
           "number": 17,
-          "question": "What is one effectof decision fatigue as mentioned in the passage?",
+          "question": "What is one effect of decision fatigue as mentioned in the passage?",
           "options": [
             "Desire to make the same choices as other consumers",
-            "anxiety about making the wrong choice",
+            "Anxiety about making the wrong choice",
             "Preference for consumer cultures",
             "Enhanced freedom to choose"
           ],
-          "answer": "anxiety about making the wrong choice",
-          "rationales": {},
-          "evidence_quote": null
+          "answer": "Anxiety about making the wrong choice",
+          "rationales": {
+            "Desire to make the same choices as other consumers": "The passage does not mention consumers making the same choices as others due to decision fatigue.",
+            "Anxiety about making the wrong choice": "An overabundance of choices can overwhelm individuals, causing anxiety about making the wrong choice.",
+            "Preference for consumer cultures": "The passage discusses consumer culture but does not link decision fatigue to a preference for it.",
+            "Enhanced freedom to choose": "Decision fatigue is presented as a negative consequence of too many options, not an enhancement of freedom."
+          },
+          "evidence_quote": "an overabundance of choices—from groceries to electronics—can overwhelm individuals, causing anxiety and decision fatigue."
         },
         {
           "number": 18,
           "question": "Why does the author mention Sheena Iyengar’s experiment?",
           "options": [
-            "to highligh t the effectiveness of marketing strategies",
-            "to e xplain the methodology used in consumer psychology",
-            "to provide evidence supporting the paradox of choice",
-            "to criticize the abundance of products in modern markets"
+            "To highlight the effectiveness of marketing strategies",
+            "To explain the methodology used in consumer psychology",
+            "To provide evidence supporting the paradox of choice",
+            "To criticize the abundance of products in modern markets"
           ],
-          "answer": "to provide evidence supporting the paradox of choice",
-          "rationales": {},
-          "evidence_quote": null
+          "answer": "To provide evidence supporting the paradox of choice",
+          "rationales": {
+            "To highlight the effectiveness of marketing strategies": "The experiment demonstrates the paradox, not marketing effectiveness directly.",
+            "To explain the methodology used in consumer psychology": "The experiment is an example, not a general explanation of methodology.",
+            "To provide evidence supporting the paradox of choice": "The experiment's results directly support the paradox of choice theory.",
+            "To criticize the abundance of products in modern markets": "The experiment shows a consequence, not a direct criticism of product abundance."
+          },
+          "evidence_quote": "In an experiment, psychologist Sheena Iyengar found that shoppers were more likely to purchase jam when offered 6 varieties instead of 24."
         },
         {
           "number": 19,
@@ -598,8 +694,13 @@
             "changing"
           ],
           "answer": "organizing",
-          "rationales": {},
-          "evidence_quote": null
+          "rationales": {
+            "eliminating": "Eliminating means removing, which is not the primary meaning of curating.",
+            "organizing": "Organizing involves selecting and arranging items, fitting the context of choosing offerings.",
+            "increasing": "Increasing means adding more, contrary to the idea of selecting a limited set.",
+            "changing": "Changing implies altering, not necessarily selecting and arranging items."
+          },
+          "evidence_quote": "curating their offerings"
         },
         {
           "number": 20,
@@ -611,8 +712,13 @@
             "They prefer individual decision-making."
           ],
           "answer": "They generally have fewer choices available.",
-          "rationales": {},
-          "evidence_quote": null
+          "rationales": {
+            "They tend to report lower levels of satisfaction.": "This contradicts the text, which states they report higher contentment.",
+            "They are more affected by the paradox of choice.": "The text implies they are less affected by the paradox of choice.",
+            "They generally have fewer choices available.": "The text states that collectivist cultures often provide fewer choices.",
+            "They prefer individual decision-making.": "This contradicts the text, which implies they are less focused on individual choice."
+          },
+          "evidence_quote": "Conversely, collectivist cultures, which often provide fewer choices, report higher levels of contentment."
         }
       ]
     }

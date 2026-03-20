@@ -209,6 +209,15 @@ main.container {
     margin-top: 24px;
 }
 
+.kmf-report-row {
+    cursor: pointer;
+    border-radius: 10px;
+}
+
+.kmf-report-row:hover {
+    background: rgba(79, 126, 119, 0.08);
+}
+
 .kmf-admin-card {
     margin-bottom: 28px;
 }

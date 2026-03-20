@@ -1,7 +1,7 @@
 {
   "cloze": [
     {
-      "id": "cloze_full_24784",
+      "id": "cloze_full_25553",
       "paragraph": "Modern biochemistry focuses on the chemical processes within and related to living organisms. It i_ a laboratory_based sci____ that comb____ biology a__ chemistry. Biochemists inves______ how cells func____ and commu______, exploring t__ fundamental mecha_____ that sus____ life. The field has advanced our understanding of how diseases occur and how they can be treated or prevented. Techniques such as molecular cloning and protein analysis are central to biochemistry, leading to innovations in medicine and biotechnology.",
       "blanks": [
         {
@@ -64,10 +64,11 @@
           "part_of_speech": "unknown",
           "hint": "Complete the word using context."
         }
-      ]
+      ],
+      "module": 1
     },
     {
-      "id": "cloze_full_10411",
+      "id": "cloze_full_45972",
       "paragraph": "Cognitive science and the study of consciousness delve into how humans and animals perceive the world, process information, and experience awareness. Cognition encom______ mental activ_____ like mem___, learning, a__ decision_making, whe____ consciousness invo____ the subje_____ experience o_ being aw___. Researchers u__ tools such as brain imaging to explore these complex processes. Findings in this field have far_reaching implications, from improving mental health care to advancing artificial intelligence and educational practices.",
       "blanks": [
         {
@@ -130,12 +131,14 @@
           "part_of_speech": "unknown",
           "hint": "Complete the word using context."
         }
-      ]
+      ],
+      "module": 2
     }
   ],
   "daily_life": [
     {
       "id": "daily_1_0",
+      "module": 1,
       "caption": "Read an email.",
       "format": "email",
       "title": "Bella Italia reservation",
@@ -174,8 +177,13 @@
             "5"
           ],
           "answer": "3",
-          "rationales": {},
-          "evidence_quote": null
+          "rationales": {
+            "2": "The email states the reservation is for 4 people, not 2.",
+            "3": "The email explicitly states the reservation is for 4 people.",
+            "4": "The email confirms a reservation for 4 people.",
+            "5": "The email states the reservation is for 4 people, not 5."
+          },
+          "evidence_quote": "your table reservation for 4"
         },
         {
           "number": 12,
@@ -187,13 +195,19 @@
             "Inviting additional guests 3"
           ],
           "answer": "Listening to live music",
-          "rationales": {},
-          "evidence_quote": null
+          "rationales": {
+            "Canceling the reservation": "The email does not mention any fees for canceling.",
+            "Rescheduling the reservation": "The email does not mention any fees for rescheduling.",
+            "Listening to live music": "The $10.00 charge for live musical entertainment is waived.",
+            "Inviting additional guests 3": "The email does not mention any fees for additional guests."
+          },
+          "evidence_quote": "the $10.00 charge at the door for the night’s live musical entertainment is waived."
         }
       ]
     },
     {
       "id": "daily_2_1",
+      "module": 2,
       "caption": "Read an email.",
       "format": "email",
       "title": "Photography class",
@@ -232,8 +246,13 @@
             "On October 29"
           ],
           "answer": "On October 20",
-          "rationales": {},
-          "evidence_quote": null
+          "rationales": {
+            "On October 20": "The email states Mr. Clark registered for the class on October 20.",
+            "On October 25": "The email does not mention October 25 as the registration date.",
+            "On October 26": "October 26 is the original meeting date, not the registration date.",
+            "On October 29": "The email does not mention October 29 as the registration date."
+          },
+          "evidence_quote": "your registered for on October 20"
         },
         {
           "number": 12,
@@ -245,8 +264,13 @@
             "If he rescheduled the class 8"
           ],
           "answer": "If he could not attend the class",
-          "rationales": {},
-          "evidence_quote": null
+          "rationales": {
+            "If he registered for the wrong class": "The email does not mention registering for the wrong class as a reason for a refund.",
+            "If he could not attend the class": "A refund is offered if Mr. Clark has a scheduling conflict, meaning he cannot attend.",
+            "If he was dissatisfied with the class": "The email does not state dissatisfaction with the class as a reason for a refund.",
+            "If he rescheduled the class 8": "The email states the class was rescheduled by the instructor, not Mr. Clark."
+          },
+          "evidence_quote": "Your registration fee will be refunded if you have a scheduling conflict."
         }
       ]
     }
@@ -254,6 +278,7 @@
   "academic": [
     {
       "id": "academic_1",
+      "module": 1,
       "title": "Reading Section, Module 1",
       "passage_lines": [
         "Read a notice.",
@@ -286,8 +311,13 @@
             "Requesting software installation on computers"
           ],
           "answer": "Booking time to use library computers",
-          "rationales": {},
-          "evidence_quote": null
+          "rationales": {
+            "Applying for a new library card": "The form is for reserving computer time, not for initial card applications.",
+            "Reporting problems with library computers": "There is no section on the form to report or detail computer issues.",
+            "Booking time to use library computers": "The form explicitly asks for preferred computer type, date, and time slot.",
+            "Requesting software installation on computers": "The form does not include any fields for requesting new software installations."
+          },
+          "evidence_quote": "Computer Station Preference: ... Requested Date: Time Slot:"
         },
         {
           "number": 14,
@@ -299,8 +329,13 @@
             "Up to two weeks in advance"
           ],
           "answer": "Up to one week ahead",
-          "rationales": {},
-          "evidence_quote": null
+          "rationales": {
+            "The same day only": "Incorrect. Basic stations are same-day only, not Premium.",
+            "Up to one week ahead": "Correct. The notice states Premium stations can be reserved up to one week in advance.",
+            "Up to one month ahead": "Unsupported. The notice does not mention a one-month reservation period.",
+            "Up to two weeks in advance": "Unsupported. The notice specifies a one-week limit, not two weeks."
+          },
+          "evidence_quote": "Premium stations require advance booking and may be reserved up to one week in advance."
         },
         {
           "number": 15,
@@ -312,13 +347,19 @@
             "They are moved to a Basic station instead."
           ],
           "answer": "Their reservation is automatically canceled.",
-          "rationales": {},
-          "evidence_quote": null
+          "rationales": {
+            "They can still use the computer for the remaining time.": "The notice states late arrivals result in cancellation, not partial use.",
+            "They must pay an additional fee.": "There is no mention of any additional fees for late arrival.",
+            "Their reservation is automatically canceled.": "The notice explicitly states that late arrival results in automatic cancellation.",
+            "They are moved to a Basic station instead.": "The notice does not mention any provision for switching to a Basic station if late."
+          },
+          "evidence_quote": "Late arrival (more than 15 minutes) results in automatic cancellation."
         }
       ]
     },
     {
       "id": "academic_2",
+      "module": 2,
       "title": "Reading Section, Module 2",
       "passage_lines": [
         "Read an advertisement.",
@@ -343,8 +384,13 @@
             "A conflict-resolution consulting service"
           ],
           "answer": "A professional workshop on workplace communication",
-          "rationales": {},
-          "evidence_quote": null
+          "rationales": {
+            "A job training program for new employees": "The ad focuses on skills for existing managers, not new hires.",
+            "A professional workshop on workplace communication": "The ad describes a workshop covering meetings, feedback, and conflict, which are communication topics.",
+            "A management certification course": "The ad offers a certificate, not a formal management certification.",
+            "A conflict-resolution consulting service": "The ad promotes a workshop, not ongoing consulting services."
+          },
+          "evidence_quote": "A one-day intensive workshop for managers and team leaders. Learn practical strategies for conducting productive meetings, providing constructive feedback, and resolving workplace conflicts."
         },
         {
           "number": 14,
@@ -356,8 +402,13 @@
             "A one-on-one session with a facilitator"
           ],
           "answer": "A reduction in cost",
-          "rationales": {},
-          "evidence_quote": null
+          "rationales": {
+            "A reduction in cost": "The advertisement states an 'Early bird registration' price is lower than the regular price.",
+            "A special certificate": "The certificate is provided to all participants, not just early registrants.",
+            "Guaranteed seating in the front row": "The advertisement does not mention any seating arrangements, front row or otherwise.",
+            "A one-on-one session with a facilitator": "The advertisement mentions personalized attention due to limited participants, not one-on-one sessions."
+          },
+          "evidence_quote": "Early bird registration (before April 1): $195. Regular price: $245."
         },
         {
           "number": 15,
@@ -369,8 +420,13 @@
             "To ensure everyone receives a workbook"
           ],
           "answer": "To provide personalized attention to participants",
-          "rationales": {},
-          "evidence_quote": null
+          "rationales": {
+            "To keep costs affordable for participants": "The ad does not mention cost as a reason for the limit.",
+            "To meet continuing education requirements": "The limit is not related to meeting continuing education requirements.",
+            "To provide personalized attention to participants": "The ad states the limit ensures personalized attention.",
+            "To ensure everyone receives a workbook": "The ad does not state the limit is to ensure everyone receives a workbook."
+          },
+          "evidence_quote": "Limited to 25 participants to ensure personalized attention."
         }
       ]
     }

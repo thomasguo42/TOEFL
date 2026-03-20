@@ -10,9 +10,9 @@
 <div class="kmf-shell">
     <header class="kmf-topbar">
         <div class="kmf-brand">
-            <div class="kmf-logo">学</div>
+            <div class="kmf-logo">A</div>
             <div>
-                <div class="kmf-brand-title">学而思国际 <span class="kmf-brand-tag">托福</span></div>
+                <div class="kmf-brand-title">AnnaToefl</div>
                 <div class="kmf-brand-sub">高分有方法 | 提能有保障</div>
             </div>
         </div>
@@ -33,6 +33,8 @@
         <div class="kmf-section-right">
             <span id="kmfTimer">00:00:00</span>
             <button class="kmf-hide-time" type="button" id="kmfToggleTime"><i class="fas fa-eye-slash"></i>Hide Time</button>
+            <button class="kmf-pill kmf-pill--light" type="button" id="kmfTimerStart">Start</button>
+            <button class="kmf-pill kmf-pill--light" type="button" id="kmfTimerPause" disabled>Pause</button>
         </div>
     </div>
     <div class="kmf-canvas">
@@ -106,6 +108,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const questionMetaEl = document.getElementById('kmfQuestionMeta');
     const timerEl = document.getElementById('kmfTimer');
     const toggleTimeBtn = document.getElementById('kmfToggleTime');
+    const timerStartBtn = document.getElementById('kmfTimerStart');
+    const timerPauseBtn = document.getElementById('kmfTimerPause');
     const backBtn = document.getElementById('kmfBackBtn');
     const nextBtn = document.getElementById('kmfNextBtn');
     const answerBtn = document.getElementById('kmfAnswerBtn');
@@ -121,6 +125,10 @@ document.addEventListener('DOMContentLoaded', () => {
     let recordId = null;
     let saveTimer = null;
     let isLoadingRecord = false;
+    const totalSeconds = 30 * 60;
+    let remainingSeconds = totalSeconds;
+    let timerInterval = null;
+    let timerRunning = false;
 
     const escapeHtml = (text) => (text || '')
         .replace(/&/g, '&amp;')
@@ -179,21 +187,32 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const buildSteps = (mock) => {
         const nextSteps = [];
-        (mock?.responses || []).forEach((item, idx) => {
-            nextSteps.push({ type: 'response', item, idx });
-        });
-        normalizeGroup(mock?.conversation).forEach((conversation, cIdx) => {
-            const convId = conversation.id || `conversation-${cIdx}`;
-            nextSteps.push({ type: 'conversation_audio', conversation, cIdx, convId });
-            (conversation.questions || []).forEach((question, qIdx) => {
-                nextSteps.push({ type: 'conversation', conversation, cIdx, convId, question, qIdx });
+        const modules = [1, 2];
+        modules.forEach((moduleId) => {
+            nextSteps.push({ type: 'module_intro', module: moduleId });
+            (mock?.responses || []).forEach((item, idx) => {
+                const mod = Number(item?.module || 1);
+                if (mod === moduleId) {
+                    nextSteps.push({ type: 'response', item, idx });
+                }
             });
-        });
-        normalizeGroup(mock?.talk).forEach((talk, tIdx) => {
-            const talkId = talk.id || `talk-${tIdx}`;
-            nextSteps.push({ type: 'talk_audio', talk, tIdx, talkId });
-            (talk.questions || []).forEach((question, qIdx) => {
-                nextSteps.push({ type: 'talk', talk, tIdx, talkId, question, qIdx });
+            normalizeGroup(mock?.conversation).forEach((conversation, cIdx) => {
+                const mod = Number(conversation?.module || 1);
+                if (mod !== moduleId) return;
+                const convId = conversation.id || `conversation-${cIdx}`;
+                nextSteps.push({ type: 'conversation_audio', conversation, cIdx, convId });
+                (conversation.questions || []).forEach((question, qIdx) => {
+                    nextSteps.push({ type: 'conversation', conversation, cIdx, convId, question, qIdx });
+                });
+            });
+            normalizeGroup(mock?.talk).forEach((talk, tIdx) => {
+                const mod = Number(talk?.module || 1);
+                if (mod !== moduleId) return;
+                const talkId = talk.id || `talk-${tIdx}`;
+                nextSteps.push({ type: 'talk_audio', talk, tIdx, talkId });
+                (talk.questions || []).forEach((question, qIdx) => {
+                    nextSteps.push({ type: 'talk', talk, tIdx, talkId, question, qIdx });
+                });
             });
         });
         steps = nextSteps;
@@ -203,13 +222,56 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const updateQuestionMeta = () => {
-        const total = steps.length || 1;
+        const totalQuestions = steps.filter((step) => step.type !== 'module_intro').length || 1;
+        const currentStep = steps[currentStepIndex];
+        const currentQuestionIndex = steps.slice(0, currentStepIndex + 1).filter((step) => step.type !== 'module_intro').length;
         if (questionMetaEl) {
-            questionMetaEl.textContent = `Question ${Math.min(currentStepIndex + 1, total)} of ${total}`;
+            if (currentStep?.type === 'module_intro') {
+                questionMetaEl.textContent = `Module ${currentStep.module}`;
+            } else {
+                questionMetaEl.textContent = `Question ${Math.max(currentQuestionIndex, 1)} of ${totalQuestions}`;
+            }
         }
         if (sectionNameEl) {
             sectionNameEl.textContent = 'Listening';
         }
+    };
+
+    const formatTime = (seconds) => {
+        const clamped = Math.max(0, seconds);
+        const hrs = String(Math.floor(clamped / 3600)).padStart(2, '0');
+        const mins = String(Math.floor((clamped % 3600) / 60)).padStart(2, '0');
+        const secs = String(clamped % 60).padStart(2, '0');
+        return `${hrs}:${mins}:${secs}`;
+    };
+
+    const updateTimerDisplay = () => {
+        if (timerEl) timerEl.textContent = formatTime(remainingSeconds);
+    };
+
+    const startTimer = () => {
+        if (timerRunning) return;
+        timerRunning = true;
+        if (timerStartBtn) timerStartBtn.textContent = 'Resume';
+        if (timerPauseBtn) timerPauseBtn.disabled = false;
+        timerInterval = setInterval(() => {
+            if (remainingSeconds > 0) {
+                remainingSeconds -= 1;
+                updateTimerDisplay();
+            }
+            if (remainingSeconds <= 0) {
+                stopTimer();
+            }
+        }, 1000);
+    };
+
+    const stopTimer = () => {
+        timerRunning = false;
+        if (timerInterval) {
+            clearInterval(timerInterval);
+            timerInterval = null;
+        }
+        if (timerPauseBtn) timerPauseBtn.disabled = true;
     };
 
     const renderAnswerPanel = () => '<div class="kmf-answer-panel hidden" id="kmfAnswerPanel"></div>';
@@ -292,7 +354,17 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         answerVisible = false;
         let html = '';
-        if (step.type === 'response') {
+        if (step.type === 'module_intro') {
+            html = `
+                <div class="kmf-card kmf-section">
+                    <div class="kmf-heading">Listening Module ${step.module}</div>
+                    <p class="text-muted mb-0">
+                        Listen carefully and answer all questions in this module before moving on.
+                    </p>
+                </div>
+            `;
+            contentEl.innerHTML = html;
+        } else if (step.type === 'response') {
             html = renderQuestionCard({
                 title: 'Choose the best response.',
                 groupName: `response-${step.idx}`,
@@ -390,6 +462,11 @@ document.addEventListener('DOMContentLoaded', () => {
             answerPanel.innerHTML = getAnswerContent(step);
             answerPanel.classList.add('hidden');
         }
+        if (answerBtn && step.type === 'module_intro') {
+            answerBtn.disabled = true;
+        } else if (answerBtn) {
+            answerBtn.disabled = false;
+        }
 
         const isFirst = currentStepIndex === 0;
         const isLast = currentStepIndex === steps.length - 1;
@@ -417,6 +494,18 @@ document.addEventListener('DOMContentLoaded', () => {
             toggleTimeBtn.innerHTML = timeHidden
                 ? '<i class="fas fa-eye"></i>Show Time'
                 : '<i class="fas fa-eye-slash"></i>Hide Time';
+        });
+    }
+
+    if (timerStartBtn) {
+        timerStartBtn.addEventListener('click', () => {
+            startTimer();
+        });
+    }
+
+    if (timerPauseBtn) {
+        timerPauseBtn.addEventListener('click', () => {
+            stopTimer();
         });
     }
 
@@ -472,7 +561,25 @@ document.addEventListener('DOMContentLoaded', () => {
         return answers;
     };
 
-    const renderRow = (label, item, idx) => {
+    const buildStepIndexMap = () => {
+        const map = { response: [], conversation: [], talk: [] };
+        steps.forEach((step, index) => {
+            if (step.type === 'response') map.response.push(index);
+            if (step.type === 'conversation') map.conversation.push(index);
+            if (step.type === 'talk') map.talk.push(index);
+        });
+        return map;
+    };
+
+    const jumpToStep = (stepIndex) => {
+        if (!Number.isFinite(stepIndex)) return;
+        if (stepIndex < 0 || stepIndex >= steps.length) return;
+        currentStepIndex = stepIndex;
+        renderStep();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
+    const renderRow = (label, item, idx, stepIndex) => {
         const statusClass = item.correct ? 'text-success' : 'text-danger';
         const questionText = escapeHtml(item.question || item.prompt || '');
         const expected = escapeHtml(item.expected || '');
@@ -484,8 +591,10 @@ document.addEventListener('DOMContentLoaded', () => {
             const correct = opt === item.expected;
             return `<div class="small ${correct ? 'text-success' : 'text-muted'}"><strong>${escapeHtml(opt)}:</strong> ${rationale}</div>`;
         }).join('');
+        const clickableClass = Number.isFinite(stepIndex) ? 'kmf-report-row' : '';
+        const jumpAttr = Number.isFinite(stepIndex) ? `data-step-index="${stepIndex}" role="button"` : '';
         return `
-            <div class="d-flex align-items-start gap-3 py-2 border-bottom">
+            <div class="d-flex align-items-start gap-3 py-2 border-bottom ${clickableClass}" ${jumpAttr}>
                 <div class="${statusClass} fw-semibold">${label} ${idx + 1}</div>
                 <div class="flex-grow-1">
                     <div class="fw-semibold">${questionText}</div>
@@ -499,15 +608,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const renderResults = (payload) => {
         if (!payload) return;
+        const stepIndexMap = buildStepIndexMap();
         const summary = `
             <div class="alert alert-info">
                 Score: ${payload.score}% (${payload.correct}/${payload.total})
             </div>
         `;
 
-        const responseRows = (payload.results?.responses || []).map((item, idx) => renderRow('Response', item, idx)).join('');
-        const conversationRows = (payload.results?.conversation || []).map((item, idx) => renderRow('Conversation Q', item, idx)).join('');
-        const talkRows = (payload.results?.talk || []).map((item, idx) => renderRow('Talk Q', item, idx)).join('');
+        const responseRows = (payload.results?.responses || [])
+            .map((item, idx) => renderRow('Response', item, idx, stepIndexMap.response[idx]))
+            .join('');
+        const conversationRows = (payload.results?.conversation || [])
+            .map((item, idx) => renderRow('Conversation Q', item, idx, stepIndexMap.conversation[idx]))
+            .join('');
+        const talkRows = (payload.results?.talk || [])
+            .map((item, idx) => renderRow('Talk Q', item, idx, stepIndexMap.talk[idx]))
+            .join('');
 
         const details = `
             <div class="kmf-card mt-3">
@@ -519,6 +635,12 @@ document.addEventListener('DOMContentLoaded', () => {
         `;
 
         resultsEl.innerHTML = summary + details;
+        resultsEl.querySelectorAll('[data-step-index]').forEach((row) => {
+            row.addEventListener('click', () => {
+                const target = Number(row.getAttribute('data-step-index'));
+                if (Number.isFinite(target)) jumpToStep(target);
+            });
+        });
     };
 
     const loadRecords = async () => {
@@ -721,6 +843,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     loadTests();
+    updateTimerDisplay();
 
     const chatToggle = document.getElementById('kmfChatToggle');
     const chatPanel = document.getElementById('kmfChatPanel');

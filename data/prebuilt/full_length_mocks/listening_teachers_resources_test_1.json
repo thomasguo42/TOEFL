@@ -9,7 +9,13 @@
         "Several times a month."
       ],
       "answer": "Yes, it’s just around the corner.",
-      "rationales": {},
+      "rationales": {
+        "No, I haven't received it yet.": "This response is irrelevant to a question about a parking garage.",
+        "Yes, it’s just around the corner.": "This response directly answers the question and provides a relevant location.",
+        "Let's walk to the park.": "This response suggests an activity unrelated to parking.",
+        "Several times a month.": "This response answers a question about frequency, not about a parking garage."
+      },
+      "module": 1,
       "audio_url": "/static/listening_audio/new_toefl_response_3bd7a318316e.mp3"
     },
     {
@@ -21,7 +27,13 @@
         "I'm going to New Zealand instead."
       ],
       "answer": "I'm going to New Zealand instead.",
-      "rationales": {},
+      "rationales": {
+        "No, the airport is on the right.": "This option is irrelevant as the conversation is about booking a trip, not airport location.",
+        "Yes, I loved that book!": "The woman is asking about a trip, not a book, making this response a misunderstanding.",
+        "I'd be happy to sell tickets for the fundraiser.": "This option is unrelated to the topic of booking a trip to Australia.",
+        "I'm going to New Zealand instead.": "This option directly answers the question by stating a change in travel plans."
+      },
+      "module": 1,
       "audio_url": "/static/listening_audio/new_toefl_response_98b59712711e.mp3"
     },
     {
@@ -33,7 +45,13 @@
         "The train station closes at midnight."
       ],
       "answer": "Elizabeth would be the person to ask.",
-      "rationales": {},
+      "rationales": {
+        "Elizabeth would be the person to ask.": "This option directly answers the question about who is conducting the training.",
+        "We'll be gathering in the main conference room.": "This option discusses the location of a gathering, not who is conducting the training.",
+        "Did Robert place the food order?": "This option asks about a food order, which is unrelated to the training conductor.",
+        "The train station closes at midnight.": "This option discusses the train station's closing time, which is irrelevant to the training."
+      },
+      "module": 1,
       "audio_url": "/static/listening_audio/new_toefl_response_0f994ff67b27.mp3"
     },
     {
@@ -45,7 +63,13 @@
         "The store will be remodeled this summer."
       ],
       "answer": "Are you looking for the same color?",
-      "rationales": {},
+      "rationales": {
+        "Are you looking for the same color?": "This is a relevant follow-up question about the shirt's attributes.",
+        "Yes, we stock a variety of styles of pants.": "The man asked about a shirt, not pants, making this irrelevant.",
+        "All of our stores are open on Sundays.": "The store's hours are not related to the man's request about a shirt size.",
+        "The store will be remodeled this summer.": "The store's remodeling plans are unrelated to the shirt size inquiry."
+      },
+      "module": 1,
       "audio_url": "/static/listening_audio/new_toefl_response_087a2130f52b.mp3"
     },
     {
@@ -57,7 +81,13 @@
         "She was offered a new role."
       ],
       "answer": "She was offered a new role.",
-      "rationales": {},
+      "rationales": {
+        "The suitcases can be stored overhead.": "This option is irrelevant to the question about Sharon's relocation.",
+        "Because I have a doctor's appointment.": "This option is a personal reason for the speaker, not Sharon's.",
+        "I know you have some vacation time coming up.": "This option is about the listener's vacation, not Sharon's move.",
+        "She was offered a new role.": "This option directly answers why Sharon relocated, implying a job opportunity."
+      },
+      "module": 1,
       "audio_url": "/static/listening_audio/new_toefl_response_0173ad169a60.mp3"
     },
     {
@@ -69,7 +99,13 @@
         "The admission fee has gone up by twenty dollars."
       ],
       "answer": "They start at a hundred dollars.",
-      "rationales": {},
+      "rationales": {
+        "Did you watch the game yesterday?": "Irrelevant question about a game, not watches.",
+        "They start at a hundred dollars.": "Directly answers the question about the cost of watches.",
+        "These models feature a new display.": "Discusses watch features, not their cost.",
+        "The admission fee has gone up by twenty dollars.": "Mentions a fee increase, unrelated to watch prices."
+      },
+      "module": 1,
       "audio_url": "/static/listening_audio/new_toefl_response_b4ed97465127.mp3"
     },
     {
@@ -78,10 +114,16 @@
         "Battery recycling is available on Saturdays.",
         "The cost of those phones just went up.",
         "There's a shopping center a few minutes from here.",
-        "The cashier charged me too much. 16"
+        "The cashier charged me too much."
       ],
       "answer": "There's a shopping center a few minutes from here.",
-      "rationales": {},
+      "rationales": {
+        "Battery recycling is available on Saturdays.": "The woman is asking where to buy a charger, not about battery recycling.",
+        "The cost of those phones just went up.": "The conversation is about buying a charger, not the price of phones.",
+        "There's a shopping center a few minutes from here.": "This option directly answers the woman's question about where to buy a charger.",
+        "The cashier charged me too much.": "The woman is asking where to buy, not complaining about a past charge."
+      },
+      "module": 1,
       "audio_url": "/static/listening_audio/new_toefl_response_a3189d5ae953.mp3"
     },
     {
@@ -93,7 +135,13 @@
         "The magazine subscription is expensive."
       ],
       "answer": "I'm too busy to watch anything right now.",
-      "rationales": {},
+      "rationales": {
+        "I don't have a cleaning service.": "This option is irrelevant to the question about streaming services.",
+        "I'm too busy to watch anything right now.": "This option directly answers the question by stating a reason for not watching shows.",
+        "The stream runs behind the house.": "This option misunderstands 'streaming' as a physical stream.",
+        "The magazine subscription is expensive.": "This option is irrelevant to the question about streaming services."
+      },
+      "module": 1,
       "audio_url": "/static/listening_audio/new_toefl_response_116d1db59c59.mp3"
     },
     {
@@ -105,7 +153,13 @@
         "I don't think I received one."
       ],
       "answer": "My professor is out this week.",
-      "rationales": {},
+      "rationales": {
+        "My professor is out this week.": "This option explains why the man might not have class, directly answering the question.",
+        "The syllabus was just posted.": "This option is irrelevant to whether the man has class at this moment.",
+        "Yes, it's in my backpack.": "This option implies the man has class, contradicting the implied absence.",
+        "I don't think I received one.": "This option is irrelevant to whether the man has class at this moment."
+      },
+      "module": 2,
       "audio_url": "/static/listening_audio/new_toefl_response_2d31553f4fce.mp3"
     },
     {
@@ -117,7 +171,13 @@
         "Not usually at this time of day."
       ],
       "answer": "I haven’t yet.",
-      "rationales": {},
+      "rationales": {
+        "It's a quiet neighborhood.": "The neighbor's quietness is not mentioned or implied.",
+        "I haven’t yet.": "This directly answers the question about meeting the neighbor.",
+        "Yes, I'll drop it off tomorrow.": "This implies meeting the neighbor, but the question is about meeting, not dropping something off.",
+        "Not usually at this time of day.": "This response is irrelevant to the question about meeting the neighbor."
+      },
+      "module": 2,
       "audio_url": "/static/listening_audio/new_toefl_response_5c6011da71ce.mp3"
     },
     {
@@ -129,7 +189,13 @@
         "Sounds like it needs to be repaired."
       ],
       "answer": "Sounds like it needs to be repaired.",
-      "rationales": {},
+      "rationales": {
+        "Sure, you can borrow my charging cord.": "This option is irrelevant to the computer shutting down.",
+        "The door should remain shut and locked.": "This option discusses a door, not a computer issue.",
+        "Because the schedule was changed at the last minute.": "This option is about a schedule change, unrelated to computer problems.",
+        "Sounds like it needs to be repaired.": "This option directly addresses the computer shutting down as a potential problem."
+      },
+      "module": 2,
       "audio_url": "/static/listening_audio/new_toefl_response_0c5e93019cf1.mp3"
     },
     {
@@ -141,7 +207,13 @@
         "Because I lost mine."
       ],
       "answer": "He’s working late tonight.",
-      "rationales": {},
+      "rationales": {
+        "I just met his assistant.": "This option is irrelevant to Andy's absence from the dinner.",
+        "The cafeteria closes at 2 o'clock.": "The closing time of the cafeteria has no bearing on Andy's attendance.",
+        "He’s working late tonight.": "This option directly explains why Andy could not attend the dinner.",
+        "Because I lost mine.": "This option is a non-sequitur and does not explain Andy's absence."
+      },
+      "module": 2,
       "audio_url": "/static/listening_audio/new_toefl_response_d0070f0e9309.mp3"
     },
     {
@@ -153,7 +225,13 @@
         "Some new classroom equipment."
       ],
       "answer": "I think it’s time to do it.",
-      "rationales": {},
+      "rationales": {
+        "They usually study together.": "This option is irrelevant to the man's question about repainting classrooms.",
+        "The library is past the cafeteria.": "This option is irrelevant to the man's question about repainting classrooms.",
+        "I think it’s time to do it.": "This option directly answers the man's question, agreeing with the suggestion.",
+        "Some new classroom equipment.": "This option is irrelevant to the man's question about repainting classrooms."
+      },
+      "module": 2,
       "audio_url": "/static/listening_audio/new_toefl_response_2bc228739af0.mp3"
     },
     {
@@ -165,7 +243,13 @@
         "No, the other textbook."
       ],
       "answer": "I'll put them on your desk.",
-      "rationales": {},
+      "rationales": {
+        "I'll put them on your desk.": "This is a direct and helpful response to the request for copies.",
+        "Yes, I'll pass along the message.": "The woman asked for copies, not for a message to be passed along.",
+        "I like that new coffee maker.": "The woman's request was about making copies, not about a coffee maker.",
+        "No, the other textbook.": "The woman asked for copies of the syllabus, not another textbook."
+      },
+      "module": 2,
       "audio_url": "/static/listening_audio/new_toefl_response_f026c029bce6.mp3"
     },
     {
@@ -174,10 +258,16 @@
         "I was able to make it to the trade show.",
         "I do not play any instruments.",
         "My manager agreed to the new schedule.",
-        "It was a very long drive. 21"
+        "It was a very long drive."
       ],
-      "answer": "It was a very long drive. 21",
-      "rationales": {},
+      "answer": "It was a very long drive.",
+      "rationales": {
+        "I was able to make it to the trade show.": "This option discusses a trade show, not a concert, making it irrelevant.",
+        "I do not play any instruments.": "The woman's statement is about attending an event, not musical ability.",
+        "My manager agreed to the new schedule.": "This option concerns a manager and a schedule, unrelated to attending a concert.",
+        "It was a very long drive.": "This option provides a plausible reason why attending the concert might have been difficult, fitting the implication of'managed to'."
+      },
+      "module": 2,
       "audio_url": "/static/listening_audio/new_toefl_response_161434f018ad.mp3"
     },
     {
@@ -189,7 +279,13 @@
         "Yes, the natural lighting is lovely."
       ],
       "answer": "It depends on the season.",
-      "rationales": {},
+      "rationales": {
+        "The menu features two fish entrées.": "The menu's entrées are irrelevant to the use of organic vegetables.",
+        "It depends on the season.": "This option directly answers the question by implying seasonality affects organic vegetable availability.",
+        "The cost of broccoli has increased.": "The price of broccoli is not mentioned and does not relate to organic sourcing.",
+        "Yes, the natural lighting is lovely.": "Natural lighting has no connection to whether the restaurant uses organic vegetables."
+      },
+      "module": 2,
       "audio_url": "/static/listening_audio/new_toefl_response_652ccc01ec41.mp3"
     }
   ],
@@ -203,7 +299,7 @@
         },
         {
           "speaker": "Man",
-          "text": "I'm torn between the Nano Fitness Gym near my house and the Downtown Trainers gym near my work."
+          "text": "I'm torn between the NanoFitness Gym near my house and the Downtown Trainers gym near my work."
         },
         {
           "speaker": "Woman",
@@ -225,7 +321,12 @@
             "Equipment manufacturer"
           ],
           "answer": "Office worker",
-          "rationales": {}
+          "rationales": {
+            "Fitness instructor": "The man does not mention working out as a profession.",
+            "Driver": "The man does not mention driving as his primary occupation.",
+            "Office worker": "The man states he sits at a desk in front of a computer all day, five days a week.",
+            "Equipment manufacturer": "The man does not mention manufacturing any equipment."
+          }
         },
         {
           "number": 10,
@@ -234,13 +335,19 @@
             "He sometimes needs to go to work on weekends.",
             "He sometimes repairs equipment in his house on weekends.",
             "He likes to exercise outdoors on weekends.",
-            "He exercises more on weekends than on other days. 17"
+            "He exercises more on weekends than on other days."
           ],
-          "answer": "He exercises more on weekends than on other days. 17",
-          "rationales": {}
+          "answer": "He exercises more on weekends than on other days.",
+          "rationales": {
+            "He sometimes needs to go to work on weekends.": "The speaker does not mention working on weekends.",
+            "He sometimes repairs equipment in his house on weekends.": "The speaker does not mention repairing equipment.",
+            "He likes to exercise outdoors on weekends.": "The speaker does not mention exercising outdoors.",
+            "He exercises more on weekends than on other days.": "The speaker states he does most of his working out on weekends."
+          }
         }
       ],
-      "audio_url": "/static/listening_audio/new_toefl_conversation_ab36e8c9b1bf.mp3"
+      "module": 1,
+      "audio_url": "/static/listening_audio/new_toefl_conversation_02d53a46df51.mp3"
     },
     {
       "id": "conv_1_1",
@@ -277,7 +384,12 @@
             "She has lost access to her email."
           ],
           "answer": "Her computer is not working properly.",
-          "rationales": {}
+          "rationales": {
+            "Her computer is not working properly.": "The woman states her computer is 'still acting up,' indicating it's not working correctly.",
+            "She needs to choose a new computer.": "The conversation is about fixing the current computer, not choosing a new one.",
+            "She needs new software on her computer.": "There is no mention of software issues or the need for new software.",
+            "She has lost access to her email.": "The woman is able to communicate and send emails, so email access is not lost."
+          }
         },
         {
           "number": 12,
@@ -289,9 +401,15 @@
             "Share some contact information"
           ],
           "answer": "Share some contact information",
-          "rationales": {}
+          "rationales": {
+            "Offer the woman some advice": "The man offers to send information, not advice.",
+            "Call a downtown shop": "The man will email the information, not call the shop.",
+            "Get his computer fixed": "The man is seeking help, not getting his computer fixed.",
+            "Share some contact information": "The man explicitly states he will email the contact information."
+          }
         }
       ],
+      "module": 1,
       "audio_url": "/static/listening_audio/new_toefl_conversation_15588776e330.mp3"
     },
     {
@@ -329,7 +447,12 @@
             "Describing items for sale"
           ],
           "answer": "Describing items for sale",
-          "rationales": {}
+          "rationales": {
+            "Deciding which products to sell": "The text does not mention deciding which products to sell.",
+            "Finding new clients": "The text does not mention finding new clients.",
+            "Producing goods": "The text does not mention producing goods.",
+            "Describing items for sale": "The woman offers to help write product descriptions, which are descriptions of items for sale."
+          }
         },
         {
           "number": 10,
@@ -341,9 +464,15 @@
             "To explain why she prefers not to plan a meeting after lunch"
           ],
           "answer": "To explain why she prefers not to plan a meeting after lunch",
-          "rationales": {}
+          "rationales": {
+            "To emphasize the need for an online store": "The client is not related to the need for the online store.",
+            "To propose a strategy for increasing sales": "The client is not mentioned in relation to sales strategies.",
+            "To illustrate the importance of collaboration": "The client is not used to show the value of collaboration.",
+            "To explain why she prefers not to plan a meeting after lunch": "The client meeting's unpredictable end time makes a later meeting safer."
+          }
         }
       ],
+      "module": 2,
       "audio_url": "/static/listening_audio/new_toefl_conversation_82842859917f.mp3"
     }
   ],
@@ -362,7 +491,12 @@
             "A panel of judges"
           ],
           "answer": "Everyone at the science fair",
-          "rationales": {}
+          "rationales": {
+            "Science students": "The lectures are aimed at a general audience, not specifically science students.",
+            "University professors": "Professors are not explicitly mentioned as the sole target audience.",
+            "Everyone at the science fair": "The text states lectures are aimed at a general audience, implying all attendees.",
+            "A panel of judges": "A panel of judges is not mentioned as the intended audience for the lectures."
+          }
         },
         {
           "number": 14,
@@ -371,12 +505,18 @@
             "Attend an event",
             "Submit a science project",
             "Join the university gym",
-            "Volunteer for an event 18"
+            "Volunteer for an event"
           ],
           "answer": "Attend an event",
-          "rationales": {}
+          "rationales": {
+            "Attend an event": "The speaker invites listeners to the science fair, implying attendance.",
+            "Submit a science project": "The text mentions exhibits but not a call for project submissions.",
+            "Join the university gym": "The gym is the location, not an invitation to join it.",
+            "Volunteer for an event": "There is no mention of needing volunteers for the event."
+          }
         }
       ],
+      "module": 1,
       "audio_url": "/static/listening_audio/new_toefl_talk_5001d30efa64.mp3"
     },
     {
@@ -393,7 +533,12 @@
             "The role of dancing and storytelling in their social functions"
           ],
           "answer": "A traditional event that they participate in",
-          "rationales": {}
+          "rationales": {
+            "Their economic structures": "The text mentions economic structures but focuses more broadly on the potlatch event itself.",
+            "A traditional event that they participate in": "The text primarily describes the potlatch, a traditional event, and its significance.",
+            "Their relationship with the Canadian government": "The text briefly mentions the Canadian government's ban but it's not the main topic.",
+            "The role of dancing and storytelling in their social functions": "Dancing and storytelling are mentioned as parts of the event, not the main focus of the text."
+          }
         },
         {
           "number": 16,
@@ -405,7 +550,12 @@
             "Social status"
           ],
           "answer": "Social status",
-          "rationales": {}
+          "rationales": {
+            "Food": "The host gives away food, not gains it.",
+            "Money": "The host gives away money, not gains it.",
+            "Items like blankets": "The host gives away items like blankets, not gains them.",
+            "Social status": "The text states the lavishness can elevate the host's status by demonstrating wealth and generosity."
+          }
         },
         {
           "number": 17,
@@ -417,7 +567,12 @@
             "It was extremely wasteful."
           ],
           "answer": "It was not aware of the social function of potlatches.",
-          "rationales": {}
+          "rationales": {
+            "It was not aware of the social function of potlatches.": "The text states the government perceived potlatches as wasteful, implying a lack of understanding of their social and economic functions.",
+            "It wanted Indigenous people to include other Canadians in potlatches.": "The text does not mention any desire by the Canadian government to include other Canadians in potlatches.",
+            "Its policies contributed to economic growth.": "The text does not link the Canadian government's policies to economic growth.",
+            "It was extremely wasteful.": "The text states the government perceived potlatches as wasteful, not that the government itself was wasteful."
+          }
         },
         {
           "number": 18,
@@ -426,12 +581,18 @@
             "The ways in which communities brought them back",
             "The countries that ban them",
             "Their effect on wealth distribution",
-            "Their possible future 19"
+            "Their possible future"
           ],
           "answer": "The ways in which communities brought them back",
-          "rationales": {}
+          "rationales": {
+            "The ways in which communities brought them back": "The text explicitly states, \"Let's now examine how Indigenous communities have revived this practice.\"",
+            "The countries that ban them": "The text mentions a ban by the Canadian government but does not discuss other countries or their bans.",
+            "Their effect on wealth distribution": "While the text explains wealth redistribution as a function, the concluding sentence points to a future discussion on revival.",
+            "Their possible future": "The text does not mention or speculate about the future of potlatches."
+          }
         }
       ],
+      "module": 1,
       "audio_url": "/static/listening_audio/new_toefl_talk_7c9300ef5b69.mp3"
     },
     {
@@ -445,10 +606,15 @@
             "Repairs to a classroom",
             "Increased class enrollment",
             "A change in meeting time",
-            "An additional assignment 22"
+            "An additional assignment"
           ],
           "answer": "Increased class enrollment",
-          "rationales": {}
+          "rationales": {
+            "Repairs to a classroom": "The announcement does not mention any repairs to the classroom.",
+            "Increased class enrollment": "The speaker states the class is crowded due to several students adding the class.",
+            "A change in meeting time": "The announcement only mentions a change in location, not the meeting time.",
+            "An additional assignment": "There is no mention of an additional assignment in the announcement."
+          }
         },
         {
           "number": 12,
@@ -460,9 +626,15 @@
             "To help students find a classroom"
           ],
           "answer": "To help students find a classroom",
-          "rationales": {}
+          "rationales": {
+            "To announce the location of an event": "The speaker is not announcing an event, but a change of classroom location.",
+            "To notify students of upcoming repairs": "There is no mention of repairs in the announcement.",
+            "To direct students to the professor’s office": "The speaker is directing students to a classroom, not the professor's office.",
+            "To help students find a classroom": "The east wing is mentioned to help students locate the new classroom."
+          }
         }
       ],
+      "module": 2,
       "audio_url": "/static/listening_audio/new_toefl_talk_35b923883db9.mp3"
     },
     {
@@ -479,7 +651,12 @@
             "A plan to restructure contract work"
           ],
           "answer": "A new type of work tied to advances in technology",
-          "rationales": {}
+          "rationales": {
+            "The advantages of traditional employment": "The talk contrasts the gig economy with traditional jobs, not promotes traditional employment.",
+            "The benefits of using apps instead of websites": "The talk mentions both apps and websites as platforms, not comparing their benefits.",
+            "A new type of work tied to advances in technology": "The talk defines the gig economy as a new work model enabled by technology.",
+            "A plan to restructure contract work": "The talk describes the gig economy but does not propose a restructuring plan."
+          }
         },
         {
           "number": 14,
@@ -491,7 +668,12 @@
             "To illustrate technologies used both by companies and by their customers"
           ],
           "answer": "To give examples of digital platforms in the gig economy",
-          "rationales": {}
+          "rationales": {
+            "To give examples of digital platforms in the gig economy": "These are specific examples of the digital platforms that facilitate gig work.",
+            "To explain a problem with overhead costs": "Overhead costs are mentioned, but these apps are not the reason for them.",
+            "To discuss how work conditions for gig workers have improved": "The text mentions flexibility but not a general improvement in work conditions.",
+            "To illustrate technologies used both by companies and by their customers": "The text focuses on platforms connecting workers and clients, not general technology use."
+          }
         },
         {
           "number": 15,
@@ -503,7 +685,12 @@
             "Little office space"
           ],
           "answer": "Lack of a stable income",
-          "rationales": {}
+          "rationales": {
+            "High overhead costs": "The text states companies benefit from reduced overhead, not gig workers facing high costs.",
+            "Limited flexibility": "The text explicitly states gig work offers greater flexibility, contradicting this option.",
+            "Lack of a stable income": "The text mentions gig workers may face difficulties securing consistent work, implying income instability.",
+            "Little office space": "The text states companies benefit from reduced office space needs, not that gig workers have little."
+          }
         },
         {
           "number": 16,
@@ -512,12 +699,18 @@
             "The challenges of digital platforms for gig workers",
             "The efforts of regulators to protect gig workers",
             "The types of labor markets with many gig workers",
-            "The advantages of flexible working hours for gig workers 23"
+            "The advantages of flexible working hours for gig workers"
           ],
           "answer": "The efforts of regulators to protect gig workers",
-          "rationales": {}
+          "rationales": {
+            "The challenges of digital platforms for gig workers": "The passage mentions challenges but not specifically for digital platforms.",
+            "The efforts of regulators to protect gig workers": "The speaker explicitly states they will discuss regulatory efforts next.",
+            "The types of labor markets with many gig workers": "The passage focuses on the gig economy, not other labor markets.",
+            "The advantages of flexible working hours for gig workers": "While flexibility is mentioned, it's not stated as the next topic."
+          }
         }
       ],
+      "module": 2,
       "audio_url": "/static/listening_audio/new_toefl_talk_835d3d85a771.mp3"
     }
   ]

@@ -1,7 +1,7 @@
 {
   "cloze": [
     {
-      "id": "cloze_full_50851",
+      "id": "cloze_full_44051",
       "paragraph": "Film and television play a powerful role in shaping cultural norms and public opinion. T__ industry encom______ a wide ra___ of arti____ and tech_____ processes, fr__ scriptwriting a__ directing t_ post_production. Techno_______ innovations_su__ as digital effects and streaming platforms_have significantly altered both how content is produced and how audiences engage with it. Studying film offers insights into narrative structure, visual storytelling, and the broader social impact of media. It also involves examining genres, audience responses, and the economic forces behind production.",
       "blanks": [
         {
@@ -58,10 +58,11 @@
           "part_of_speech": "unknown",
           "hint": "Complete the word using context."
         }
-      ]
+      ],
+      "module": 1
     },
     {
-      "id": "cloze_full_8318",
+      "id": "cloze_full_41926",
       "paragraph": "Geology is the scientific study of Earth’s physical makeup and the dynamic forces that shape its surface. Geologies inves______ the compo______ and form_____ of ro___ and mine____ to unc____ the proc_____ that ha__ influenced t__ planet ov__ time. This field helps explain natural events such as earthquakes and volcanic eruptions and provides essential knowledge for managing natural resources and mitigating environmental risks. Understanding geological systems is also key to addressing sustainability challenges in a rapidly changing world.",
       "blanks": [
         {
@@ -124,12 +125,14 @@
           "part_of_speech": "unknown",
           "hint": "Complete the word using context."
         }
-      ]
+      ],
+      "module": 2
     }
   ],
   "daily_life": [
     {
       "id": "daily_1_0",
+      "module": 1,
       "caption": "Read an email.",
       "format": "email",
       "title": "TechHub shipment",
@@ -168,8 +171,13 @@
             "By Thursday"
           ],
           "answer": "By Monday",
-          "rationales": {},
-          "evidence_quote": null
+          "rationales": {
+            "By Monday": "The email states the order should arrive by Monday.",
+            "By Tuesday": "The email specifies arrival by Monday, not Tuesday.",
+            "By Wednesday": "The email specifies arrival by Monday, not Wednesday.",
+            "By Thursday": "The email specifies arrival by Monday, not Thursday."
+          },
+          "evidence_quote": "It should arrive by Monday."
         },
         {
           "number": 12,
@@ -178,16 +186,115 @@
             "Review the return policy",
             "Return the completed warranty form",
             "Send in the final payment",
-            "Check the contents of the package 3"
+            "Check the contents of the package"
           ],
-          "answer": "Check the contents of the package 3",
-          "rationales": {},
-          "evidence_quote": null
+          "answer": "Check the contents of the package",
+          "rationales": {
+            "Review the return policy": "The email mentions returns but not the specific policy details.",
+            "Return the completed warranty form": "There is no mention of a warranty form in the email.",
+            "Send in the final payment": "The email does not mention payment or any outstanding balance.",
+            "Check the contents of the package": "The email explicitly asks Ms. Turner to'make sure the package contains what you ordered.'"
+          },
+          "evidence_quote": "Please make sure the package contains what you ordered."
         }
       ]
     },
     {
-      "id": "daily_2_1",
+      "id": "daily_1_1",
+      "module": 1,
+      "caption": "Read a notice.",
+      "format": "notice",
+      "title": "Come join us at the",
+      "author": "",
+      "headers": {},
+      "body_lines": [
+        "Summer Book Festival!",
+        "Date: July 18",
+        "Time: 10:00 A.M. – 4:00 P.M.",
+        "Location: Town Square",
+        "Enjoy author signings, book readings, and literary workshops. This event is perfect for",
+        "book lovers of all ages, with a special area dedicated to young readers.",
+        "Admission is free.",
+        "A variety of food and beverages will be available for purchase from local food trucks",
+        "and vendors.",
+        "Free parking is available at the Town Square parking lot and nearby streets."
+      ],
+      "footer_lines": [],
+      "source_lines": [
+        "Come join us at the",
+        "Summer Book Festival!",
+        "Date: July 18",
+        "Time: 10:00 A.M. – 4:00 P.M.",
+        "Location: Town Square",
+        "Enjoy author signings, book readings, and literary workshops. This event is perfect for",
+        "book lovers of all ages, with a special area dedicated to young readers.",
+        "Admission is free.",
+        "A variety of food and beverages will be available for purchase from local food trucks",
+        "and vendors.",
+        "Free parking is available at the Town Square parking lot and nearby streets."
+      ],
+      "source_text": "Come join us at the Summer Book Festival! Date: July 18 Time: 10:00 A.M. – 4:00 P.M. Location: Town Square Enjoy author signings, book readings, and literary workshops. This event is perfect for book lovers of all ages, with a special area dedicated to young readers. Admission is free. A variety of food and beverages will be available for purchase from local food trucks and vendors. Free parking is available at the Town Square parking lot and nearby streets.",
+      "source_type": "a notice",
+      "questions": [
+        {
+          "number": 13,
+          "question": "What is the main purpose of the notice?",
+          "options": [
+            "To advertise a used-book sales event",
+            "To announce an event for people who like reading",
+            "To promote an event celebrating the publication of a new book",
+            "To advertise prices for a series of writing workshops"
+          ],
+          "answer": "To announce an event for people who like reading",
+          "rationales": {
+            "To advertise a used-book sales event": "The notice does not mention used books or sales.",
+            "To announce an event for people who like reading": "The event is for book lovers and includes readings and workshops.",
+            "To promote an event celebrating the publication of a new book": "The notice does not mention the publication of a new book.",
+            "To advertise prices for a series of writing workshops": "The notice mentions workshops but does not advertise prices."
+          },
+          "evidence_quote": "Come join us at the Summer Book Festival! ... This event is perfect for book lovers of all ages"
+        },
+        {
+          "number": 14,
+          "question": "Where will the event take place?",
+          "options": [
+            "At a local bookstore",
+            "At the library",
+            "At the town square",
+            "At the community center"
+          ],
+          "answer": "At the town square",
+          "rationales": {
+            "At a local bookstore": "The text does not mention a bookstore as the location.",
+            "At the library": "The text does not mention the library as the location.",
+            "At the town square": "The text explicitly states the event is at the Town Square.",
+            "At the community center": "The text does not mention a community center as the location."
+          },
+          "evidence_quote": "Location: Town Square"
+        },
+        {
+          "number": 15,
+          "question": "What can be concluded about the Summer Book Festival?",
+          "options": [
+            "It is suitable for children.",
+            "It has a registration fee.",
+            "It will last all day.",
+            "It requires tickets."
+          ],
+          "answer": "It is suitable for children.",
+          "rationales": {
+            "It is suitable for children.": "The festival has a special area for young readers, making it suitable for children.",
+            "It has a registration fee.": "The text explicitly states 'Admission is free,' contradicting a registration fee.",
+            "It will last all day.": "The festival runs from 10:00 A.M. to 4:00 P.M., not all day.",
+            "It requires tickets.": "The text states 'Admission is free,' meaning tickets are not required."
+          },
+          "evidence_quote": "This event is perfect for book lovers of all ages, with a special area dedicated to young readers."
+        }
+      ]
+    },
+    {
+      "id": "daily_2_2",
+      "module": 2,
       "caption": "Read an email.",
       "format": "email",
       "title": "Workshop registration",
@@ -224,8 +331,13 @@
             "To provide technical support for a workshop"
           ],
           "answer": "To confirm registration for a workshop",
-          "rationales": {},
-          "evidence_quote": null
+          "rationales": {
+            "To confirm registration for a workshop": "The email explicitly states 'confirm your registration'.",
+            "To cancel registration for a workshop": "The email confirms registration, it does not mention cancellation.",
+            "To request payment for a workshop": "The email does not mention any payment details or requests.",
+            "To provide technical support for a workshop": "The email advises on settings but does not offer direct technical support."
+          },
+          "evidence_quote": "This is to confirm your registration for the online coding workshop"
         },
         {
           "number": 12,
@@ -234,75 +346,29 @@
             "A workshop schedule",
             "A payment receipt",
             "Login details",
-            "Equipment requirements 8"
+            "Equipment requirements"
           ],
           "answer": "Login details",
-          "rationales": {},
-          "evidence_quote": null
-        }
-      ]
-    }
-  ],
-  "academic": [
-    {
-      "id": "academic_1",
-      "title": "Reading Section, Module 1",
-      "passage_lines": [
-        "Read a notice.",
-        "Enjoy author signings, book readings, and literary workshops. This event is perfect for",
-        "book lovers of all ages, with a special area dedicated to young readers.",
-        "A variety of food and beverages will be available for purchase from local food trucks",
-        "and vendors.",
-        "Free parking is available at the Town Square parking lot and nearby streets."
-      ],
-      "passage": "Reading Section, Module 1 Read a notice. Enjoy author signings, book readings, and literary workshops. This event is perfect for book lovers of all ages, with a special area dedicated to young readers. A variety of food and beverages will be available for purchase from local food trucks and vendors. Free parking is available at the Town Square parking lot and nearby streets.",
-      "questions": [
-        {
-          "number": 13,
-          "question": "What is the main purpose of the notice?",
-          "options": [
-            "To advertise a used-book sales event",
-            "To announce an event for people who like reading",
-            "To promote an event celebrating the publication of a new book",
-            "To advertise prices for a series of writing workshops"
-          ],
-          "answer": "To announce an event for people who like reading",
-          "rationales": {},
-          "evidence_quote": null
-        },
-        {
-          "number": 14,
-          "question": "Where will the event take place?",
-          "options": [
-            "At a local bookstore",
-            "At the library",
-            "At the town square",
-            "At the community center"
-          ],
-          "answer": "At the town square",
-          "rationales": {},
-          "evidence_quote": null
-        },
-        {
-          "number": 15,
-          "question": "What can be concluded about the Summer Book Festival?",
-          "options": [
-            "It is suitable for children.",
-            "It has a registration fee.",
-            "It will last all day.",
-            "It requires tickets. Admission is free. Come join us at the Summer Book Festival! Date: July 18 Time: 10:00 A.M. – 4:00 P.M."
-          ],
-          "answer": "It is suitable for children.",
-          "rationales": {},
-          "evidence_quote": null
+          "rationales": {
+            "A workshop schedule": "The email does not mention a workshop schedule.",
+            "A payment receipt": "The email does not mention payment or a receipt.",
+            "Login details": "The email explicitly states login details will be sent.",
+            "Equipment requirements": "The email mentions checking settings, not specific equipment requirements."
+          },
+          "evidence_quote": "Login details will be sent to this email address on November 2."
         }
       ]
     },
     {
-      "id": "academic_2",
-      "title": "Reading Section, Module 2",
-      "passage_lines": [
-        "Read an article.",
+      "id": "daily_2_3",
+      "module": 2,
+      "caption": "Read an article.",
+      "format": "notice",
+      "title": "BRUCKVILLE",
+      "author": "",
+      "headers": {},
+      "body_lines": [
+        "(May 16)",
         "Downtown Books, a family-owned bookstore operating for 15 years, recently added a café area and expanded its evening hours to accommodate working customers.",
         "Owner Janet Miller explains, “We noticed many people wanted to browse books after",
         "work but couldn’t make it during our traditional hours.”",
@@ -310,7 +376,19 @@
         "meals alongside its selection of books, magazines, and gifts. The café area includes",
         "comfortable seating and free Wi-Fi for customers who want to read or work."
       ],
-      "passage": "Reading Section, Module 2 Read an article. Downtown Books, a family-owned bookstore operating for 15 years, recently added a café area and expanded its evening hours to accommodate working customers. Owner Janet Miller explains, “We noticed many people wanted to browse books after work but couldn’t make it during our traditional hours.” The store now stays open until 9 P.M. on weekdays and offers coffee, pastries, and light meals alongside its selection of books, magazines, and gifts. The café area includes comfortable seating and free Wi-Fi for customers who want to read or work.",
+      "footer_lines": [],
+      "source_lines": [
+        "BRUCKVILLE",
+        "(May 16)",
+        "Downtown Books, a family-owned bookstore operating for 15 years, recently added a café area and expanded its evening hours to accommodate working customers.",
+        "Owner Janet Miller explains, “We noticed many people wanted to browse books after",
+        "work but couldn’t make it during our traditional hours.”",
+        "The store now stays open until 9 P.M. on weekdays and offers coffee, pastries, and light",
+        "meals alongside its selection of books, magazines, and gifts. The café area includes",
+        "comfortable seating and free Wi-Fi for customers who want to read or work."
+      ],
+      "source_text": "BRUCKVILLE (May 16) Downtown Books, a family-owned bookstore operating for 15 years, recently added a café area and expanded its evening hours to accommodate working customers. Owner Janet Miller explains, “We noticed many people wanted to browse books after work but couldn’t make it during our traditional hours.” The store now stays open until 9 P.M. on weekdays and offers coffee, pastries, and light meals alongside its selection of books, magazines, and gifts. The café area includes comfortable seating and free Wi-Fi for customers who want to read or work.",
+      "source_type": "an article",
       "questions": [
         {
           "number": 13,
@@ -322,8 +400,13 @@
             "Changes that a local bookstore has made"
           ],
           "answer": "Changes that a local bookstore has made",
-          "rationales": {},
-          "evidence_quote": null
+          "rationales": {
+            "The his tory of a family-owned bookstore": "The article mentions the store's age but doesn't detail its history.",
+            "How a small bookstore is competing with online retailers": "The article does not mention online retailers or competition.",
+            "The growing popularity of bookstore cafés": "The article focuses on one store's changes, not a general trend.",
+            "Changes that a local bookstore has made": "The article details the bookstore's new café, hours, and services."
+          },
+          "evidence_quote": "recently added a café area and expanded its evening hours"
         },
         {
           "number": 14,
@@ -335,8 +418,13 @@
             "To increase sales of coffee and pastries"
           ],
           "answer": "To serve customers who work during traditional business hours",
-          "rationales": {},
-          "evidence_quote": null
+          "rationales": {
+            "To compete with other bookstores in the area": "The passage does not mention competition with other bookstores.",
+            "To serve customers who work during traditional business hours": "The store extended hours to help people who couldn't visit during regular times because they worked.",
+            "To provide a place for people to use free Wi-Fi": "Free Wi-Fi is a feature, not the reason for the extended hours.",
+            "To increase sales of coffee and pastries": "While possible, the passage states the primary reason is customer availability, not sales."
+          },
+          "evidence_quote": "We noticed many people wanted to browse books after work but couldn’t make it during our traditional hours."
         },
         {
           "number": 15,
@@ -348,8 +436,241 @@
             "Gift wrapping and special ordering"
           ],
           "answer": "A café area with food, drinks, and Wi-Fi",
-          "rationales": {},
-          "evidence_quote": null
+          "rationales": {
+            "Online ordering and home delivery": "The passage does not mention online ordering or home delivery services.",
+            "Book club meetings and author readings": "The passage does not mention book club meetings or author readings.",
+            "A café area with food, drinks, and Wi-Fi": "The passage explicitly states the addition of a café with food, drinks, and Wi-Fi.",
+            "Gift wrapping and special ordering": "The passage does not mention gift wrapping or special ordering services."
+          },
+          "evidence_quote": "The store now stays open until 9 P.M. on weekdays and offers coffee, pastries, and light meals alongside its selection of books, magazines, and gifts. The café area includes comfortable seating and free Wi-Fi for customers who want to read or work."
+        }
+      ]
+    }
+  ],
+  "academic": [
+    {
+      "id": "academic_1",
+      "module": 1,
+      "title": "My sterious Viking Sunstones",
+      "passage_lines": [
+        "The Vikings, seafaring warriors from Scandinavia, are believed to have navigated their",
+        "ships with remarkable precision across the North Atlantic during the medieval period",
+        "(about 500-1500 C.E.). [A] One key to their navigational success may have been the use",
+        "of so-called “sunstones,” as described in Icelandic sagas (medieval Icelandic texts). Some",
+        "argue the sagas’ content is my thical, while others suggest these stones were real tools",
+        "used by the Vikings, probably crystals, such as Iceland spar. Iceland spar is a transparent",
+        "variety of calcite that possesses unique optical properties. [B] It polarizes light by splitting light into two beams, creating a double image when the stone is held up to the",
+        "sky. By rotating the crystal, the Vikings could determine the location of the sun in the sky",
+        "on cloudy days, which would help them maintain their course. [C] However, evidence of actual sunstone use remains scarce. Archaeologists have yet to uncover these stones in",
+        "the remains of Viking settlements or ships. But an Iceland spar sunstone was recovered",
+        "from a ship that sank in 1592, suggesting that this navigational tool was indeed used for",
+        "quite some time. [D] The theoretical use of sunstones remains a fascinating example of",
+        "Viking ingenuity."
+      ],
+      "passage": "My sterious Viking Sunstones The Vikings, seafaring warriors from Scandinavia, are believed to have navigated their ships with remarkable precision across the North Atlantic during the medieval period (about 500-1500 C.E.). [A] One key to their navigational success may have been the use of so-called “sunstones,” as described in Icelandic sagas (medieval Icelandic texts). Some argue the sagas’ content is my thical, while others suggest these stones were real tools used by the Vikings, probably crystals, such as Iceland spar. Iceland spar is a transparent variety of calcite that possesses unique optical properties. [B] It polarizes light by splitting light into two beams, creating a double image when the stone is held up to the sky. By rotating the crystal, the Vikings could determine the location of the sun in the sky on cloudy days, which would help them maintain their course. [C] However, evidence of actual sunstone use remains scarce. Archaeologists have yet to uncover these stones in the remains of Viking settlements or ships. But an Iceland spar sunstone was recovered from a ship that sank in 1592, suggesting that this navigational tool was indeed used for quite some time. [D] The theoretical use of sunstones remains a fascinating example of Viking ingenuity.",
+      "questions": [
+        {
+          "number": 16,
+          "question": "Why does debate continue about the sunstones mentioned in Icelandic sagas?",
+          "options": [
+            "The sagas describe other uses for sunstones.",
+            "Archaeologists have not found any such stones when examining Viking sites.",
+            "Research indicates that sunstones are not actually an effective navigation tool.",
+            "Researchers suspect that sunstones were not easy to obtain in the medieval period."
+          ],
+          "answer": "Archaeologists have not found any such stones when examining Viking sites.",
+          "rationales": {
+            "The sagas describe other uses for sunstones.": "The sagas do not mention other uses for sunstones.",
+            "Archaeologists have not found any such stones when examining Viking sites.": "No sunstones have been found at Viking sites, fueling the debate.",
+            "Research indicates that sunstones are not actually an effective navigation tool.": "The passage suggests sunstones could be effective, not ineffective.",
+            "Researchers suspect that sunstones were not easy to obtain in the medieval period.": "The passage does not mention the difficulty of obtaining sunstones."
+          },
+          "evidence_quote": "Archaeologists have yet to uncover these stones in the remains of Viking settlements or ships."
+        },
+        {
+          "number": 17,
+          "question": "In what way was Iceland spar useful to Vikings?",
+          "options": [
+            "It helped them predict when clouds would disappear.",
+            "It was used as a tool to help maintain ships.",
+            "It helped them figure out where the sun was when it could not be seen.",
+            "It was used to improve seafarers’ vision."
+          ],
+          "answer": "It helped them figure out where the sun was when it could not be seen.",
+          "rationales": {
+            "It helped them predict when clouds would disappear.": "The text does not mention predicting cloud disappearance.",
+            "It was used as a tool to help maintain ships.": "The text states it was a navigational tool, not a general ship maintenance tool.",
+            "It helped them figure out where the sun was when it could not be seen.": "The text explains it helped locate the sun on cloudy days.",
+            "It was used to improve seafarers’ vision.": "The text does not mention improving seafarers' vision."
+          },
+          "evidence_quote": "By rotating the crystal, the Vikings could determine the location of the sun in the sky on cloudy days"
+        },
+        {
+          "number": 18,
+          "question": "Why does the author mention a ship that sank in 1592?",
+          "options": [
+            "To explain how Elizabethans refined a technology invented by Vikings",
+            "To support the theory that Vikings used Iceland spar for navigation",
+            "To give an example of a more modern navigational tool",
+            "To provide information about archaeological methods"
+          ],
+          "answer": "To support the theory that Vikings used Iceland spar for navigation",
+          "rationales": {
+            "To explain how Elizabethans refined a technology invented by Vikings": "The text does not mention Elizabethans or technological refinement.",
+            "To support the theory that Vikings used Iceland spar for navigation": "The text uses this as evidence that Iceland spar was used for navigation, supporting the sunstone theory.",
+            "To give an example of a more modern navigational tool": "The text does not present this as a modern tool, but as evidence of historical use.",
+            "To provide information about archaeological methods": "The text does not discuss archaeological methods, only findings."
+          },
+          "evidence_quote": "But an Iceland spar sunstone was recovered from a ship that sank in 1592, suggesting that this navigational tool was indeed used for quite some time."
+        },
+        {
+          "number": 19,
+          "question": "The word “ingenuity” in the passage is closest in meaning to",
+          "options": [
+            "education",
+            "cleverness",
+            "luck",
+            "fame"
+          ],
+          "answer": "cleverness",
+          "rationales": {
+            "education": "Education refers to learning and knowledge, not inherent skill.",
+            "cleverness": "Ingenuity means skill in inventing or applying clever ideas.",
+            "luck": "Luck implies chance, not the result of skill or planning.",
+            "fame": "Fame is renown, not the ability to invent or solve problems."
+          },
+          "evidence_quote": "The theoretical use of sunstones remains a fascinating example of Viking ingenuity."
+        },
+        {
+          "number": 20,
+          "question": "There are four locations in the passage that indicate where the following sentence could be added: This is all the more remarkable considering the lack of technology at the time. Where would the sentence best fit?",
+          "options": [
+            "Option A",
+            "Option B",
+            "Option C",
+            "Option D"
+          ],
+          "answer": "Option A",
+          "rationales": {
+            "Option A": "Option A is correct because it follows a statement about Viking navigational precision.",
+            "Option B": "Option B is incorrect because the sentence would interrupt the explanation of how sunstones work.",
+            "Option C": "Option C is incorrect because the sentence would disrupt the discussion of evidence for sunstones.",
+            "Option D": "Option D is incorrect because the sentence would precede the conclusion about Viking ingenuity."
+          },
+          "evidence_quote": "The Vikings, seafaring warriors from Scandinavia, are believed to have navigated their ships with remarkable precision across the North Atlantic during the medieval period (about 500-1500 C.E.)."
+        }
+      ]
+    },
+    {
+      "id": "academic_2",
+      "module": 2,
+      "title": "Renaissance Art Techniques",
+      "passage_lines": [
+        "During the European Renaissance (the period between the fourteenth and the",
+        "seventeenth centuries), artists developed techniques that made their paintings appear",
+        "more realistic. One technique, linear perspective, allowed the accurate depiction of three-dimensional space on a flat surface. Artists created the illusion of depth by using",
+        "vanishing points on horizon lines, which are points in the background where parallel lines",
+        "converge. Objects were depicted as increasingly smaller as they neared these points to appear farther from the viewer. This marked a significant departure from the flat, twodimensional representations common in earlier European art.",
+        "Another innovation was chiaroscuro, the use of strong contrasts between light and dark",
+        "to give the impression of volume. The Italian artist Leonardo da Vinci used this technique",
+        "in such works as the Mona Lisa and The Virgin of the Rocks. In the latter, the illuminated",
+        "main figures contrast with the deep brown shadows of the rocks and trees in the",
+        "background. The technique added drama and emotional intensity, captivating viewers",
+        "and drawing them into the scene. Additionally, oil painting became popular during the",
+        "Renaissance. Because oil paints dry more slowly than tempera paints, artists could use",
+        "blending and layering to create more texture and richer colors."
+      ],
+      "passage": "Renaissance Art Techniques During the European Renaissance (the period between the fourteenth and the seventeenth centuries), artists developed techniques that made their paintings appear more realistic. One technique, linear perspective, allowed the accurate depiction of three-dimensional space on a flat surface. Artists created the illusion of depth by using vanishing points on horizon lines, which are points in the background where parallel lines converge. Objects were depicted as increasingly smaller as they neared these points to appear farther from the viewer. This marked a significant departure from the flat, twodimensional representations common in earlier European art. Another innovation was chiaroscuro, the use of strong contrasts between light and dark to give the impression of volume. The Italian artist Leonardo da Vinci used this technique in such works as the Mona Lisa and The Virgin of the Rocks. In the latter, the illuminated main figures contrast with the deep brown shadows of the rocks and trees in the background. The technique added drama and emotional intensity, captivating viewers and drawing them into the scene. Additionally, oil painting became popular during the Renaissance. Because oil paints dry more slowly than tempera paints, artists could use blending and layering to create more texture and richer colors.",
+      "questions": [
+        {
+          "number": 16,
+          "question": "What were artistsable to achieve by using linear perspective?",
+          "options": [
+            "Paintings that appeared to have depth",
+            "Paintings that could depict a wide variety of objects",
+            "The creation of more uniform representations",
+            "The creation of smaller artworks"
+          ],
+          "answer": "Paintings that appeared to have depth",
+          "rationales": {
+            "Paintings that appeared to have depth": "This is correct because linear perspective creates the illusion of depth on a flat surface.",
+            "Paintings that could depict a wide variety of objects": "The passage does not state that linear perspective allowed for depicting a wide variety of objects.",
+            "The creation of more uniform representations": "Linear perspective aimed for realism, not uniformity, departing from earlier flat representations.",
+            "The creation of smaller artworks": "The passage does not mention linear perspective being used to create smaller artworks."
+          },
+          "evidence_quote": "linear perspective, allowed the accurate depiction of three-dimensional space on a flat surface."
+        },
+        {
+          "number": 17,
+          "question": "The word “departure” in the passage is closest in meaning to",
+          "options": [
+            "practice",
+            "change",
+            "work",
+            "choice"
+          ],
+          "answer": "change",
+          "rationales": {
+            "practice": "Practice refers to repeated performance, not a deviation from a previous state.",
+            "change": "Departure signifies a move away from a previous norm or style.",
+            "work": "Work refers to an artistic creation, not a shift in technique.",
+            "choice": "Choice implies selection, not a break from established methods."
+          },
+          "evidence_quote": "This marked a significant departure from the flat, twodimensional representations common in earlier European art."
+        },
+        {
+          "number": 18,
+          "question": "Why does the author discuss Leonardo da Vinci’s The Virgin of the Rocks?",
+          "options": [
+            "To explain why much of Leonardo’s art was so dark",
+            "To indicate that Leonardo often painted rocks and trees",
+            "To illustrate Leonardo’s use of chiaroscuro",
+            "To show how Leonardo’s style changed after he painted the Mona Lisa"
+          ],
+          "answer": "To illustrate Leonardo’s use of chiaroscuro",
+          "rationales": {
+            "To explain why much of Leonardo’s art was so dark": "The passage does not state that much of Leonardo's art was dark.",
+            "To indicate that Leonardo often painted rocks and trees": "The passage mentions rocks and trees as a background element, not a primary subject.",
+            "To illustrate Leonardo’s use of chiaroscuro": "The passage uses the painting to exemplify the use of strong light and dark contrasts.",
+            "To show how Leonardo’s style changed after he painted the Mona Lisa": "The passage does not discuss any stylistic changes in Leonardo's art after painting the Mona Lisa."
+          },
+          "evidence_quote": "In the latter, the illuminated main figures contrast with the deep brown shadows of the rocks and trees in the background."
+        },
+        {
+          "number": 19,
+          "question": "What does the author suggest about the impact of chiaroscuro?",
+          "options": [
+            "It made paintings more engaging to viewers.",
+            "It allowed artists to depict nighttime landscapes.",
+            "It reduced the need for linear perspective.",
+            "It led to the development of more colors."
+          ],
+          "answer": "It made paintings more engaging to viewers.",
+          "rationales": {
+            "It made paintings more engaging to viewers.": "The text states chiaroscuro added drama and emotional intensity, captivating viewers.",
+            "It allowed artists to depict nighttime landscapes.": "The text does not mention chiaroscuro being used for nighttime landscapes.",
+            "It reduced the need for linear perspective.": "The text presents chiaroscuro as a separate technique, not a replacement for linear perspective.",
+            "It led to the development of more colors.": "The text attributes richer colors to oil paints, not specifically to chiaroscuro."
+          },
+          "evidence_quote": "The technique added drama and emotional intensity, captivating viewers and drawing them into the scene."
+        },
+        {
+          "number": 20,
+          "question": "What was one benefit of oil paints over tempera paints?",
+          "options": [
+            "They were easier to make.",
+            "They could be applied in layers.",
+            "They were available in more realistic colors.",
+            "They could be easily removed if necessary."
+          ],
+          "answer": "They could be applied in layers.",
+          "rationales": {
+            "They were easier to make.": "The passage does not mention the ease of making either type of paint.",
+            "They could be applied in layers.": "Oil paints' slow drying time allowed for blending and layering.",
+            "They were available in more realistic colors.": "The passage mentions richer colors but not necessarily more realistic ones.",
+            "They could be easily removed if necessary.": "The passage does not discuss the removability of oil paints."
+          },
+          "evidence_quote": "Because oil paints dry more slowly than tempera paints, artists could use blending and layering to create more texture and richer colors."
         }
       ]
     }

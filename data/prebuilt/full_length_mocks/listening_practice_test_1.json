@@ -9,7 +9,13 @@
         "Actually, I think I can get there a little earlier."
       ],
       "answer": "As a matter of fact, I was returning a book.",
-      "rationales": {},
+      "rationales": {
+        "As a matter of fact, I was returning a book.": "This option directly answers the woman's implied question about her location.",
+        "Yes, you can find it in the reference section.": "The woman asked about seeing the man, not about the library's contents.",
+        "I don’t think I’ll have enough time to do that.": "This option is irrelevant to the woman's statement about seeing the man.",
+        "Actually, I think I can get there a little earlier.": "This option is irrelevant to the woman's statement about seeing the man."
+      },
+      "module": 1,
       "audio_url": "/static/listening_audio/new_toefl_response_58bd4c27013d.mp3"
     },
     {
@@ -21,7 +27,13 @@
         "I'll take the subway instead."
       ],
       "answer": "I can help you find it.",
-      "rationales": {},
+      "rationales": {
+        "I nearly missed the bus.": "The man is asking for a location, not expressing a past event.",
+        "Every 30 minutes.": "The man is asking for a location, not a schedule.",
+        "I can help you find it.": "This directly answers the man's question by offering assistance.",
+        "I'll take the subway instead.": "The man is asking for a bus stop, not expressing a preference for transportation."
+      },
+      "module": 1,
       "audio_url": "/static/listening_audio/new_toefl_response_86c7e98ec151.mp3"
     },
     {
@@ -33,7 +45,13 @@
         "They provide good service."
       ],
       "answer": "Use the convenient chat feature.",
-      "rationales": {},
+      "rationales": {
+        "Yes, you 're allowed to do that.": "This is an irrelevant response to the question about contacting customer service.",
+        "Use the convenient chat feature.": "This option directly answers the question by suggesting a method of contact.",
+        "No, I don't mind.": "This is an irrelevant response, as the question is not about permission or willingness.",
+        "They provide good service.": "This option offers an opinion about service quality, not how to contact them."
+      },
+      "module": 1,
       "audio_url": "/static/listening_audio/new_toefl_response_9fbc0eb281fd.mp3"
     },
     {
@@ -45,7 +63,13 @@
         "No, that's not necessary."
       ],
       "answer": "How about tomorrow night then?",
-      "rationales": {},
+      "rationales": {
+        "Oh, that's too early.": "This option is irrelevant as the woman did not mention a specific time.",
+        "How about tomorrow night then?": "This option is a logical follow-up, suggesting an alternative time.",
+        "She arrived this afternoon.": "This option is unsupported as the woman did not mention arriving.",
+        "No, that's not necessary.": "This option is irrelevant as the woman did not state anything was unnecessary."
+      },
+      "module": 1,
       "audio_url": "/static/listening_audio/new_toefl_response_bf3a56cf9738.mp3"
     },
     {
@@ -57,7 +81,13 @@
         "Let's check the schedule online."
       ],
       "answer": "Let's check the schedule online.",
-      "rationales": {},
+      "rationales": {
+        "No, it's my package.": "This response is irrelevant to the question about the post office being open.",
+        "It's just around the corner!": "This response is irrelevant and does not answer whether the post office is open.",
+        "I think he's come home already.": "This response is irrelevant and does not address the post office's operating status.",
+        "Let's check the schedule online.": "This response directly addresses the uncertainty about the post office's hours by suggesting a way to find out."
+      },
+      "module": 1,
       "audio_url": "/static/listening_audio/new_toefl_response_036503423481.mp3"
     },
     {
@@ -69,7 +99,13 @@
         "You haven't given me your number yet."
       ],
       "answer": "You haven't given me your number yet.",
-      "rationales": {},
+      "rationales": {
+        "I can help you with that.": "This is a general offer of help, not a direct response to the woman's statement.",
+        "You don't need any more information.": "The woman's statement implies a need for contact, suggesting more information might be relevant.",
+        "You have a lot of questions, don't you?": "This is an assumption about the listener's state, not a response to the woman's offer.",
+        "You haven't given me your number yet.": "The woman's offer to be texted implies the listener needs to provide their number first."
+      },
+      "module": 1,
       "audio_url": "/static/listening_audio/new_toefl_response_15696cbd863a.mp3"
     },
     {
@@ -81,7 +117,13 @@
         "Yes, they're having a huge sale."
       ],
       "answer": "Yes, they're having a huge sale.",
-      "rationales": {},
+      "rationales": {
+        "Yes, there is a major power outage.": "Option 1 is incorrect because a power outage would likely prevent the store from being open.",
+        "Yes, it's under renovation.": "Option 2 is incorrect because renovation would typically mean the store is closed, not open.",
+        "Yes, it's closed all day on Sunday.": "Option 3 is incorrect because the woman's statement implies the store is open the entire weekend.",
+        "Yes, they're having a huge sale.": "Option 4 is correct because a sale is a reason a store might be open and busy all weekend."
+      },
+      "module": 1,
       "audio_url": "/static/listening_audio/new_toefl_response_37557c1371f4.mp3"
     },
     {
@@ -93,7 +135,13 @@
         "I forgot to look."
       ],
       "answer": "I overslept.",
-      "rationales": {},
+      "rationales": {
+        "I overslept.": "This option directly answers the question by providing a reason for not attending.",
+        "No, not very well.": "This option implies attendance but with poor quality, which is not directly stated or implied by the question.",
+        "Have you asked your professor?": "This option is a question and does not answer the original question about attending the seminar.",
+        "I forgot to look.": "This option suggests the speaker might have attended but doesn't explicitly answer whether they did or not."
+      },
+      "module": 1,
       "audio_url": "/static/listening_audio/new_toefl_response_ec813669e454.mp3"
     },
     {
@@ -105,7 +153,13 @@
         "The position has been filled."
       ],
       "answer": "I’m unsure, but I can find out.",
-      "rationales": {},
+      "rationales": {
+        "She started last week.": "This answer does not identify the manager, only when she started.",
+        "I’m unsure, but I can find out.": "This answer directly addresses the question by stating uncertainty and offering to find the information.",
+        "Let's welcome the new manager.": "This answer is a statement about the manager, not an identification of who she is.",
+        "The position has been filled.": "This answer confirms the position is filled but does not name the manager."
+      },
+      "module": 2,
       "audio_url": "/static/listening_audio/new_toefl_response_febeb6f1df5b.mp3"
     },
     {
@@ -117,7 +171,13 @@
         "Yes, that's correct."
       ],
       "answer": "Please wait while I look that up.",
-      "rationales": {},
+      "rationales": {
+        "Please wait while I look that up.": "This is a polite and appropriate response to a question about a due date.",
+        "Give me some dates.": "This response is illogical; the speaker is asking for information, not offering it.",
+        "No, I have another due date.": "This response is irrelevant and does not answer the question about the due date.",
+        "Yes, that's correct.": "This response is a confirmation, not an answer to a question asking for a date."
+      },
+      "module": 2,
       "audio_url": "/static/listening_audio/new_toefl_response_e9104259bdba.mp3"
     },
     {
@@ -129,7 +189,13 @@
         "Let’s go together."
       ],
       "answer": "Let’s go together.",
-      "rationales": {},
+      "rationales": {
+        "Every Wednesday.": "The man does not mention a specific day for grocery shopping.",
+        "In aisle 4.": "The man does not specify a location within the store.",
+        "The cinema is not open today.": "The man's statement is about groceries, not movie showtimes.",
+        "Let’s go together.": "The man's statement implies an invitation to accompany him."
+      },
+      "module": 2,
       "audio_url": "/static/listening_audio/new_toefl_response_ebc1098ff771.mp3"
     },
     {
@@ -141,7 +207,13 @@
         "Two bullet points."
       ],
       "answer": "That would be great.",
-      "rationales": {},
+      "rationales": {
+        "The research facility.": "The notes are not related to a research facility.",
+        "That would be great.": "This is a polite and appropriate acceptance of the offer.",
+        "The break is in an hour.": "The notes have no connection to the timing of a break.",
+        "Two bullet points.": "The content or format of the notes (e.g., bullet points) is not mentioned."
+      },
+      "module": 2,
       "audio_url": "/static/listening_audio/new_toefl_response_7686f73d9b55.mp3"
     },
     {
@@ -153,7 +225,13 @@
         "The best coffee."
       ],
       "answer": "Should we join them?",
-      "rationales": {},
+      "rationales": {
+        "Should we join them?": "This is a relevant question, as it follows logically from the statement about Sami and Layla going to the café.",
+        "Did you like the concert?": "This question is irrelevant to the statement about Sami and Layla going to the café.",
+        "Yesterday evening.": "This is an irrelevant time reference and does not logically follow the statement.",
+        "The best coffee.": "This is an irrelevant statement about coffee and does not logically follow the statement."
+      },
+      "module": 2,
       "audio_url": "/static/listening_audio/new_toefl_response_f45fc4d123aa.mp3"
     },
     {
@@ -165,7 +243,13 @@
         "Yes, the training is complete."
       ],
       "answer": "I’ll set up a meeting for us to talk.",
-      "rationales": {},
+      "rationales": {
+        "I'm revising my résumé.": "The woman is asking for opinions, not discussing résumés.",
+        "I’ll set up a meeting for us to talk.": "This is a logical response to the woman's request for discussion.",
+        "She just got a promotion.": "The woman is asking about candidates, not a specific person's promotion.",
+        "Yes, the training is complete.": "The woman is asking for opinions, not confirming training status."
+      },
+      "module": 2,
       "audio_url": "/static/listening_audio/new_toefl_response_bff9ecf6701d.mp3"
     },
     {
@@ -177,7 +261,13 @@
         "I'd like the bill, please."
       ],
       "answer": "We don't offer that.",
-      "rationales": {},
+      "rationales": {
+        "It's one of many.": "This option is irrelevant to the question about shipping costs.",
+        "Twice last week.": "This option is irrelevant and doesn't answer the question about cost.",
+        "We don't offer that.": "This option directly answers the question by stating the service is unavailable.",
+        "I'd like the bill, please.": "This option is a statement of intent and does not address the shipping cost."
+      },
+      "module": 2,
       "audio_url": "/static/listening_audio/new_toefl_response_bd75b7b3fbb2.mp3"
     },
     {
@@ -189,7 +279,13 @@
         "And whom should I contact?"
       ],
       "answer": "What is her role in the company?",
-      "rationales": {},
+      "rationales": {
+        "I can help with that.": "This is a statement of willingness to help, not a question seeking clarification.",
+        "What is her role in the company?": "This question directly asks for more context about Ms. Lee, which is implied by the original statement.",
+        "You ask a lot of questions.": "This is a personal observation and irrelevant to the information provided.",
+        "And whom should I contact?": "This question is redundant as the speaker already provided the contact person."
+      },
+      "module": 2,
       "audio_url": "/static/listening_audio/new_toefl_response_bfc52c028f4e.mp3"
     }
   ],
@@ -245,7 +341,12 @@
             "Eat dinner"
           ],
           "answer": "Go shopping",
-          "rationales": {}
+          "rationales": {
+            "See a play": "The woman was not planning to see a play; she thought it was tomorrow.",
+            "Change her clothes": "The woman explicitly states she doesn't need to change her clothes.",
+            "Go shopping": "The woman implies she was about to go shopping by asking if the man needed anything from the supermarket.",
+            "Eat dinner": "The woman was not planning to prepare dinner, but the man offered to do it."
+          }
         },
         {
           "number": 10,
@@ -257,9 +358,15 @@
             "He forgot to buy salmon and salad at the supermarket."
           ],
           "answer": "He forgot about the timing of their plans.",
-          "rationales": {}
+          "rationales": {
+            "He forgot what the woman wanted him to buy.": "The man did not forget what to buy; he was confused about the schedule.",
+            "He forgot about the timing of their plans.": "The man realized he had mistaken the day for their plans, showing forgetfulness about timing.",
+            "He forgot what they were going to eat for dinner.": "The man did not forget dinner; he was initially unaware of the plan but then offered to make it.",
+            "He forgot to buy salmon and salad at the supermarket.": "The man did not forget to buy salmon and salad; he was asked to go shopping after realizing his mistake."
+          }
         }
       ],
+      "module": 1,
       "audio_url": "/static/listening_audio/new_toefl_conversation_ed880ff8b379.mp3"
     },
     {
@@ -293,7 +400,12 @@
             "A window will not open."
           ],
           "answer": "A room is too hot.",
-          "rationales": {}
+          "rationales": {
+            "An air-conditioner is leaking.": "The text mentions the air-conditioning is not working, but not that it is leaking.",
+            "A room is too hot.": "The woman called the technician because the room was becoming uncomfortably warm.",
+            "An elevator needs maintenance.": "The conversation is about air-conditioning, not an elevator.",
+            "A window will not open.": "The text discusses the temperature, not a window that won't open."
+          }
         },
         {
           "number": 12,
@@ -305,9 +417,15 @@
             "Take a break early"
           ],
           "answer": "Take a break early",
-          "rationales": {}
+          "rationales": {
+            "Finish an assignment early": "The text does not mention any assignments.",
+            "Wait for a service agent": "The man is not asked to wait for the agent; the agent is coming.",
+            "Open a door": "There is no mention of opening a door.",
+            "Take a break early": "The woman suggests the man go out to lunch early, which is a break."
+          }
         }
       ],
+      "module": 1,
       "audio_url": "/static/listening_audio/new_toefl_conversation_3cd88281b8da.mp3"
     },
     {
@@ -345,7 +463,12 @@
             "A smartphone and a smartwatch"
           ],
           "answer": "A smartphone and a tablet",
-          "rationales": {}
+          "rationales": {
+            "A laptop and a smartphone": "The conversation does not mention a laptop.",
+            "A smartphone and a tablet": "The man explicitly states he is deciding between a smartphone and a tablet.",
+            "A tablet and a desktop computer": "The conversation does not mention a desktop computer.",
+            "A smartphone and a smartwatch": "The conversation does not mention a smartwatch."
+          }
         },
         {
           "number": 10,
@@ -357,9 +480,15 @@
             "The device has better battery life."
           ],
           "answer": "The device is easier to use on the go.",
-          "rationales": {}
+          "rationales": {
+            "The device is cheaper.": "The passage does not mention the cost of either device.",
+            "The device is easier to use on the go.": "The woman explicitly states a smartphone is better for portability and on-the-go use.",
+            "The device has a larger screen.": "The woman mentions the larger screen as a reason for preferring a tablet, not a smartphone.",
+            "The device has better battery life.": "Battery life is not discussed in the conversation."
+          }
         }
       ],
+      "module": 2,
       "audio_url": "/static/listening_audio/new_toefl_conversation_026e77c2e38e.mp3"
     }
   ],
@@ -378,7 +507,12 @@
             "A new university science course"
           ],
           "answer": "A guest lecture",
-          "rationales": {}
+          "rationales": {
+            "A guest lecture": "The announcement explicitly states Dr. Palmer will be giving a guest lecture.",
+            "A different location for a class": "The announcement mentions a specific lecture location, not a change for a regular class.",
+            "Requirements for a class": "The announcement is about a lecture, not class requirements.",
+            "A new university science course": "The announcement is for a single lecture, not a new, ongoing course."
+          }
         },
         {
           "number": 14,
@@ -390,9 +524,15 @@
             "To explain why students should arrive early"
           ],
           "answer": "To explain why students should arrive early",
-          "rationales": {}
+          "rationales": {
+            "To encourage students to read her work": "The text does not suggest students should read her work.",
+            "To indicate why she was invited to the university": "Her expertise in environmental science is why she was invited, not her popularity.",
+            "To compare her to other invited experts": "No comparison is made between Dr. Palmer and other experts.",
+            "To explain why students should arrive early": "Her popularity is directly linked to the need to arrive early for seating."
+          }
         }
       ],
+      "module": 1,
       "audio_url": "/static/listening_audio/new_toefl_talk_e0a7d670ccde.mp3"
     },
     {
@@ -409,7 +549,12 @@
             "The benefits of hard fascination"
           ],
           "answer": "Two types of fascination",
-          "rationales": {}
+          "rationales": {
+            "How psychologists study attention": "The passage does not explain how psychologists study attention, only what they call it.",
+            "How to keep the mind focused": "The passage explains how to combat mental fatigue, not how to keep the mind focused.",
+            "Two types of fascination": "The passage introduces and contrasts hard fascination and soft fascination.",
+            "The benefits of hard fascination": "The passage states hard fascination causes mental fatigue, which is a negative effect."
+          }
         },
         {
           "number": 16,
@@ -421,7 +566,12 @@
             "To encourage listeners to watch more movies"
           ],
           "answer": "To introduce a concept in psychology",
-          "rationales": {}
+          "rationales": {
+            "To compare different types of movies": "The speaker does not compare different movie types.",
+            "To introduce a concept in psychology": "The movie serves as an example to define hard fascination.",
+            "To explain how movies affect emotions": "The speaker focuses on mental states, not emotional impact.",
+            "To encourage listeners to watch more movies": "The speaker does not encourage movie watching; they suggest alternatives."
+          }
         },
         {
           "number": 17,
@@ -433,7 +583,12 @@
             "She gets mental fatigue from her mind engaging in hard fascination."
           ],
           "answer": "Her mind has space for thoughts unrelated to nature.",
-          "rationales": {}
+          "rationales": {
+            "It is similar to her experience watching a good movie.": "Watching a movie is hard fascination; a walk is soft fascination, which is different.",
+            "Her mind has space for thoughts unrelated to nature.": "The speaker mentions thinking about dinner plans during her walk, showing unrelated thoughts.",
+            "She needs to put in special effort to stay focused on flowers and trees.": "Soft fascination requires effortless attention, not special effort.",
+            "She gets mental fatigue from her mind engaging in hard fascination.": "The speaker states soft fascination combats mental fatigue, not causes it."
+          }
         },
         {
           "number": 18,
@@ -445,9 +600,15 @@
             "Its effect is unknown to psychologists."
           ],
           "answer": "It is involved in soft fascination.",
-          "rationales": {}
+          "rationales": {
+            "It is involved in soft fascination.": "The speaker states the DMN soothes the mind and combats fatigue, implying involvement in soft fascination.",
+            "It leads to irritability and stress.": "The speaker states hard fascination leads to irritability and stress, not the DMN.",
+            "It is easily tired from overuse.": "The speaker states hard fascination causes mental fatigue, not the DMN.",
+            "Its effect is unknown to psychologists.": "The speaker mentions the DMN as a known concept to psychologists, not unknown."
+          }
         }
       ],
+      "module": 1,
       "audio_url": "/static/listening_audio/new_toefl_talk_f579729dac34.mp3"
     },
     {
@@ -464,7 +625,12 @@
             "To encourage students to use the lounge more"
           ],
           "answer": "To inform students about a schedule change",
-          "rationales": {}
+          "rationales": {
+            "To inform students about a schedule change": "The announcement details a temporary closure, which is a schedule change for the lounge.",
+            "To announce new lounge amenities": "The announcement mentions maintenance and repairs, not the addition of new amenities.",
+            "To notify students of a new facility": "The announcement is about a temporary closure of an existing facility, not a new one.",
+            "To encourage students to use the lounge more": "The announcement states the lounge will be closed, discouraging its use during that time."
+          }
         },
         {
           "number": 12,
@@ -476,9 +642,15 @@
             "Visit the library website"
           ],
           "answer": "Use alternate spaces",
-          "rationales": {}
+          "rationales": {
+            "Wait in the lounge": "Students should not wait in the lounge as it will be closed.",
+            "Assist with the maintenance": "Students are not asked to help with the maintenance work.",
+            "Use alternate spaces": "Students are advised to use other locations like the library or café.",
+            "Visit the library website": "The announcement does not mention visiting the library website."
+          }
         }
       ],
+      "module": 2,
       "audio_url": "/static/listening_audio/new_toefl_talk_e5e197cb3111.mp3"
     },
     {
@@ -495,7 +667,12 @@
             "The role of governments in sustainability"
           ],
           "answer": "A measure of environmental impact",
-          "rationales": {}
+          "rationales": {
+            "Changes in consumption in societies over time": "The text focuses on a specific measure, not broad changes over time.",
+            "A measure of environmental impact": "The text defines and explains the ecological footprint, a measure of environmental impact.",
+            "Environmentally damaging activities": "The text mentions damaging activities as part of the footprint, but it's not the main topic.",
+            "The role of governments in sustainability": "The text mentions governments briefly, but it's not the central theme."
+          }
         },
         {
           "number": 14,
@@ -507,7 +684,12 @@
             "To point out that production efficiency reduces the ecological footprint"
           ],
           "answer": "To illustrate the usefulness of comparing ecological footprints",
-          "rationales": {}
+          "rationales": {
+            "To contradict a theory related to the ecological footprint": "The text does not mention any theories being contradicted.",
+            "To show that resource depletion can be similar regardless of lifestyle": "The text states developed countries have larger footprints due to higher consumption, contradicting this option.",
+            "To illustrate the usefulness of comparing ecological footprints": "The text uses this comparison to show how lifestyles impact footprints, demonstrating the comparison's usefulness.",
+            "To point out that production efficiency reduces the ecological footprint": "The text links larger footprints to higher consumption, not production efficiency."
+          }
         },
         {
           "number": 15,
@@ -519,7 +701,12 @@
             "By eating locally produced food"
           ],
           "answer": "By eating locally produced food",
-          "rationales": {}
+          "rationales": {
+            "By disposing of waste appropriately": "The text does not mention waste disposal as a method for reducing the footprint.",
+            "By joining an environmental organization": "The text does not mention joining an organization as a way to reduce one's footprint.",
+            "By using environmentally friendly forms of transportation": "The text mentions transportation as a factor but not specifically environmentally friendly forms.",
+            "By eating locally produced food": "The text explicitly states that consuming locally produced foods reduces the footprint."
+          }
         },
         {
           "number": 16,
@@ -531,9 +718,15 @@
             "Why sustainable development can be difficult to achieve"
           ],
           "answer": "How information about ecological footprints has been used in creating policies",
-          "rationales": {}
+          "rationales": {
+            "How information about ecological footprints has been used in creating policies": "The text explicitly states the speaker will discuss examples of how governments and organizations use this data for policies.",
+            "How data about ecological footprints has been collected": "The text does not mention how the data is collected, only what it measures.",
+            "Why the idea of ecological footprint is often misunderstood": "The text does not suggest the concept is misunderstood; it explains its purpose and importance.",
+            "Why sustainable development can be difficult to achieve": "While related, the text focuses on using footprints for sustainability, not the difficulties of achieving it."
+          }
         }
       ],
+      "module": 2,
       "audio_url": "/static/listening_audio/new_toefl_talk_42b86d4f3b4d.mp3"
     }
   ]

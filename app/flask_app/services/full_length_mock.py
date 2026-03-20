@@ -148,6 +148,8 @@ _OCR_PHRASE_FIXES = {
     "one'sown": "one's own",
     "Earth’sphysical": "Earth’s physical",
     "Earth'sphysical": "Earth's physical",
+    "its elf": "itself",
+    "it self": "itself",
 }
 
 _BAD_CONTRACTION_RE = re.compile(r"[A-Za-z]+(?:'|’)(?:re|ve|d|ll|m|t|s)[A-Za-z]+")
@@ -315,6 +317,21 @@ def _reading_answers_missing(payload: Dict[str, Any]) -> bool:
     return False
 
 
+def _reading_modules_missing(payload: Dict[str, Any]) -> bool:
+    if not payload:
+        return False
+    for cloze in payload.get("cloze", []) or []:
+        if isinstance(cloze, dict) and cloze.get("module") is None:
+            return True
+    for daily in payload.get("daily_life", []) or []:
+        if isinstance(daily, dict) and daily.get("module") is None:
+            return True
+    for acad in payload.get("academic", []) or []:
+        if isinstance(acad, dict) and acad.get("module") is None:
+            return True
+    return False
+
+
 def _reading_options_invalid(payload: Dict[str, Any]) -> bool:
     if not payload:
         return False
@@ -348,6 +365,21 @@ def _listening_answers_missing(payload: Dict[str, Any]) -> bool:
     return False
 
 
+def _listening_modules_missing(payload: Dict[str, Any]) -> bool:
+    if not payload:
+        return False
+    for item in payload.get("responses", []) or []:
+        if isinstance(item, dict) and item.get("module") is None:
+            return True
+    for group in payload.get("conversation", []) or []:
+        if isinstance(group, dict) and group.get("module") is None:
+            return True
+    for group in payload.get("talk", []) or []:
+        if isinstance(group, dict) and group.get("module") is None:
+            return True
+    return False
+
+
 def _writing_answers_missing(payload: Dict[str, Any]) -> bool:
     if not payload:
         return False
@@ -375,6 +407,18 @@ def _normalize_payload_text(payload: Any) -> Any:
     if isinstance(payload, str):
         return _normalize_text_spacing(payload)
     return payload
+
+
+def _strip_repeated_section_headers(lines: List[str], prefix: str) -> List[str]:
+    cleaned: List[str] = []
+    seen = False
+    for line in lines:
+        if line.lower().startswith(prefix):
+            if seen:
+                continue
+            seen = True
+        cleaned.append(line)
+    return cleaned
 
 
 def _audio_file_exists(audio_url: Optional[str]) -> bool:
@@ -585,6 +629,8 @@ def _parse_questions(
     stop_numbers: Optional[set[int]] = None,
     stop_prefixes: Optional[List[str]] = None,
     max_question: Optional[int] = None,
+    min_question: Optional[int] = None,
+    allow_unnumbered: bool = False,
 ) -> Tuple[List[Dict[str, Any]], int]:
     questions: List[Dict[str, Any]] = []
     idx = start_idx
@@ -596,16 +642,42 @@ def _parse_questions(
             break
         q_match = _QUESTION_RE.match(line)
         if not q_match:
+            if allow_unnumbered:
+                peek_idx = idx
+                question_parts: List[str] = []
+                option_found = False
+                while peek_idx < len(lines):
+                    candidate = lines[peek_idx].strip()
+                    lower_candidate = candidate.lower()
+                    if any(lower_candidate.startswith(prefix) for prefix in stop_prefixes):
+                        break
+                    if _QUESTION_RE.match(candidate):
+                        break
+                    if _OPTION_RE.match(candidate):
+                        option_found = True
+                        break
+                    if candidate:
+                        question_parts.append(candidate)
+                    peek_idx += 1
+                if option_found and question_parts:
+                    q_num = None
+                    question_text = _fix_ocr_spacing(" ".join(question_parts).strip())
+                    idx = peek_idx
+                else:
+                    idx += 1
+                    continue
+            else:
+                idx += 1
+                continue
+        else:
+            q_num = int(q_match.group(1))
+            if min_question is not None and q_num < min_question:
+                idx += 1
+                continue
+            if stop_numbers and q_num in stop_numbers:
+                break
+            question_text = _fix_ocr_spacing(q_match.group(2).strip())
             idx += 1
-            continue
-        q_num = int(q_match.group(1))
-        if max_question is not None and q_num < 11 and max_question <= 15:
-            idx += 1
-            continue
-        if stop_numbers and q_num in stop_numbers:
-            break
-        question_text = _fix_ocr_spacing(q_match.group(2).strip())
-        idx += 1
         options: List[str] = []
         inline_match = _INLINE_OPTION_RE.search(question_text)
         if inline_match:
@@ -621,6 +693,20 @@ def _parse_questions(
             if _is_title_line(line) and options:
                 stop_reached = True
                 break
+            if allow_unnumbered and options and not _OPTION_RE.match(line) and not _QUESTION_RE.match(line):
+                peek_idx = idx
+                saw_question_mark = False
+                option_ahead = False
+                while peek_idx < len(lines) and peek_idx < idx + 3:
+                    candidate = lines[peek_idx].strip()
+                    if candidate.endswith("?"):
+                        saw_question_mark = True
+                    if _OPTION_RE.match(candidate):
+                        option_ahead = True
+                        break
+                    peek_idx += 1
+                if saw_question_mark and option_ahead:
+                    break
             opt_match = _OPTION_RE.match(line)
             if opt_match:
                 options.append(_fix_ocr_spacing(opt_match.group(2).strip()))
@@ -769,6 +855,7 @@ def build_full_length_reading_mock(test_id: str, client: Optional[GeminiClient] 
         and not _questions_have_inline_options(prebuilt)
         and not _reading_answers_missing(prebuilt)
         and not _reading_options_invalid(prebuilt)
+        and not _reading_modules_missing(prebuilt)
     ):
         return prebuilt
     if _PREBUILT_ONLY:
@@ -789,9 +876,11 @@ def build_full_length_reading_mock(test_id: str, client: Optional[GeminiClient] 
         answer_text = section.get(f"answer_key_module{module_idx}", "")
         answers = _parse_answer_key(answer_text)
         lines = _clean_lines(module_text)
+        lines = _strip_repeated_section_headers(lines, "reading section")
 
         cloze_item, cursor = _parse_cloze(lines, answers)
         if cloze_item:
+            cloze_item["module"] = module_idx
             cloze.append(cloze_item)
 
         # Daily life blocks (questions 11-15)
@@ -826,6 +915,7 @@ def build_full_length_reading_mock(test_id: str, client: Optional[GeminiClient] 
                     stop_numbers={16},
                     stop_prefixes=["read a", "read an"],
                     max_question=15,
+                    min_question=11,
                 )
                 for q in questions:
                     if q.get("number") in answers and q.get("options"):
@@ -838,6 +928,7 @@ def build_full_length_reading_mock(test_id: str, client: Optional[GeminiClient] 
                             q["evidence_quote"] = rationale["evidence_quote"]
                 daily.append({
                     "id": f"daily_{module_idx}_{len(daily)}",
+                    "module": module_idx,
                     "caption": content.get("caption", caption),
                     "format": content.get("format"),
                     "title": content.get("title", ""),
@@ -874,7 +965,7 @@ def build_full_length_reading_mock(test_id: str, client: Optional[GeminiClient] 
                 title = _fix_ocr_spacing(possible_title)
                 body_lines = remainder
         passage = " ".join(passage_lines).strip()
-        questions, idx = _parse_questions(lines, idx, max_question=20)
+        questions, idx = _parse_questions(lines, idx, max_question=20, min_question=16)
         for q in questions:
             if q.get("number") in answers and q.get("options"):
                 letter = answers[q["number"]]
@@ -887,6 +978,7 @@ def build_full_length_reading_mock(test_id: str, client: Optional[GeminiClient] 
         if passage and questions:
             academics.append({
                 "id": f"academic_{module_idx}",
+                "module": module_idx,
                 "title": title,
                 "passage_lines": body_lines,
                 "passage": passage,
@@ -915,6 +1007,7 @@ def build_full_length_listening_mock(
         and not _questions_have_inline_options(prebuilt)
         and not _listening_audio_missing(prebuilt)
         and not _listening_answers_missing(prebuilt)
+        and not _listening_modules_missing(prebuilt)
     ):
         return prebuilt
     if _PREBUILT_ONLY:
@@ -951,6 +1044,12 @@ def build_full_length_listening_mock(
             lower = line.lower()
             if _QUESTION_RE.match(line) or lower.startswith("listen to"):
                 break
+            if line.endswith("?"):
+                peek_idx = idx + 1
+                while peek_idx < len(lines) and not lines[peek_idx].strip():
+                    peek_idx += 1
+                if peek_idx < len(lines) and _OPTION_RE.match(lines[peek_idx].strip()):
+                    break
             if ":" in line:
                 speaker, text = line.split(":", 1)
                 segments.append({"speaker": speaker.strip(), "text": _fix_ocr_spacing(text.strip())})
@@ -965,6 +1064,7 @@ def build_full_length_listening_mock(
         answer_text = section.get(f"answer_key_module{module_idx}", "")
         answers = _parse_answer_key(answer_text)
         lines = _clean_lines(module_text)
+        lines = _strip_repeated_section_headers(lines, "listening section")
 
         # Responses (1-8)
         resp_questions, idx = _parse_questions(
@@ -973,6 +1073,10 @@ def build_full_length_listening_mock(
             stop_prefixes=["listen to a conversation", "listen to an announcement", "listen to a talk"],
             max_question=8,
         )
+        next_question_number = 1
+        if resp_questions:
+            max_resp = max((q.get("number") or 0) for q in resp_questions)
+            next_question_number = max_resp + 1
         for q in resp_questions:
             if q.get("number") and q.get("number") <= 8:
                 letter = answers.get(q["number"])
@@ -987,6 +1091,7 @@ def build_full_length_listening_mock(
                     "options": q.get("options"),
                     "answer": q.get("answer"),
                     "rationales": q.get("rationales") or {},
+                    "module": module_idx,
                 })
         # Parse conversations and talks
         idx = 0
@@ -996,8 +1101,20 @@ def build_full_length_listening_mock(
                 idx += 1
                 segments, idx = _collect_speaker_segments(lines, idx)
                 segment_text = " ".join([seg.get("text", "") for seg in segments]).strip()
-                questions, idx = _parse_questions(lines, idx, stop_prefixes=["listen to"], max_question=None)
+                questions, idx = _parse_questions(
+                    lines,
+                    idx,
+                    stop_prefixes=["listen to"],
+                    max_question=None,
+                    allow_unnumbered=True,
+                )
                 for q in questions:
+                    if q.get("number") is None:
+                        q["number"] = next_question_number
+                        next_question_number += 1
+                    else:
+                        if q["number"] >= next_question_number:
+                            next_question_number = q["number"] + 1
                     letter = answers.get(q.get("number"))
                     if letter:
                         opt_idx = ord(letter.upper()) - ord("A")
@@ -1005,7 +1122,12 @@ def build_full_length_listening_mock(
                             q["answer"] = q["options"][opt_idx]
                             rationale = _generate_rationales(client, q, segment_text, include_evidence=False)
                             q["rationales"] = rationale["rationales"]
-                conv = {"id": f"conv_{module_idx}_{len(conversations)}", "segments": segments, "questions": questions}
+                conv = {
+                    "id": f"conv_{module_idx}_{len(conversations)}",
+                    "segments": segments,
+                    "questions": questions,
+                    "module": module_idx,
+                }
                 segment_text = " ".join([f"{seg.get('speaker', '')}:{seg.get('text', '')}" for seg in segments]).strip()
                 audio = tts.generate_multi_speaker_audio_cached(
                     segments,
@@ -1020,8 +1142,20 @@ def build_full_length_listening_mock(
                 idx += 1
                 segments, idx = _collect_speaker_segments(lines, idx)
                 talk_text = " ".join([seg.get("text", "") for seg in segments]).strip()
-                questions, idx = _parse_questions(lines, idx, stop_prefixes=["listen to"], max_question=None)
+                questions, idx = _parse_questions(
+                    lines,
+                    idx,
+                    stop_prefixes=["listen to"],
+                    max_question=None,
+                    allow_unnumbered=True,
+                )
                 for q in questions:
+                    if q.get("number") is None:
+                        q["number"] = next_question_number
+                        next_question_number += 1
+                    else:
+                        if q["number"] >= next_question_number:
+                            next_question_number = q["number"] + 1
                     letter = answers.get(q.get("number"))
                     if letter:
                         opt_idx = ord(letter.upper()) - ord("A")
@@ -1029,7 +1163,12 @@ def build_full_length_listening_mock(
                             q["answer"] = q["options"][opt_idx]
                             rationale = _generate_rationales(client, q, talk_text, include_evidence=False)
                             q["rationales"] = rationale["rationales"]
-                talk = {"id": f"talk_{module_idx}_{len(talks)}", "talk": talk_text, "questions": questions}
+                talk = {
+                    "id": f"talk_{module_idx}_{len(talks)}",
+                    "talk": talk_text,
+                    "questions": questions,
+                    "module": module_idx,
+                }
                 audio = tts.generate_audio_cached(
                     talk_text,
                     filename_prefix="new_toefl_talk",
